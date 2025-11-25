@@ -29,3 +29,9 @@
 ## Filtering
 
 - Sidecar/mesh MAY support event attribute-based filtering
+
+## Related Documents
+
+- [Adaptation Protocol](10-adaptation-protocol.md)
+- [Schema Registry](../infrastructure/14-schema-registry.md)
+- [Testing Harness](../tooling/18-testing-harness.md)

@@ -47,3 +47,9 @@ Defines expectations from authoring through retirement.
 
 - Publish deprecation notices
 - Provide migration guidance
+
+## Related Documents
+
+- [Service Metadata](06-service-metadata.md)
+- [Package Format](../infrastructure/12-package-format.md)
+- [CLI Specification](../tooling/17-cli-specification.md)

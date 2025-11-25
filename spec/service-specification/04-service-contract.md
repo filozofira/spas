@@ -32,3 +32,9 @@ Specifies required interfaces and behaviors for a SPAS service.
 
 - Implement gRPC health or expose via sidecar
 - Readiness indicates dependency availability (DB, cache, etc.)
+
+## Related Documents
+
+- [Service Model](03-service-model.md)
+- [gRPC Protocol](../protocol-specification/08-grpc-protocol.md)
+- [Event Protocol](../protocol-specification/09-event-protocol.md)

@@ -25,3 +25,9 @@ Defines North–South and East–West communication patterns and responsibilitie
 
 - Prefer events for cross-context communication
 - Use gRPC for edge calls and intra-service module boundaries only
+
+## Related Documents
+
+- [gRPC Protocol](08-grpc-protocol.md)
+- [Event Protocol](09-event-protocol.md)
+- [Sidecar Contract](11-sidecar-contract.md)

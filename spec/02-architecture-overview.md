@@ -55,3 +55,10 @@ This document provides a high-level view of SPAS components and how they interac
 >
 > - PoC: Dapr or mesh-compatible sidecar recommended for speed
 > - Production: Mesh-agnostic sidecar contract (Istio/Linkerd/Dapr compatible)
+
+## Related Documents
+
+- [STRUCTURE Index](STRUCTURE.md)
+- [Communication Model](protocol-specification/07-communication-model.md)
+- [Adaptation Protocol](protocol-specification/10-adaptation-protocol.md)
+- [Runtime Environment](infrastructure/15-runtime-environment.md)

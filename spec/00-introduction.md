@@ -28,6 +28,7 @@ SPAS (Self-contained, Portable, Adaptable Services) is a framework and specifica
 ## Scope
 
 SPAS specifies:
+
 - What makes a service SPAS-compliant
 - Protocols for sync (gRPC) and async (events) communication
 - Adaptation rules for choreography via `choreography.yaml`
@@ -44,3 +45,9 @@ SPAS specifies:
 >
 > - PoC: Local repository, no auth; metadata-only policy declarations
 > - Production: AuthN/AuthZ, signed packages, enforceable policies
+
+## Related Documents
+
+- [STRUCTURE Index](STRUCTURE.md)
+- [Core Principles](01-core-principles.md)
+- [Architecture Overview](02-architecture-overview.md)

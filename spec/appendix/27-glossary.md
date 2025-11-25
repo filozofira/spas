@@ -11,3 +11,9 @@
 - Domain Event: Business fact (past tense)
 - Canonical Schema: Domain-specific event format
 - Internal Schema: Service-specific event format
+
+## Related Documents
+
+- [STRUCTURE Index](../STRUCTURE.md)
+- [Introduction](../00-introduction.md)
+- [Decision Log](28-decision-log.md)

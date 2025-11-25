@@ -19,3 +19,9 @@ Defines security principles for SPAS services and platform.
 
 - PoC: Declarative policies in metadata; limited enforcement
 - Production: Enforced by sidecar/mesh and platform policies
+
+## Related Documents
+
+- [Identity & Access](20-identity-access.md)
+- [Network Security](21-network-security.md)
+- [Compliance Checklist](../governance/24-compliance-checklist.md)

@@ -35,3 +35,9 @@ Defines the SPAS repository API and storage model.
 - Metadata store (RDBMS/NoSQL)
 - Schema registry integrated in PoC
 - OCI images in external registry (Docker Hub/ACR/ECR)
+
+## Related Documents
+
+- [Package Format](12-package-format.md)
+- [Schema Registry](14-schema-registry.md)
+- [Evolution Policy](../governance/25-evolution-policy.md)

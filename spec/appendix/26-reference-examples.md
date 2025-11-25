@@ -20,3 +20,9 @@ mappings:
   outbound:
     internal.OrderConfirmed: retail.orders.order-confirmed
 ```
+
+## Related Documents
+
+- [Adaptation Protocol](../protocol-specification/10-adaptation-protocol.md)
+- [CLI Specification](../tooling/17-cli-specification.md)
+- [Glossary](27-glossary.md)

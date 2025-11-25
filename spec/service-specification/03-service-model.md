@@ -34,8 +34,15 @@ Defines what makes a service “SPAS-compliant”.
 ## Compliance Summary
 
 A SPAS-compliant service MUST:
+
 - Align to a single bounded context
 - Provide gRPC service definition and event contracts
 - Provide schemas for mapping
 - Package as OCI image with health endpoints
 - Provide `spas.json` metadata
+
+## Related Documents
+
+- [Service Contract](04-service-contract.md)
+- [Service Metadata](06-service-metadata.md)
+- [Communication Model](../protocol-specification/07-communication-model.md)

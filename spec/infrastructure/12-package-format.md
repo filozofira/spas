@@ -33,3 +33,9 @@ my-service-v1.0.0/
 
 - Semantic versioning enforced
 - Backward-compatible schema and API changes preferred
+
+## Related Documents
+
+- [Service Lifecycle](../service-specification/05-service-lifecycle.md)
+- [Repository Specification](13-repository-spec.md)
+- [Versioning Strategy](../governance/23-versioning-strategy.md)

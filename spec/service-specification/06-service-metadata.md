@@ -86,3 +86,9 @@ Defines the service manifest schema and required fields.
 ## Examples
 
 - Basic example and advanced example to be added during repo implementation.
+
+## Related Documents
+
+- [Repository Specification](../infrastructure/13-repository-spec.md)
+- [Schema Registry](../infrastructure/14-schema-registry.md)
+- [Compliance Checklist](../governance/24-compliance-checklist.md)

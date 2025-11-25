@@ -5,6 +5,7 @@ Defines how services adapt to different Domain Contexts without code changes.
 ## Composition Descriptor (`choreography.yaml`)
 
 Includes:
+
 - Services: id + version
 - Event routing: domain topics and bindings
 - Transformations: domain ↔ internal schema mappings
@@ -27,3 +28,9 @@ Includes:
 
 - Hot-reload of mappings is allowed
 - Fail closed on invalid mappings in production
+
+## Related Documents
+
+- [Event Protocol](09-event-protocol.md)
+- [CLI Specification](../tooling/17-cli-specification.md)
+- [Reference Examples](../appendix/26-reference-examples.md)

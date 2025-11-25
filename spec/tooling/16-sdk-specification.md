@@ -23,3 +23,9 @@ Defines a language-agnostic contract for SDKs.
 
 - Project templates and scaffolding
 - Clear error messages and diagnostics
+
+## Related Documents
+
+- [Service Contract](../service-specification/04-service-contract.md)
+- [gRPC Protocol](../protocol-specification/08-grpc-protocol.md)
+- [Testing Harness](18-testing-harness.md)

@@ -19,3 +19,9 @@
 
 - Mandatory sidecar for all traffic
 - No service-to-service sync calls
+
+## Related Documents
+
+- [Security Model](19-security-model.md)
+- [Runtime Environment](../infrastructure/15-runtime-environment.md)
+- [Data Security](22-data-security.md)

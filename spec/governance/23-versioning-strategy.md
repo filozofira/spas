@@ -23,3 +23,9 @@
 - Minimum support window (e.g., 6 months)
 - Deprecation notice in metadata
 - Migration guides for breaking changes
+
+## Related Documents
+
+- [Compliance Checklist](24-compliance-checklist.md)
+- [Evolution Policy](25-evolution-policy.md)
+- [Service Lifecycle](../service-specification/05-service-lifecycle.md)

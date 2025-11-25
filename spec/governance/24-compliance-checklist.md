@@ -16,3 +16,9 @@ A SPAS-compliant service satisfies:
 - [ ] Documentation complete
 
 Tooling: `spas validate` performs automated checks where possible.
+
+## Related Documents
+
+- [Versioning Strategy](23-versioning-strategy.md)
+- [Service Metadata](../service-specification/06-service-metadata.md)
+- [Repository Specification](../infrastructure/13-repository-spec.md)

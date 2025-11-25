@@ -19,3 +19,9 @@ Manages service internal schemas referenced by `spas.json` and used in choreogra
 - Additive-only evolution recommended
 
 > Production note: Separate service or pluggable backends may be introduced.
+
+## Related Documents
+
+- [Event Protocol](../protocol-specification/09-event-protocol.md)
+- [SDK Specification](../tooling/16-sdk-specification.md)
+- [Repository Specification](13-repository-spec.md)

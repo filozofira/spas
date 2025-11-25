@@ -24,3 +24,9 @@ Defines the command-line tools that power the SPAS developer workflow.
 ## Extension Model
 
 - Plugin architecture with discoverable commands
+
+## Related Documents
+
+- [Adaptation Protocol](../protocol-specification/10-adaptation-protocol.md)
+- [Repository Specification](../infrastructure/13-repository-spec.md)
+- [Service Metadata](../service-specification/06-service-metadata.md)

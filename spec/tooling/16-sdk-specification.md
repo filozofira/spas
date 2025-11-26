@@ -6,18 +6,25 @@ Defines a language-agnostic contract for SDKs.
 
 - .NET, Java, Node.js (TypeScript), Python, Go
 
-## Required Capabilities
+## Required Capabilities (PoC)
 
 - Code generation for gRPC
-- Metadata generation/validation for `spas.json`
-- Event publish/subscribe helpers with correlation metadata
-- Sidecar client integration (discovery/config)
-- Testing utilities: schema-driven fixtures, pact-style contracts
+- Metadata authoring & validation for `spas.json`
+- CloudEvents builder & publish helpers (correlation + trace propagation)
+- Subscription handler scaffolding (service-level only; rely on platform sidecar for transport)
+- Testing utilities: schema-driven fixtures, pact-style contract stubs
+
+## Future Capabilities (Production)
+
+- Optional mapping test harness integration
+- Enhanced idempotency utilities
+- SDK extension points for custom serialization (Avro/Proto)
 
 ## Design Constraints
 
 - No mandatory external infrastructure
-- Pluggable transport/storage abstractions
+- Mesh/sidecar client integration excluded (handled by platform)
+- Pluggable transport/storage abstractions for future extensibility
 
 ## Developer Experience
 

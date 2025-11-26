@@ -9,12 +9,29 @@ Defines testing strategies and utilities for SPAS services.
 
 ## Contract Testing
 
-- Consumer-driven contracts (Pact-style)
-- Validate against schema registry
+### gRPC (Pact-style Flow)
+
+1. Consumer defines expected request/response examples → generates pact artifact
+2. Provider test harness replays pact interactions against implementation
+3. Failures produce diff (missing field, incompatible type)
+
+### Events
+
+1. Producer publishes event schema + example payload
+2. Schema diff tool validates additive-only evolution
+3. Consumers verify mapping correctness (domain ↔ internal) using mapping files
+4. Optional replay harness replays captured CloudEvents JSON payloads
+
+### Validation Outputs
+
+- Schema compatibility status
+- Mapping coverage (percentage of fields transformed)
+- Idempotency key usage (commands/events where strategy=KEY/NATURAL)
 
 ## Choreography Simulation
 
-- Test services in composed scenarios using `choreography.yaml`
+- Compose multiple services locally using `choreography.yaml` + mapping files
+- Inject synthetic events to test end-to-end transformations
 
 ## Performance
 
@@ -22,9 +39,9 @@ Defines testing strategies and utilities for SPAS services.
 
 ## Fixtures & Generators
 
-- Sample events/schemas
-- SDK and harness MAY provide synthetic generators
-- Optional event replay for local testing
+- Sample CloudEvents payloads & schemas
+- Synthetic event generators (future)
+- Event replay file format: NDJSON (one CloudEvents object per line)
 
 ## Related Documents
 

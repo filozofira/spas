@@ -4,9 +4,9 @@ Defines the SPAS repository API and storage model.
 
 ## Responsibilities
 
-- Store `spas.json` and schema artifacts
-- Index services by `id`, `version`, `capabilities`, `domainContext`, `boundedContext`
-- Link to OCI images in external registries
+- Store `spas.json`, schema artifacts, and (optionally) mapping metadata
+- Index services by `id`, `version`, `capabilities`, `boundedContext` (retain optional `domainContext` for future domain composition discovery)
+- Link to OCI images in external registries (store image digest for integrity)
 
 ## API Endpoints (baseline)
 
@@ -14,8 +14,10 @@ Defines the SPAS repository API and storage model.
 - `GET /services/{id}` — service details
 - `GET /services/{id}/versions` — list versions
 - `GET /services/{id}/versions/{version}` — version details
+- `GET /services/{id}/versions/{version}/schemas` — list schemas
+- `GET /services/{id}/versions/{version}/schemas/{schemaName}` — retrieve schema
 - `GET /services?capability={cap}` — search by capability
-- `GET /services?domainContext={domainContext}` — search by domain context
+- `GET /services?domainContext={domainContext}` — search by domain context (optional; future)
 - `DELETE /services/{id}/versions/{version}` — unpublish
 
 ## Validation
@@ -23,6 +25,7 @@ Defines the SPAS repository API and storage model.
 - Schema validation of `spas.json`
 - Duplicate detection (id + version)
 - Image digest existence check (optional in PoC)
+- (Production) Mapping artifact integrity hashes
 
 ## Auth & Policy
 
@@ -33,8 +36,9 @@ Defines the SPAS repository API and storage model.
 ## Storage Model
 
 - Metadata store (RDBMS/NoSQL)
-- Schema registry integrated in PoC
-- OCI images in external registry (Docker Hub/ACR/ECR)
+- Schema registry integrated (PoC) or external plugin (Production)
+- OCI images in external registry (Docker Hub/ACR/ECR) — store digest in metadata
+- Mapping artifact storage (optional) with checksum for enforcement
 
 ## Related Documents
 

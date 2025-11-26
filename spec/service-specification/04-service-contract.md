@@ -6,9 +6,9 @@ Specifies required interfaces and behaviors for a SPAS service.
 
 - Proto-first; package versions (e.g., `orders.v1`) govern API evolution
 - Method naming: Commands use imperative verbs; Queries use `Get/List`
-- Errors: gRPC status + structured details
-- Deadlines: Clients set; services must honor
-- Streaming: Allowed with backpressure guidance
+- Errors: gRPC status + structured details (problem detail message type recommended)
+- Deadlines: Clients set; services MUST honor
+- Streaming: Allowed; backpressure handled by HTTP/2 flow control and client-side cancellation. Long-lived streams SHOULD be query/notification oriented, not commands.
 
 > PoC vs Production
 >
@@ -17,21 +17,22 @@ Specifies required interfaces and behaviors for a SPAS service.
 
 ## Event Contracts
 
-- Published events: Domain facts with versioned types
-- Subscribed events: Handled via sidecar; idempotent consumption
-- Envelope headers: `event-id`, `event-type`, `event-version`, `timestamp`, `correlation-id`, `trace-id`
-- Schema evolution: additive-only; new fields optional
+- Published events: Domain facts with versioned types (`<domain>.<boundedContext>.<eventName>.v<major>`) aligned to CloudEvents `type`
+- Subscribed events: Sidecar invokes designated gRPC handler; service implements idempotent processing (PoC responsibility)
+- Envelope: CloudEvents JSON; required attributes: `id`, `source`, `type`, `specversion`, `time`; extensions: `correlationid`, `traceparent`, optional `causationid`
+- Schema evolution: additive-only; new fields optional; incompatible removal requires new major event type version
 
 ## Consistency & Idempotency
 
 - Commands MUST be ACID; Queries MAY be eventual
-- Service declares idempotency strategy (e.g., idempotency keys, natural keys)
-- SDK MAY add helpers in future
+- Service declares idempotency strategy (PoC: documentation only) via `spas.json` (`idempotency.strategy`: NONE|KEY|NATURAL|CUSTOM)
+- Per-command override MAY specify idempotency key field
+- Future: sidecar/mesh MAY enforce replay suppression based on declared strategy
 
 ## Health & Readiness
 
-- Implement gRPC health or expose via sidecar
-- Readiness indicates dependency availability (DB, cache, etc.)
+- Service implements gRPC health or HTTP endpoints; sidecar exposes its own health separately (`11-sidecar-contract.md`)
+- Readiness indicates critical dependency availability (databases, caches, external APIs) and should fail closed if dependencies unavailable
 
 ## Related Documents
 

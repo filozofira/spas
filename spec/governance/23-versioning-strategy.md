@@ -6,17 +6,19 @@
 
 ## API Versioning
 
-- gRPC: package versions (`v1`, `v2`)
-- REST (edge): versioned paths (`/v1/...`)
+- gRPC: package versions (`v1`, `v2`) — mandatory
+- REST (edge): versioned paths (`/v1/...`) — recommendation (external gateway responsibility; not enforced by SPAS tooling)
 
 ## Event Versioning
 
-- Versioned event types (e.g., `order.placed.v1`)
-- Additive-only schema evolution; new fields optional
+- Versioned event types (e.g., `orders.order-created.v1`) — version embedded in CloudEvents `type`
+- Additive-only schema evolution; new fields optional; breaking change requires new major suffix
 
-## Metadata Versioning
+## Metadata Versioning & Validation
 
 - `spas.json` schema versioned independently
+- Machine verifiable fields: `boundedContext`, `idempotency.strategy` (if present), `consistency.commands` (must be ACID), `consistency.queries` (allowed enum)
+- Conceptual constraints (e.g., single bounded context) documented but not provably enforceable beyond field presence
 
 ## Deprecation Policy
 

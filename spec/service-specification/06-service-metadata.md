@@ -1,34 +1,51 @@
 # Service Metadata (`spas.json`)
 
-Defines the service manifest schema and required fields.
+Defines the service manifest schema and required fields. Extended to include endpoint and event contract granularity, idempotency and consistency declarations, and network egress specifics.
 
 ## Overview
 
 - Single source of truth for service identity, contracts, runtime, and security
 - Stored in SPAS repository; links to container image digest
 
-## Required Fields
+## Required Fields (Structured)
 
 - `id`: Unique service identifier (kebab-case)
 - `name`: Human-readable name
-- `version`: Semver string
-- `boundedContext`: Name of bounded context
-- `capabilities`: Array of predefined capability enums
-- `domainContext`: Optional, informational default domain context
-- `contracts`:
-  - `grpc`: Path(s) to proto files or embedded schema reference
-  - `events`:
-    - `published[]`: name, version, schemaRef
-    - `subscribed[]`: name, version, schemaRef
-- `schemas`: Registry references to internal schemas
+- `version`: SemVer string
+- `boundedContext`: Single bounded context name
+- `capabilities[]`: Predefined capability enum values (PoC: curated list; Future: extensible)
+- `domainContext` (optional): Informational default domain context
+- `endpoints[]`:
+  - `name`: Logical name
+  - `grpcMethod`: Fully qualified gRPC method (e.g. `orders.v1.OrderService/CreateOrder`)
+  - `category`: `command | query`
+  - `idempotencyKeyField` (optional): Field name used for idempotency
+  - `description` (optional)
+- `eventsPublished[]`:
+  - `type`: CloudEvents `type` (e.g. `orders.order-created.v1`)
+  - `version`: Major version (redundant helper; derived from type)
+  - `schemaRef`: Reference to schema in registry
+- `eventsSubscribed[]`:
+  - `type`: CloudEvents `type`
+  - `handler`: gRPC method to invoke
+  - `schemaRef` (optional if inbound mapping resolves internal schema)
+- `schemas[]`: Internal schema refs used pre/post transformation
+- `mappings[]` (optional): Transformation mapping identifiers (external files referenced in choreography)
 - `runtime`:
-  - `image`: OCI image reference or digest
-  - `resources`: cpu/memory guidance
-  - `env`: environment variables (names only; no secrets)
+  - `image`: OCI image reference (`repository:tag` or digest)
+  - `resources` (optional): cpu/memory guidance
+  - `env[]`: Environment variable names (no secret values)
+- `idempotency`:
+  - `strategy`: `NONE | KEY | NATURAL | CUSTOM`
+- `consistency`:
+  - `commands`: MUST be `ACID`
+  - `queries`: `STRONG | EVENTUAL`
+- `network`:
+  - `enclosure`: `strict | moderate | open`
+  - `allowedEgress[]`: host:port patterns (e.g. `api.stripe.com:443`)
 - `security`:
-  - `level`: high | medium | low
-  - `dataClassification[]`: public | internal | confidential | pii
-  - `enclosure`: strict | moderate | open (informative in PoC)
+  - `dataClassification[]`: `public | internal | confidential | pii`
+  - `level`: `high | medium | low`
 - `license`: SPDX identifier
 
 ## JSON Schema (outline)
@@ -38,7 +55,7 @@ Defines the service manifest schema and required fields.
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://spas.dev/schemas/spas.json",
   "type": "object",
-  "required": ["id", "version", "boundedContext", "capabilities", "contracts", "runtime", "security"],
+  "required": ["id", "version", "boundedContext", "capabilities", "endpoints", "runtime", "security", "network"],
   "properties": {
     "id": {"type": "string", "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$"},
     "name": {"type": "string"},
@@ -46,21 +63,46 @@ Defines the service manifest schema and required fields.
     "boundedContext": {"type": "string"},
     "capabilities": {"type": "array", "items": {"type": "string"}},
     "domainContext": {"type": "string"},
-    "contracts": {
-      "type": "object",
-      "properties": {
-        "grpc": {"type": ["string", "array"]},
-        "events": {
-          "type": "object",
-          "properties": {
-            "published": {"type": "array"},
-            "subscribed": {"type": "array"}
-          }
+    "endpoints": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["name", "grpcMethod", "category"],
+        "properties": {
+          "name": {"type": "string"},
+          "grpcMethod": {"type": "string"},
+          "category": {"enum": ["command", "query"]},
+          "idempotencyKeyField": {"type": "string"},
+          "description": {"type": "string"}
         }
-      },
-      "required": ["grpc", "events"]
+      }
+    },
+    "eventsPublished": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["type", "schemaRef"],
+        "properties": {
+          "type": {"type": "string"},
+          "version": {"type": "string"},
+          "schemaRef": {"type": "string"}
+        }
+      }
+    },
+    "eventsSubscribed": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["type", "handler"],
+        "properties": {
+          "type": {"type": "string"},
+          "handler": {"type": "string"},
+          "schemaRef": {"type": "string"}
+        }
+      }
     },
     "schemas": {"type": "array"},
+    "mappings": {"type": "array", "items": {"type": "string"}},
     "runtime": {
       "type": "object",
       "properties": {
@@ -70,12 +112,34 @@ Defines the service manifest schema and required fields.
       },
       "required": ["image"]
     },
+    "idempotency": {
+      "type": "object",
+      "properties": {
+        "strategy": {"enum": ["NONE", "KEY", "NATURAL", "CUSTOM"]}
+      },
+      "required": ["strategy"]
+    },
+    "consistency": {
+      "type": "object",
+      "properties": {
+        "commands": {"enum": ["ACID"]},
+        "queries": {"enum": ["STRONG", "EVENTUAL"]}
+      },
+      "required": ["commands", "queries"]
+    },
+    "network": {
+      "type": "object",
+      "properties": {
+        "enclosure": {"enum": ["strict", "moderate", "open"]},
+        "allowedEgress": {"type": "array", "items": {"type": "string"}}
+      },
+      "required": ["enclosure"]
+    },
     "security": {
       "type": "object",
       "properties": {
         "level": {"enum": ["high", "medium", "low"]},
-        "dataClassification": {"type": "array", "items": {"enum": ["public", "internal", "confidential", "pii"]}},
-        "enclosure": {"enum": ["strict", "moderate", "open"]}
+        "dataClassification": {"type": "array", "items": {"enum": ["public", "internal", "confidential", "pii"]}}
       }
     },
     "license": {"type": "string"}
@@ -83,9 +147,39 @@ Defines the service manifest schema and required fields.
 }
 ```
 
-## Examples
+## Example (PoC Simplified)
 
-- Basic example and advanced example to be added during repo implementation.
+```jsonc
+{
+  "id": "payment-service",
+  "name": "Payment Service",
+  "version": "1.2.0",
+  "boundedContext": "payments",
+  "capabilities": ["process-payment", "refund-payment"],
+  "endpoints": [
+    {
+      "name": "CompletePayment",
+      "grpcMethod": "payments.v1.PaymentService/CompletePayment",
+      "category": "command",
+      "idempotencyKeyField": "paymentId"
+    }
+  ],
+  "eventsPublished": [
+    {"type": "payments.payment-completed.v1", "schemaRef": "schemas/payment_completed_v1.json"}
+  ],
+  "eventsSubscribed": [
+    {"type": "orders.order-created.v1", "handler": "payments.v1.PaymentService/HandleOrderCreated"}
+  ],
+  "schemas": ["schemas/payment_completed_v1.json", "schemas/order_created_v1.json"],
+  "mappings": ["mappings/order_created_to_internal.yaml"],
+  "runtime": {"image": "acme/payment-service:1.2.0", "env": ["STRIPE_API_KEY"]},
+  "idempotency": {"strategy": "KEY"},
+  "consistency": {"commands": "ACID", "queries": "EVENTUAL"},
+  "network": {"enclosure": "strict", "allowedEgress": ["api.stripe.com:443"]},
+  "security": {"level": "high", "dataClassification": ["pii"]},
+  "license": "Apache-2.0"
+}
+```
 
 ## Related Documents
 

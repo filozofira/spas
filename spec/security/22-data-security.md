@@ -8,13 +8,13 @@
 
 ## Encryption
 
-- At rest for confidential and pii
-- In transit via TLS/mTLS
+- At rest: RECOMMENDED for `confidential` and `pii` classifications (implementation choice: database encryption, disk encryption)
+- In transit: Enforced via TLS (edge) and mTLS (east–west)
 
 ## Minimization & Sovereignty
 
-- Declare data domains in `spas.json`
-- Store only domain-essential data
+- Optional `dataCategories[]` (instead of ambiguous "data domains") may be declared for future policy scopes (e.g. `payment`, `personal`, `telemetry`)
+- Store only domain-essential data; avoid retaining derived transient data beyond processing need
 
 ## Audit
 

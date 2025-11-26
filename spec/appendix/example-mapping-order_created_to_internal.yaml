@@ -1,0 +1,18 @@
+# Mapping: orders.order-created.v1 -> internal schema PaymentOrderCreated
+# Direction: inbound (domain -> internal)
+# Notes: Example declarative transformation file referenced by spas.json and choreography.yaml
+sourceEventType: orders.order-created.v1
+internalSchemaRef: schemas/order_created_v1.json
+operations:
+  - type: field-map
+    from: orderId
+    to: paymentOrderId
+  - type: field-map
+    from: customerId
+    to: customerId
+  - type: constant
+    to: currency
+    value: "USD"
+validation:
+  requiredSourceFields: ["orderId", "customerId"]
+  requiredTargetFields: ["paymentOrderId", "customerId", "currency"]

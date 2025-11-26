@@ -6,14 +6,15 @@
 
 ## Egress
 
-- Default deny; allow-list exceptions
-- Enclosure levels: strict | moderate | open
-  - PoC: Declarative only (metadata/choreography.yaml)
-  - Production: Enforced via NetworkPolicies/service mesh
+- Default deny; explicit allow-list (`network.allowedEgress[]` in `spas.json`)
+- Enclosure levels (`network.enclosure`): strict | moderate | open (location: `spas.json`, not choreography)
+  - PoC: Declarative only in metadata
+  - Production: Enforced via NetworkPolicies/service mesh policy engine
 
 ## Encryption
 
-- TLS 1.3 at the edge; mTLS for east–west
+- Edge: TLS 1.3 SHOULD be used (API Gateway responsibility)
+- East–West: mTLS MUST be used (sidecar↔sidecar and sidecar↔service)
 
 ## Sidecar Enforcement
 

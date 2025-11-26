@@ -18,6 +18,7 @@
     1. Compliance Summary -> What does "Provide schemas for mapping" mean?
 1. 04-service-contract.md
     1. gRPC API/Streaming: Allowed with backpressure guidance -> Is this related to east-west traffic and how to describe it best.
+    -> Need more info?
     1. Event Contracts
         1. Published events -> What is versioned types?
         1. Subscribed events -> We see the sidecar invoking the appropriate SPAS service endpoint upon occurrence of an  event SPAS service is subscribed to. As agreed, in PoC idempotency handling will be solely responsibility of the SPAS service, while in future we may consider ensuring idempotency at the sidecar level. Does this section need adjustment?

@@ -10,7 +10,7 @@ Defines execution assumptions for SPAS services.
 ## Sidecar Injection
 
 - Platform-injected sidecar compatible with Dapr/Istio/Linkerd
-- Sidecar handles mTLS, routing, schema validation (production), and metrics
+- Sidecar handles mTLS, routing, schema validation (Production), metrics, and transformation execution
 
 ## Networking
 
@@ -30,7 +30,8 @@ Defines execution assumptions for SPAS services.
 
 ## Platforms
 
-- Kubernetes (primary), Docker Compose (local); Bare metal (future)
+- Kubernetes (primary), Docker Compose (local)
+- Bare metal (future consideration; not targeted in PoC)
 
 ## Related Documents
 

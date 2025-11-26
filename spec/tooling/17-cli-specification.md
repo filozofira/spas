@@ -4,17 +4,30 @@ Defines the command-line tools that power the SPAS developer workflow.
 
 ## Commands
 
+### PoC Core
+
 - `spas init [--template <name>]` — Initialize a new service
 - `spas validate` — Validate service compliance and metadata
 - `spas build` — Build the service
 - `spas pack` — Create SPAS package artifact
 - `spas push [--repo <url>]` — Publish to repository
 - `spas pull <service-id> [--version <ver>]` — Download service
-- `spas run [--local]` — Run service locally (with sidecar)
 - `spas compose` — Create/update `choreography.yaml`
-- `spas bind <config-file>` — Apply choreography binding
-- `spas schema validate <file>` — Validate schema
+- `spas schema validate <file>` — Validate JSON schema
 - `spas schema publish <file>` — Publish schema to registry
+
+### Local Convenience
+
+- `spas run [--local]` — Run service locally (with sidecar)
+- `spas bind <choreography.yaml>` — Apply local composition for simulation
+
+### Future Candidates
+
+- `spas mapping test <mapping-file>` — Validate transformation rules
+- `spas diff <service-id> <from> <to>` — Compare metadata/contracts
+- `spas replay <events-file>` — Event replay for regression
+- `spas coverage` — Contract/test coverage summary
+- `spas generate mappings` — Scaffold mapping templates
 
 ## Configuration
 
@@ -23,7 +36,7 @@ Defines the command-line tools that power the SPAS developer workflow.
 
 ## Extension Model
 
-- Plugin architecture with discoverable commands
+- Plugin architecture with discoverable commands (future); PoC may rely on static core set
 
 ## Related Documents
 

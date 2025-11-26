@@ -15,7 +15,7 @@ Defines expectations from authoring through retirement.
 ## Packaging
 
 - Build OCI image (non-root, health endpoints)
-- Embed version and commit metadata labels
+- Embed version and commit metadata labels (OCI annotations such as `org.opencontainers.image.version`, `org.opencontainers.image.revision` for traceability)
 
 ## Publishing
 
@@ -27,16 +27,18 @@ Defines expectations from authoring through retirement.
 
 - Deploy with platform-injected sidecar
 - Configure environment variables and secrets
+- Deploy transformation mapping artifacts (e.g. ConfigMap, CRD, or mounted files) referenced by `choreography.yaml` so sidecar can load them
 
 ## Adaptation
 
-- Provide internal schemas for mapping
-- Bind choreography via `choreography.yaml`
+- Provide internal schemas for mapping (service-owned)
+- Bind choreography via `choreography.yaml` (domain composition descriptor)
+- External mapping files versioned alongside choreography for rollback capability
 
 ## Operation
 
 - Expose metrics, logs, traces (OTel)
-- Define SLOs and alerts
+- (Production) Define SLOs and alerts; PoC may omit
 
 ## Versioning & Upgrade
 

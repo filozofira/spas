@@ -9,14 +9,18 @@ Manages service internal schemas referenced by `spas.json` and used in choreogra
 
 ## API (baseline)
 
-- `POST /schemas` — publish schema
-- `GET /schemas/{repo}/{service}/{name}/{version}` — retrieve
-- `GET /schemas/{repo}/{service}/{name}/versions` — list versions
+Unified service-centric path structure:
+
+- `POST /services/{id}/versions/{version}/schemas` — publish schema
+- `GET /services/{id}/versions/{version}/schemas` — list schemas for version
+- `GET /services/{id}/versions/{version}/schemas/{schemaName}` — retrieve schema
+- `GET /schemas?serviceId=&eventType=` — global search/listing
 
 ## Compatibility Checks
 
-- Backward/forward compatibility checks for JSON Schema/Protobuf
-- Additive-only evolution recommended
+- Additive-only evolution enforced for JSON Schema (new optional fields only)
+- Future: pluggable validators for Avro/Proto
+- Failure severity: PoC logs warning; Production blocks publish
 
 > Production note: Separate service or pluggable backends may be introduced.
 

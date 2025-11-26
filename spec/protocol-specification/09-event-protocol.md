@@ -1,15 +1,16 @@
 # Event Protocol
 
-## Envelope
+## Envelope (CloudEvents JSON)
 
-- Required headers: `event-id`, `event-type`, `event-version`, `timestamp`, `correlation-id`, `trace-id`
-- Optional headers: `causation-id`, `source-service`, `domainContext`
+- Required attributes: `id`, `source`, `type`, `specversion`, `time`
+- Recommended extensions: `correlationid`, `traceparent`, optional `causationid`, `service` (publisher id)
+- Event version encoded in `type` suffix (e.g. `orders.order-created.v1`)
 
 ## Payload Schema
 
-- JSON Schema or Protobuf
-- Versioned using semver
-- Additive-only changes for backward compatibility
+- JSON Schema ONLY for PoC (simplicity & tooling speed); future extensibility for Avro/Proto
+- Versioned JSON schema referenced via `schemaRef`
+- Additive-only changes (new optional fields); removal or incompatible change requires new major event type
 
 ## Event Types
 
@@ -24,11 +25,11 @@
 ## Delivery Semantics
 
 - At-least-once delivery
-- Consumers ensure idempotency; event-id MAY be used as a key
+- Consumers ensure idempotency; use `id` (event-id) plus business keys when strategy=KEY/NATURAL
 
 ## Filtering
 
-- Sidecar/mesh MAY support event attribute-based filtering
+- Sidecar/mesh MAY support CloudEvents attribute-based filtering predicates (e.g. `type` prefix, `correlationid` match)
 
 ## Related Documents
 

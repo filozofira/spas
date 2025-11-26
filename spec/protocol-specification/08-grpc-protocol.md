@@ -18,12 +18,13 @@
 
 ## Idempotency
 
-- Recommended: Idempotency keys for mutating RPCs via metadata
-- Service documents idempotency strategy in `spas.json`
+- Recommended: Idempotency keys for mutating RPCs via metadata (`idempotency-key` header or request field)
+- Service declares global strategy in `spas.json` (`idempotency.strategy`) and MAY define per-endpoint override (`endpoints[].idempotencyKeyField`)
+- Future: sidecar/mesh MAY perform replay suppression using declared keys
 
 ## Health
 
-- Implement grpc.health.v1.Health or expose via sidecar health endpoints
+- Service implements `grpc.health.v1.Health` or exposes HTTP health endpoints consumed by platform; sidecar health documented separately.
 
 ## Related Documents
 

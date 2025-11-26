@@ -2,22 +2,22 @@
 
 ## Service Identity
 
-- SPIFFE/SPIRE certificates or equivalent
-- Short-lived tokens with automatic rotation
+- SPIFFE/SPIRE SVID certificates (X.509) or equivalent for workload identity (used in mTLS peer auth)
+- Short-lived tokens (OAuth2/JWT) with automatic rotation fetched by sidecar or auth agent; reduces replay window
 
 ## Authentication
 
-- North–South: OIDC/JWT at API Gateway
-- East–West: mTLS in sidecar/mesh
+- North–South: User/auth client authenticated at API Gateway (OIDC/JWT); gateway forwards validated identity (JWT or signed headers) to service
+- East–West: mTLS between sidecars; service receives caller identity via sidecar-injected headers/certs (no direct trust on external JWT)
 
 ## Authorization
 
-- ABAC at sidecar (production)
-- Policy evaluation based on claims and capabilities
+- Attribute-based access control (ABAC) at sidecar (Production)
+- Policies evaluate claims (roles, capabilities) and service metadata (capabilities[], enclosure)
 
 ## Identity Propagation
 
-- Correlation and identity metadata carried in events
+- Sidecar augments outbound CloudEvents with identity claims (non-sensitive subset) and correlation (`correlationid`, `traceparent`)
 
 ## Related Documents
 

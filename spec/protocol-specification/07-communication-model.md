@@ -18,7 +18,7 @@ Defines North–South and East–West communication patterns and responsibilitie
 
 - Protocol translation (gRPC ↔ Events)
 - Schema validation (PoC: optional; Production: required)
-- Publishing/subscription with idempotent delivery semantics
+- Publishing/subscription with with at least-once delivery semantics and idempotent processing semantics
 - Observability: traces/metrics/logs
 
 ## Protocol Selection

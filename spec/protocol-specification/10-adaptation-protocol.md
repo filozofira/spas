@@ -17,6 +17,7 @@ Includes:
 - Inbound: Domain event → service internal schema
 - Outbound: Service internal schema → domain event
 - Transformations should be declarative and testable
+- Transformation rules should be specified in separate files and referenced by from `choreography.yaml`
 
 ## Validation
 

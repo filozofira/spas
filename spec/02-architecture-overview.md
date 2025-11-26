@@ -5,7 +5,7 @@ This document provides a high-level view of SPAS components and how they interac
 ## Components
 
 - SPAS Services: Packaged bounded contexts exposing gRPC APIs and events
-- Sidecar/Mesh: Platform-injected proxy handling networking, security, and event I/O
+- Sidecar/Mesh: Platform-injected proxy handling networking,  security, and event I/O (service invocation)
 - API Gateway (external): Edge REST→gRPC, auth, routing, TLS termination
 - SPAS Repository: Stores metadata (spas.json) and links to container images
 - Schema Registry (integrated, PoC): Stores event/message schemas
@@ -14,7 +14,7 @@ This document provides a high-level view of SPAS components and how they interac
 ## Communication Model
 
 - North–South (client ↔ service)
-  - gRPC primary; REST only at API gateway
+  - gRPC primary; REST only at Edge (API gateway)
   - Edge handles auth, versioning, rate control (team’s choice of gateway)
 - East–West (service ↔ service)
   - Event-first via sidecar/mesh
@@ -36,14 +36,14 @@ This document provides a high-level view of SPAS components and how they interac
 - Service artifacts:
   - Container image (OCI) — published to standard registries
   - Metadata (`spas.json`) — published to SPAS repository
-  - Schemas — stored in repo-integrated schema registry (PoC)
+  - Schemas — stored in SPAS repo-integrated schema registry (PoC)
 
 ## Security Model (High Level)
 
 - Edge: OIDC/JWT validation; TLS termination
 - Mesh/Sidecar: mTLS, policy enforcement, identity propagation
 - Enclosure levels: strict | moderate | open (PoC: declarative only)
-- Data classification: declared in metadata (enforceable in production)
+- Data classification: declared in metadata (PoC: declarative only, but should be enforceable in production in future)
 
 ## Execution Environments
 

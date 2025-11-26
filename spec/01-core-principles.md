@@ -23,7 +23,7 @@ These principles are stable across versions and apply to all SPAS services and t
 ## Event-First
 
 - East–West communication is asynchronous by default
-- Events carry correlation and trace metadata (W3C Trace Context)
+- Events carry the state, correlation and trace metadata (W3C Trace Context)
 - Schemas are versioned and backward compatible (additive evolution)
 
 ## Consistency & Idempotency
@@ -33,7 +33,7 @@ These principles are stable across versions and apply to all SPAS services and t
 
 ## Security by Default
 
-- Zero-trust: mTLS for east–west; OIDC/JWT at the edge
+- Zero-trust: mTLS for east–west between the sidecar and the service; OIDC/JWT at the edge
 - Default deny egress; declare enclosure levels (strict | moderate | open)
 - Data classification declared in metadata; enforceable in production
 

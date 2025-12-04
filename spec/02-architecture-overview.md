@@ -7,15 +7,14 @@ This document provides a high-level view of SPAS components and how they interac
 - SPAS Services: Packaged bounded contexts exposing gRPC APIs and events
 - Sidecar/Mesh: Platform-injected proxy handling networking,  security, and event I/O (service invocation)
 - API Gateway (external): Edge REST→gRPC, auth, routing, TLS termination
-- SPAS Repository: Stores metadata (spas.json) and links to container images
-- Schema Registry (integrated, PoC): Stores event/message schemas
+- SPAS Repository: Stores metadata (spas.json) and links to container images as well as service event/message schemas
 - SDKs & CLI: Language/tooling to build, validate, and compose services
 
 ## Communication Model
 
 - North–South (client ↔ service)
-  - gRPC primary; REST only at Edge (API gateway)
-  - Edge handles auth, versioning, rate control (team’s choice of gateway)
+  - gRPC primary; REST only at Edge (Client ↔ API gateway)
+  - Edge handles auth, versioning, rate control (team’s choice of gateway and client-facing protocol)
 - East–West (service ↔ service)
   - Event-first via sidecar/mesh
   - Identity propagation and correlation metadata

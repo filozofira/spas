@@ -23,7 +23,7 @@ These principles are stable across versions and apply to all SPAS services and t
 ## Event-First
 
 - East–West communication is asynchronous by default
-- Events carry the state, correlation and trace metadata (W3C Trace Context)
+- Events carry the state, correlation, identity and trace metadata (W3C Trace Context)
 - Schemas are versioned and backward compatible (additive evolution)
 
 ## Consistency & Idempotency

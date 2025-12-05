@@ -4,30 +4,33 @@ Defines the command-line tools that power the SPAS developer workflow.
 
 ## Commands
 
-### PoC Core
+### PoC Core (spas-service)
 
-- `spas init [--template <name>]` — Initialize a new service
-- `spas validate` — Validate service compliance and metadata
-- `spas build` — Build the service
-- `spas pack` — Create SPAS package artifact
-- `spas push [--repo <url>]` — Publish to repository
-- `spas pull <service-id> [--version <ver>]` — Download service
-- `spas compose` — Create/update `choreography.yaml`
-- `spas schema validate <file>` — Validate JSON schema
-- `spas schema publish <file>` — Publish schema to registry
+- `spas-service init [--template <name>]` — Initialize a new service
+- `spas-service build` — Build the service
+- `spas-service metadata get [--url <service-url>] [--output <dir>]` — Fetch design-time metadata from service /_spas/metadata endpoint and decompose to folder structure
+- `spas-service pack` — Create SPAS archive (metadata + schemas + mappings)
+- `spas-service publish [--repo <url>]` — Publish archive to repository
+- `spas-service pull <name> <version> [--repo <url>] [--output <dir>]` — Download service from repository
 
-### Local Convenience
+### PoC Core (spas-compose)
 
-- `spas run [--local]` — Run service locally (with sidecar)
-- `spas bind <choreography.yaml>` — Apply local composition for simulation
+- `spas-compose context init <domain-name>` — Create domain folder with docker-compose.yaml scaffold
+- `spas-compose services pull <name> <version> [--repo <url>]` — Download services, decompose to /services folder
+- `spas-compose choreography init <flow-name>` — Create choreography.yaml template
+- `spas-compose choreography generate` — Generate DAPR components, transformations, update docker-compose
+
+### Deferred (PoC)
+
+- `spas-service validate` — Validate service compliance (defer PoC; add if simple)
 
 ### Future Candidates
 
-- `spas mapping test <mapping-file>` — Validate transformation rules
-- `spas diff <service-id> <from> <to>` — Compare metadata/contracts
-- `spas replay <events-file>` — Event replay for regression
-- `spas coverage` — Contract/test coverage summary
-- `spas generate mappings` — Scaffold mapping templates
+- `spas-service test` — Run contract tests (Pact-style)
+- `spas-compose validate` — Validate choreography + transformations
+- `spas-compose diff` — Compare choreography versions
+- `spas-compose replay <events-file>` — Event replay for local testing
+- Transformation auto-scaffolding (DSL or generator)
 
 ## Configuration
 

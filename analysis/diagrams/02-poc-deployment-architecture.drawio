@@ -1,0 +1,209 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mxfile host="drawio" modified="2025-12-05" agent="5.0" version="24.0.0" type="device">
+  <diagram name="PoC Deployment Architecture" id="deploy1">
+    <mxGraphModel dx="1200" dy="900" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1200" pageHeight="900" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        
+        <!-- Title -->
+        <mxCell id="title" value="PoC Deployment Architecture (Docker Compose)" style="text;html=1;fontSize=16;fontStyle=1;align=center;" vertex="1" parent="1">
+          <mxGeometry x="350" y="10" width="500" height="30" as="geometry" />
+        </mxCell>
+        
+        <!-- Host Machine -->
+        <mxCell id="host" value="Docker Host (Windows/Linux)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#E0E0E0;dashed=1;dashPattern=5 5;" vertex="1" parent="1">
+          <mxGeometry x="20" y="60" width="1160" height="820" as="geometry" />
+        </mxCell>
+        
+        <!-- Docker Compose Network -->
+        <mxCell id="network" value="Docker Network (spas_network)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F5F5F5;dashed=1;dashPattern=3 3;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="40" y="100" width="1120" height="760" as="geometry" />
+        </mxCell>
+        
+        <!-- Service 1: Order Service -->
+        <mxCell id="order_container" value="Order Service Container" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#BBDEFB;" vertex="1" parent="1">
+          <mxGeometry x="60" y="140" width="180" height="120" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="order_app" value="Order Service App&#xa;(HTTP :3001)" style="text;html=1;fontSize=10;align=center;verticalAlign=middle;" vertex="1" parent="order_container">
+          <mxGeometry width="1" height="1" as="geometry" />
+        </mxCell>
+        
+        <!-- DAPR Sidecar 1 -->
+        <mxCell id="order_dapr" value="DAPR Sidecar" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#C8E6C9;" vertex="1" parent="1">
+          <mxGeometry x="60" y="280" width="180" height="80" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="order_dapr_ports" value="HTTP :3000&#xa;gRPC :50001" style="text;html=1;fontSize=9;align=center;verticalAlign=middle;" vertex="1" parent="order_dapr">
+          <mxGeometry width="1" height="1" as="geometry" />
+        </mxCell>
+        
+        <!-- Connection: Order App to DAPR -->
+        <mxCell id="arrow_order_dapr" value="" style="endArrow=classic;html=1;strokeWidth=2;" edge="1" parent="1" source="order_container" target="order_dapr">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        
+        <!-- Service 2: Stock Service -->
+        <mxCell id="stock_container" value="Stock Service Container" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#BBDEFB;" vertex="1" parent="1">
+          <mxGeometry x="300" y="140" width="180" height="120" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="stock_app" value="Stock Service App&#xa;(HTTP :3003)" style="text;html=1;fontSize=10;align=center;verticalAlign=middle;" vertex="1" parent="stock_container">
+          <mxGeometry width="1" height="1" as="geometry" />
+        </mxCell>
+        
+        <!-- DAPR Sidecar 2 -->
+        <mxCell id="stock_dapr" value="DAPR Sidecar" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#C8E6C9;" vertex="1" parent="1">
+          <mxGeometry x="300" y="280" width="180" height="80" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="stock_dapr_ports" value="HTTP :3002&#xa;gRPC :50002" style="text;html=1;fontSize=9;align=center;verticalAlign=middle;" vertex="1" parent="stock_dapr">
+          <mxGeometry width="1" height="1" as="geometry" />
+        </mxCell>
+        
+        <!-- Connection: Stock App to DAPR -->
+        <mxCell id="arrow_stock_dapr" value="" style="endArrow=classic;html=1;strokeWidth=2;" edge="1" parent="1" source="stock_container" target="stock_dapr">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        
+        <!-- Service 3: Notification Service -->
+        <mxCell id="notify_container" value="Notification Service Container" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#BBDEFB;" vertex="1" parent="1">
+          <mxGeometry x="540" y="140" width="180" height="120" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="notify_app" value="Notification Service App&#xa;(HTTP :3005)" style="text;html=1;fontSize=10;align=center;verticalAlign=middle;" vertex="1" parent="notify_container">
+          <mxGeometry width="1" height="1" as="geometry" />
+        </mxCell>
+        
+        <!-- DAPR Sidecar 3 -->
+        <mxCell id="notify_dapr" value="DAPR Sidecar" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#C8E6C9;" vertex="1" parent="1">
+          <mxGeometry x="540" y="280" width="180" height="80" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="notify_dapr_ports" value="HTTP :3004&#xa;gRPC :50003" style="text;html=1;fontSize=9;align=center;verticalAlign=middle;" vertex="1" parent="notify_dapr">
+          <mxGeometry width="1" height="1" as="geometry" />
+        </mxCell>
+        
+        <!-- Connection: Notify App to DAPR -->
+        <mxCell id="arrow_notify_dapr" value="" style="endArrow=classic;html=1;strokeWidth=2;" edge="1" parent="1" source="notify_container" target="notify_dapr">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        
+        <!-- Repository Service -->
+        <mxCell id="repo_container" value="Repository Service Container" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFF9C4;" vertex="1" parent="1">
+          <mxGeometry x="780" y="140" width="180" height="120" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="repo_app" value="Repository Service App&#xa;(HTTP :4000)" style="text;html=1;fontSize=10;align=center;verticalAlign=middle;" vertex="1" parent="repo_container">
+          <mxGeometry width="1" height="1" as="geometry" />
+        </mxCell>
+        
+        <!-- Repository Volume Mount -->
+        <mxCell id="repo_volume" value="Volume Mount&#xa;/var/lib/spas" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F0F4C3;fontSize=9;" vertex="1" parent="1">
+          <mxGeometry x="780" y="280" width="180" height="80" as="geometry" />
+        </mxCell>
+        
+        <!-- Connection: Repo App to Volume -->
+        <mxCell id="arrow_repo_vol" value="" style="endArrow=classic;html=1;strokeWidth=2;" edge="1" parent="1" source="repo_container" target="repo_volume">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        
+        <!-- DAPR Pub/Sub Container -->
+        <mxCell id="pubsub_container" value="DAPR Pub/Sub Component" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFE0B2;" vertex="1" parent="1">
+          <mxGeometry x="60" y="420" width="200" height="80" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="pubsub_config" value="In-Memory Broker&#xa;(for PoC)" style="text;html=1;fontSize=10;align=center;verticalAlign=middle;" vertex="1" parent="pubsub_container">
+          <mxGeometry width="1" height="1" as="geometry" />
+        </mxCell>
+        
+        <!-- Zipkin Container -->
+        <mxCell id="zipkin_container" value="Zipkin Container" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#D1C4E9;" vertex="1" parent="1">
+          <mxGeometry x="300" y="420" width="200" height="80" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="zipkin_ui" value="Zipkin UI&#xa;(HTTP :9411)" style="text;html=1;fontSize=10;align=center;verticalAlign=middle;" vertex="1" parent="zipkin_container">
+          <mxGeometry width="1" height="1" as="geometry" />
+        </mxCell>
+        
+        <!-- DAPR Component Config File -->
+        <mxCell id="dapr_config" value="DAPR Components Config&#xa;(components.yaml)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F8BBD0;" vertex="1" parent="1">
+          <mxGeometry x="540" y="420" width="200" height="80" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="dapr_config_items" value="• Pub/Sub: In-Memory&#xa;• State Store: File-based&#xa;• Secrets: Local file" style="text;html=1;fontSize=9;align=left;verticalAlign=middle;" vertex="1" parent="dapr_config">
+          <mxGeometry width="1" height="1" as="geometry" />
+        </mxCell>
+        
+        <!-- API Gateway (external) -->
+        <mxCell id="gateway_ext" value="API Gateway (External)&#xa;Reverse Proxy" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFCCBC;" vertex="1" parent="1">
+          <mxGeometry x="780" y="420" width="180" height="80" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="gateway_ext_ports" value="HTTP :8080→Services&#xa;HTTP :4000→Repository" style="text;html=1;fontSize=9;align=center;verticalAlign=middle;" vertex="1" parent="gateway_ext">
+          <mxGeometry width="1" height="1" as="geometry" />
+        </mxCell>
+        
+        <!-- Cross-service communication arrows -->
+        <mxCell id="arrow_sidecar1" value="" style="endArrow=none;html=1;strokeWidth=2;strokeDasharray=5 5;edgeStyle=orthogonalEdgeStyle;" edge="1" parent="1" source="order_dapr" target="stock_dapr">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="arrow_sidecar2" value="" style="endArrow=none;html=1;strokeWidth=2;strokeDasharray=5 5;edgeStyle=orthogonalEdgeStyle;" edge="1" parent="1" source="stock_dapr" target="notify_dapr">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        
+        <!-- DAPR Config connections -->
+        <mxCell id="arrow_config1" value="" style="endArrow=none;html=1;strokeWidth=1;strokeDasharray=3 3;" edge="1" parent="1" source="dapr_config" target="order_dapr">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="540" y="370" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        
+        <mxCell id="arrow_config2" value="" style="endArrow=none;html=1;strokeWidth=1;strokeDasharray=3 3;" edge="1" parent="1" source="dapr_config" target="stock_dapr">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="540" y="370" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        
+        <mxCell id="arrow_config3" value="" style="endArrow=none;html=1;strokeWidth=1;strokeDasharray=3 3;" edge="1" parent="1" source="dapr_config" target="notify_dapr">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="540" y="370" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- Legend -->
+        <mxCell id="legend_title" value="Legend:" style="text;html=1;fontSize=11;fontStyle=1;align=left;" vertex="1" parent="1">
+          <mxGeometry x="60" y="570" width="100" height="20" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="legend1" value="• Each service runs in dedicated container with sidecar DAPR instance" style="text;html=1;fontSize=10;align=left;" vertex="1" parent="1">
+          <mxGeometry x="60" y="595" width="500" height="20" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="legend2" value="• Repository service uses file-based storage (mounted volume)" style="text;html=1;fontSize=10;align=left;" vertex="1" parent="1">
+          <mxGeometry x="60" y="620" width="500" height="20" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="legend3" value="• DAPR components configured centrally (Pub/Sub, State, Secrets)" style="text;html=1;fontSize=10;align=left;" vertex="1" parent="1">
+          <mxGeometry x="60" y="645" width="500" height="20" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="legend4" value="• Zipkin collects traces from all DAPR sidecars for observability" style="text;html=1;fontSize=10;align=left;" vertex="1" parent="1">
+          <mxGeometry x="60" y="670" width="500" height="20" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="legend5" value="• API Gateway routes external requests to service sidecars or Repository directly" style="text;html=1;fontSize=10;align=left;" vertex="1" parent="1">
+          <mxGeometry x="60" y="695" width="600" height="20" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

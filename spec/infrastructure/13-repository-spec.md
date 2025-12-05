@@ -10,10 +10,11 @@ Defines the SPAS repository API and storage model.
 
 ## API Endpoints (baseline)
 
-- `POST /services` — publish metadata
+- `POST /services` — publish metadata (Name + Version in body, globally unique pair)
 - `GET /services/{id}` — service details
 - `GET /services/{id}/versions` — list versions
-- `GET /services/{id}/versions/{version}` — version details
+- `GET /services/{id}/versions/{version}` — merged spas.json + schema references
+- `GET /services/{id}/versions/{version}/download` — download archive (spas.json + all schemas + mappings)
 - `GET /services/{id}/versions/{version}/schemas` — list schemas
 - `GET /services/{id}/versions/{version}/schemas/{schemaName}` — retrieve schema
 - `GET /services?capability={cap}` — search by capability
@@ -35,10 +36,11 @@ Defines the SPAS repository API and storage model.
 
 ## Storage Model
 
-- Metadata store (RDBMS/NoSQL)
-- Schema registry integrated (PoC) or external plugin (Production)
-- OCI images in external registry (Docker Hub/ACR/ECR) — store digest in metadata
-- Mapping artifact storage (optional) with checksum for enforcement
+- PoC: File-based storage (research needed: filesystem strategy—DAPR component, volumes, or bare filesystem)
+- Production: RDBMS/NoSQL metadata store
+- Schema registry: Integrated (PoC) or external plugin (Production)
+- OCI images: External registry (Docker Hub/ACR/ECR) — store digest in metadata
+- Mapping artifacts: Optional; PoC defers, Production adds checksum enforcement
 
 ## Related Documents
 

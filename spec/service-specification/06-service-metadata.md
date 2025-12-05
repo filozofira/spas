@@ -5,7 +5,36 @@ Defines the service manifest schema and required fields. Extended to include end
 ## Overview
 
 - Single source of truth for service identity, contracts, runtime, and security
-- Stored in SPAS repository; links to container image digest
+- Design-time: metadata decomposed into separate JSON files (see Design-Time Structure below)
+- Runtime: merged into single `spas.json` + schemas during publication
+- Storage: SPAS repository links to metadata + container image digest
+
+## Design-Time Structure (Service Project Layout)
+
+```text
+./
+  /metadata
+    inbound.endpoints.json      (gRPC endpoints)
+    outbound.events.json        (published events)
+    outbound.endpoints.json     (external dependencies)
+    runtime.json                (image reference)
+    security.data.json          (data classification)
+    {schema1}.json              (message schemas)
+    {schema2}.json
+    license.txt
+  /config
+    (application-specific configuration)
+  /src
+    (service implementation)
+```
+
+## Design-Time Metadata Endpoints
+
+Services MAY expose endpoints (development-only) to retrieve metadata:
+
+- `GET /_spas/metadata` — merged spas.json + all referenced schemas (archive or JSON)
+- Enabled only in development environment (e.g., `.IsDevelopment()` in .NET)
+- Used by CLI command `spas-service metadata get` to generate published metadata
 
 ## Required Fields (Structured)
 

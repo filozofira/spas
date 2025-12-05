@@ -4,20 +4,21 @@ This document provides a high-level view of SPAS components and how they interac
 
 ## Components
 
-- SPAS Services: Packaged bounded contexts exposing gRPC APIs and events
-- Sidecar/Mesh: Platform-injected proxy handling networking,  security, and event I/O (service invocation)
-- API Gateway (external): Edge REST→gRPC, auth, routing, TLS termination
-- SPAS Repository: Stores metadata (spas.json) and links to container images as well as service event/message schemas
+- SPAS Services: Packaged bounded contexts exposing APIs and events
+- Sidecar/Mesh: Platform-injected proxy handling networking, security, transformation, and event I/O
+- API Gateway (external): Edge REST→HTTP/gRPC, auth, routing, TLS termination
+- SPAS Repository: Stores metadata (spas.json), service schemas, and transformation configs
 - SDKs & CLI: Language/tooling to build, validate, and compose services
+- Schema Registry: Integrated storage for event/message schemas (PoC)
 
 ## Communication Model
 
 - North–South (client ↔ service)
-  - gRPC primary; REST only at Edge (Client ↔ API gateway)
-  - Edge handles auth, versioning, rate control (team’s choice of gateway and client-facing protocol)
+  - PoC: HTTP (sidecar ↔ service); gRPC planned for future
+  - Edge: REST→HTTP translation, auth (OIDC/JWT), routing, TLS termination
 - East–West (service ↔ service)
-  - Event-first via sidecar/mesh
-  - Identity propagation and correlation metadata
+  - Event-first via sidecar/mesh (CloudEvents JSON)
+  - Identity propagation (PoC: in payload; Future: middleware injection)
   - No direct service-to-service sync calls
 
 ## Choreography & Adaptation
@@ -52,8 +53,8 @@ This document provides a high-level view of SPAS components and how they interac
 
 > PoC vs Production
 >
-> - PoC: Dapr or mesh-compatible sidecar recommended for speed
-> - Production: Mesh-agnostic sidecar contract (Istio/Linkerd/Dapr compatible)
+> - PoC: DAPR sidecar; HTTP transport; no mTLS; Zipkin observability; custom HTTP middleware for transformations (see Action Item #1: middleware execution order research)
+> - Production: Mesh-agnostic sidecar contract (Istio/Linkerd/DAPR compatible); gRPC transport; mTLS; policy enforcement
 
 ## Related Documents
 

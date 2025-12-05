@@ -27,4 +27,4 @@ Tooling: `spas validate` performs machine-verified checks; advisory items appear
 
 - [Versioning Strategy](23-versioning-strategy.md)
 - [Service Metadata](../service-specification/06-service-metadata.md)
-- [Repository Specification](../infrastructure/13-repository-spec.md)
+- [Repository Specification](../component-specification/12-repository-spec.md)

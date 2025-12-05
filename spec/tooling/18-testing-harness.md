@@ -46,5 +46,5 @@ Defines testing strategies and utilities for SPAS services.
 ## Related Documents
 
 - [Event Protocol](../protocol-specification/09-event-protocol.md)
-- [SDK Specification](16-sdk-specification.md)
+- [SDK Specification](../component-specification/13-sdk-specification.md)
 - [Reference Examples](../appendix/26-reference-examples.md)

@@ -35,4 +35,4 @@ Defines a language-agnostic contract for SDKs.
 
 - [Service Contract](../service-specification/04-service-contract.md)
 - [gRPC Protocol](../protocol-specification/08-grpc-protocol.md)
-- [Testing Harness](18-testing-harness.md)
+- [Testing Harness](../tooling/18-testing-harness.md)

@@ -61,6 +61,6 @@ security:
 
 ## Related Documents
 
-- [Adaptation Protocol](../protocol-specification/10-adaptation-protocol.md)
-- [CLI Specification](../tooling/17-cli-specification.md)
+- [Transformation Middleware](../component-specification/11-transformation-middleware.md)
+- [CLI Specification](../component-specification/14-cli-specification.md)
 - [Glossary](27-glossary.md)

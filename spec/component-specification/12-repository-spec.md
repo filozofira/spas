@@ -44,6 +44,6 @@ Defines the SPAS repository API and storage model.
 
 ## Related Documents
 
-- [Package Format](12-package-format.md)
-- [Schema Registry](14-schema-registry.md)
+- [Package Format](../infrastructure/15-package-format.md)
+- [Schema Registry](../infrastructure/16-schema-registry.md)
 - [Evolution Policy](../governance/25-evolution-policy.md)

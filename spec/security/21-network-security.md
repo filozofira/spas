@@ -24,5 +24,5 @@
 ## Related Documents
 
 - [Security Model](19-security-model.md)
-- [Runtime Environment](../infrastructure/15-runtime-environment.md)
+- [Runtime Environment](../infrastructure/17-runtime-environment.md)
 - [Data Security](22-data-security.md)

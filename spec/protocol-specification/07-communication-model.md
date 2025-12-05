@@ -33,4 +33,4 @@ Defines North–South and East–West communication patterns and responsibilitie
 
 - [gRPC Protocol](08-grpc-protocol.md)
 - [Event Protocol](09-event-protocol.md)
-- [Sidecar Contract](11-sidecar-contract.md)
+- [Sidecar Contract](../component-specification/10-sidecar-contract.md)

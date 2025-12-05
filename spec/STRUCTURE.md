@@ -67,14 +67,31 @@ The heart of SPAS interoperability—defines all communication protocols.
 /spec/protocol-specification
 ├── 07-communication-model.md
 ├── 08-grpc-protocol.md
-├── 09-event-protocol.md
-├── 10-adaptation-protocol.md
-└── 11-sidecar-contract.md
+└── 09-event-protocol.md
 ```
 
 **Audience**: Service developers, platform engineers  
 **Stability**: High (backward compatibility critical)  
 **Dependencies**: Service Specification
+
+---
+
+### **Component Specification** (Platform Components)
+
+Defines SPAS platform components and their contracts.
+
+```text
+/spec/component-specification
+├── 10-sidecar-contract.md
+├── 11-transformation-middleware.md
+├── 12-repository-spec.md
+├── 13-sdk-specification.md
+└── 14-cli-specification.md
+```
+
+**Audience**: Platform engineers, SDK/CLI/tool builders  
+**Stability**: Medium–High (contracts must remain compatible)  
+**Dependencies**: Protocol + Service Specifications
 
 ---
 
@@ -84,15 +101,14 @@ Defines the runtime environment and supporting infrastructure.
 
 ```text
 /spec/infrastructure
-├── 12-package-format.md
-├── 13-repository-spec.md
-├── 14-schema-registry.md
-└── 15-runtime-environment.md
+├── 15-package-format.md
+├── 16-schema-registry.md
+└── 17-runtime-environment.md
 ```
 
 **Audience**: Platform engineers, DevOps  
 **Stability**: Medium (evolves with technology)  
-**Dependencies**: Protocol Specification
+**Dependencies**: Component + Protocol Specifications
 
 ---
 
@@ -102,14 +118,12 @@ Defines tools that help developers build and operate SPAS services.
 
 ```text
 /spec/tooling
-├── 16-sdk-specification.md
-├── 17-cli-specification.md
 └── 18-testing-harness.md
 ```
 
 **Audience**: Tool builders, service developers  
 **Stability**: Low (evolves rapidly)  
-**Dependencies**: Service + Protocol Specifications
+**Dependencies**: Component + Service + Protocol Specifications
 
 ---
 

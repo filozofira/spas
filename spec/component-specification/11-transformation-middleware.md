@@ -1,4 +1,4 @@
-# Adaptation & Choreography Protocol
+# Transformation Middleware (Adaptation & Choreography Protocol)
 
 Defines how services adapt to different Domain Contexts without code changes.
 
@@ -42,6 +42,6 @@ Includes:
 
 ## Related Documents
 
-- [Event Protocol](09-event-protocol.md)
-- [CLI Specification](../tooling/17-cli-specification.md)
+- [Event Protocol](../protocol-specification/09-event-protocol.md)
+- [CLI Specification](14-cli-specification.md)
 - [Reference Examples](../appendix/26-reference-examples.md)

@@ -35,6 +35,6 @@ Defines execution assumptions for SPAS services.
 
 ## Related Documents
 
-- [Sidecar Contract](../protocol-specification/11-sidecar-contract.md)
+- [Sidecar Contract](../component-specification/10-sidecar-contract.md)
 - [Network Security](../security/21-network-security.md)
 - [Security Model](../security/19-security-model.md)

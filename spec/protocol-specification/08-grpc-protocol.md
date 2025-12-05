@@ -29,5 +29,5 @@
 ## Related Documents
 
 - [Communication Model](07-communication-model.md)
-- [Sidecar Contract](11-sidecar-contract.md)
+- [Sidecar Contract](../component-specification/10-sidecar-contract.md)
 - [Service Contract](../service-specification/04-service-contract.md)

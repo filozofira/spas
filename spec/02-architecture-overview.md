@@ -60,5 +60,5 @@ This document provides a high-level view of SPAS components and how they interac
 
 - [STRUCTURE Index](STRUCTURE.md)
 - [Communication Model](protocol-specification/07-communication-model.md)
-- [Adaptation Protocol](protocol-specification/10-adaptation-protocol.md)
-- [Runtime Environment](infrastructure/15-runtime-environment.md)
+- [Transformation Middleware](component-specification/11-transformation-middleware.md)
+- [Runtime Environment](infrastructure/17-runtime-environment.md)

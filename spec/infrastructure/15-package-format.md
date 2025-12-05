@@ -43,5 +43,5 @@ Domain Composition artifacts (choreography + mappings) MAY live in a separate do
 ## Related Documents
 
 - [Service Lifecycle](../service-specification/05-service-lifecycle.md)
-- [Repository Specification](13-repository-spec.md)
+- [Repository Specification](../component-specification/12-repository-spec.md)
 - [Versioning Strategy](../governance/23-versioning-strategy.md)

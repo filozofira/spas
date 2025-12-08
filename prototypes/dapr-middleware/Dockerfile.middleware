@@ -1,0 +1,7 @@
+FROM golang:1.21-alpine
+WORKDIR /app
+COPY dapr-middleware.go go.mod ./
+RUN go mod download || true && \
+    go build -o dapr-middleware dapr-middleware.go
+EXPOSE 8080
+CMD ["./dapr-middleware"]

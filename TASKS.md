@@ -10,48 +10,65 @@ To do this successfully follow these few rules:
 - Before you leave: Run a prompt like: "Update TASKS.md with the current status of the DAPR middleware prototype, what we tried, what failed, and exactly what the next step is."
 - On the new machine: Your first prompt should be: "Read TASKS.md and analysis/alignment-decisions-poc.md. What is the immediate next task?".
 
-## Current Status (Dec 8, 2025)
+## Current Status (Dec 8, 2025, Late Evening)
 
-- **Architecture:** Aligned. Specs updated to reflect "HTTP-only PoC" and "Identity in Payload".
+- **Architecture:** Aligned pending middleware validation results.
 - **Structure:** Monorepo decision logged (ADR-019).
 - **Methodology:** Selected `spec-kit` for component development.
-- **Immediate Blocker:** Need to verify DAPR HTTP Middleware capability to intercept and transform events *after* subscription routing but *before* service invocation.
+- **DAPR Middleware Risk:** ⚠️ **ARCHITECTURE BLOCKER IDENTIFIED**
+  - Attempted real DAPR integration (sidecar + Redis + pub/sub)
+  - **Finding:** DAPR's built-in HTTP middleware component type (`middleware.http.transformation`) is NOT registered in daprd
+  - **Error:** "HTTP middleware middleware.http.transformation/v1 has not been registered"
+  - **Implication:** Cannot use DAPR's native middleware for transformations in PoC
+  - **Resolution:** Must pivot to **Sidecar Adapter Pattern** - custom HTTP middleware container that sits between DAPR and service
+  - **Prototype location:** `prototypes/dapr-middleware` (validates that middleware CAN work, but NOT as DAPR component)
 
 ## Next Steps
 
-### 1. Prototype: DAPR Middleware Risk (Priority: High)
+### 1. Architecture Decision: Sidecar Adapter Pattern (Priority: CRITICAL)
 
-**Goal:** Prove DAPR Custom HTTP Middleware can intercept inbound Pub/Sub events and modify the payload before the app receives it, as well as outbound messages and modify the payload before they are dispatched to event topic.
-**Location:** `prototypes/dapr-middleware`
-**Plan:**
+**Decision Required:**
 
-1. Initialize `spec-kit` in `prototypes/dapr-middleware`.
-2. Create a minimal DAPR setup:
-   - **Publisher:** Simple script/app to send a CloudEvent.
-   - **Subscriber:** DAPR sidecar + Dummy App (e.g., simple HTTP echo server).
-   - **Middleware:** Go/Python/Node middleware to intercept inbound POST requests and outbound publish requests.
-3. **The Test:**
-   - **Inbound:** Middleware intercepts event delivered to app, injects `{"transformed_inbound": true}`. App asserts receipt.
-   - **Outbound:** App calls DAPR publish. Middleware intercepts request to DAPR, injects `{"transformed_outbound": true}`. Subscriber asserts receipt of modified payload.
-4. **Success Criteria:** App receives modified inbound payload; Subscriber receives modified outbound payload.
-5. **Failure Plan:** If middleware runs *before* routing (and thus can't distinguish topics easily) or cannot modify body, we must pivot to "Sidecar Adapter Container" pattern.
+Given that DAPR's built-in HTTP middleware is not available, we have two paths:
 
-### 2. Monorepo Initialization
+**Option A: Sidecar Adapter Container (Recommended)**
+- Run custom middleware container (already proved it works!)
+- DAPR sidecar forwards events to middleware on :8080
+- Middleware transforms and calls service on :8081
+- Adds one container per service, but transformation logic is clear and reusable
+- Middleware can be language-agnostic (Go, Node, Python, etc.)
+- Example: Our `dapr-middleware.go` already does this correctly
 
-**Goal:** Set up the physical folder structure for the PoC.
-**Actions:**
+**Option B: SDK-Level Transformation Wrapper**
+- Move all transformation logic into SPAS SDK
+- SDK wraps message handlers at app startup
+- Simpler deployment (no extra container), but less flexible
+- Harder to share transformation definitions across services
+- SDK must support all frameworks
 
+**Recommendation:** Option A (Sidecar Adapter) - cleaner separation, more testable, aligns with "choreography via configuration"
+
+### 2. Revised Prototype: Validate Sidecar Adapter Pattern
+
+**Goal:** Confirm the existing middleware architecture works end-to-end with DAPR pub/sub routing
+**Changes needed:**
+- Remove invalid DAPR middleware component declaration
+- Keep custom middleware sidecar container
+- DAPR routes to middleware (not directly to service)
+- Test full event flow: Publisher → DAPR → Middleware → Service
+
+### 3. Update Architecture Spec
+
+Once Sidecar Adapter validation succeeds:
+- Document middleware placement in `spec/infrastructure`
+- Update `spec/service-specification` with middleware interception points
+- Define choreography.yaml transformation schema
+- Update CLI docs for middleware scaffolding
+
+### 4. Monorepo Initialization (Unblocked)
+
+After middleware decision, proceed with:
 - Create `src/sdk` (.NET SDK)
 - Create `src/cli` (CLI Tool)
 - Create `src/repository` (Repository Service)
-- Create `src/sidecar` (DAPR Configs)
 - Create `examples/e-commerce` (End-to-End PoC)
-
-### 3. Component Development (via Spec-Kit)
-
-**Goal:** Build components iteratively using the specs as the source of truth.
-**Sequence:**
-
-1. **SDK:** Build `spas.json` authoring & serialization.
-2. **Repository:** Build simple file-based storage & API.
-3. **CLI:** Build `spas-service pack` and `publish`.

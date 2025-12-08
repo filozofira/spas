@@ -1,0 +1,7 @@
+apiVersion: dapr.io/v1alpha1
+kind: Component
+metadata:
+  name: transformation-middleware
+spec:
+  type: middleware.http.transformation
+  version: v1

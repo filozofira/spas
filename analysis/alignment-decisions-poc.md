@@ -7,9 +7,9 @@ Document capturing decisions and action items from the structured alignment dial
 ### Sidecar/Mesh (DAPR)
 
 - **Middleware placement:** Transform both inbound + outbound via SDK wrapper for event publishing
-- **Identity propagation:** Prototype Option 1 (middleware injects auth headers) first; fallback to Option 2 (identity in payload) if blocks
+- **Identity propagation:** Identity in payload (Option 2) for PoC simplicity. Middleware injection deferred to Production.
 - **Transport:** HTTP only in PoC; gRPC deferred (documented in spec as future)
-- **Auth header format (if Option 1 fails):** Authorization: Bearer JWT (industry standard)
+- **Auth header format:** Deferred to Production (Authorization: Bearer JWT)
 
 ### Identity & Security
 
@@ -92,7 +92,7 @@ Document capturing decisions and action items from the structured alignment dial
 ## Spec Documentation Updates Needed
 
 - [ ] Clarify HTTP-only transport in PoC section (gRPC roadmap mentioned)
-- [ ] Document identity propagation approach (middleware-first with fallback)
+- [x] Document identity propagation approach (Payload-based for PoC)
 - [ ] Add DAPR middleware research caveat
 - [ ] Record metadata endpoint design decision
 - [ ] Add action items section to spec or separate ADR (Architecture Decision Record)

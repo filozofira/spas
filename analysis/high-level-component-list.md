@@ -20,9 +20,8 @@ Platform-injected proxy handling networking,  security, request/event I/O (trans
 - DAPR sidecar invokes SPAS Service endpoints, either from the DAPR Subscription component (according to its routing configuration), or when called by the API gateway (note we have to decide if API gateway should be allowed to call SPAS Service directly or only via DAPR sidecar and according to DAPR sidecar contract).
 - Identity propagation
   - For north-south communication DAPR sidecar propagates the identity to a SPAS Service according to standard agreed auth protocol which SPAS service must support (e.g. as in .Net Program.cs `services.AddAuthentication().AddMicrosoftIdentityWebApi(...)` and `app.UseAuthentication().UseAuthorization();` etc.).
-  - For east-west communication ideally DAPR Custom HTTP Middleware can propagate the identity info in the same way as in north-south communication, hence simplifying the SPAS Service development. I.e. in this case the middleware must extract Identity information from the event and send it appropriatelly when invoking SPAS service endpoint.
-    - This should work in PoC, but only if not very complicated to implement the DAPR Custom HTTP Middleware.
-    - Else if this is complicated to implement in the DAPR Custom HTTP Middleware, we should let identity information flow as part of event payload, where it can be extracted by some util in SPAS SDK when needed (see later in SPAS SDK about the Identity information).
+  - For east-west communication in PoC, identity information flows as part of the event payload (CloudEvents extension or body property). The SDK provides utilities to extract this.
+    - Middleware injection of identity headers is deferred to Production to simplify the PoC.
 
 ### SPAS Service
 
@@ -75,7 +74,7 @@ A Language/framework development kit to build SPAS compliant services.
     - Fetching secrets from vaults, such as Azure KeyVault, Hashicorp etc.
     - Note here to see if we can utilise DAPR to provide some implementation during POC
   - Utils/Services that
-    - Allow SPAS Service to retrieve identity information (in PoC claims and id). Ideally method handles both noth-south and east-west communication and it has dependency to a chosen approach when implementing Identity propagation in DAPR Custom HTTP Middleware.
+    - Allow SPAS Service to retrieve identity information (in PoC claims and id). Ideally method handles both noth-south and east-west communication. For East-West PoC, it extracts identity from the event payload.
     - Allow SPAS Service to publish events while ensuring at-least-once delivery guaranty by abstracting an outbox pattern implementation from the SPAS Service, thus further simplifying the work of SPAS service developer. In POC for .NET SDK we can utilise <https://github.com/dotnetcore/CAP>.
   - Base classes for Event schema (in PoC we start with DAPR and CloudEvent schema, which already includes tracing information, so we have to see how much implementation this requires beoynd the blow described payload)
     - Base class for Payload which contains standard element for Identity information.

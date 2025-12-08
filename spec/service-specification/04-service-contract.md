@@ -2,23 +2,25 @@
 
 Specifies required interfaces and behaviors for a SPAS service.
 
-## gRPC API
+## Service API (gRPC / HTTP)
 
-- Proto-first; package versions (e.g., `orders.v1`) govern API evolution
+> **PoC Note:** While the target architecture is gRPC-first, the PoC implementation uses HTTP with JSON payloads. The semantic structure (Commands vs Queries) remains identical.
+
+- Contract-first (Proto or OpenAPI); package versions (e.g., `orders.v1`) govern API evolution
 - Method naming: Commands use imperative verbs; Queries use `Get/List`
-- Errors: gRPC status + structured details (problem detail message type recommended)
+- Errors: gRPC status or HTTP Problem Details + structured details
 - Deadlines: Clients set; services MUST honor
-- Streaming: Allowed; backpressure handled by HTTP/2 flow control and client-side cancellation. Long-lived streams SHOULD be query/notification oriented, not commands.
+- Streaming: Allowed (gRPC only); backpressure handled by HTTP/2 flow control and client-side cancellation. Long-lived streams SHOULD be query/notification oriented, not commands.
 
 > PoC vs Production
 >
-> - PoC: Validation and error model recommendations
-> - Production: Validation required; error details schema defined
+> - PoC: HTTP transport; Validation and error model recommendations
+> - Production: gRPC transport; Validation required; error details schema defined
 
 ## Event Contracts
 
 - Published events: Domain facts with versioned types (`<domain>.<boundedContext>.<eventName>.v<major>`) aligned to CloudEvents `type`
-- Subscribed events: Sidecar invokes designated gRPC handler; service implements idempotent processing (PoC responsibility)
+- Subscribed events: Sidecar invokes designated handler (gRPC or HTTP); service implements idempotent processing (PoC responsibility)
 - Envelope: CloudEvents JSON; required attributes: `id`, `source`, `type`, `specversion`, `time`; extensions: `correlationid`, `traceparent`, optional `causationid`
 - Schema evolution: additive-only; new fields optional; incompatible removal requires new major event type version
 

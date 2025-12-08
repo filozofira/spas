@@ -1,5 +1,10 @@
+const express = require('express');
+const bodyParser = require('body-parser');
 const fetch = require('node-fetch');
 const { randomBytes } = require('crypto');
+
+const app = express();
+app.use(bodyParser.json({ type: '*/*' }));
 
 const SIDECAR_HOST = 'order-service-sidecar';
 const SIDECAR_PORT = 7001;
@@ -12,6 +17,44 @@ function generateTraceContext() {
   const traceFlags = '01'; // sampled
   return `${version}-${traceId}-${spanId}-${traceFlags}`;
 }
+
+// Extract trace context from CloudEvents message
+function extractTraceContext(message) {
+  if (message && message.traceparent) {
+    return message.traceparent;
+  }
+  return 'no-trace-id';
+}
+
+// Health endpoint for sidecar
+app.get('/health', (_req, res) => {
+  res.status(200).json({ status: 'ok' });
+});
+
+// Endpoint for order-service-sidecar to invoke with processed orders
+app.post('/incoming', (req, res) => {
+  const traceId = extractTraceContext(req.body);
+  
+  console.log('[ORDER-SERVICE] ===== PROCESSED ORDER RECEIVED FROM FULFILLMENT =====');
+  console.log(`[ORDER-SERVICE] Trace ID: ${traceId}`);
+  console.log('[ORDER-SERVICE] Full Message:', JSON.stringify(req.body, null, 2));
+  
+  // Extract the actual data from CloudEvents wrapper (nested twice)
+  const cloudEventData = req.body.data || req.body;
+  const innerData = (cloudEventData.data && cloudEventData.data.data) || cloudEventData.data || cloudEventData;
+  console.log('[ORDER-SERVICE] Processed Order Data:', JSON.stringify(innerData, null, 2));
+  
+  // Handle the processed order (correlate with original order, update DB, etc.)
+  const orderId = innerData.orderId || 'unknown';
+  const status = innerData.status || 'unknown';
+  console.log(`[ORDER-SERVICE] Order ${orderId} has been ${status}`);
+  
+  res.status(200).json({
+    status: 'ok',
+    processedOrderId: orderId,
+    traceparent: traceId
+  });
+});
 
 async function delay(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
@@ -73,6 +116,12 @@ async function publishMessage(messageId) {
 async function main() {
   try {
     await waitForSidecar();
+    
+    // Start Express server
+    const port = process.env.PORT || 5001;
+    app.listen(port, () => {
+      console.log(`[ORDER-SERVICE] Listening on port ${port}`);
+    });
     
     console.log('[ORDER-SERVICE] Starting to publish messages...');
     for (let i = 1; i <= 5; i++) {

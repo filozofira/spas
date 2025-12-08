@@ -1,8 +1,12 @@
 const express = require('express');
 const bodyParser = require('body-parser');
+const fetch = require('node-fetch');
 
 const app = express();
 app.use(bodyParser.json({ type: '*/*' }));
+
+const SIDECAR_HOST = 'fulfillment-service-sidecar';
+const SIDECAR_PORT = 7002;
 
 // Extract trace context from CloudEvents message
 function extractTraceContext(message) {
@@ -18,7 +22,7 @@ app.get('/health', (_req, res) => {
 });
 
 // Endpoint for fulfillment-service-sidecar to invoke
-app.post('/incoming', (req, res) => {
+app.post('/incoming', async (req, res) => {
   const traceId = extractTraceContext(req.body);
   
   console.log('[FULFILLMENT-SERVICE] ===== MESSAGE RECEIVED FROM SIDECAR =====');
@@ -35,7 +39,41 @@ app.post('/incoming', (req, res) => {
   console.log(`[FULFILLMENT-SERVICE] Processing order: ${orderId}`);
   console.log('[FULFILLMENT-SERVICE] Order fulfilled successfully');
   
-  // ...process message and optionally publish new message via sidecar...
+  // Publish fulfillment event back through sidecar
+  try {
+    const fulfillmentData = {
+      orderId: orderId,
+      status: 'fulfilled',
+      amount: innerData.amount,
+      timestamp: new Date().toISOString()
+    };
+    
+    const publishUrl = `http://${SIDECAR_HOST}:${SIDECAR_PORT}/publish/orders-processed`;
+    console.log(`[FULFILLMENT-SERVICE] Publishing fulfillment event to sidecar...`);
+    console.log(`[FULFILLMENT-SERVICE] Publishing to: ${publishUrl}`);
+    
+    const publishRes = await fetch(publishUrl, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'traceparent': traceId,
+        'x-service-name': 'fulfillment-service'
+      },
+      body: JSON.stringify(fulfillmentData)
+    });
+    
+    console.log(`[FULFILLMENT-SERVICE] Sidecar publish status: ${publishRes.status}`);
+    if (!publishRes.ok) {
+      console.error('[FULFILLMENT-SERVICE] Publish error:', await publishRes.text());
+    } else {
+      const publishResponse = await publishRes.json();
+      console.log('[FULFILLMENT-SERVICE] Fulfillment event published successfully');
+      console.log('[FULFILLMENT-SERVICE] Publish response:', JSON.stringify(publishResponse, null, 2));
+    }
+  } catch (err) {
+    console.error('[FULFILLMENT-SERVICE] Error publishing fulfillment event:', err.message);
+  }
+  
   res.status(200).json({
     status: 'ok',
     processedOrderId: orderId,

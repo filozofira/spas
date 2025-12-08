@@ -2,57 +2,71 @@ services:
   # Redis backend
   redis:
     image: redis:6-alpine
-    container_name: dapr-output-binding-redis
+    container_name: spas-redis
     ports:
       - "6379:6379"
     networks:
-      - dapr-network
+      - spas-network
 
-  # Publisher Service
-  publisher:
-    build: ./publisher
-    container_name: dapr-output-binding-publisher
+  # Zipkin for distributed tracing
+  zipkin:
+    image: openzipkin/zipkin:latest
+    container_name: spas-zipkin
+    ports:
+      - "9411:9411"
     networks:
-      - dapr-network
+      - spas-network
 
-  # Publisher Transformer Sidecar
-  publisher-transformer-sidecar:
-    build: ./transformer-sidecar
-    container_name: publisher-transformer-sidecar
+  # Order Service
+  order-service:
+    build: ./order-service
+    container_name: spas-order-service
+    ports:
+      - "5001:5001"
+    networks:
+      - spas-network
+
+  # Order Service SPAS Sidecar
+  order-service-sidecar:
+    build: ./spas-sidecar
+    container_name: order-service-sidecar
     environment:
       - PORT=7001
-      - CONFIG_PATH=/app/config.publisher.json
+      - CONFIG_PATH=/app/config.order-service.json
+      - ZIPKIN_URL=http://zipkin:9411
     volumes:
-      - ./transformer-sidecar/config.publisher.json:/app/config.publisher.json
+      - ./spas-sidecar/config.order-service.json:/app/config.order-service.json
     depends_on:
       - redis
+      - zipkin
     networks:
-      - dapr-network
+      - spas-network
 
-
-  # Subscriber Service
-  subscriber:
-    build: ./subscriber
-    container_name: dapr-output-binding-subscriber
+  # Fulfillment Service
+  fulfillment-service:
+    build: ./fulfillment-service
+    container_name: spas-fulfillment-service
     ports:
-      - "6000:6000"
+      - "5002:5002"
     networks:
-      - dapr-network
+      - spas-network
 
-  # Subscriber Transformer Sidecar
-  subscriber-transformer-sidecar:
-    build: ./transformer-sidecar
-    container_name: subscriber-transformer-sidecar
+  # Fulfillment Service SPAS Sidecar
+  fulfillment-service-sidecar:
+    build: ./spas-sidecar
+    container_name: fulfillment-service-sidecar
     environment:
       - PORT=7002
-      - CONFIG_PATH=/app/config.subscriber.json
+      - CONFIG_PATH=/app/config.fulfillment-service.json
+      - ZIPKIN_URL=http://zipkin:9411
     volumes:
-      - ./transformer-sidecar/config.subscriber.json:/app/config.subscriber.json
+      - ./spas-sidecar/config.fulfillment-service.json:/app/config.fulfillment-service.json
     depends_on:
       - redis
+      - zipkin
     networks:
-      - dapr-network
+      - spas-network
 
 networks:
-  dapr-network:
+  spas-network:
     driver: bridge

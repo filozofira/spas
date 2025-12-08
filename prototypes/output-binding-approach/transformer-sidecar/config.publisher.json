@@ -1,0 +1,19 @@
+{
+  "redis": {
+    "host": "redis",
+    "port": 6379
+  },
+  "subscriptions": [
+    {
+      "topic": "orders-processed",
+      "transform": "transformInput",
+      "invokeEndpoint": "http://publisher:6000/incoming"
+    }
+  ],
+  "publications": [
+    {
+      "topic": "orders-requested",
+      "transform": "transformOutput"
+    }
+  ]
+}

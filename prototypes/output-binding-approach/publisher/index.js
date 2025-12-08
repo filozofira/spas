@@ -1,7 +1,7 @@
 const fetch = require('node-fetch');
 
-const daprHost = process.env.DAPR_HTTP_HOST || 'publisher-sidecar';
-const daprPort = process.env.DAPR_HTTP_PORT || 3502;
+const SIDECAR_HOST = 'publisher-transformer-sidecar';
+const SIDECAR_PORT = 7001;
 
 async function delay(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
@@ -10,19 +10,19 @@ async function delay(ms) {
 async function waitForSidecar(maxRetries = 30) {
   for (let i = 0; i < maxRetries; i++) {
     try {
-      const res = await fetch(`http://${daprHost}:${daprPort}/v1.0/metadata`, {
+      const res = await fetch(`http://${SIDECAR_HOST}:${SIDECAR_PORT}/health`, {
         method: 'GET'
       });
       if (res.ok) {
-        console.log('[PUBLISHER] Sidecar is ready');
+        console.log('[PUBLISHER] Transformer sidecar is ready');
         return true;
       }
     } catch (e) {
-      console.log(`[PUBLISHER] Waiting for sidecar... (${i + 1}/${maxRetries})`);
+      console.log(`[PUBLISHER] Waiting for transformer sidecar... (${i + 1}/${maxRetries})`);
     }
     await delay(1000);
   }
-  throw new Error('Sidecar did not become ready in time');
+  throw new Error('Transformer sidecar did not become ready in time');
 }
 
 async function publishMessage(messageId) {
@@ -32,24 +32,18 @@ async function publishMessage(messageId) {
     timestamp: new Date().toISOString()
   };
 
-  // Use output binding to send to transformer
-  const url = `http://${daprHost}:${daprPort}/v1.0/bindings/http-transformer`;
-  console.log(`[PUBLISHER] Sending message ${messageId} through output binding...`);
+  // Send to publisher-transformer-sidecar
+  const url = `http://publisher-transformer-sidecar:7001/publish/orders-requested`;
+  console.log(`[PUBLISHER] Sending message ${messageId} to transformer-sidecar...`);
   console.log(`[PUBLISHER] Message data:`, JSON.stringify(messageData, null, 2));
 
   const res = await fetch(url, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      operation: 'post',
-      data: messageData,
-      metadata: {
-        messageId: messageId.toString()
-      }
-    })
+    body: JSON.stringify(messageData)
   });
 
-  console.log(`[PUBLISHER] Output binding status for message ${messageId}: ${res.status}`);
+  console.log(`[PUBLISHER] Transformer-sidecar publish status for message ${messageId}: ${res.status}`);
   if (!res.ok) {
     console.error('[PUBLISHER] Error:', await res.text());
   } else {

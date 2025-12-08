@@ -1,3 +1,0 @@
-# Note: Middleware is deployed as a separate container (sidecar adapter pattern)
-# DAPR routes to middleware on port 8080, which forwards to the service on 8081
-# No DAPR middleware component declaration needed - this is external to DAPR

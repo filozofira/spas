@@ -1,6 +1,6 @@
 # SDK Specification
 
-Defines a language-agnostic contract for SDKs.
+Defines a language-agnostic contract for SDKs, aligned with `analysis/high-level-component-list.md`.
 
 ## Target Languages
 
@@ -8,28 +8,33 @@ Defines a language-agnostic contract for SDKs.
 
 ## Required Capabilities (PoC)
 
-- Code generation for gRPC
-- Metadata authoring & validation for `spas.json`
-- CloudEvents builder & publish helpers (correlation + trace propagation)
-- Subscription handler scaffolding (service-level only; rely on platform sidecar for transport)
-- Testing utilities: schema-driven fixtures, pact-style contract stubs
+- Metadata authoring & validation for `spas.json`, including decomposition/merge of design-time metadata files
+- Design-time metadata endpoint helper (optional) to expose `/_spas/metadata` in dev/local
+- CloudEvents helpers (build/publish with trace + correlation) and identity extraction util (payload or headers)
+- Inbound endpoint scaffolding: attributes/base classes for handlers and payload contracts
+- Event publish helper (SPAS Service to sidecar/Dapr) with basic reliability; future outbox abstraction is optional in PoC
+- Configuration helpers: env/file loading with optional secret-source hook; keep transport/storage abstractions pluggable
+- Testing utilities: schema-driven fixtures; stub generators for contracts
 
 ## Future Capabilities (Production)
 
-- Optional mapping test harness integration
+- Outbox pattern abstraction with at-least-once delivery guarantees
+- Mapping test harness integration for transformations
 - Enhanced idempotency utilities
 - SDK extension points for custom serialization (Avro/Proto)
+- PII/subject data endpoints scaffolding (opt-in)
+- gRPC scaffolding and codegen (if/when transport changes)
 
 ## Design Constraints
 
-- No mandatory external infrastructure
-- Mesh/sidecar client integration excluded (handled by platform)
-- Pluggable transport/storage abstractions for future extensibility
+- No mandatory external infrastructure; SDK should work locally with file/env configuration
+- Do not duplicate sidecar concerns; SDK avoids mesh-specific clients and focuses on app-level code
+- Pluggable transport/storage abstractions for future extensibility (publish, config, secrets)
 
 ## Developer Experience
 
-- Project templates and scaffolding
-- Clear error messages and diagnostics
+- Project templates and scaffolding per language
+- Clear diagnostics for metadata and schema validation
 
 ## Related Documents
 

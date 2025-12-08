@@ -7,9 +7,8 @@ This document provides a high-level view of SPAS components and how they interac
 - SPAS Services: Packaged bounded contexts exposing APIs and events
 - Sidecar/Mesh: Platform-injected proxy handling networking, security, transformation, and event I/O
 - API Gateway (external): Edge REST→HTTP/gRPC, auth, routing, TLS termination
-- SPAS Repository: Stores metadata (spas.json), service schemas, and transformation configs
+- SPAS Repository: Stores metadata (spas.json) and SPAS Service event/message schemas. It does not store transformation configs.
 - SDKs & CLI: Language/tooling to build, validate, and compose services
-- Schema Registry: Integrated storage for event/message schemas (PoC)
 
 ## Communication Model
 

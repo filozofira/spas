@@ -28,7 +28,8 @@ Specifies responsibilities and interfaces for the platform-injected sidecar/mesh
 
 ## Compatibility
 
-- Compatible with Dapr, Istio, Linkerd (implementation-agnostic)
+- Compatible with Dapr in PoC
+- Istio, Linkerd, etc. will be considered in Production
 
 ## PoC Implementation (DAPR)
 

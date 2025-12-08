@@ -7,7 +7,6 @@ Defines the command-line tools that power the SPAS developer workflow.
 ### PoC Core (spas-service)
 
 - `spas-service init [--template <name>]` — Initialize a new service
-- `spas-service build` — Build the service
 - `spas-service metadata get [--url <service-url>] [--output <dir>]` — Fetch design-time metadata from service /_spas/metadata endpoint and decompose to folder structure
 - `spas-service pack` — Create SPAS archive (metadata + schemas + mappings)
 - `spas-service publish [--repo <url>]` — Publish archive to repository

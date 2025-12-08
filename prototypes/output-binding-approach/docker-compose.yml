@@ -33,6 +33,7 @@ services:
     environment:
       - PORT=7001
       - CONFIG_PATH=/app/config.order-service.json
+      - SERVICE_NAME=order-service-sidecar
       - ZIPKIN_URL=http://zipkin:9411
     volumes:
       - ./spas-sidecar/config.order-service.json:/app/config.order-service.json
@@ -58,6 +59,7 @@ services:
     environment:
       - PORT=7002
       - CONFIG_PATH=/app/config.fulfillment-service.json
+      - SERVICE_NAME=fulfillment-service-sidecar
       - ZIPKIN_URL=http://zipkin:9411
     volumes:
       - ./spas-sidecar/config.fulfillment-service.json:/app/config.fulfillment-service.json

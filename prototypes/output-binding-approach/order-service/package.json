@@ -1,7 +1,7 @@
 {
-  "name": "dapr-output-binding-publisher",
+  "name": "order-service",
   "version": "1.0.0",
-  "description": "Publisher using DAPR output bindings",
+  "description": "Order service that publishes order events via SPAS sidecar",
   "main": "index.js",
   "scripts": {
     "start": "node index.js"

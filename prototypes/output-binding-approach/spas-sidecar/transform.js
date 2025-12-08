@@ -1,22 +1,23 @@
-// Example transformation functions
+// Transformation functions for SPAS Sidecar
+// These functions are applied to messages as they flow through the pipeline
 
 function transformInput(message) {
-  // Add input transformation logic here
+  // Transform input messages (from service to publish)
   return {
     ...message,
     _transformed: true,
     _transformed_at: new Date().toISOString(),
-    _component: 'transformer-sidecar-input'
+    _component: 'spas-sidecar-input'
   };
 }
 
 function transformOutput(message) {
-  // Add output transformation logic here
+  // Transform output messages (from subscribe to service invocation)
   return {
     ...message,
     _transformed: true,
     _transformed_at: new Date().toISOString(),
-    _component: 'transformer-sidecar-output'
+    _component: 'spas-sidecar-output'
   };
 }
 

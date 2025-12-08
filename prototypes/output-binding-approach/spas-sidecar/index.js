@@ -4,14 +4,37 @@ const bodyParser = require('body-parser');
 const fetch = require('node-fetch');
 const fs = require('fs');
 const path = require('path');
+const { v4: uuidv4 } = require('uuid');
+const zipkin = require('zipkin');
+const { HttpLogger } = require('zipkin-transport-http');
+const { BatchRecorder } = require('zipkin');
+const { Tracer, ExplicitContext } = zipkin;
 
 const configPath = process.env.CONFIG_PATH || path.join(__dirname, 'config.json');
 const config = JSON.parse(fs.readFileSync(configPath, 'utf8'));
 const transforms = require('./transform');
 
+// Initialize Zipkin tracer if URL is provided
+let tracer = null;
+const zipkinUrl = process.env.ZIPKIN_URL;
+if (zipkinUrl) {
+  const logger = new HttpLogger({
+    endpoint: `${zipkinUrl}/api/v2/spans`
+  });
+  const recorder = new BatchRecorder({ logger });
+  tracer = new Tracer({
+    ctxImpl: new ExplicitContext(),
+    recorder,
+    sampler: { shouldSample: () => true },
+    localServiceName: process.env.SERVICE_NAME || 'spas-sidecar'
+  });
+  console.log(`[SIDECAR] Zipkin tracing enabled: ${zipkinUrl}`);
+} else {
+  console.log('[SIDECAR] Zipkin tracing disabled (ZIPKIN_URL not set)');
+}
+
 const app = express();
 app.use(bodyParser.json({ type: '*/*' }));
-
 
 const REDIS_HOST = config.redis.host;
 const REDIS_PORT = config.redis.port;
@@ -21,6 +44,34 @@ const redisPubClient = redis.createClient({ socket: { host: REDIS_HOST, port: RE
 redisSubClient.on('error', err => console.error('[SIDECAR] Redis SUB error:', err));
 redisPubClient.on('error', err => console.error('[SIDECAR] Redis PUB error:', err));
 
+// CloudEvents wrapper function
+function wrapInCloudEvents(data, source, subject, eventType = 'message.transformed', traceId = null) {
+  const id = uuidv4();
+  const now = new Date().toISOString();
+  
+  const cloudEvent = {
+    specversion: '1.0',
+    type: eventType,
+    source: source,
+    subject: subject,
+    id: id,
+    time: now,
+    datacontenttype: 'application/json',
+    traceparent: traceId || `00-${uuidv4().replace(/-/g, '')}-${Math.random().toString(36).substr(2, 16)}-01`,
+    data: data
+  };
+  
+  return cloudEvent;
+}
+
+// Extract trace context from CloudEvents
+function extractTraceContext(message) {
+  if (typeof message === 'object' && message.traceparent) {
+    return message.traceparent;
+  }
+  return null;
+}
+
 async function subscribeTopics() {
   await redisSubClient.connect();
   for (const sub of config.subscriptions) {
@@ -28,13 +79,52 @@ async function subscribeTopics() {
       console.log(`[SIDECAR] Received message on topic '${sub.topic}':`, message);
       let parsed;
       try { parsed = JSON.parse(message); } catch { parsed = message; }
+      
+      // Extract trace context
+      const traceContext = extractTraceContext(parsed);
+      
+      // Log receive span
+      if (tracer) {
+        tracer.recordServiceName(process.env.SERVICE_NAME || 'spas-sidecar');
+        tracer.recordRpc(sub.topic);
+        tracer.recordBinaryAnnotation('event.type', 'message.received');
+        tracer.recordBinaryAnnotation('topic', sub.topic);
+      }
+      
+      // Transform the message
       const transformed = transforms[sub.transform](parsed);
+      
+      // Wrap in CloudEvents
+      const cloudEvent = wrapInCloudEvents(
+        transformed,
+        'spas-sidecar',
+        sub.topic,
+        'message.transformed',
+        traceContext
+      );
+      
+      // Log transform span
+      if (tracer) {
+        tracer.recordBinaryAnnotation('event.type', 'message.transformed');
+        tracer.recordBinaryAnnotation('transform.function', sub.transform);
+      }
+      
+      // Invoke endpoint if configured
       if (sub.invokeEndpoint) {
         try {
+          // Log invoke span
+          if (tracer) {
+            tracer.recordBinaryAnnotation('event.type', 'endpoint.invoked');
+            tracer.recordBinaryAnnotation('endpoint', sub.invokeEndpoint);
+          }
+          
           await fetch(sub.invokeEndpoint, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(transformed)
+            headers: {
+              'Content-Type': 'application/json',
+              'traceparent': cloudEvent.traceparent
+            },
+            body: JSON.stringify(cloudEvent)
           });
           console.log(`[SIDECAR] Invoked endpoint ${sub.invokeEndpoint}`);
         } catch (err) {
@@ -54,9 +144,37 @@ app.post('/publish/:topic', async (req, res) => {
   const topic = req.params.topic;
   const pub = config.publications.find(p => p.topic === topic);
   if (!pub) return res.status(404).send('Unknown topic');
+  
+  // Extract trace context from request headers if present
+  const traceContext = req.headers.traceparent || null;
+  
+  // Transform the message
   const transformed = transforms[pub.transform](req.body);
-  await redisPubClient.publish(topic, JSON.stringify(transformed));
-  res.status(200).json({ status: 'published', topic });
+  
+  // Wrap in CloudEvents
+  const cloudEvent = wrapInCloudEvents(
+    transformed,
+    req.headers['x-service-name'] || 'unknown-service',
+    topic,
+    'message.publish',
+    traceContext
+  );
+  
+  // Log publish span
+  if (tracer) {
+    tracer.recordBinaryAnnotation('event.type', 'message.publish');
+    tracer.recordBinaryAnnotation('topic', topic);
+    tracer.recordBinaryAnnotation('transform.function', pub.transform);
+  }
+  
+  await redisPubClient.publish(topic, JSON.stringify(cloudEvent));
+  
+  res.status(200).json({
+    status: 'published',
+    topic,
+    messageId: cloudEvent.id,
+    traceparent: cloudEvent.traceparent
+  });
 });
 
 app.get('/health', (_req, res) => {
@@ -69,3 +187,4 @@ app.listen(port, async () => {
   await initPublishClient();
   await subscribeTopics();
 });
+

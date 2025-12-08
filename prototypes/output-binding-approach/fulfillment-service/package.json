@@ -1,7 +1,7 @@
 {
-  "name": "dapr-output-binding-subscriber",
+  "name": "fulfillment-service",
   "version": "1.0.0",
-  "description": "Subscriber using DAPR output bindings",
+  "description": "Fulfillment service that processes orders via SPAS sidecar",
   "main": "index.js",
   "scripts": {
     "start": "node index.js"

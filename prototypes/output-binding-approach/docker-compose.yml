@@ -1,0 +1,98 @@
+services:
+  # Redis backend
+  redis:
+    image: redis:6-alpine
+    container_name: dapr-output-binding-redis
+    ports:
+      - "6379:6379"
+    networks:
+      - dapr-network
+
+  # Publisher Service
+  publisher:
+    build: ./publisher
+    container_name: dapr-output-binding-publisher
+    environment:
+      - DAPR_HTTP_HOST=publisher-sidecar
+      - DAPR_HTTP_PORT=3502
+    depends_on:
+      - publisher-sidecar
+    networks:
+      - dapr-network
+
+  # Publisher DAPR Sidecar
+  publisher-sidecar:
+    image: daprio/daprd:latest
+    container_name: dapr-output-binding-publisher-sidecar
+    command: [
+      "/daprd",
+      "--app-id", "publisher",
+      "--app-port", "0",
+      "--app-channel-address", "publisher",
+      "--dapr-http-port", "3502",
+      "--resources-path", "/components",
+      "--log-level", "info"
+    ]
+    ports:
+      - "3502:3502"
+    volumes:
+      - ./components:/components
+    depends_on:
+      - redis
+    networks:
+      - dapr-network
+
+  # Transformation Middleware (HTTP Server that transforms messages)
+  transformer:
+    build: ./transformer
+    container_name: dapr-output-binding-transformer
+    environment:
+      - PORT=7000
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+    ports:
+      - "7000:7000"
+    depends_on:
+      - redis
+    networks:
+      - dapr-network
+
+  # Subscriber Service
+  subscriber:
+    build: ./subscriber
+    container_name: dapr-output-binding-subscriber
+    environment:
+      - APP_PORT=6000
+    ports:
+      - "6000:6000"
+    expose:
+      - "6000"
+    networks:
+      - dapr-network
+
+  # Subscriber DAPR Sidecar
+  subscriber-sidecar:
+    image: daprio/daprd:latest
+    container_name: dapr-output-binding-subscriber-sidecar
+    command: [
+      "/daprd",
+      "--app-id", "subscriber",
+      "--app-port", "6000",
+      "--app-channel-address", "subscriber",
+      "--dapr-http-port", "3500",
+      "--resources-path", "/components",
+      "--log-level", "info"
+    ]
+    ports:
+      - "3500:3500"
+    volumes:
+      - ./components:/components
+    depends_on:
+      - subscriber
+      - redis
+    networks:
+      - dapr-network
+
+networks:
+  dapr-network:
+    driver: bridge

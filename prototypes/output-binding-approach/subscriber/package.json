@@ -1,0 +1,14 @@
+{
+  "name": "dapr-output-binding-subscriber",
+  "version": "1.0.0",
+  "description": "Subscriber using DAPR output bindings",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "dependencies": {
+    "body-parser": "^1.20.2",
+    "express": "^4.18.2",
+    "redis": "^4.6.7"
+  }
+}

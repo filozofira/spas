@@ -10,37 +10,43 @@ To do this successfully follow these few rules:
 - Before you leave: Run a prompt like: "Update TASKS.md with the current status of the DAPR middleware prototype, what we tried, what failed, and exactly what the next step is."
 - On the new machine: Your first prompt should be: "Read TASKS.md and analysis/alignment-decisions-poc.md. What is the immediate next task?".
 
-## Current Status (Dec 8, 2025)
+## Current Status (Dec 8, 2025 - Updated)
 
 - **Architecture:** Aligned. Specs updated to reflect "HTTP-only PoC" and "Identity in Payload".
 - **Structure:** Monorepo decision logged (ADR-019).
 - **Methodology:** Selected `spec-kit` for component development.
-- **Immediate Blocker:** Need to verify DAPR HTTP Middleware capability to intercept and transform events *after* subscription routing but *before* service invocation.
+- **DAPR Middleware Prototype:** Complete. **Finding:** Dapr HTTP pipeline middleware (`middleware.http.httpendpoint`) does not intercept pubsub messages.
+  - Messages flow end-to-end (publisher → sidecar → subscriber) successfully.
+  - Middleware endpoint is configured and reachable but **never gets called**.
+  - Likely cause: Dapr's HTTP pipeline only applies to north-south (app invoke) traffic, not east-west (pubsub delivery). Pubsub routing bypasses the HTTP pipeline.
+  - **Impact:** Cannot use Dapr's built-in middleware for transformation on inbound pubsub events (discovery contradicts our earlier PoC plan).
 
 ## Next Steps
 
-### 1. Prototype: DAPR Middleware Risk (Priority: High)
+### 1. Transformation Strategy Decision (Priority: High - Blocker) - DECIDED: Adapter Container
 
-**Goal:** Prove DAPR Custom HTTP Middleware can intercept inbound Pub/Sub events and modify the payload before the SPAS service receives it, as well as outbound messages from SPAS service and modify the payload before they are dispatched to event topic.
-**Location:** `prototypes/dapr-middleware`
-**Plan:**
+**Decision:** Pursue **Sidecar-Adjacent Adapter Container** pattern.
 
-1. Initialize `spec-kit` in `prototypes/dapr-middleware`.
-2. Create a minimal DAPR setup:
-   - **Publisher:** Simple script/app to send a CloudEvent.
-   - **Subscriber:** DAPR sidecar + Dummy App (e.g., simple HTTP echo server).
-   - **Middleware:** Go/Python/Node middleware to intercept POST requests.
-3. **The Test:**
-   - Middleware checks for specific event topic/type.
-   - Middleware injects `{"transformed": true}` into the JSON body.
-   - Dummy App asserts that the received body contains the injected field.
-4. **Success Criteria:** App receives modified payload.
-5. **Failure Plan:** If middleware runs *before* routing (and thus can't distinguish topics easily) or cannot modify body, we must pivot to "Sidecar Adapter Container" pattern.
+**Why:** Keeps services agnostic to domain-specific transformations; aligns with "sidecar" philosophy; external adapter can be reused/evolved independently.
 
-### 2. Monorepo Initialization
+**Implementation Plan:**
 
-**Goal:** Set up the physical folder structure for the PoC.
-**Actions:**
+1. Create `prototypes/dapr-middleware/adapter` container:
+   - Subscribes directly to Redis pubsub (topic: `orders-raw` or similar).
+   - Applies transformation rules (read from a config file or API).
+   - Publishes transformed message to `orders` topic.
+   - Subscriber listens on `orders` (transformed).
+
+2. Publisher still sends to `orders-raw`.
+
+3. Test:
+   - Publisher sends original event.
+   - Adapter intercepts, transforms (adds `transformed_inbound: true`), republishes to `orders`.
+   - Subscriber receives transformed event and logs it.
+
+4. Outcome: Validates the adapter pattern works for PoC; service receives transformed payload without knowing it happened.
+
+### 2. Monorepo Initialization (Deferred until Adapter PoC Complete)
 
 - Create `src/sdk` (.NET SDK)
 - Create `src/cli` (CLI Tool)

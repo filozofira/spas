@@ -14,25 +14,34 @@ const transforms = require('./transform');
 const zipkinUrl = process.env.ZIPKIN_URL;
 const serviceName = process.env.SERVICE_NAME || 'spas-sidecar';
 
+// Generate a random hex string for span IDs (Zipkin requires lowercase hex)
+function generateSpanId() {
+  return Math.random().toString(16).substr(2, 16).padEnd(16, '0');
+}
+
 // Simple Zipkin span sender using HTTP API v2
 async function sendZipkinSpan(traceId, spanId, parentSpanId, spanName, timestamp, duration, tags = {}) {
-  if (!zipkinUrl) return;
+  if (!zipkinUrl) {
+    return;
+  }
   
   try {
     // Parse W3C traceparent format: 00-{traceId}-{spanId}-{flags}
     let zipkinTraceId = traceId;
-    let zipkinSpanId = spanId;
     let zipkinParentId = parentSpanId;
     
     if (traceId && traceId.startsWith('00-')) {
       const parts = traceId.split('-');
-      zipkinTraceId = parts[1];
-      zipkinSpanId = parts[2] || spanId;
+      zipkinTraceId = parts[1]; // Extract trace ID
+      // If no parent is specified, use the span ID from traceparent as parent
+      if (!zipkinParentId && parts[2]) {
+        zipkinParentId = parts[2];
+      }
     }
     
     const span = {
       traceId: zipkinTraceId,
-      id: zipkinSpanId,
+      id: spanId, // Use the provided span ID (unique for this span)
       name: spanName,
       timestamp: timestamp * 1000, // microseconds
       duration: duration * 1000, // microseconds
@@ -46,13 +55,23 @@ async function sendZipkinSpan(traceId, spanId, parentSpanId, spanName, timestamp
       span.parentId = zipkinParentId;
     }
     
-    await fetch(`${zipkinUrl}/api/v2/spans`, {
+    const response = await fetch(`${zipkinUrl}/api/v2/spans`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify([span])
     });
+    
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error(`[SIDECAR] Zipkin span rejected: ${response.status} - ${errorText}`);
+      console.error(`[SIDECAR] Span was:`, JSON.stringify(span, null, 2));
+    }
   } catch (err) {
-    console.error('[SIDECAR] Error sending span to Zipkin:', err.message);
+    // Silently ignore connection errors (Zipkin may not be ready yet)
+    // Only log if it's not a connection error
+    if (!err.message.includes('ECONNREFUSED')) {
+      console.error('[SIDECAR] Error sending span to Zipkin:', err.message);
+    }
   }
 }
 
@@ -86,7 +105,7 @@ function wrapInCloudEvents(data, source, subject, eventType = 'message.transform
     id: id,
     time: now,
     datacontenttype: 'application/json',
-    traceparent: traceId || `00-${uuidv4().replace(/-/g, '')}-${Math.random().toString(36).substr(2, 16)}-01`,
+    traceparent: traceId || `00-${uuidv4().replace(/-/g, '')}-${generateSpanId()}-01`,
     data: data
   };
   
@@ -115,7 +134,7 @@ async function subscribeTopics() {
       console.log(`[SIDECAR] Trace context: ${traceContext}`);
       
       // Send receive span to Zipkin
-      const receiveSpanId = Math.random().toString(36).substr(2, 16);
+      const receiveSpanId = generateSpanId();
       await sendZipkinSpan(
         traceContext,
         receiveSpanId,
@@ -131,7 +150,7 @@ async function subscribeTopics() {
       const transformed = transforms[sub.transform](parsed);
       
       // Send transform span to Zipkin
-      const transformSpanId = Math.random().toString(36).substr(2, 16);
+      const transformSpanId = generateSpanId();
       await sendZipkinSpan(
         traceContext,
         transformSpanId,
@@ -167,7 +186,7 @@ async function subscribeTopics() {
           });
           
           // Send invoke span to Zipkin
-          const invokeSpanId = Math.random().toString(36).substr(2, 16);
+          const invokeSpanId = generateSpanId();
           await sendZipkinSpan(
             traceContext,
             invokeSpanId,
@@ -203,7 +222,7 @@ app.post('/publish/:topic', async (req, res) => {
   console.log(`[SIDECAR] Publishing to topic '${topic}' with trace ID: ${traceContext}`);
   
   // Send receive span to Zipkin
-  const receiveSpanId = Math.random().toString(36).substr(2, 16);
+  const receiveSpanId = generateSpanId();
   await sendZipkinSpan(
     traceContext,
     receiveSpanId,
@@ -219,7 +238,7 @@ app.post('/publish/:topic', async (req, res) => {
   const transformed = transforms[pub.transform](req.body);
   
   // Send transform span to Zipkin
-  const transformSpanId = Math.random().toString(36).substr(2, 16);
+  const transformSpanId = generateSpanId();
   await sendZipkinSpan(
     traceContext,
     transformSpanId,
@@ -246,7 +265,7 @@ app.post('/publish/:topic', async (req, res) => {
   await redisPubClient.publish(topic, JSON.stringify(cloudEvent));
   
   // Send publish span to Zipkin
-  const publishSpanId = Math.random().toString(36).substr(2, 16);
+  const publishSpanId = generateSpanId();
   await sendZipkinSpan(
     traceContext,
     publishSpanId,

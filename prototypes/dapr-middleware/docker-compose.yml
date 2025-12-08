@@ -1,17 +1,4 @@
 services:
-  # Redis for pub/sub and state
-  redis:
-    image: redis:7-alpine
-    ports:
-      - "6379:6379"
-    networks:
-      - dapr-test
-    healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
-      interval: 5s
-      timeout: 3s
-      retries: 5
-
   # Transformation Middleware (sits between DAPR sidecar and service)
   middleware:
     build:
@@ -38,9 +25,6 @@ services:
       - DAPR_HTTP_PORT=3500
     networks:
       - dapr-test
-    depends_on:
-      redis:
-        condition: service_healthy
 
   # DAPR Sidecar for the SPAS Service
   # IMPORTANT: DAPR is configured to call middleware on port 8080, not direct to service
@@ -63,7 +47,6 @@ services:
       - dapr-test
     depends_on:
       - middleware
-      - redis
 
   # Publisher service to send test events
   publisher:

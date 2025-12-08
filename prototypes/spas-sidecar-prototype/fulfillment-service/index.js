@@ -25,12 +25,13 @@ app.post('/incoming', (req, res) => {
   console.log(`[FULFILLMENT-SERVICE] Trace ID: ${traceId}`);
   console.log('[FULFILLMENT-SERVICE] Full Message:', JSON.stringify(req.body, null, 2));
   
-  // Extract the actual data from CloudEvents wrapper
-  const data = req.body.data || req.body;
-  console.log('[FULFILLMENT-SERVICE] Order Data:', JSON.stringify(data, null, 2));
+  // Extract the actual data from CloudEvents wrapper (nested twice)
+  const cloudEventData = req.body.data || req.body;
+  const innerData = (cloudEventData.data && cloudEventData.data.data) || cloudEventData.data || cloudEventData;
+  console.log('[FULFILLMENT-SERVICE] Order Data:', JSON.stringify(innerData, null, 2));
   
   // Process the order (fulfill it)
-  const orderId = data.orderId || 'unknown';
+  const orderId = innerData.orderId || 'unknown';
   console.log(`[FULFILLMENT-SERVICE] Processing order: ${orderId}`);
   console.log('[FULFILLMENT-SERVICE] Order fulfilled successfully');
   

@@ -6,14 +6,14 @@
   "subscriptions": [
     {
       "topic": "orders-processed",
-      "transform": "transformInput",
-      "invokeEndpoint": "http://publisher:6000/incoming"
+      "transform": "transformOutput",
+      "invokeEndpoint": "http://order-service:5001/incoming"
     }
   ],
   "publications": [
     {
       "topic": "orders-requested",
-      "transform": "transformOutput"
+      "transform": "transformInput"
     }
   ]
 }

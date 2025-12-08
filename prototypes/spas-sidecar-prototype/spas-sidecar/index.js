@@ -5,30 +5,17 @@ const fetch = require('node-fetch');
 const fs = require('fs');
 const path = require('path');
 const { v4: uuidv4 } = require('uuid');
-const zipkin = require('zipkin');
-const { HttpLogger } = require('zipkin-transport-http');
-const { BatchRecorder } = require('zipkin');
-const { Tracer, ExplicitContext } = zipkin;
 
 const configPath = process.env.CONFIG_PATH || path.join(__dirname, 'config.json');
 const config = JSON.parse(fs.readFileSync(configPath, 'utf8'));
 const transforms = require('./transform');
 
-// Initialize Zipkin tracer if URL is provided
-let tracer = null;
+// Zipkin configuration (for future implementation)
+// Note: Zipkin v0.22.0 has a different API - needs proper instrumentation
 const zipkinUrl = process.env.ZIPKIN_URL;
 if (zipkinUrl) {
-  const logger = new HttpLogger({
-    endpoint: `${zipkinUrl}/api/v2/spans`
-  });
-  const recorder = new BatchRecorder({ logger });
-  tracer = new Tracer({
-    ctxImpl: new ExplicitContext(),
-    recorder,
-    sampler: { shouldSample: () => true },
-    localServiceName: process.env.SERVICE_NAME || 'spas-sidecar'
-  });
-  console.log(`[SIDECAR] Zipkin tracing enabled: ${zipkinUrl}`);
+  console.log(`[SIDECAR] Zipkin URL configured: ${zipkinUrl}`);
+  console.log(`[SIDECAR] Note: CloudEvents with traceparent headers provide trace correlation`);
 } else {
   console.log('[SIDECAR] Zipkin tracing disabled (ZIPKIN_URL not set)');
 }
@@ -82,14 +69,7 @@ async function subscribeTopics() {
       
       // Extract trace context
       const traceContext = extractTraceContext(parsed);
-      
-      // Log receive span
-      if (tracer) {
-        tracer.recordServiceName(process.env.SERVICE_NAME || 'spas-sidecar');
-        tracer.recordRpc(sub.topic);
-        tracer.recordBinaryAnnotation('event.type', 'message.received');
-        tracer.recordBinaryAnnotation('topic', sub.topic);
-      }
+      console.log(`[SIDECAR] Trace context: ${traceContext}`);
       
       // Transform the message
       const transformed = transforms[sub.transform](parsed);
@@ -103,21 +83,11 @@ async function subscribeTopics() {
         traceContext
       );
       
-      // Log transform span
-      if (tracer) {
-        tracer.recordBinaryAnnotation('event.type', 'message.transformed');
-        tracer.recordBinaryAnnotation('transform.function', sub.transform);
-      }
+      console.log(`[SIDECAR] Transformed and wrapped in CloudEvents (ID: ${cloudEvent.id})`);
       
       // Invoke endpoint if configured
       if (sub.invokeEndpoint) {
         try {
-          // Log invoke span
-          if (tracer) {
-            tracer.recordBinaryAnnotation('event.type', 'endpoint.invoked');
-            tracer.recordBinaryAnnotation('endpoint', sub.invokeEndpoint);
-          }
-          
           await fetch(sub.invokeEndpoint, {
             method: 'POST',
             headers: {
@@ -126,7 +96,7 @@ async function subscribeTopics() {
             },
             body: JSON.stringify(cloudEvent)
           });
-          console.log(`[SIDECAR] Invoked endpoint ${sub.invokeEndpoint}`);
+          console.log(`[SIDECAR] Invoked endpoint ${sub.invokeEndpoint} with trace ID`);
         } catch (err) {
           console.error(`[SIDECAR] Error invoking endpoint:`, err);
         }
@@ -147,6 +117,7 @@ app.post('/publish/:topic', async (req, res) => {
   
   // Extract trace context from request headers if present
   const traceContext = req.headers.traceparent || null;
+  console.log(`[SIDECAR] Publishing to topic '${topic}' with trace ID: ${traceContext}`);
   
   // Transform the message
   const transformed = transforms[pub.transform](req.body);
@@ -160,14 +131,10 @@ app.post('/publish/:topic', async (req, res) => {
     traceContext
   );
   
-  // Log publish span
-  if (tracer) {
-    tracer.recordBinaryAnnotation('event.type', 'message.publish');
-    tracer.recordBinaryAnnotation('topic', topic);
-    tracer.recordBinaryAnnotation('transform.function', pub.transform);
-  }
+  console.log(`[SIDECAR] CloudEvent created (ID: ${cloudEvent.id})`);
   
   await redisPubClient.publish(topic, JSON.stringify(cloudEvent));
+  console.log(`[SIDECAR] Published to Redis topic '${topic}'`);
   
   res.status(200).json({
     status: 'published',

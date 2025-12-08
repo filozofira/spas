@@ -9,8 +9,10 @@ Defines execution assumptions for SPAS services.
 
 ## Sidecar Injection
 
-- Platform-injected sidecar compatible with Dapr/Istio/Linkerd
-- Sidecar handles mTLS, routing, schema validation (Production), metrics, and transformation execution
+- PoC: SPAS sidecar component (custom implementation for transformation and messaging)
+- Production: Platform-injected sidecar compatible with service meshes (Istio/Linkerd) for mTLS and policy
+- SPAS sidecar handles transformation execution, CloudEvents wrapping, trace context propagation
+- Service mesh handles mTLS, routing, schema validation (Production), metrics
 
 ## Networking
 

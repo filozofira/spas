@@ -14,9 +14,9 @@
 ## PoC-Specific (December 2025)
 
 - ADR-009: HTTP-only transport in PoC; gRPC deferred to Production
-- ADR-010: DAPR as PoC sidecar implementation
+- ADR-010: Custom SPAS sidecar component for PoC (DAPR evaluation complete; incompatible with pub/sub transformation requirements)
 - ADR-011: Identity propagation via CloudEvents payload in PoC (middleware injection future)
-- ADR-012: Custom DAPR HTTP Middleware for transformations (pending middleware execution order research)
+- ADR-012: Sidecar-based transformations using SPAS sidecar component
 - ADR-013: File-based repository storage in PoC; PostgreSQL document store target for Production
 - ADR-014: Design-time metadata decomposition + Design-time endpoints for service introspection
 - ADR-015: mTLS deferred; no SPIFFE/SVID in PoC

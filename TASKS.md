@@ -15,36 +15,40 @@ To do this successfully follow these few rules:
 - **Architecture:** Aligned. Specs updated to reflect "HTTP-only PoC" and "Identity in Payload".
 - **Structure:** Monorepo decision logged (ADR-019).
 - **Methodology:** Selected `spec-kit` for component development.
-- **DAPR Middleware Prototype:** Complete. **Finding:** Dapr HTTP pipeline middleware (`middleware.http.httpendpoint`) does not intercept pubsub messages.
-  - Messages flow end-to-end (publisher → sidecar → subscriber) successfully.
-  - Middleware endpoint is configured and reachable but **never gets called**.
-  - Likely cause: Dapr's HTTP pipeline only applies to north-south (app invoke) traffic, not east-west (pubsub delivery). Pubsub routing bypasses the HTTP pipeline.
-  - **Impact:** Cannot use Dapr's built-in middleware for transformation on inbound pubsub events (discovery contradicts our earlier PoC plan).
+- **SPAS Sidecar Prototype:** Complete and working. **Implementation:** Custom Node.js sidecar component.
+  - Successfully handles message transformation for both publishers and subscribers.
+  - CloudEvents 1.0 wrapper with W3C Trace Context for distributed tracing.
+  - Full Zipkin integration with correlated traces across service boundaries.
+  - Each service has dedicated sidecar instance handling transformation + pub/sub.
+  - **Architecture:** Service → Sidecar (transform) → Redis → Sidecar (transform) → Service.
+  - **Previous Finding:** DAPR HTTP middleware doesn't intercept pub/sub messages, leading to custom sidecar approach.
 
 ## Next Steps
 
-### 1. Transformation Strategy Decision (Priority: High - Blocker) - DECIDED: Adapter Container
+### 1. Transformation Strategy - COMPLETE: SPAS Sidecar Component ✅
 
-**Decision:** Pursue **Sidecar-Adjacent Adapter Container** pattern.
+**Implementation:** Custom **SPAS Sidecar** pattern implemented and validated.
 
-**Why:** Keeps services agnostic to domain-specific transformations; aligns with "sidecar" philosophy; external adapter can be reused/evolved independently.
+**What was built:**
 
-**Implementation Plan:**
+- Generic Node.js sidecar component (`spas-sidecar`) with:
+  - Configurable transformation functions (input/output)
+  - Redis pub/sub integration
+  - CloudEvents 1.0 message wrapping
+  - W3C Trace Context propagation
+  - Zipkin distributed tracing with correlated traces
+  - HTTP endpoints for service integration
 
-1. Create `prototypes/dapr-middleware/adapter` container:
-   - Subscribes directly to Redis pubsub (topic: `orders-raw` or similar).
-   - Applies transformation rules (read from a config file or API).
-   - Publishes transformed message to `orders` topic.
-   - Subscriber listens on `orders` (transformed).
+**Architecture Validated:**
 
-2. Publisher still sends to `orders-raw`.
+- Each service gets dedicated sidecar instance
+- order-service → order-service-sidecar → Redis → fulfillment-service-sidecar → fulfillment-service
+- Transformations executed transparently without service knowledge
+- Full end-to-end observability with Zipkin
 
-3. Test:
-   - Publisher sends original event.
-   - Adapter intercepts, transforms (adds `transformed_inbound: true`), republishes to `orders`.
-   - Subscriber receives transformed event and logs it.
+**Location:** `prototypes/spas-sidecar-prototype/`
 
-4. Outcome: Validates the adapter pattern works for PoC; service receives transformed payload without knowing it happened.
+**Status:** Prototype complete, all traces correlating correctly, ready for framework integration.
 
 ### 2. Monorepo Initialization (Deferred until Adapter PoC Complete)
 

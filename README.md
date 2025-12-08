@@ -35,6 +35,17 @@ SPAS specifies:
 - Packaging and repository integration
 - Security, observability, and governance requirements
 
+## Current Status
+
+### PoC Phase (December 2025)
+
+- ✅ **SPAS Sidecar Component**: Custom sidecar prototype complete
+  - Message transformation with CloudEvents 1.0 wrapper
+  - W3C Trace Context propagation
+  - Zipkin distributed tracing with correlated traces
+  - Redis pub/sub integration
+  - See: `prototypes/spas-sidecar-prototype/`
+
 ## Out of Scope (v1.0)
 
 - Central orchestration (choreography-only)

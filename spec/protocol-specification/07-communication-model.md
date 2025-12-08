@@ -4,7 +4,7 @@ Defines North–South and East–West communication patterns and responsibilitie
 
 ## North–South (Edge)
 
-- PoC: HTTP (DAPR invokes services via HTTP)
+- PoC: HTTP (SPAS sidecar invokes services via HTTP)
 - Production: gRPC-first; REST supported only at API Gateway (external infra)
 - Gateway responsibilities: REST→HTTP/gRPC translation, auth (OIDC/JWT), versioning, routing, TLS termination
 - Clients MUST set deadlines; services MUST honor
@@ -14,7 +14,7 @@ Defines North–South and East–West communication patterns and responsibilitie
 - Event-first via sidecar/mesh (CloudEvents JSON)
 - Identity propagation:
   - PoC: JWT token in CloudEvents payload; SDK helper extracts claims
-  - Production: Middleware injects auth headers from event claims (requires DAPR middleware research)
+  - Production: Sidecar injects auth headers from event claims
 - No direct sync calls between services
 
 ## Sidecar Responsibilities

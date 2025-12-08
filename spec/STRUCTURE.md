@@ -358,7 +358,9 @@ Reference materials, examples, and decision records.
 - Communication with main service container
 - Health and readiness checks
 - Resource requirements
-- Deployment model: Platform-injected; compatible with service meshes (e.g., Dapr/Istio/Linkerd)
+- Deployment model:
+  - PoC: SPAS sidecar component (custom implementation)
+  - Production: Platform-injected; compatible with service meshes (e.g., Istio/Linkerd)
 
 ---
 
@@ -438,7 +440,7 @@ Reference materials, examples, and decision records.
   - Docker Compose (local dev)
   - Bare-metal (future)
 - **Networking**:
-  - Service mesh integration (Istio, Linkerd, Dapr)
+  - Service mesh integration (PoC: SPAS sidecar; Production: Istio, Linkerd)
   - Network policies (default deny egress)
   - Enclosure levels (informative in PoC): strict | moderate | open
 - **Configuration injection**: Environment variables, config maps

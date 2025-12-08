@@ -152,22 +152,36 @@ Start with A but should extend to C in future.
 
 1. Is the sidecar:
    - [ ] Part of the service package (included in Docker image)
-   - [ ] Injected by platform (Kubernetes, service mesh)
+   - [x] Injected by platform (Kubernetes, service mesh)
 
-   **Your Decision**: I believe it will be "Platform-injected sidecar, compatible with standard service meshes", but this is an implementation detail which is not decided yet. Currently debate is on to use DAPR or service-mesh, such as Istio etc. See additional notes for more details on this.
+   **Decision (Dec 2025)**: Platform-injected sidecar approach confirmed.
+   - **PoC**: Custom SPAS sidecar component (Node.js) for transformation and messaging
+   - **Production**: Compatible with standard service meshes (Istio, Linkerd) for mTLS and policy enforcement
 
 2. Are you building a custom sidecar or leveraging existing service mesh?
-   - [ ] Custom sidecar (SPAS-specific implementation)
-   - [ ] Standard service mesh (Istio, Linkerd, Consul)
-   - [ ] Flexible: Support both
+   - [x] Custom sidecar (SPAS-specific implementation) for PoC
+   - [x] Standard service mesh (Istio, Linkerd) for Production
+   - [x] Flexible: Support both
 
-   **Your Decision**: I am quite certain not to build SPAS-specific, at least not to begin with POC. See Additional notes.
+   **Decision (Dec 2025)**: Hybrid approach - custom SPAS sidecar for transformation logic, service mesh for infrastructure concerns.
 
 3. What language/tech for sidecar (if custom)?
 
-   **Your Answer**: If using DAPR it will be managed by DAPR and hence GO, else whatever language is most suitable. See Additional Notes.
+   **Decision (Dec 2025)**: Node.js 18 for PoC SPAS sidecar component.
+   - Rapid prototyping capability
+   - Native async/await for Redis pub/sub
+   - Simple JSON configuration and transformation
+   - Proven in prototype: `prototypes/spas-sidecar-prototype/`
 
-**Additional Notes**: DAPR provides HTTP Middleware which can be effectively used for choregraphy when mapping Domain messages (i.e. north-south messages and east-west events) to/from SPAS service contracts. On the other hand Istio and Linkerd etc. provide good network security features. POC might start with DAPR since we could get quicker results. What is your opinion?
+**Implementation Notes (Dec 2025):**
+
+- **DAPR Evaluation**: Completed. DAPR HTTP middleware does not intercept pub/sub messages (only north-south traffic).
+- **Solution**: Custom SPAS sidecar component handling:
+  - Message transformation (domain ↔ internal contracts)
+  - CloudEvents 1.0 wrapping with W3C Trace Context
+  - Redis pub/sub integration
+  - Zipkin distributed tracing with correlated traces
+- **Production Path**: SPAS sidecar for choreography, service mesh (Istio/Linkerd) for mTLS, policy, and observability infrastructure.
 
 ---
 
@@ -399,7 +413,13 @@ G. Orchestration
    - [ ] `spas-domain.json`
    - [ ] Other: _________________
 
-   **Your Decision**: choreography.yaml would be a good choice, i.e. spas-cli could use this as backing store for choregraphy configuration, which serve as base to visualise choreography as well as intermediate state before being deployed. Deployment part depends very much on the implementation. I.e. if using DAPR spas-cli would generate  DAPR pub/sub component yaml files with filtering, as well as mapping configurations to be used by DAPR http middleware inside sidecar. Alternatively if not using DAPR, we would have to build similar functionality into SDK.
+   **Decision (Dec 2025)**: `choreography.yaml` - spas-cli uses this as backing store for choreography configuration, serving as base to visualize choreography and as intermediate state before deployment.
+
+   **Implementation**: spas-cli generates SPAS sidecar configuration JSON files (per service instance) containing:
+   - Topic subscription/publication mappings
+   - Transformation function references
+   - Service endpoint URLs
+   - Trace context propagation settings
 
 2. What goes in this file?
    - [X] List of services (by ID and version)

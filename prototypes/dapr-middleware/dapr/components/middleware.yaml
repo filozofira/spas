@@ -1,7 +1,3 @@
-apiVersion: dapr.io/v1alpha1
-kind: Component
-metadata:
-  name: transformation-middleware
-spec:
-  type: middleware.http.transformation
-  version: v1
+# Note: Middleware is deployed as a separate container (sidecar adapter pattern)
+# DAPR routes to middleware on port 8080, which forwards to the service on 8081
+# No DAPR middleware component declaration needed - this is external to DAPR

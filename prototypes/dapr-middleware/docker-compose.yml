@@ -1,4 +1,17 @@
 services:
+  # Redis for pub/sub
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    networks:
+      - dapr-test
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 2s
+      timeout: 2s
+      retries: 10
+
   # Transformation Middleware (sits between DAPR sidecar and service)
   middleware:
     build:
@@ -46,7 +59,10 @@ services:
     networks:
       - dapr-test
     depends_on:
-      - middleware
+      middleware:
+        condition: service_started
+      redis:
+        condition: service_healthy
 
   # Publisher service to send test events
   publisher:

@@ -123,87 +123,116 @@ function extractTraceContext(message) {
 async function subscribeTopics() {
   await redisSubClient.connect();
   for (const sub of config.subscriptions) {
-    await redisSubClient.subscribe(sub.topic, async (message) => {
-      const startTime = Date.now();
-      console.log(`[SIDECAR] Received message on topic '${sub.topic}':`, message);
-      let parsed;
-      try { parsed = JSON.parse(message); } catch { parsed = message; }
-      
-      // Extract trace context
-      const traceContext = extractTraceContext(parsed);
-      console.log(`[SIDECAR] Trace context: ${traceContext}`);
-      
-      // Send receive span to Zipkin
-      const receiveSpanId = generateSpanId();
-      await sendZipkinSpan(
-        traceContext,
-        receiveSpanId,
-        null,
-        `receive ${sub.topic}`,
-        startTime,
-        Date.now() - startTime,
-        { 'message.topic': sub.topic, 'message.type': 'receive' }
-      );
-      
-      // Transform the message
-      const transformStart = Date.now();
-      const transformed = transforms[sub.transform](parsed);
-      
-      // Send transform span to Zipkin
-      const transformSpanId = generateSpanId();
-      await sendZipkinSpan(
-        traceContext,
-        transformSpanId,
-        receiveSpanId,
-        `transform ${sub.transform}`,
-        transformStart,
-        Date.now() - transformStart,
-        { 'transform.function': sub.transform }
-      );
-      
-      // Wrap in CloudEvents
-      const cloudEvent = wrapInCloudEvents(
-        transformed,
-        'spas-sidecar',
-        sub.topic,
-        'message.transformed',
-        traceContext
-      );
-      
-      console.log(`[SIDECAR] Transformed and wrapped in CloudEvents (ID: ${cloudEvent.id})`);
-      
-      // Invoke endpoint if configured
-      if (sub.invokeEndpoint) {
+    // Start reading from the latest messages (new ones)
+    // Use '0' to read from the beginning, or '$' to read only new messages
+    let lastId = '$';
+    
+    const readStream = async () => {
+      while (true) {
         try {
-          const invokeStart = Date.now();
-          await fetch(sub.invokeEndpoint, {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              'traceparent': cloudEvent.traceparent
-            },
-            body: JSON.stringify(cloudEvent)
-          });
-          
-          // Send invoke span to Zipkin
-          const invokeSpanId = generateSpanId();
-          await sendZipkinSpan(
-            traceContext,
-            invokeSpanId,
-            transformSpanId,
-            `invoke ${sub.invokeEndpoint}`,
-            invokeStart,
-            Date.now() - invokeStart,
-            { 'http.url': sub.invokeEndpoint, 'http.method': 'POST' }
+          const messages = await redisSubClient.xRead(
+            { key: sub.topic, id: lastId },
+            { COUNT: 10, BLOCK: 0 } // Block indefinitely until messages arrive
           );
           
-          console.log(`[SIDECAR] Invoked endpoint ${sub.invokeEndpoint} with trace ID`);
+          if (messages && Array.isArray(messages) && messages.length > 0) {
+            for (const result of messages) {
+              const streamMessages = result.messages || [];
+              for (const messageObj of streamMessages) {
+                lastId = messageObj.id;
+                const startTime = Date.now();
+                const messageData = messageObj.message.data;
+                
+                console.log(`[SIDECAR] Received message on stream '${sub.topic}' (ID: ${messageObj.id}):`, messageData);
+                let parsed;
+                try { parsed = JSON.parse(messageData); } catch { parsed = messageData; }
+                
+                // Extract trace context
+                const traceContext = extractTraceContext(parsed);
+                console.log(`[SIDECAR] Trace context: ${traceContext}`);
+                
+                // Send receive span to Zipkin
+                const receiveSpanId = generateSpanId();
+                await sendZipkinSpan(
+                  traceContext,
+                  receiveSpanId,
+                  null,
+                  `receive ${sub.topic}`,
+                  startTime,
+                  Date.now() - startTime,
+                  { 'message.topic': sub.topic, 'message.type': 'receive' }
+                );
+                
+                // Transform the message
+                const transformStart = Date.now();
+                const transformed = transforms[sub.transform](parsed);
+                
+                // Send transform span to Zipkin
+                const transformSpanId = generateSpanId();
+                await sendZipkinSpan(
+                  traceContext,
+                  transformSpanId,
+                  receiveSpanId,
+                  `transform ${sub.transform}`,
+                  transformStart,
+                  Date.now() - transformStart,
+                  { 'transform.function': sub.transform }
+                );
+                
+                // Wrap in CloudEvents
+                const cloudEvent = wrapInCloudEvents(
+                  transformed,
+                  'spas-sidecar',
+                  sub.topic,
+                  'message.transformed',
+                  traceContext
+                );
+                
+                console.log(`[SIDECAR] Transformed and wrapped in CloudEvents (ID: ${cloudEvent.id})`);
+                
+                // Invoke endpoint if configured
+                if (sub.invokeEndpoint) {
+                  try {
+                    const invokeStart = Date.now();
+                    await fetch(sub.invokeEndpoint, {
+                      method: 'POST',
+                      headers: {
+                        'Content-Type': 'application/json',
+                        'traceparent': cloudEvent.traceparent
+                      },
+                      body: JSON.stringify(cloudEvent)
+                    });
+                    
+                    // Send invoke span to Zipkin
+                    const invokeSpanId = generateSpanId();
+                    await sendZipkinSpan(
+                      traceContext,
+                      invokeSpanId,
+                      transformSpanId,
+                      `invoke ${sub.invokeEndpoint}`,
+                      invokeStart,
+                      Date.now() - invokeStart,
+                      { 'http.url': sub.invokeEndpoint, 'http.method': 'POST' }
+                    );
+                    
+                    console.log(`[SIDECAR] Invoked endpoint ${sub.invokeEndpoint} with trace ID`);
+                  } catch (err) {
+                    console.error(`[SIDECAR] Error invoking endpoint:`, err);
+                  }
+                }
+              }
+            }
+          }
         } catch (err) {
-          console.error(`[SIDECAR] Error invoking endpoint:`, err);
+          console.error(`[SIDECAR] Error reading from stream '${sub.topic}':`, err);
+          await new Promise(resolve => setTimeout(resolve, 1000)); // Wait before retrying
         }
       }
-    });
-    console.log(`[SIDECAR] Subscribed to topic '${sub.topic}'`);
+    };
+    
+    // Start reading stream in background
+    readStream().catch(err => console.error(`[SIDECAR] Stream reader error for '${sub.topic}':`, err));
+    console.log(`[SIDECAR] Subscribed to stream '${sub.topic}'`);
   }
 }
 
@@ -260,9 +289,9 @@ app.post('/publish/:topic', async (req, res) => {
   
   console.log(`[SIDECAR] CloudEvent created (ID: ${cloudEvent.id})`);
   
-  // Publish to Redis
+  // Publish to Redis Stream
   const publishStart = Date.now();
-  await redisPubClient.publish(topic, JSON.stringify(cloudEvent));
+  const streamId = await redisPubClient.xAdd(topic, '*', { data: JSON.stringify(cloudEvent) });
   
   // Send publish span to Zipkin
   const publishSpanId = generateSpanId();
@@ -273,10 +302,10 @@ app.post('/publish/:topic', async (req, res) => {
     `publish ${topic}`,
     publishStart,
     Date.now() - publishStart,
-    { 'message.topic': topic, 'message.broker': 'redis' }
+    { 'message.topic': topic, 'message.broker': 'redis-stream', 'stream.id': streamId }
   );
   
-  console.log(`[SIDECAR] Published to Redis topic '${topic}'`);
+  console.log(`[SIDECAR] Published to Redis stream '${topic}' (ID: ${streamId})`);
   
   res.status(200).json({
     status: 'published',

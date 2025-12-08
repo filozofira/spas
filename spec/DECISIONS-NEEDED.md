@@ -429,7 +429,7 @@ G. Orchestration
    - [X] Network policies
    - [ ] Other: _________________
 
-   **Your Selection** (check all): Above will have to be adapted to what every we choose for service-mesh and/or DAPR or similar.
+   **Decision (Dec 2025)**: Choreography configuration will be adapted to SPAS sidecar component requirements (topic mappings, transformation functions, service endpoints).
 
 3. Who creates/manages this file?
    - [ ] Platform engineer

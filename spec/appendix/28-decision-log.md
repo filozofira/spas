@@ -22,7 +22,7 @@
 - ADR-015: mTLS deferred; no SPIFFE/SVID in PoC
 - ADR-016: Zipkin-only observability in PoC (Prometheus future)
 - ADR-017: Contract testing deferred from PoC
-- ADR-018: Direct DAPR pub/sub calls (CAP/outbox deferred to SDK Phase 2)
+- ~~ADR-018: Direct DAPR pub/sub calls~~ **DROPPED** (Dec 2025): DAPR evaluation found HTTP middleware incompatible with pub/sub. Using SPAS sidecar with Redis pub/sub instead. CAP/outbox pattern deferred to SDK Phase 2.
 - ADR-019: Monorepo structure for PoC development (co-located SDK, CLI, Sidecar, and Examples)
 
 ## Related Documents

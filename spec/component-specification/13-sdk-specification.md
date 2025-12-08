@@ -12,7 +12,7 @@ Defines a language-agnostic contract for SDKs, aligned with `analysis/high-level
 - Design-time metadata endpoint helper (optional) to expose `/_spas/metadata` in dev/local
 - CloudEvents helpers (build/publish with trace + correlation) and identity extraction util (payload for PoC; headers for Production)
 - Inbound endpoint scaffolding: attributes/base classes for handlers and payload contracts
-- Event publish helper (SPAS Service to sidecar/Dapr) with basic reliability; future outbox abstraction is optional in PoC
+- Event publish helper (SPAS Service to sidecar) with basic reliability; future outbox abstraction is optional in PoC
 - Configuration helpers: env/file loading with optional secret-source hook; keep transport/storage abstractions pluggable
 - Testing utilities: schema-driven fixtures; stub generators for contracts
 

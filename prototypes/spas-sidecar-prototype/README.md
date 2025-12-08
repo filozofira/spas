@@ -353,29 +353,35 @@ x-service-name: order-service
 
 ## Comparison with Alternatives
 
-| Aspect | SPAS | DAPR | Direct Redis | Message Queue |
+| Aspect | SPAS Sidecar (Selected) | Direct Redis | Message Queue | Service Mesh |
 |--------|------|------|--------------|---------------|
-| Decoupling | ✅ Full | ✅ Full | ❌ Partial | ✅ Full |
-| Tracing | ✅ Built-in | ✅ Supported | ❌ Manual | ⚠️ Limited |
-| Complexity | ⚠️ Medium | ⚠️ Medium | ✅ Low | ⚠️ Medium |
-| Standards | ✅ CloudEvents | ⚠️ Custom | ❌ None | ✅ Protocol-specific |
-| Control | ✅ Full | ⚠️ Limited | ✅ Full | ⚠️ Limited |
+| Decoupling | ✅ Full | ❌ Partial | ✅ Full | ✅ Full |
+| Tracing | ✅ Built-in (W3C) | ❌ Manual | ⚠️ Limited | ✅ Built-in |
+| Transformation | ✅ Native | ❌ None | ❌ None | ⚠️ Limited |
+| Complexity | ⚠️ Medium | ✅ Low | ⚠️ Medium | ⚠️ High |
+| Standards | ✅ CloudEvents | ❌ None | ✅ Protocol-specific | ✅ CNCF |
+| Control | ✅ Full | ✅ Full | ⚠️ Limited | ⚠️ Limited |
+
+**Why SPAS Sidecar**: Combined benefits of transformation layer (unlike direct Redis), built-in tracing (unlike message queues), and lower operational complexity than service mesh. Service mesh deferred to Production for infrastructure concerns (mTLS, policy).
 
 ## Next Steps
 
 ### Phase 2: Production Hardening
+
 - Add retry logic and circuit breakers
 - Implement message dead-letter queues (DLQ)
 - Add comprehensive metrics collection
 - Error handling and logging improvements
 
 ### Phase 3: Advanced Features
+
 - Support for message batching
 - Outbox pattern for transactional publishing
 - Saga pattern for distributed transactions
 - Event sourcing integration
 
 ### Phase 4: Multi-Tenant Support
+
 - Per-tenant configuration
 - Isolated trace contexts
 - Multi-topic orchestration

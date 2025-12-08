@@ -52,8 +52,8 @@ This document provides a high-level view of SPAS components and how they interac
 
 > PoC vs Production
 >
-> - PoC: DAPR sidecar; HTTP transport; no mTLS; Zipkin observability; custom HTTP middleware for transformations (see Action Item #1: middleware execution order research)
-> - Production: Mesh-agnostic sidecar contract (Istio/Linkerd/DAPR compatible); gRPC transport; mTLS; policy enforcement
+> - PoC: SPAS sidecar component; HTTP transport; no mTLS; Zipkin observability; CloudEvents wrapper for transformations
+> - Production: Mesh-agnostic sidecar contract (Istio/Linkerd compatible); gRPC transport; mTLS; policy enforcement
 
 ## Related Documents
 

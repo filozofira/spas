@@ -17,7 +17,7 @@ Defines the command-line tools that power the SPAS developer workflow.
 - `spas-compose context init <domain-name>` — Create domain folder with docker-compose.yaml scaffold
 - `spas-compose services pull <name> <version> [--repo <url>]` — Download services, decompose to /services folder
 - `spas-compose choreography init <flow-name>` — Create choreography.yaml template
-- `spas-compose choreography generate` — Generate DAPR components, transformations, update docker-compose
+- `spas-compose choreography generate` — Generate SPAS sidecar configurations, transformations, update docker-compose
 
 ### Deferred (PoC)
 

@@ -28,8 +28,8 @@ Specifies responsibilities and interfaces for the platform-injected sidecar/mesh
 
 ## Compatibility
 
-- Compatible with Dapr in PoC
-- Istio, Linkerd, etc. will be considered in Production
+- PoC: SPAS sidecar component (custom implementation)
+- Production: Compatible with standard service meshes (Istio, Linkerd) via sidecar contract
 
 ## PoC Implementation (SPAS Sidecar)
 

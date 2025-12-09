@@ -5,7 +5,9 @@ These principles are stable across versions and apply to all SPAS services and t
 ## Self-Contained
 
 - One bounded context per service
-- No synchronous cross-context calls; integration via events or edge gRPC only
+- No direct service-to-service communication; all traffic flows through sidecars
+- Integration via events (asynchronous) or sidecar-mediated invocation (synchronous commands/queries)
+- Edge traffic via API gateway (gRPC in Production, HTTP in PoC)
 - Encapsulated state and domain model
 
 ## Portable

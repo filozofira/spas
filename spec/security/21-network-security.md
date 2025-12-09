@@ -18,8 +18,10 @@
 
 ## Sidecar Enforcement
 
-- Mandatory sidecar for all traffic
-- No service-to-service sync calls
+- Mandatory sidecar for all traffic (ingress and egress)
+- No direct service-to-service communication; all traffic flows through sidecars
+- Sidecars mediate both event-driven flows and synchronous invocations
+- Services only accept traffic from their paired sidecar (enforced by network policies)
 
 ## Related Documents
 

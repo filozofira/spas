@@ -17,8 +17,9 @@ This document provides a high-level view of SPAS components and how they interac
   - Edge: REST→HTTP translation, auth (OIDC/JWT), routing, TLS termination
 - East–West (service ↔ service)
   - Event-first via sidecar/mesh (CloudEvents JSON)
+  - Sidecar-mediated invocation: Sidecars can invoke services directly for command/query patterns (configured in `choreography.yaml`)
   - Identity propagation (PoC: in payload; Future: middleware injection)
-  - No direct service-to-service sync calls
+  - No direct service-to-service communication (all traffic flows through sidecars)
 
 ## Choreography & Adaptation
 

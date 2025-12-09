@@ -4,7 +4,7 @@
 
 - ADR-001: gRPC over REST for service APIs (Production)
 - ADR-002: Sidecar pattern for events and policy enforcement
-- ADR-003: No service-to-service sync calls
+- ADR-003: No direct service-to-service communication (all traffic flows through sidecars)
 - ADR-004: External container registry references
 - ADR-005: Additive-only event evolution
 - ADR-006: Zero-trust security model (Production)
@@ -24,6 +24,7 @@
 - ADR-017: Contract testing deferred from PoC
 - ~~ADR-018: Direct DAPR pub/sub calls~~ **DROPPED** (Dec 2025): DAPR evaluation found HTTP middleware incompatible with pub/sub. Using SPAS sidecar with Redis pub/sub instead. CAP/outbox pattern deferred to SDK Phase 2.
 - ADR-019: Monorepo structure for PoC development (co-located SDK, CLI, Sidecar, and Examples)
+- ADR-020: Sidecar-mediated service invocation for command/query patterns (Dec 2025): Sidecars can invoke services directly via configured HTTP endpoints (PoC) or gRPC methods (Production) for command and query handling, in addition to event-driven flows. Invocation rules configured in `choreography.yaml`. Maintains principle of no direct service-to-service communication (all traffic mediated by sidecars). Enables request-response patterns while preserving sidecar responsibilities for transformation, observability, and policy enforcement.
 
 ## Related Documents
 

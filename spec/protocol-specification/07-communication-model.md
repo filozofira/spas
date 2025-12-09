@@ -12,10 +12,15 @@ Defines North–South and East–West communication patterns and responsibilitie
 ## East–West (Service ↔ Service)
 
 - Event-first via sidecar/mesh (CloudEvents JSON)
+- Sidecar-mediated invocation:
+  - Sidecars can invoke services directly via configured endpoints for command/query patterns
+  - Invocation rules defined in `choreography.yaml` (endpoints, transformations, routing)
+  - Maintains sidecar responsibilities: transformation, observability, policy enforcement
+  - PoC: HTTP; Production: gRPC
 - Identity propagation:
   - PoC: JWT token in CloudEvents payload; SDK helper extracts claims
   - Production: Sidecar injects auth headers from event claims
-- No direct sync calls between services
+- No direct service-to-service communication (all traffic flows through sidecars)
 
 ## Sidecar Responsibilities
 

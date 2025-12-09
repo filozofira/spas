@@ -8,17 +8,19 @@ Captured by domain authors; describes **what** to transform and route:
 
 - Services: name + version (natural key) participating in the domain
 - Event routing: domain topics and bindings
+- Service invocation: command/query endpoint mappings for sidecar-mediated direct invocation
 - Transformations: domain ↔ internal schema mappings (references to mapping files)
 - Service configuration overrides
 - Network policies (informative in PoC)
 
 ## Mapping Rules — Domain Composition scope
 
-- Inbound: Domain event → service internal schema
-- Outbound: Service internal schema → domain event
+- Inbound: Domain event/command → service internal schema
+- Outbound: Service internal schema → domain event/response
+- Applies to both event-driven flows and sidecar-mediated invocations
 - Transformations should be declarative and testable
 - Transformation rules MUST reside in external mapping files and be referenced from `choreography.yaml` (e.g. `mappings[]`). Transformation rules are NOT referenced from spas.json because they are Domain Context specific, not service specific.
-- Each mapping file declares: source topic, source event type, transformation rules/operations, and destination endpoint/topic (i.e. endpoint for inbound traffic and topic for outbound traffic from the SPAS service.)
+- Each mapping file declares: source topic/command, source event/command type, transformation rules/operations, and destination endpoint/topic (i.e. endpoint for inbound traffic and topic for outbound traffic from the SPAS service.)
 
 ## Validation — split by concern
 

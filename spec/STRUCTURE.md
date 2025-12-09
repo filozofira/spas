@@ -288,9 +288,10 @@ Reference materials, examples, and decision records.
   - Edge layer: API Gateway pattern (external infra; e.g., Kong/NGINX/cloud gateways)
   - Responsibilities: REST→gRPC translation, auth, versioning, routing, TLS termination
 - **East-West** (service ↔ service):
-  - Asynchronous (events via sidecar)
+  - Event-first: Asynchronous events via sidecar/mesh
+  - Sidecar-mediated invocation: Synchronous commands/queries via sidecar (configured in choreography.yaml)
   - Identity propagation
-  - No direct service-to-service calls
+  - No direct service-to-service communication (all traffic flows through sidecars)
 - Sidecar responsibilities
 - Protocol selection decision tree
 
@@ -525,8 +526,9 @@ Reference materials, examples, and decision records.
 ### **21. Network Security**
 
 - **Sidecar enforcement**:
-  - Mandatory sidecar for all traffic
-  - No direct service-to-service communication
+  - Mandatory sidecar for all traffic (ingress and egress)
+  - No direct service-to-service communication; all traffic mediated by sidecars
+  - Sidecars handle both event-driven and invocation-based patterns
 - **Egress control**:
   - Default deny all egress
   - Whitelist-based exceptions
@@ -649,12 +651,13 @@ Reference materials, examples, and decision records.
 
 - **ADR-001**: Why gRPC over REST for service APIs?
 - **ADR-002**: Why sidecar pattern for events?
-- **ADR-003**: Why no service-to-service sync calls?
+- **ADR-003**: Why no direct service-to-service communication?
 - **ADR-004**: Why external container registry?
 - **ADR-005**: Why additive-only event evolution?
 - **ADR-006**: Why zero-trust security model?
 - **ADR-007**: POC vs Production trade-offs
 - **ADR-008**: Why single bounded context per service?
+- **ADR-020**: Sidecar-mediated service invocation for command/query patterns
 
 ---
 

@@ -40,10 +40,13 @@ SPAS specifies:
 ### PoC Phase (December 2025)
 
 - ✅ **SPAS Sidecar Component**: Custom sidecar prototype complete
+  - Service invocation: Command/query patterns via HTTP endpoints
+  - Event-driven flows: Redis pub/sub with event consumption
   - Message transformation with CloudEvents 1.0 wrapper
   - W3C Trace Context propagation
-  - Zipkin distributed tracing with correlated traces
-  - Redis pub/sub integration
+  - Zipkin distributed tracing with correlated parent-child span relationships
+  - Request-response and fire-and-forget patterns
+  - Configuration-driven routing and transformation
   - See: `prototypes/spas-sidecar-prototype/`
 
 ## Out of Scope (v1.0)

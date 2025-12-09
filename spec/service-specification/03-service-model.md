@@ -28,7 +28,8 @@ Defines what makes a service “SPAS-compliant”. Clarifies the single gRPC sur
 
 ## Security
 
-- No direct service-to-service synchronous calls (enforced by composition rules)
+- No direct service-to-service communication; all traffic mediated by sidecars (enforced by network policies and composition rules)
+- Services receive invocations from their sidecars only (both event-driven and direct invocation patterns)
 - Service MUST accept propagated identity: JWT from edge (North-South) or via event payload (East-West PoC). In Production, sidecar will inject verified identity headers (SPIFFE/SPIRE cert subject or claims).
 - Outbound events enriched with identity + correlation metadata
 - Data classification declared in metadata (`security.dataClassification`)

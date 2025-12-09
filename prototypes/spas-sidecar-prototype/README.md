@@ -31,18 +31,24 @@ order-service publishes → fulfillment-service processes → order-service rece
 │                         SPAS Sidecar Architecture                           │
 └─────────────────────────────────────────────────────────────────────────────┘
 
-                        Order Service (port 5001)
-                                ↕
-                    [generates W3C traceparent]
-                                ↕
+             Order Client (external)
+                     ↓ POST /invoke/create-order
+                     │
                     Order Service Sidecar (port 7001)
-        ┌────────────────────────────────────────────────────────┐
-        │ ✓ Transforms outgoing orders (input transform)         │
-        │ ✓ Transforms incoming responses (output transform)     │
-        │ ✓ Publishes to/subscribes from Redis                   │
-        │ ✓ Wraps in CloudEvents + trace context                 │
-        │ ✓ Logs spans to Zipkin                                 │
-        └────────────────────────────────────────────────────────┘
+        ┌──────────────────────────────────────────────────────┐
+        │ ✓ Command invocation (/invoke/:command)              │
+        │ ✓ Transforms outgoing orders (input transform)       │
+        │ ✓ Transforms incoming responses (output transform)   │
+        │ ✓ Publishes to/subscribes from Redis                 │
+        │ ✓ Wraps in CloudEvents + trace context               │
+        │ ✓ Logs spans to Zipkin                               │
+        └──────────────────────────────────────────────────────┘
+                     ↓ Transform & invoke service
+                     │
+                        Order Service (port 5001)
+                     │ [generates W3C traceparent]
+                     │ POST /publish (for events)
+                     ↓
                 ↓ orders-requested     ↑ orders-processed
         
                             ┌─────────────┐
@@ -52,14 +58,15 @@ order-service publishes → fulfillment-service processes → order-service rece
                             └─────────────┘
                 ↓ orders-requested     ↑ orders-processed
         
-        ┌────────────────────────────────────────────────────────┐
+        ┌──────────────────────────────────────────────────────┐
         │    Fulfillment Service Sidecar (port 7002)             │
+        │ ✓ Event consumption (from Redis)                      │
         │ ✓ Transforms incoming orders (output transform)        │
         │ ✓ Transforms outgoing responses (input transform)      │
         │ ✓ Extracts trace ID from CloudEvents                   │
         │ ✓ Invokes fulfillment service with trace header        │
         │ ✓ Logs spans to Zipkin                                 │
-        └────────────────────────────────────────────────────────┘
+        └──────────────────────────────────────────────────────┘
                                 ↕
                 [extracts & preserves W3C traceparent]
                                 ↕
@@ -77,6 +84,7 @@ order-service publishes → fulfillment-service processes → order-service rece
                 │ - Visualizes all spans  │
                 │ - Correlates by trace   │
                 │ - Shows service flow    │
+                │ - Parent-child spans    │
                 └─────────────────────────┘
 ```
 
@@ -84,12 +92,13 @@ order-service publishes → fulfillment-service processes → order-service rece
 
 | Component | Port | Role | Responsibility |
 |-----------|------|------|-----------------|
-| **order-service** | 5001 | Publisher + Subscriber | Generate trace IDs, publish orders, receive fulfillment responses |
-| **order-service-sidecar** | 7001 | Transformer | Transform messages, manage Redis pub/sub, preserve traces |
+| **order-service** | 5001 | Publisher + Subscriber | Generate trace IDs, publish orders, receive fulfillment responses, handle commands |
+| **order-service-sidecar** | 7001 | Transformer + Invoker | Transform messages, manage Redis pub/sub, command invocation, preserve traces |
 | **fulfillment-service** | 5002 | Subscriber + Publisher | Process orders, publish fulfillment events, log trace IDs |
-| **fulfillment-service-sidecar** | 7002 | Transformer | Transform messages, manage Redis pub/sub, preserve traces |
+| **fulfillment-service-sidecar** | 7002 | Transformer + Invoker | Transform messages, manage Redis pub/sub, service invocation, preserve traces |
 | **Redis** | 6379 | Message Broker | Store and distribute messages via Streams |
-| **Zipkin** | 9411 | Tracing Backend | Collect and visualize distributed traces |
+| **Zipkin** | 9411 | Tracing Backend | Collect and visualize distributed traces with parent-child relationships |
+| **order-client** | - | Command Invoker | Invokes order commands via sidecar (/invoke/create-order) |
 
 ## Message Flow: Complete Cycle
 

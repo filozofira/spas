@@ -5,19 +5,26 @@
 ```mermaid
 graph TB
     subgraph Services["📦 Application Services"]
-        OrderSvc["order-service<br/>(Port 5001)<br/>─────<br/>✓ Publish orders<br/>✓ Receive responses"]
+        OrderSvc["order-service<br/>(Port 5001)<br/>─────<br/>✓ Publish orders<br/>✓ Receive responses<br/>✓ Handle commands"]
         FulfillmentSvc["fulfillment-service<br/>(Port 5002)<br/>─────<br/>✓ Process orders<br/>✓ Publish events"]
     end
     
     subgraph Sidecars["🔄 SPAS Sidecars"]
-        OrderSidecar["order-service-sidecar<br/>(Port 7001)<br/>─────<br/>✓ Transform input<br/>✓ Transform output<br/>✓ Redis pub/sub"]
-        FulfillmentSidecar["fulfillment-service-sidecar<br/>(Port 7002)<br/>─────<br/>✓ Transform input<br/>✓ Transform output<br/>✓ Redis pub/sub"]
+        OrderSidecar["order-service-sidecar<br/>(Port 7001)<br/>─────<br/>✓ Transform input/output<br/>✓ Redis pub/sub<br/>✓ Service invocation<br/>✓ Command routing"]
+        FulfillmentSidecar["fulfillment-service-sidecar<br/>(Port 7002)<br/>─────<br/>✓ Transform input/output<br/>✓ Redis pub/sub<br/>✓ Service invocation<br/>✓ Event consumption"]
     end
     
     subgraph Infrastructure["🏗️ Infrastructure"]
         Redis["Redis Streams<br/>(Port 6379)<br/>─────<br/>📨 orders-requested<br/>📨 orders-processed"]
         Zipkin["Zipkin<br/>(Port 9411)<br/>─────<br/>🔍 Distributed Tracing<br/>W3C Trace Context"]
     end
+    
+    subgraph Client["👤 External Client"]
+        OrderClient["order-client<br/>─────<br/>Invokes commands"]
+    end
+    
+    OrderClient -->|POST /invoke/create-order| OrderSidecar
+    OrderSidecar -->|Transform & invoke| OrderSvc
     
     OrderSvc -->|POST /publish| OrderSidecar
     OrderSidecar -->|HTTP POST /incoming| OrderSvc
@@ -30,6 +37,8 @@ graph TB
     
     OrderSidecar -->|Log spans| Zipkin
     FulfillmentSidecar -->|Log spans| Zipkin
+    OrderSvc -->|Log spans| Zipkin
+    FulfillmentSvc -->|Log spans| Zipkin
 ```
 
 ## 2. Message Flow - Complete Cycle with Trace Propagation
@@ -135,11 +144,26 @@ graph LR
     style P10 fill:#2196F3,stroke:#1565C0,stroke-width:2px,color:#fff
 ```
 
-## 4. Sidecar Pattern - Publisher vs Subscriber
+## 4. Sidecar Pattern - Three Communication Patterns
 
 ```mermaid
 graph TB
-    subgraph Publisher["📤 Publishing Pattern"]
+    subgraph Command["⚡ Command Invocation (Synchronous)"]
+        CClient["Client/Service"]
+        CClient -->|POST /invoke/command| CSidecar["Sidecar"]
+        CSidecar -->|Transform<br/>+ Trace| CInvoke["Invoke<br/>Service"]
+        CInvoke -->|HTTP POST<br/>/incoming| CApp["Application<br/>Service"]
+        CApp -->|Response| CInvoke
+        CInvoke -->|Transform| CSidecar
+        CSidecar -->|Response| CClient
+        
+        style CClient fill:#E1BEE7,stroke:#6A1B9A,stroke-width:2px
+        style CSidecar fill:#FFF9C4,stroke:#F57F17,stroke-width:2px
+        style CInvoke fill:#FFF9C4,stroke:#F57F17,stroke-width:2px
+        style CApp fill:#E3F2FD,stroke:#1976D2,stroke-width:2px
+    end
+    
+    subgraph Publisher["📤 Event Publishing (Async)"]
         PApp["Application<br/>Service"]
         PApp -->|POST /publish/topic| PSidecar["Sidecar"]
         PSidecar -->|Transform<br/>Input| PCE["CloudEvents<br/>+ Trace"]
@@ -151,7 +175,7 @@ graph TB
         style PRedis fill:#FFCCBC,stroke:#D84315,stroke-width:2px
     end
     
-    subgraph Subscriber["📥 Subscribing Pattern"]
+    subgraph Subscriber["📥 Event Subscription (Async)"]
         SRedis["Redis<br/>Stream"]
         SRedis -->|Subscribe| SSidecar["Sidecar"]
         SSidecar -->|Extract<br/>Trace ID| SSidecar2["Transform<br/>Output"]
@@ -313,10 +337,17 @@ When integrating SPAS into the framework (`src/sidecar`):
 1. **Deploy sidecars in same pod** as service (see Diagram 7)
 2. **Services communicate via localhost** to sidecar (port 7001, 7002, etc.)
 3. **Configure via JSON files** (order-service.json, fulfillment-service.json)
-4. **Enable Zipkin** for distributed tracing backend
+   - Event routing rules (topic mappings)
+   - Command invocation endpoints
+   - Transformation mappings
+4. **Enable Zipkin** for distributed tracing backend (parent-child span relationships)
 5. **Deploy Redis Streams** as message broker (can be external service)
 6. **Use CloudEvents SDK** in services for message handling
-7. **Implement /incoming endpoint** in services for sidecar invocation
+7. **Implement /incoming endpoint** in services for sidecar invocation (handles both events and commands)
+8. **Support multiple patterns**:
+   - Event-driven: Async pub/sub via Redis
+   - Command invocation: Sync request-response via HTTP
+   - Both patterns maintain trace context and transformations
 
 All diagrams are in Mermaid format and render in:
 - GitHub markdown (.md files)

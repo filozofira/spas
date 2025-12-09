@@ -3,14 +3,21 @@
     "host": "redis",
     "port": 6379
   },
-  "subscriptions": [
+  "inbound": [
     {
+      "kind": "command",
+      "command": "create-order",
+      "transform": "transformOutput",
+      "invokeEndpoint": "/incoming"
+    },
+    {
+      "kind": "event",
       "topic": "orders-processed",
       "transform": "transformOutput",
       "invokeEndpoint": "/incoming"
     }
   ],
-  "publications": [
+  "outbound": [
     {
       "topic": "orders-requested",
       "transform": "transformInput"

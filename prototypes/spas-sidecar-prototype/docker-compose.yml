@@ -48,6 +48,18 @@ services:
     networks:
       - spas-network
 
+  # Order Client (simulates external caller)
+  order-client:
+    build: ./order-client
+    container_name: order-client
+    environment:
+      - SIDECAR_HOST=order-service-sidecar
+      - SIDECAR_PORT=7001
+    depends_on:
+      - order-service-sidecar
+    networks:
+      - spas-network
+
   # Fulfillment Service
   fulfillment-service:
     build: ./fulfillment-service

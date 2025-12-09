@@ -1,0 +1,12 @@
+{
+  "name": "order-client",
+  "version": "1.0.0",
+  "description": "Simple client to invoke order commands via SPAS sidecar",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "dependencies": {
+    "node-fetch": "^2.6.7"
+  }
+}

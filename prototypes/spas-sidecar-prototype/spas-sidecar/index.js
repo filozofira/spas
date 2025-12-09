@@ -10,6 +10,74 @@ const configPath = process.env.CONFIG_PATH || path.join(__dirname, 'config.json'
 const config = JSON.parse(fs.readFileSync(configPath, 'utf8'));
 const transforms = require('./transform');
 
+// Validate configuration on startup
+function validateConfig(cfg) {
+  const errors = [];
+  
+  // Validate inbound entries
+  if (cfg.inbound) {
+    cfg.inbound.forEach((entry, idx) => {
+      if (!entry.kind) {
+        errors.push(`inbound[${idx}]: missing required field 'kind' (must be "command" or "event")`);
+      } else if (entry.kind !== 'command' && entry.kind !== 'event') {
+        errors.push(`inbound[${idx}]: invalid kind '${entry.kind}' (must be "command" or "event")`);
+      }
+      
+      if (entry.kind === 'command' && !entry.command) {
+        errors.push(`inbound[${idx}]: kind=command requires 'command' field`);
+      }
+      if (entry.kind === 'event' && !entry.topic) {
+        errors.push(`inbound[${idx}]: kind=event requires 'topic' field`);
+      }
+      if (!entry.transform) {
+        errors.push(`inbound[${idx}]: missing required field 'transform'`);
+      }
+      if (entry.kind === 'command' && !entry.invokeEndpoint) {
+        errors.push(`inbound[${idx}]: kind=command requires 'invokeEndpoint'`);
+      }
+    });
+  }
+  
+  // Validate outbound entries
+  if (cfg.outbound) {
+    cfg.outbound.forEach((entry, idx) => {
+      if (!entry.topic) {
+        errors.push(`outbound[${idx}]: missing required field 'topic'`);
+      }
+      if (!entry.transform) {
+        errors.push(`outbound[${idx}]: missing required field 'transform'`);
+      }
+    });
+  }
+  
+  // Support legacy config temporarily but warn
+  if (cfg.subscriptions || cfg.publications) {
+    console.warn('[SIDECAR] WARNING: Legacy config detected. Please migrate to inbound/outbound schema.');
+    // Auto-migrate for backward compatibility
+    if (cfg.subscriptions && !cfg.inbound) {
+      cfg.inbound = cfg.subscriptions.map(sub => ({
+        kind: 'event',
+        topic: sub.topic,
+        transform: sub.transform,
+        invokeEndpoint: sub.invokeEndpoint
+      }));
+    }
+    if (cfg.publications && !cfg.outbound) {
+      cfg.outbound = cfg.publications;
+    }
+  }
+  
+  if (errors.length > 0) {
+    console.error('[SIDECAR] Configuration validation FAILED:');
+    errors.forEach(err => console.error(`  - ${err}`));
+    throw new Error('Invalid configuration. See errors above.');
+  }
+  
+  console.log('[SIDECAR] Configuration validated successfully');
+}
+
+validateConfig(config);
+
 // Zipkin configuration
 const zipkinUrl = process.env.ZIPKIN_URL;
 const serviceId = process.env.SERVICE_NAME || 'service';
@@ -124,7 +192,9 @@ function extractTraceContext(message) {
 
 async function subscribeTopics() {
   await redisSubClient.connect();
-  for (const sub of config.subscriptions) {
+  const eventInbound = (config.inbound || []).filter(entry => entry.kind === 'event');
+  
+  for (const sub of eventInbound) {
     // Start reading from the latest messages (new ones)
     // Use '0' to read from the beginning, or '$' to read only new messages
     let lastId = '$';
@@ -159,10 +229,10 @@ async function subscribeTopics() {
                   traceContext,
                   receiveSpanId,
                   null,
-                  `receive ${sub.topic}`,
+                  `receive event ${sub.topic}`,
                   startTime,
                   Date.now() - startTime,
-                  { 'message.topic': sub.topic, 'message.type': 'receive' }
+                  { 'kind': 'event', 'transport': 'redis', 'event.topic': sub.topic, 'message.type': 'receive' }
                 );
                 
                 // Transform the message
@@ -247,10 +317,109 @@ async function initPublishClient() {
   await redisPubClient.connect();
 }
 
+// Command invocation route
+app.post('/invoke/:command', async (req, res) => {
+  const startTime = Date.now();
+  const commandName = req.params.command;
+  const commandEntry = (config.inbound || []).find(entry => entry.kind === 'command' && entry.command === commandName);
+  
+  if (!commandEntry) {
+    return res.status(404).json({ error: 'Unknown command', command: commandName });
+  }
+  
+  // Extract or generate trace context
+  const traceContext = req.headers.traceparent || `00-${uuidv4().replace(/-/g, '')}-${generateSpanId()}-01`;
+  console.log(`[SIDECAR] Invoking command '${commandName}' with trace ID: ${traceContext}`);
+  
+  try {
+    // Send receive span to Zipkin
+    const receiveSpanId = generateSpanId();
+    await sendZipkinSpan(
+      traceContext,
+      receiveSpanId,
+      null,
+      `invoke command ${commandName}`,
+      startTime,
+      Date.now() - startTime,
+      { 'kind': 'command', 'transport': 'http', 'command.name': commandName, 'http.method': 'POST' }
+    );
+    
+    // Transform the message
+    const transformStart = Date.now();
+    const transformed = transforms[commandEntry.transform](req.body);
+    
+    // Send transform span to Zipkin
+    const transformSpanId = generateSpanId();
+    await sendZipkinSpan(
+      traceContext,
+      transformSpanId,
+      receiveSpanId,
+      `transform ${commandEntry.transform}`,
+      transformStart,
+      Date.now() - transformStart,
+      { 'transform.function': commandEntry.transform, 'kind': 'command' }
+    );
+    
+    // Wrap in CloudEvents
+    const cloudEvent = wrapInCloudEvents(
+      transformed,
+      req.headers['x-service-name'] || 'unknown-caller',
+      commandName,
+      'command.invoke',
+      traceContext
+    );
+    
+    console.log(`[SIDECAR] CloudEvent created for command (ID: ${cloudEvent.id})`);
+    
+    // Invoke service endpoint
+    const hasProtocol = commandEntry.invokeEndpoint.startsWith('http://') || commandEntry.invokeEndpoint.startsWith('https://');
+    const normalizedPath = commandEntry.invokeEndpoint.startsWith('/') ? commandEntry.invokeEndpoint : `/${commandEntry.invokeEndpoint}`;
+    const portPart = servicePort ? `:${servicePort}` : '';
+    const invokeUrl = hasProtocol ? commandEntry.invokeEndpoint : `http://${serviceId}${portPart}${normalizedPath}`;
+    
+    const invokeStart = Date.now();
+    const serviceResponse = await fetch(invokeUrl, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'traceparent': cloudEvent.traceparent
+      },
+      body: JSON.stringify(cloudEvent)
+    });
+    
+    // Send invoke span to Zipkin
+    const invokeSpanId = generateSpanId();
+    await sendZipkinSpan(
+      traceContext,
+      invokeSpanId,
+      transformSpanId,
+      `invoke service ${invokeUrl}`,
+      invokeStart,
+      Date.now() - invokeStart,
+      { 'http.url': invokeUrl, 'http.method': 'POST', 'http.status_code': serviceResponse.status, 'kind': 'command' }
+    );
+    
+    console.log(`[SIDECAR] Invoked service ${invokeUrl}, status: ${serviceResponse.status}`);
+    
+    // Return service response to caller
+    const responseBody = await serviceResponse.json().catch(() => ({}));
+    res.status(serviceResponse.status).json({
+      status: 'command-invoked',
+      command: commandName,
+      serviceResponse: responseBody,
+      traceparent: traceContext
+    });
+    
+  } catch (err) {
+    console.error(`[SIDECAR] Error invoking command '${commandName}':`, err);
+    res.status(500).json({ error: 'Command invocation failed', message: err.message });
+  }
+});
+
 app.post('/publish/:topic', async (req, res) => {
   const startTime = Date.now();
   const topic = req.params.topic;
-  const pub = config.publications.find(p => p.topic === topic);
+  const pub = (config.outbound || []).find(p => p.topic === topic);
   if (!pub) return res.status(404).send('Unknown topic');
   
   // Extract trace context from request headers if present
@@ -266,7 +435,7 @@ app.post('/publish/:topic', async (req, res) => {
     `POST /publish/${topic}`,
     startTime,
     Date.now() - startTime,
-    { 'http.method': 'POST', 'http.path': `/publish/${topic}` }
+    { 'kind': 'event', 'transport': 'http', 'event.topic': topic, 'http.method': 'POST', 'http.path': `/publish/${topic}` }
   );
   
   // Transform the message
@@ -306,10 +475,10 @@ app.post('/publish/:topic', async (req, res) => {
     traceContext,
     publishSpanId,
     transformSpanId,
-    `publish ${topic}`,
+    `publish event ${topic}`,
     publishStart,
     Date.now() - publishStart,
-    { 'message.topic': topic, 'message.broker': 'redis-stream', 'stream.id': streamId }
+    { 'kind': 'event', 'transport': 'redis', 'event.topic': topic, 'message.broker': 'redis-stream', 'stream.id': streamId }
   );
   
   console.log(`[SIDECAR] Published to Redis stream '${topic}' (ID: ${streamId})`);

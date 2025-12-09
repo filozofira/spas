@@ -23,6 +23,10 @@ services:
     container_name: spas-order-service
     ports:
       - "5001:5001"
+    environment:
+      - SERVICE_NAME=order-service
+      - SIDECAR_PORT=7001
+      - PORT=5001
     networks:
       - spas-network
 
@@ -33,8 +37,9 @@ services:
     environment:
       - PORT=7001
       - CONFIG_PATH=/app/config.order-service.json
-      - SERVICE_NAME=order-service-sidecar
+      - SERVICE_NAME=order-service
       - ZIPKIN_URL=http://zipkin:9411
+      - SERVICE_PORT=5001
     volumes:
       - ./spas-sidecar/config.order-service.json:/app/config.order-service.json
     depends_on:
@@ -49,6 +54,10 @@ services:
     container_name: spas-fulfillment-service
     ports:
       - "5002:5002"
+    environment:
+      - SERVICE_NAME=fulfillment-service
+      - SIDECAR_PORT=7002
+      - PORT=5002
     networks:
       - spas-network
 
@@ -59,8 +68,9 @@ services:
     environment:
       - PORT=7002
       - CONFIG_PATH=/app/config.fulfillment-service.json
-      - SERVICE_NAME=fulfillment-service-sidecar
+      - SERVICE_NAME=fulfillment-service
       - ZIPKIN_URL=http://zipkin:9411
+      - SERVICE_PORT=5002
     volumes:
       - ./spas-sidecar/config.fulfillment-service.json:/app/config.fulfillment-service.json
     depends_on:

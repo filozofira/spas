@@ -5,8 +5,9 @@ const fetch = require('node-fetch');
 const app = express();
 app.use(bodyParser.json({ type: '*/*' }));
 
-const SIDECAR_HOST = 'fulfillment-service-sidecar';
-const SIDECAR_PORT = 7002;
+const SERVICE_NAME = process.env.SERVICE_NAME || 'fulfillment-service';
+const SIDECAR_HOST = `${SERVICE_NAME}-sidecar`;
+const SIDECAR_PORT = process.env.SIDECAR_PORT || 7002;
 
 // Extract trace context from CloudEvents message
 function extractTraceContext(message) {

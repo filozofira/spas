@@ -6,8 +6,9 @@ const { randomBytes } = require('crypto');
 const app = express();
 app.use(bodyParser.json({ type: '*/*' }));
 
-const SIDECAR_HOST = 'order-service-sidecar';
-const SIDECAR_PORT = 7001;
+const SERVICE_NAME = process.env.SERVICE_NAME || 'order-service';
+const SIDECAR_HOST = `${SERVICE_NAME}-sidecar`;
+const SIDECAR_PORT = process.env.SIDECAR_PORT || 7001;
 
 // Generate W3C Trace Context compliant traceparent
 function generateTraceContext() {
@@ -88,7 +89,7 @@ async function publishMessage(messageId) {
   };
 
   // Send to order-service-sidecar
-  const url = `http://order-service-sidecar:7001/publish/orders-requested`;
+  const url = `http://${SIDECAR_HOST}:${SIDECAR_PORT}/publish/orders-requested`;
   console.log(`[ORDER-SERVICE] Sending message ${messageId} to sidecar...`);
   console.log(`[ORDER-SERVICE] Trace ID: ${traceparent}`);
   console.log(`[ORDER-SERVICE] Message data:`, JSON.stringify(messageData, null, 2));

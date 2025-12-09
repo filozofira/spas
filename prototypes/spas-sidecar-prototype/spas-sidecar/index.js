@@ -12,7 +12,9 @@ const transforms = require('./transform');
 
 // Zipkin configuration
 const zipkinUrl = process.env.ZIPKIN_URL;
-const serviceName = process.env.SERVICE_NAME || 'spas-sidecar';
+const serviceId = process.env.SERVICE_NAME || 'service';
+const spanServiceName = process.env.SERVICE_SPAN_NAME || `${serviceId}-sidecar`;
+const servicePort = process.env.SERVICE_PORT || '';
 
 // Generate a random hex string for span IDs (Zipkin requires lowercase hex)
 function generateSpanId() {
@@ -46,7 +48,7 @@ async function sendZipkinSpan(traceId, spanId, parentSpanId, spanName, timestamp
       timestamp: timestamp * 1000, // microseconds
       duration: duration * 1000, // microseconds
       localEndpoint: {
-        serviceName: serviceName
+        serviceName: spanServiceName
       },
       tags: tags
     };
@@ -192,9 +194,14 @@ async function subscribeTopics() {
                 
                 // Invoke endpoint if configured
                 if (sub.invokeEndpoint) {
+                  const hasProtocol = sub.invokeEndpoint.startsWith('http://') || sub.invokeEndpoint.startsWith('https://');
+                  const normalizedPath = sub.invokeEndpoint.startsWith('/') ? sub.invokeEndpoint : `/${sub.invokeEndpoint}`;
+                  const portPart = servicePort ? `:${servicePort}` : '';
+                  const invokeUrl = hasProtocol ? sub.invokeEndpoint : `http://${serviceId}${portPart}${normalizedPath}`;
+
                   try {
                     const invokeStart = Date.now();
-                    await fetch(sub.invokeEndpoint, {
+                    await fetch(invokeUrl, {
                       method: 'POST',
                       headers: {
                         'Content-Type': 'application/json',
@@ -209,13 +216,13 @@ async function subscribeTopics() {
                       traceContext,
                       invokeSpanId,
                       transformSpanId,
-                      `invoke ${sub.invokeEndpoint}`,
+                      `invoke ${invokeUrl}`,
                       invokeStart,
                       Date.now() - invokeStart,
-                      { 'http.url': sub.invokeEndpoint, 'http.method': 'POST' }
+                      { 'http.url': invokeUrl, 'http.method': 'POST' }
                     );
                     
-                    console.log(`[SIDECAR] Invoked endpoint ${sub.invokeEndpoint} with trace ID`);
+                    console.log(`[SIDECAR] Invoked endpoint ${invokeUrl} with trace ID`);
                   } catch (err) {
                     console.error(`[SIDECAR] Error invoking endpoint:`, err);
                   }

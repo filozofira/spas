@@ -7,7 +7,7 @@
     {
       "topic": "orders-processed",
       "transform": "transformOutput",
-      "invokeEndpoint": "http://order-service:5001/incoming"
+      "invokeEndpoint": "/incoming"
     }
   ],
   "publications": [

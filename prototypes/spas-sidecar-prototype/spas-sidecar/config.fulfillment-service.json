@@ -7,7 +7,7 @@
     {
       "topic": "orders-requested",
       "transform": "transformOutput",
-      "invokeEndpoint": "http://fulfillment-service:5002/incoming"
+      "invokeEndpoint": "/incoming"
     }
   ],
   "publications": [

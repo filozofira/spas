@@ -20,6 +20,12 @@ These principles are stable across versions and apply to all SPAS services and t
 - Use `choreography.yaml` to define Domain Composition: services, routing, and transformations
 - Sidecar/mesh performs protocol handling and transformations
 
+## Convention over Configuration
+
+- `SERVICE_NAME` is the single source of identity; sidecar hostnames derive as `${SERVICE_NAME}-sidecar`
+- Sidecars invoke services via relative paths (for example, `/incoming`) and compose the full URL from `SERVICE_NAME` + `SERVICE_PORT`
+- Ports remain explicit, but hosts and endpoints follow conventions to minimize per-service config
+
 ## Event-First
 
 - East–West communication is asynchronous by default

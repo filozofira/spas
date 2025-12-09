@@ -97,7 +97,7 @@ order-service publishes → fulfillment-service processes → order-service rece
 
 ```
 1. order-service generates W3C traceparent
-   └─ POST http://order-service-sidecar:7001/publish/orders-requested
+  └─ POST http://${SERVICE_NAME}-sidecar:${SIDECAR_PORT}/publish/orders-requested
       Headers: traceparent, x-service-name
       Body: { orderId, amount, timestamp }
 
@@ -125,7 +125,7 @@ order-service publishes → fulfillment-service processes → order-service rece
 
 ```
 5. fulfillment-service publishes fulfillment event
-   └─ POST http://fulfillment-service-sidecar:7002/publish/orders-processed
+  └─ POST http://${SERVICE_NAME}-sidecar:${SIDECAR_PORT}/publish/orders-processed
       Headers: traceparent (SAME!), x-service-name
       Body: { orderId, status: "fulfilled", amount, timestamp }
 
@@ -310,7 +310,15 @@ Example output:
 
 Each sidecar configured via JSON:
 
+#### Convention over configuration
+
+- `SERVICE_NAME` defines the service identity (e.g., `order-service`, `fulfillment-service`).
+- Sidecar hostname is derived as `${SERVICE_NAME}-sidecar` (no need to configure host explicitly).
+- Sidecar invokes the service using relative `invokeEndpoint` values (e.g., `/incoming`) and builds the full URL with `SERVICE_NAME` + optional `SERVICE_PORT`.
+- `SIDECAR_PORT` and `SERVICE_PORT` remain explicit for clarity.
+
 **order-service-sidecar** (`config.order-service.json`):
+
 ```json
 {
   "redis": { "host": "redis", "port": 6379 },
@@ -318,7 +326,7 @@ Each sidecar configured via JSON:
     {
       "topic": "orders-processed",
       "transform": "transformOutput",
-      "invokeEndpoint": "http://order-service:5001/incoming"
+      "invokeEndpoint": "/incoming"
     }
   ],
   "publications": [
@@ -331,6 +339,7 @@ Each sidecar configured via JSON:
 ```
 
 **fulfillment-service-sidecar** (`config.fulfillment-service.json`):
+
 ```json
 {
   "redis": { "host": "redis", "port": 6379 },
@@ -338,7 +347,7 @@ Each sidecar configured via JSON:
     {
       "topic": "orders-requested",
       "transform": "transformOutput",
-      "invokeEndpoint": "http://fulfillment-service:5002/incoming"
+      "invokeEndpoint": "/incoming"
     }
   ],
   "publications": [
@@ -383,7 +392,8 @@ const transforms = {
 ### How to Use SPAS in Your Framework
 
 1. **Deploy Sidecar Alongside Service**
-   ```yaml
+
+  ```yaml
    kind: Deployment
    spec:
      containers:
@@ -396,8 +406,9 @@ const transforms = {
          value: /etc/spas/config.json
    ```
 
-2. **Service Publishes via Sidecar**
-   ```csharp
+1. **Service Publishes via Sidecar**
+
+  ```csharp
    // .NET Example
    var traceId = GenerateW3CTraceId();
    var response = await httpClient.PostAsync(
@@ -407,8 +418,9 @@ const transforms = {
    );
    ```
 
-3. **Service Implements Incoming Endpoint**
-   ```csharp
+1. **Service Implements Incoming Endpoint**
+
+  ```csharp
    [HttpPost("/incoming")]
    public async Task<IActionResult> HandleIncomingMessage(
      [FromBody] CloudEvent cloudEvent,
@@ -426,8 +438,9 @@ const transforms = {
    }
    ```
 
-4. **Enable Distributed Tracing**
-   ```csharp
+1. **Enable Distributed Tracing**
+
+  ```csharp
    // Add to service startup
    services.AddOpenTelemetry()
      .WithTracing(builder => builder

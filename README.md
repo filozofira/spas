@@ -62,5 +62,6 @@ SPAS specifies:
 
 ## Related Documents
 
-- [Core Principles](./spec/01-core-principles.md)
-- [Architecture Overview](./spec/02-architecture-overview.md)
+- [Specification](./spec/INDEX.md)
+- Prototypes
+  - [spas-sidecar](./prototypes/spas-sidecar-prototype/README.md)

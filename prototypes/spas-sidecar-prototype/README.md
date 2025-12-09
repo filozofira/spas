@@ -24,68 +24,194 @@ order-service publishes → fulfillment-service processes → order-service rece
 
 ## Architecture
 
-### System Diagram
+For comprehensive architecture diagrams covering system design, message flows, trace correlation, and deployment patterns, see the diagrams below.
 
+### System Architecture - Component Interaction
+
+```mermaid
+graph TB
+    subgraph Services["📦 Application Services"]
+        OrderSvc["order-service<br/>(Port 5001)<br/>─────<br/>✓ Publish orders<br/>✓ Receive responses<br/>✓ Handle commands"]
+        FulfillmentSvc["fulfillment-service<br/>(Port 5002)<br/>─────<br/>✓ Process orders<br/>✓ Publish events"]
+    end
+    
+    subgraph Sidecars["🔄 SPAS Sidecars"]
+        OrderSidecar["order-service-sidecar<br/>(Port 7001)<br/>─────<br/>✓ Transform input/output<br/>✓ Redis pub/sub<br/>✓ Service invocation<br/>✓ Command routing"]
+        FulfillmentSidecar["fulfillment-service-sidecar<br/>(Port 7002)<br/>─────<br/>✓ Transform input/output<br/>✓ Redis pub/sub<br/>✓ Service invocation<br/>✓ Event consumption"]
+    end
+    
+    subgraph Infrastructure["🏗️ Infrastructure"]
+        Redis["Redis Streams<br/>(Port 6379)<br/>─────<br/>📨 orders-requested<br/>📨 orders-processed"]
+        Zipkin["Zipkin<br/>(Port 9411)<br/>─────<br/>🔍 Distributed Tracing<br/>W3C Trace Context"]
+    end
+    
+    subgraph Client["👤 External Client"]
+        OrderClient["order-client<br/>─────<br/>Invokes commands"]
+    end
+    
+    OrderClient -->|POST /invoke/create-order| OrderSidecar
+    OrderSidecar -->|Transform & invoke| OrderSvc
+    
+    OrderSvc -->|POST /publish| OrderSidecar
+    OrderSidecar -->|HTTP POST /incoming| OrderSvc
+    
+    FulfillmentSvc -->|POST /publish| FulfillmentSidecar
+    FulfillmentSidecar -->|HTTP POST /incoming| FulfillmentSvc
+    
+    OrderSidecar <-->|Redis Streams| Redis
+    FulfillmentSidecar <-->|Redis Streams| Redis
+    
+    OrderSidecar -->|Log spans| Zipkin
+    FulfillmentSidecar -->|Log spans| Zipkin
+    OrderSvc -->|Log spans| Zipkin
+    FulfillmentSvc -->|Log spans| Zipkin
 ```
-┌─────────────────────────────────────────────────────────────────────────────┐
-│                         SPAS Sidecar Architecture                           │
-└─────────────────────────────────────────────────────────────────────────────┘
 
-             Order Client (external)
-                     ↓ POST /invoke/create-order
-                     │
-                    Order Service Sidecar (port 7001)
-        ┌──────────────────────────────────────────────────────┐
-        │ ✓ Command invocation (/invoke/:command)              │
-        │ ✓ Transforms outgoing orders (input transform)       │
-        │ ✓ Transforms incoming responses (output transform)   │
-        │ ✓ Publishes to/subscribes from Redis                 │
-        │ ✓ Wraps in CloudEvents + trace context               │
-        │ ✓ Logs spans to Zipkin                               │
-        └──────────────────────────────────────────────────────┘
-                     ↓ Transform & invoke service
-                     │
-                        Order Service (port 5001)
-                     │ [generates W3C traceparent]
-                     │ POST /publish (for events)
-                     ↓
-                ↓ orders-requested     ↑ orders-processed
-        
-                            ┌─────────────┐
-                            │    Redis    │
-                            │  Streams    │
-                            │ (port 6379) │
-                            └─────────────┘
-                ↓ orders-requested     ↑ orders-processed
-        
-        ┌──────────────────────────────────────────────────────┐
-        │    Fulfillment Service Sidecar (port 7002)             │
-        │ ✓ Event consumption (from Redis)                      │
-        │ ✓ Transforms incoming orders (output transform)        │
-        │ ✓ Transforms outgoing responses (input transform)      │
-        │ ✓ Extracts trace ID from CloudEvents                   │
-        │ ✓ Invokes fulfillment service with trace header        │
-        │ ✓ Logs spans to Zipkin                                 │
-        └──────────────────────────────────────────────────────┘
-                                ↕
-                [extracts & preserves W3C traceparent]
-                                ↕
-                    Fulfillment Service (port 5002)
-                ┌───────────────────────────────────┐
-                │ ✓ Receives orders from sidecar    │
-                │ ✓ Publishes fulfillment events    │
-                │ ✓ Logs trace ID with operations   │
-                │ ✓ Enables correlation & debugging │
-                └───────────────────────────────────┘
+### Message Flow - Complete Cycle with Trace Propagation
 
-                    Zipkin (port 9411)
-                ┌─────────────────────────┐
-                │ Distributed Tracing     │
-                │ - Visualizes all spans  │
-                │ - Correlates by trace   │
-                │ - Shows service flow    │
-                │ - Parent-child spans    │
-                └─────────────────────────┘
+```mermaid
+sequenceDiagram
+    participant OS as order-service
+    participant OSS as order-service-sidecar
+    participant Redis
+    participant FSS as fulfillment-service-sidecar
+    participant FS as fulfillment-service
+    participant Zipkin
+    
+    Note over OS,Zipkin: Phase 1: Order Publication
+    
+    OS->>OS: Generate W3C traceparent<br/>00-abc...xyz-01
+    OS->>OSS: POST /publish/orders-requested<br/>Headers: traceparent, x-service-name
+    
+    activate OSS
+    OSS->>OSS: Transform message (input)
+    OSS->>OSS: Wrap in CloudEvents<br/>+ embed traceparent
+    OSS->>Zipkin: Log span: receive order
+    OSS->>Redis: xAdd orders-requested
+    OSS->>Zipkin: Log span: publish to Redis
+    deactivate OSS
+    
+    activate FSS
+    FSS->>Redis: Subscribe to orders-requested
+    FSS->>FSS: Receive CloudEvent<br/>Extract traceparent (SAME!)
+    FSS->>FSS: Transform message (output)
+    FSS->>Zipkin: Log span: transform
+    FSS->>FS: HTTP POST /incoming<br/>Headers: traceparent
+    FSS->>Zipkin: Log span: invoke service
+    deactivate FSS
+    
+    activate FS
+    FS->>FS: Extract & log trace ID
+    FS->>FS: Process order
+    FS->>FS: Generate fulfillment event
+    deactivate FS
+    
+    Note over OS,Zipkin: Phase 2: Fulfillment Publication
+    
+    FS->>FSS: POST /publish/orders-processed<br/>Headers: traceparent (SAME!), x-service-name
+    
+    activate FSS
+    FSS->>FSS: Transform message (input)
+    FSS->>FSS: Wrap in CloudEvents<br/>+ embed traceparent
+    FSS->>Zipkin: Log span: receive fulfillment
+    FSS->>Redis: xAdd orders-processed
+    FSS->>Zipkin: Log span: publish to Redis
+    deactivate FSS
+    
+    activate OSS
+    OSS->>Redis: Subscribe to orders-processed
+    OSS->>OSS: Receive CloudEvent<br/>Extract traceparent (SAME!)
+    OSS->>OSS: Transform message (output)
+    OSS->>Zipkin: Log span: transform
+    OSS->>OS: HTTP POST /incoming<br/>Headers: traceparent
+    OSS->>Zipkin: Log span: invoke service
+    deactivate OSS
+    
+    activate OS
+    OS->>OS: Extract & log trace ID
+    OS->>OS: Correlate with original order
+    OS->>Zipkin: Log operation complete
+    deactivate OS
+```
+
+### Trace Correlation - Single Trace ID Throughout
+
+```mermaid
+graph LR
+    T1["🔵 Trace ID<br/>00-abc...xyz-01"]
+    
+    T1 --> P1["📤 order-service<br/>publishes"]
+    P1 --> T1
+    P1 --> P2["🔄 order-sidecar<br/>transforms"]
+    P2 --> T1
+    P2 --> P3["📨 Redis<br/>stores"]
+    P3 --> T1
+    P3 --> P4["🔄 fulfillment-sidecar<br/>transforms"]
+    P4 --> T1
+    P4 --> P5["🔵 fulfillment-service<br/>processes"]
+    P5 --> T1
+    P5 --> P6["📤 fulfillment-service<br/>publishes"]
+    P6 --> T1
+    P6 --> P7["🔄 fulfillment-sidecar<br/>transforms"]
+    P7 --> T1
+    P7 --> P8["📨 Redis<br/>stores"]
+    P8 --> T1
+    P8 --> P9["🔄 order-sidecar<br/>transforms"]
+    P9 --> T1
+    P9 --> P10["📥 order-service<br/>receives"]
+    P10 --> T1
+    
+    P10 --> CHECK["✅ CORRELATED!<br/>Same trace ID"]
+    
+    style T1 fill:#4CAF50,stroke:#2E7D32,stroke-width:3px,color:#fff
+    style CHECK fill:#4CAF50,stroke:#2E7D32,stroke-width:2px,color:#fff
+    style P1 fill:#2196F3,stroke:#1565C0,stroke-width:2px,color:#fff
+    style P5 fill:#2196F3,stroke:#1565C0,stroke-width:2px,color:#fff
+    style P10 fill:#2196F3,stroke:#1565C0,stroke-width:2px,color:#fff
+```
+
+### Sidecar Pattern - Communication Patterns
+
+```mermaid
+graph TB
+    subgraph Command["⚡ Command Invocation (Synchronous)"]
+        CClient["Client/Service"]
+        CClient -->|POST /invoke/command| CSidecar["Sidecar"]
+        CSidecar -->|Transform<br/>+ Trace| CInvoke["Invoke<br/>Service"]
+        CInvoke -->|HTTP POST<br/>/incoming| CApp["Application<br/>Service"]
+        CApp -->|Response| CInvoke
+        CInvoke -->|Transform| CSidecar
+        CSidecar -->|Response| CClient
+        
+        style CClient fill:#E1BEE7,stroke:#6A1B9A,stroke-width:2px
+        style CSidecar fill:#FFF9C4,stroke:#F57F17,stroke-width:2px
+        style CInvoke fill:#FFF9C4,stroke:#F57F17,stroke-width:2px
+        style CApp fill:#E3F2FD,stroke:#1976D2,stroke-width:2px
+    end
+    
+    subgraph Publisher["📤 Event Publishing (Async)"]
+        PApp["Application<br/>Service"]
+        PApp -->|POST /publish/topic| PSidecar["Sidecar"]
+        PSidecar -->|Transform<br/>Input| PCE["CloudEvents<br/>+ Trace"]
+        PCE -->|Publish| PRedis["Redis<br/>Stream"]
+        
+        style PApp fill:#E3F2FD,stroke:#1976D2,stroke-width:2px
+        style PSidecar fill:#FFF9C4,stroke:#F57F17,stroke-width:2px
+        style PCE fill:#C8E6C9,stroke:#388E3C,stroke-width:2px
+        style PRedis fill:#FFCCBC,stroke:#D84315,stroke-width:2px
+    end
+    
+    subgraph Subscriber["📥 Event Subscription (Async)"]
+        SRedis["Redis<br/>Stream"]
+        SRedis -->|Subscribe| SSidecar["Sidecar"]
+        SSidecar -->|Extract<br/>Trace ID| SSidecar2["Transform<br/>Output"]
+        SSidecar2 -->|HTTP POST| SApp["Application<br/>Service<br/>/incoming"]
+        
+        style SApp fill:#E3F2FD,stroke:#1976D2,stroke-width:2px
+        style SSidecar fill:#FFF9C4,stroke:#F57F17,stroke-width:2px
+        style SSidecar2 fill:#FFF9C4,stroke:#F57F17,stroke-width:2px
+        style SRedis fill:#FFCCBC,stroke:#D84315,stroke-width:2px
+    end
 ```
 
 ### Component Details
@@ -98,6 +224,7 @@ order-service publishes → fulfillment-service processes → order-service rece
 | **fulfillment-service-sidecar** | 7002 | Transformer + Invoker | Transform messages, manage Redis pub/sub, service invocation, preserve traces |
 | **Redis** | 6379 | Message Broker | Store and distribute messages via Streams |
 | **Zipkin** | 9411 | Tracing Backend | Collect and visualize distributed traces with parent-child relationships |
+| **order-client** | - | Command Invoker | Invokes order commands via sidecar (/invoke/create-order) |
 | **order-client** | - | Command Invoker | Invokes order commands via sidecar (/invoke/create-order) |
 
 ## Message Flow: Complete Cycle

@@ -4,7 +4,6 @@ Quick navigation to SPAS specification documents organized by concern and audien
 
 ## Foundation (Start Here)
 
-- **[00-introduction.md](00-introduction.md)** - What is SPAS and why it matters
 - **[01-core-principles.md](01-core-principles.md)** - Immutable principles guiding SPAS design
 - **[02-architecture-overview.md](02-architecture-overview.md)** - High-level system architecture
 

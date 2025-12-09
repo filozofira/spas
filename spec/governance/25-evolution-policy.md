@@ -29,4 +29,4 @@
 
 - [Versioning Strategy](23-versioning-strategy.md)
 - [Decision Log](../appendix/28-decision-log.md)
-- [STRUCTURE Index](../STRUCTURE.md)
+- [INDEX](../INDEX.md)

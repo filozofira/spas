@@ -29,5 +29,5 @@
 ## Related Documents
 
 - [Evolution Policy](../governance/25-evolution-policy.md)
-- [STRUCTURE Index](../STRUCTURE.md)
+- [INDEX](../INDEX.md)
 - [Glossary](27-glossary.md)

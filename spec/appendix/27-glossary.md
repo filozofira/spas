@@ -15,6 +15,6 @@
 
 ## Related Documents
 
-- [STRUCTURE Index](../STRUCTURE.md)
+- [INDEX](../INDEX.md)
 - [Introduction](../00-introduction.md)
 - [Decision Log](28-decision-log.md)

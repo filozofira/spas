@@ -620,6 +620,28 @@ const transforms = {
 
 **Verdict:** SPAS combines the best of transformation (like DAPR) with built-in tracing (unlike message queues) and lower complexity than service mesh.
 
+## Code Changes Made
+
+### fulfillment-service/index.js
+
+- Added Express server with `/incoming` endpoint
+- Added `/publish/orders-processed` integration
+- Publishes fulfillment events back through sidecar
+- Preserves trace ID in response
+
+### order-service/index.js
+
+- Converted from command-line script to Express server
+- Added `/incoming` endpoint to receive fulfillment responses
+- Added `/health` endpoint for sidecar readiness
+- Logs trace ID on response receipt
+
+### spas-sidecar/index.js
+
+- Fixed undefined variable bug (was `id`, should be `messageObj.id`)
+- Proper trace context extraction and propagation
+- Full Zipkin integration for all operations
+
 ## Production Readiness
 
 ### What's Ready Now ✅
@@ -645,6 +667,37 @@ const transforms = {
 - Multi-region deployment
 - Load testing results
 - Security hardening
+
+## Integration Path
+
+To integrate into the SPAS framework:
+
+1. Move `spas-sidecar` from prototype to `src/sidecar`
+2. Add production configuration layer
+3. Implement Helm charts for Kubernetes deployment
+4. Add metrics/logging sidecar integration
+5. Create SDK for service integration
+6. Add CLI tooling for sidecar setup
+
+## Learnings & Decisions
+
+### Key Decision: Redis Streams over Pub/Sub
+
+- **Chosen:** Redis Streams
+- **Reason:** Persistence, replay capability, consumer groups
+- **Alternative:** Redis Pub/Sub (simpler, no persistence)
+
+### Key Decision: CloudEvents Wrapping
+
+- **Chosen:** CloudEvents 1.0
+- **Reason:** Industry standard, extensible, good ecosystem
+- **Alternative:** Custom message format
+
+### Key Decision: Sidecar per Service
+
+- **Chosen:** Dedicated sidecar instance per service
+- **Reason:** Isolation, independent scaling, simple configuration
+- **Alternative:** Shared sidecar (harder to configure, less isolation)
 
 ## Troubleshooting
 

@@ -270,17 +270,18 @@ async function subscribeTopics() {
 
                   try {
                     const invokeStart = Date.now();
+                    const invokeSpanId = generateSpanId();
                     await fetch(invokeUrl, {
                       method: 'POST',
                       headers: {
                         'Content-Type': 'application/json',
-                        'traceparent': cloudEvent.traceparent
+                        'traceparent': cloudEvent.traceparent,
+                        'x-parent-span-id': invokeSpanId
                       },
                       body: JSON.stringify(cloudEvent)
                     });
                     
                     // Send invoke span to Zipkin
-                    const invokeSpanId = generateSpanId();
                     await sendZipkinSpan(
                       traceContext,
                       invokeSpanId,
@@ -377,17 +378,18 @@ app.post('/invoke/:command', async (req, res) => {
     const invokeUrl = hasProtocol ? commandEntry.invokeEndpoint : `http://${serviceId}${portPart}${normalizedPath}`;
     
     const invokeStart = Date.now();
+    const invokeSpanId = generateSpanId();
     const serviceResponse = await fetch(invokeUrl, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'traceparent': cloudEvent.traceparent
+        'traceparent': cloudEvent.traceparent,
+        'x-parent-span-id': invokeSpanId
       },
       body: JSON.stringify(cloudEvent)
     });
     
     // Send invoke span to Zipkin
-    const invokeSpanId = generateSpanId();
     await sendZipkinSpan(
       traceContext,
       invokeSpanId,

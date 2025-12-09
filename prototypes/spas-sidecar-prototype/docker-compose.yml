@@ -27,6 +27,7 @@ services:
       - SERVICE_NAME=order-service
       - SIDECAR_PORT=7001
       - PORT=5001
+      - ZIPKIN_URL=http://zipkin:9411
     networks:
       - spas-network
 
@@ -70,6 +71,7 @@ services:
       - SERVICE_NAME=fulfillment-service
       - SIDECAR_PORT=7002
       - PORT=5002
+      - ZIPKIN_URL=http://zipkin:9411
     networks:
       - spas-network
 

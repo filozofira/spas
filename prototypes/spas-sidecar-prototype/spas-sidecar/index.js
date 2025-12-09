@@ -153,8 +153,8 @@ if (zipkinUrl) {
 const app = express();
 app.use(bodyParser.json({ type: '*/*' }));
 
-const REDIS_HOST = config.redis.host;
-const REDIS_PORT = config.redis.port;
+const REDIS_HOST = process.env.REDIS_HOST || 'localhost';
+const REDIS_PORT = parseInt(process.env.REDIS_PORT || '6379', 10);
 const redisSubClient = redis.createClient({ socket: { host: REDIS_HOST, port: REDIS_PORT } });
 const redisPubClient = redis.createClient({ socket: { host: REDIS_HOST, port: REDIS_PORT } });
 

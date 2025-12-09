@@ -41,6 +41,8 @@ services:
       - SERVICE_NAME=order-service
       - ZIPKIN_URL=http://zipkin:9411
       - SERVICE_PORT=5001
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
     volumes:
       - ./spas-sidecar/config.order-service.json:/app/config.order-service.json
     depends_on:
@@ -85,6 +87,8 @@ services:
       - SERVICE_NAME=fulfillment-service
       - ZIPKIN_URL=http://zipkin:9411
       - SERVICE_PORT=5002
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
     volumes:
       - ./spas-sidecar/config.fulfillment-service.json:/app/config.fulfillment-service.json
     depends_on:

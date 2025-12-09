@@ -41,6 +41,7 @@
 - ADR-031: State management permissive approach: Services decide their own state pattern (event sourcing, CRUD, etc.), consistency model (ACID or eventual), and persistence (external store vs. in-memory). Framework provides guidance through service model spec; no prescriptive enforcement.
 - ADR-032: Deployment descriptor (`choreography.yaml`): Serves as backing store for choreography configuration. spas-cli generates per-instance sidecar JSON configuration containing topic mappings, transformation functions, service endpoints, and trace context settings. Creation is mixed manual + generated; future CLI improvements anticipated.
 - ADR-033: Contract testing approach: Consumer-Driven Contracts (Pact-style) where consumers define expectations and providers validate. Event replay optional (nice to have); synthetic event generation primarily developer responsibility in PoC, SDK support to follow.
+- ADR-034: Infrastructure vs. business logic configuration segregation (Dec 2025): Infrastructure configuration (Redis host/port, Zipkin URL, etc.) specified as environment variables in deployment manifests (docker-compose, Kubernetes). Business logic and choreography configuration (topic mappings, transformations, routing rules) specified in sidecar config files. Rationale: Enable environment-specific overrides without rebuild; keep business logic configuration portable across infrastructure platforms; support 12-factor app principles.
 
 ## Pending Decisions (December 2025)
 

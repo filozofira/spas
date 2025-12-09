@@ -102,11 +102,10 @@ async function sendZipkinSpan(traceId, spanId, parentSpanId, spanName, timestamp
     
     if (traceId && traceId.startsWith('00-')) {
       const parts = traceId.split('-');
-      zipkinTraceId = parts[1]; // Extract trace ID
-      // If no parent is specified, use the span ID from traceparent as parent
-      if (!zipkinParentId && parts[2]) {
-        zipkinParentId = parts[2];
-      }
+      zipkinTraceId = parts[1]; // Extract trace ID (32 hex chars)
+      // DO NOT use the spanId from traceparent as parentId
+      // The parentSpanId parameter already contains the correct parent
+      // We only extract the trace ID from the traceparent header
     }
     
     const span = {

@@ -17,7 +17,7 @@ function generateSpanId() {
 }
 
 // Send span to Zipkin
-async function sendZipkinSpan(traceId, spanId, parentSpanId, spanName, timestamp, duration, tags = {}) {
+async function sendZipkinSpan(traceId, spanId, parentSpanId, spanName, timestamp, duration, tags = {}, kind = null) {
   if (!ZIPKIN_URL) return;
   
   try {
@@ -38,6 +38,10 @@ async function sendZipkinSpan(traceId, spanId, parentSpanId, spanName, timestamp
       localEndpoint: { serviceName: SERVICE_NAME },
       tags: tags
     };
+    
+    if (kind) {
+      span.kind = kind;
+    }
     
     if (zipkinParentId) {
       span.parentId = zipkinParentId;
@@ -125,7 +129,8 @@ app.post('/incoming', async (req, res) => {
         'publish order',
         publishStartTime,
         publishDuration,
-        { 'service.operation': 'publish-order', 'orderId': orderId, 'http.status_code': publishRes.status }
+        { 'service.operation': 'publish-order', 'orderId': orderId, 'http.status_code': publishRes.status },
+        'CLIENT'
       );
       
       console.log(`[ORDER-SERVICE] Sidecar publish status: ${publishRes.status}`);
@@ -165,7 +170,8 @@ app.post('/incoming', async (req, res) => {
       'process fulfillment response',
       startTime,
       duration,
-      { 'service.operation': 'process-response', 'orderId': orderId, 'status': status, 'http.method': 'POST', 'http.path': '/incoming' }
+      { 'service.operation': 'process-response', 'orderId': orderId, 'status': status, 'http.method': 'POST', 'http.path': '/incoming' },
+      'SERVER'
     );
     
     res.status(200).json({

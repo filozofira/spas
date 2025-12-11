@@ -77,16 +77,16 @@ spas/                                  # Root repository
 │   └── spas-sidecar-prototype/
 │       ├── README.md                  # Complete sidecar documentation
 │       ├── docker-compose.yml         # Full working example
-│       ├── spas-sidecar/              # Reusable sidecar component
+│       ├── spas-sidecar/              # Sidecar component prototype to reuse or at least use inspiration from
 │       ├── order-service/
 │       ├── fulfillment-service/
 │       └── [Order/Fulfillment clients]
 │
-├── components/                        # 🔨 TO BUILD - Production framework components
+├── components/                        # 🔨 TO BUILD - PoC framework components (to evolve to production-ready in future)
 │   ├── sdk/                           # SDKs for multiple languages
 │   │   ├── .net/                      # .NET SDK for SPAS service development
 │   │   │   ├── src/                   # Contains source code for .Net SDKs
-│   │   │   ├── tests/                 # Contains unit test code for .Net SDKs
+│   │   │   ├── test/                  # Unit test code for .Net SDKs
 │   │   │   ├── SPAS.SDK.sln           # SDK .Net solution file
 │   │   │   └── README.md              # SDK documentation (keyed to spec/13-sdk-specification.md)
 │   │   ├── go/                        # Go SDK (future)
@@ -94,27 +94,25 @@ spas/                                  # Root repository
 │   │   └── README.md                  # Multi-language SDK guide
 │   │
 │   ├── cli/                           # CLI Tool for service packaging & composition
-│   │   ├── src/                       
-│   │   │   ├── spas-service/          # source for spas-service cli with init, pack, publish, pull, metadata get etc. commands   
-│   │   │   ├── spas-compose/          # source for spas-compose cli with context init, services pull, choreography init, etc. commands
-│   │   ├── tests/                     # 
+│   │   ├── spas-service/              # spas-service root    
+│   │   │   ├── src/                   # source for spas-service cli
+│   │   │   ├── test/                  # test for spas-service 
+│   │   ├── spas-compose/              # spas-compose root
+│   │   │   ├── src/                   # source for spas-compose cli
+│   │   │   ├── test/                  # test for spas-compose 
 │   │   └── README.md                  # CLI documentation (keyed to spec/14-cli-specification.md)
 │   │
-│   ├── repository/                    # Repository Service (metadata + schema storage)
+│   ├── repository/                    # SPAS Repository Service (metadata + schema storage)
 │   │   ├── src/                       # SPAS Repository service source code
-│   │   ├── tests/                     # SPAS Repository tests
+│   │   ├── test/                      # SPAS Repository test
 │   │   └── README.md                  # Repository API docs (keyed to spec/12-repository-spec.md)
 │   │
-│   └── sidecar/                       # SPAS Sidecar (from prototype, production-ready)
-│       ├── README.md                  # Integration guide
+│   └── sidecar/                       # SPAS Sidecar (from prototype to Poc and to evolve to production-ready in future)
 │       ├── src/                       # JavaScript/Node.js (or migrate to .NET if needed)
-│       │   ├── index.js               # Main sidecar runtime
-│       │   ├── transformation/        # Message transformation pipeline
-│       │   ├── messaging/             # Redis Streams integration
-│       │   └── tracing/               # Zipkin/OpenTelemetry integration
 │       ├── config/
 │       │   ├── default.config.json    # Default configuration template
 │       └── Dockerfile
+│       ├── README.md                  # Integration guide
 │
 ├── examples/                          # 🔨 TO BUILD - End-to-end PoC demonstrations
 │   ├── e-commerce/                    # E-commerce domain PoC
@@ -132,9 +130,9 @@ spas/                                  # Root repository
 │   │   │   ├── choreography.yaml      # Domain composition (routing + topic mappings)
 │   │   │   ├── transformations/       # Mapping files for topic adaptation
 │   │   │   └── schemas/               # Canonical schemas for e-commerce domain
-│   │   └── tests/
-│   │       ├── contract-tests/        # Pact-style contract testing
-│   │       └── integration-tests/     # End-to-end scenario tests
+│   │   └── test/
+│   │       ├── contract-test/        # Pact-style contract testing
+│   │       └── integration-test/     # End-to-end scenario test
 │   │
 │   └── simple-sync/                   # Minimal synchronous example
 │       └── [Two services + choreography]

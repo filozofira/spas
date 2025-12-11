@@ -7,7 +7,7 @@
 When an agent starts work on another machine, use this prompt:
 
 ```
-You are continuing SPAS (Self-contained, Portable, Adaptable Services) 
+You are continuing SPAS (Self-contained, Portable, Adaptable Services)
 framework PoC implementation. Read these context files first:
 
 1. ./TASKS.md (this file) - Project status, decisions, and next steps
@@ -17,7 +17,7 @@ framework PoC implementation. Read these context files first:
 5. ./spec/02-architecture-overview.md - High-level system design
 6. ./prototypes/spas-sidecar-prototype/README.md - Prototype documentation
 
-Once read, answer: "What is the immediate next task and what implementation 
+Once read, answer: "What is the immediate next task and what implementation
 artifacts from the spec should guide it?"
 ```
 
@@ -99,16 +99,10 @@ spas/                                  # Root repository
 │   │
 │   ├── cli/                           # CLI Tool for service packaging & composition
 │   │   ├── SPAS.CLI.csproj
-│   │   ├── src/
-│   │   │   ├── Commands/
-│   │   │   │   ├── InitCommand.cs     # spas-service init
-│   │   │   │   ├── PackCommand.cs     # spas-service pack
-│   │   │   │   ├── PublishCommand.cs  # spas-service publish
-│   │   │   │   ├── PullCommand.cs     # spas-service pull
-│   │   │   │   └── MetadataCommand.cs # spas-service metadata get
-│   │   │   ├── Validation/
-│   │   │   └── Serialization/
-│   │   ├── tests/
+│   │   ├── src/                       # Language is to be determined during the implementation.
+│   │   │   ├── spas-service/          # source for spas-service cli with init, pack, publish, pull, metadata get etc. commands   
+│   │   │   ├── spas-compose/          # source for spas-compose cli with context init, services pull, choreography init, etc. commands
+│   │   ├── tests/                     # 
 │   │   └── README.md                  # CLI documentation (keyed to spec/14-cli-specification.md)
 │   │
 │   ├── repository/                    # Repository Service (metadata + schema storage)
@@ -173,6 +167,7 @@ spas/                                  # Root repository
 **Spec Cross-Reference:** `spec/component-specification/13-sdk-specification.md` (source-of-truth)
 
 **Implementation Plan:** To be determined during this phase.
+
 - Assess language priorities (start with .NET; add Go/Java/Python as needed)
 - Design SDK API surface (metadata authoring, event publishing, health checks)
 - Plan SDK module structure across `src/sdk/{language}/` folders
@@ -193,6 +188,7 @@ spas/                                  # Root repository
 **Spec Cross-Reference:** `spec/component-specification/12-repository-spec.md` (source-of-truth)
 
 **Implementation Plan:** To be determined during this phase.
+
 - Evaluate storage layer options (file-based, database, or hybrid)
 - Design REST API endpoints per spec (GET /services, POST publish, GET schemas)
 - Plan metadata validation strategy against spec schema
@@ -216,6 +212,7 @@ spas/                                  # Root repository
 **Spec Cross-Reference:** `spec/component-specification/14-cli-specification.md` (source-of-truth)
 
 **Implementation Plan:** To be determined during this phase.
+
 - Define command structure and argument patterns (service vs. compose commands)
 - Plan SDK integration points (metadata authoring, validation)
 - Design workflow sequence (init → pack → publish → pull → generate)
@@ -223,6 +220,7 @@ spas/                                  # Root repository
 - Plan integration with Sidecar configuration generation
 
 **Prioritized Commands for Phase 3:**
+
 - Service management: init, metadata get, pack, publish, pull
 - Composition: context init, services pull, choreography init, choreography generate
 
@@ -245,6 +243,7 @@ spas/                                  # Root repository
 - `spec/component-specification/11-transformation-middleware.md` (adaptation rules)
 
 **Implementation Plan:** To be determined during this phase.
+
 - Define service portfolio (order, fulfillment, shipping, notification, etc.)
 - Plan domain composition and choreography (event flows, topic mappings)
 - Plan transformation mappings for cross-service event adaptation
@@ -313,18 +312,18 @@ Review: governance/24-compliance-checklist.md
 
 ## Key Specification Touchstones
 
-| Component | Spec Reference | Purpose |
-|-----------|-----------------|---------|
-| SDK | [13-sdk-specification.md](spec/component-specification/13-sdk-specification.md) | Service development library |
-| Repository | [12-repository-spec.md](spec/component-specification/12-repository-spec.md) | Metadata storage & discovery |
-| CLI | [14-cli-specification.md](spec/component-specification/14-cli-specification.md) | Packaging & composition tooling |
-| Sidecar | [10-sidecar-contract.md](spec/component-specification/10-sidecar-contract.md) | Runtime transformation & event I/O |
-| Service Contracts | [04-service-contract.md](spec/service-specification/04-service-contract.md) | What services expose |
-| Service Metadata | [06-service-metadata.md](spec/service-specification/06-service-metadata.md) | spas.json schema |
-| Message Transformation | [11-transformation-middleware.md](spec/component-specification/11-transformation-middleware.md) | Adaptation & mapping |
-| Communication Protocol | [07-communication-model.md](spec/protocol-specification/07-communication-model.md) | How services talk (HTTP PoC → gRPC prod) |
-| Event Protocol | [09-event-protocol.md](spec/protocol-specification/09-event-protocol.md) | CloudEvents + W3C Trace Context |
-| Architecture Decisions | [28-decision-log.md](spec/appendix/28-decision-log.md) | Why SPAS looks like this |
+| Component              | Spec Reference                                                                                  | Purpose                                  |
+| ---------------------- | ----------------------------------------------------------------------------------------------- | ---------------------------------------- |
+| SDK                    | [13-sdk-specification.md](spec/component-specification/13-sdk-specification.md)                 | Service development library              |
+| Repository             | [12-repository-spec.md](spec/component-specification/12-repository-spec.md)                     | Metadata storage & discovery             |
+| CLI                    | [14-cli-specification.md](spec/component-specification/14-cli-specification.md)                 | Packaging & composition tooling          |
+| Sidecar                | [10-sidecar-contract.md](spec/component-specification/10-sidecar-contract.md)                   | Runtime transformation & event I/O       |
+| Service Contracts      | [04-service-contract.md](spec/service-specification/04-service-contract.md)                     | What services expose                     |
+| Service Metadata       | [06-service-metadata.md](spec/service-specification/06-service-metadata.md)                     | spas.json schema                         |
+| Message Transformation | [11-transformation-middleware.md](spec/component-specification/11-transformation-middleware.md) | Adaptation & mapping                     |
+| Communication Protocol | [07-communication-model.md](spec/protocol-specification/07-communication-model.md)              | How services talk (HTTP PoC → gRPC prod) |
+| Event Protocol         | [09-event-protocol.md](spec/protocol-specification/09-event-protocol.md)                        | CloudEvents + W3C Trace Context          |
+| Architecture Decisions | [28-decision-log.md](spec/appendix/28-decision-log.md)                                          | Why SPAS looks like this                 |
 
 ## PoC Constraints & Simplifications
 
@@ -341,6 +340,7 @@ All marked in spec as `PoC` vs `Production` using admonition blocks (see spec/02
 ## Notes for Cross-Machine Handoff
 
 **Document to read first on new machine:**
+
 1. This file (TASKS.md) — status + next step
 2. spec/INDEX.md — navigation to all specs
 3. spec/02-architecture-overview.md — architecture overview
@@ -349,6 +349,7 @@ All marked in spec as `PoC` vs `Production` using admonition blocks (see spec/02
 6. prototypes/spas-sidecar-prototype/README.md — what sidecar does
 
 **Last successful state (Dec 11, 2025):**
+
 - Specification complete and internally consistent
 - Prototype fully operational with verified trace correlation
 - Documentation consolidated and cleaned up
@@ -359,6 +360,7 @@ All marked in spec as `PoC` vs `Production` using admonition blocks (see spec/02
 → Reference spec/component-specification/13-sdk-specification.md as implementation guide
 
 **Common gotchas:**
+
 - Spec is the source-of-truth; implement to match spec examples (not the other way around)
 - "PoC vs Production" markers in spec indicate what's simplified for PoC
 - Architecture decisions (ADRs) in 28-decision-log.md explain "why" for each design choice
@@ -367,6 +369,7 @@ All marked in spec as `PoC` vs `Production` using admonition blocks (see spec/02
 ## Recent Status (Dec 11, 2025)
 
 **Documentation cleanup completed:**
+
 - Consolidated ARCHITECTURE.md → README.md (sidecar prototype)
 - Consolidated SPAS-PROTOTYPE-SUMMARY.md → README.md (removed 300 lines duplication)
 - Simplified STRUCTURE.md → INDEX.md (clean navigation)
@@ -375,6 +378,7 @@ All marked in spec as `PoC` vs `Production` using admonition blocks (see spec/02
 - **Result:** 1,000+ lines of redundancy eliminated, clean specification navigation
 
 **Architecture documentation enhanced:**
+
 - Added 4 Mermaid diagrams to sidecar prototype (System Architecture, Message Flow, Trace Correlation, Sidecar Pattern)
 - All diagrams interactive + professional quality
 - Cross-referenced with specification

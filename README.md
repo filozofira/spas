@@ -23,7 +23,7 @@ SPAS (Self-contained, Portable, Adaptable Services) is a framework and specifica
 - Microservices: Smaller and stricter; no runtime service dependencies
 - Event-driven architecture (EDA): East–West communication is event-first
 - Service mesh/Sidecar: Offloads networking, security, and reliability concerns
-- API Gateway: North–South traffic terminates at the edge; REST→gRPC translation occurs at the gateway
+- API Gateway: North–South traffic terminates at the edge; TLS termination, authentication, routing (Production: REST→gRPC translation)
 
 ## Scope
 

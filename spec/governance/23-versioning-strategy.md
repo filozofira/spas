@@ -6,8 +6,9 @@
 
 ## API Versioning
 
-- gRPC: package versions (`v1`, `v2`) — mandatory
-- REST (edge): versioned paths (`/v1/...`) — recommendation (external gateway responsibility; not enforced by SPAS tooling)
+- PoC: HTTP versioned paths (`/v1/...`) — recommended for sidecar→service routes
+- Production: gRPC package versions (`v1`, `v2`) — mandatory; REST (edge) uses versioned paths via gateway
+- (External gateway responsibility; not enforced by SPAS tooling)
 
 ## Event Versioning
 

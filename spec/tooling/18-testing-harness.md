@@ -9,9 +9,15 @@ Defines testing strategies and utilities for SPAS services.
 
 ## Contract Testing
 
-### gRPC (Pact-style Flow)
+### PoC: HTTP (Pact-style Flow)
 
-1. Consumer defines expected request/response examples → generates pact artifact
+1. Consumer defines expected HTTP request/response examples → generates pact artifact
+2. Provider test harness replays pact interactions against implementation
+3. Failures produce diff (missing field, incompatible type)
+
+### Production: gRPC (Pact-style Flow)
+
+1. Consumer defines expected gRPC request/response examples → generates pact artifact
 2. Provider test harness replays pact interactions against implementation
 3. Failures produce diff (missing field, incompatible type)
 

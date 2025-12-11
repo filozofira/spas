@@ -7,7 +7,7 @@ These principles are stable across versions and apply to all SPAS services and t
 - One bounded context per service
 - No direct service-to-service communication; all traffic flows through sidecars
 - Integration via events (asynchronous) or sidecar-mediated invocation (synchronous commands/queries)
-- Edge traffic via API gateway (gRPC in Production, HTTP in PoC)
+- Edge traffic via API gateway (TLS termination, authentication, routing; Production: gRPC, PoC: HTTP)
 - Encapsulated state and domain model
 
 ## Portable

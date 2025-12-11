@@ -33,7 +33,7 @@
 - ADR-023: Network enclosure levels (`strict`, `moderate`, `open`) defined as metadata in PoC. Runtime enforcement production-only; likely delegated to service mesh (infrastructure concern) rather than SPAS framework.
 - ADR-024: Service dependency declarations deferred: Library and infrastructure dependencies not required in v1.0. Focus on event dependencies only (already covered in `events.subscribed[]`). Reconsider for future versions if community finds it valuable.
 - ADR-025: Sidecar architecture - Hybrid approach: Custom SPAS sidecar (Node.js) for PoC transformation and messaging; compatible with standard service meshes (Istio, Linkerd) for production mTLS and policy enforcement.
-- ADR-026: API Gateway not a SPAS component: Teams choose existing gateways (Kong, NGINX, cloud gateways, Ocelot). Gateway handles REST→gRPC translation, authentication, routing; SPAS provides identity propagation mechanism for authorization.
+- ADR-026: API Gateway not a SPAS component: Teams choose existing gateways (Kong, NGINX, cloud gateways, Ocelot). Gateway handles TLS termination, authentication, routing; Production: REST→gRPC translation; PoC: HTTP only. SPAS provides identity propagation mechanism for authorization.
 - ADR-027: Orchestration excluded from v1.0: Pure choreography only. Orchestration patterns deferred to v2.0 or separate specification.
 - ADR-028: Single specification with PoC/Production markers: Unified spec document with inline markers distinguishing PoC simplifications from production requirements. Avoids maintenance burden of dual spec tracks.
 - ADR-029: Schema registry integrated into SPAS repository: Schemas stored in repository database. Separation to standalone registry (Confluent, AWS Glue) deferred to production scaling phase.

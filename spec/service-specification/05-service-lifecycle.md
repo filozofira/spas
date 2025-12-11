@@ -5,7 +5,9 @@ Defines expectations from authoring through retirement.
 ## Authoring
 
 - Define bounded context, aggregates, and contracts first
-- Generate gRPC stubs and SDK scaffolding
+- Generate service stubs and SDK scaffolding
+	- Production: gRPC stubs (proto-first)
+	- PoC: HTTP handlers/OpenAPI (JSON over HTTP)
 
 ## Building
 

@@ -1,6 +1,6 @@
 # Service Model
 
-Defines what makes a service “SPAS-compliant”. Clarifies the single gRPC surface, autonomy of internal state, and external adaptation responsibilities.
+Defines what makes a service “SPAS-compliant”. Clarifies a single service surface (Production: gRPC, PoC: HTTP), autonomy of internal state, and external adaptation responsibilities.
 
 ## Bounded Context Alignment
 

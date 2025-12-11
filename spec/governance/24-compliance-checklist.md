@@ -3,7 +3,7 @@
 ## Machine-Verified Items
 
 - [ ] Valid `spas.json` metadata (schema passes)
-- [ ] gRPC service definition present
+- [ ] Service definition present (Production: gRPC proto, PoC: HTTP endpoints/OpenAPI)
 - [ ] Event contracts listed (`eventsPublished[]`, `eventsSubscribed[]`)
 - [ ] OCI image reference present
 - [ ] Health endpoint declaration present

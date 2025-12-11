@@ -14,9 +14,9 @@ Defines the service manifest schema and required fields. Extended to include end
 ```text
 ./
   /metadata
-    inbound.endpoints.json      (gRPC endpoints)
+    inbound.endpoints.json      (service endpoints — Production: gRPC methods, PoC: HTTP routes)
     outbound.events.json        (published events)
-    outbound.endpoints.json     (external dependencies)
+    outbound.endpoints.json     (external dependencies — Production: gRPC clients, PoC: HTTP clients)
     runtime.json                (image reference)
     security.data.json          (data classification)
     {schema1}.json              (message schemas)
@@ -56,10 +56,9 @@ Services MAY expose endpoints (development-only) to retrieve metadata:
   - `schemaRef`: Reference to schema in registry
 - `eventsSubscribed[]`:
   - `type`: CloudEvents `type`
-  - `handler`: gRPC method to invoke
+  - `handler`: Production: gRPC method, PoC: HTTP routes to invoke
   - `schemaRef` (optional if inbound mapping resolves internal schema)
 - `schemas[]`: Internal schema refs used pre/post transformation
-- `mappings[]` (optional): Transformation mapping identifiers (external files referenced in choreography)
 - `runtime`:
   - `image`: OCI image reference (`repository:tag` or digest)
   - `resources` (optional): cpu/memory guidance

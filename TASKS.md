@@ -85,13 +85,16 @@ spas/                                  # Root repository
 ├── src/                               # 🔨 TO BUILD - Production framework components
 │   ├── sdk/                           # SDKs for multiple languages
 │   │   ├── .net/                      # .NET SDK for SPAS service development
-│   │   │   ├── SPAS.SDK.csproj
 │   │   │   ├── src/
 │   │   │   │   ├── Metadata/          # spas.json authoring & serialization
 │   │   │   │   ├── Transport/         # gRPC/HTTP client abstractions
 │   │   │   │   ├── Events/            # Event publishing API
-│   │   │   │   └── Health/            # Health check utilities
+│   │   │   │   ├── Security/          # Logic to get identity either from event payload or request headers. 
+│   │   │   │   ├── Health/            # Health check utilities
+│   │   │   │   └── SPAS.SDK.csproj
 │   │   │   ├── tests/
+│   │   │   │   └── SPAS.SDK.Test.csproj
+│   │   │   ├── SPAS.SDK.sln           # SDK .Net solution file
 │   │   │   └── README.md              # SDK documentation (keyed to spec/13-sdk-specification.md)
 │   │   ├── go/                        # Go SDK (future)
 │   │   ├── java/                      # Java SDK (future)

@@ -82,18 +82,11 @@ spas/                                  # Root repository
 │       ├── fulfillment-service/
 │       └── [Order/Fulfillment clients]
 │
-├── src/                               # 🔨 TO BUILD - Production framework components
+├── components/                        # 🔨 TO BUILD - Production framework components
 │   ├── sdk/                           # SDKs for multiple languages
 │   │   ├── .net/                      # .NET SDK for SPAS service development
-│   │   │   ├── src/
-│   │   │   │   ├── Metadata/          # spas.json authoring & serialization
-│   │   │   │   ├── Transport/         # gRPC/HTTP client abstractions
-│   │   │   │   ├── Events/            # Event publishing API
-│   │   │   │   ├── Security/          # Logic to get identity either from event payload or request headers. 
-│   │   │   │   ├── Health/            # Health check utilities
-│   │   │   │   └── SPAS.SDK.csproj
-│   │   │   ├── tests/
-│   │   │   │   └── SPAS.SDK.Test.csproj
+│   │   │   ├── src/                   # Contains source code for .Net SDKs
+│   │   │   ├── tests/                 # Contains unit test code for .Net SDKs
 │   │   │   ├── SPAS.SDK.sln           # SDK .Net solution file
 │   │   │   └── README.md              # SDK documentation (keyed to spec/13-sdk-specification.md)
 │   │   ├── go/                        # Go SDK (future)
@@ -101,22 +94,15 @@ spas/                                  # Root repository
 │   │   └── README.md                  # Multi-language SDK guide
 │   │
 │   ├── cli/                           # CLI Tool for service packaging & composition
-│   │   ├── SPAS.CLI.csproj
-│   │   ├── src/                       # Language is to be determined during the implementation.
+│   │   ├── src/                       
 │   │   │   ├── spas-service/          # source for spas-service cli with init, pack, publish, pull, metadata get etc. commands   
 │   │   │   ├── spas-compose/          # source for spas-compose cli with context init, services pull, choreography init, etc. commands
 │   │   ├── tests/                     # 
 │   │   └── README.md                  # CLI documentation (keyed to spec/14-cli-specification.md)
 │   │
 │   ├── repository/                    # Repository Service (metadata + schema storage)
-│   │   ├── SPAS.Repository.csproj
-│   │   ├── src/
-│   │   │   ├── Api/                   # REST endpoints
-│   │   │   │   ├── ServiceController.cs  # GET /services, POST /services/{name}/{version}
-│   │   │   │   └── SchemaController.cs   # Schema registry endpoints
-│   │   │   ├── Storage/               # File-based storage (PoC)
-│   │   │   └── Validation/            # Metadata validation
-│   │   ├── tests/
+│   │   ├── src/                       # SPAS Repository service source code
+│   │   ├── tests/                     # SPAS Repository tests
 │   │   └── README.md                  # Repository API docs (keyed to spec/12-repository-spec.md)
 │   │
 │   └── sidecar/                       # SPAS Sidecar (from prototype, production-ready)
@@ -128,7 +114,6 @@ spas/                                  # Root repository
 │       │   └── tracing/               # Zipkin/OpenTelemetry integration
 │       ├── config/
 │       │   ├── default.config.json    # Default configuration template
-│       │   └── examples/              # Example configurations per pattern
 │       └── Dockerfile
 │
 ├── examples/                          # 🔨 TO BUILD - End-to-end PoC demonstrations

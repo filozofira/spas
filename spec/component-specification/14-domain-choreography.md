@@ -1,4 +1,4 @@
-# Transformation Middleware (Adaptation & Choreography Protocol)
+# Domain Choreography (Adaptation & Composition)
 
 Defines how services adapt to different Domain Contexts without code changes. Separates concerns between **Domain Composition** (what to transform) and **Middleware** (where/how transformations execute inside the sidecar/mesh).
 
@@ -46,5 +46,5 @@ Captured by domain authors; describes **what** to transform and route:
 ## Related Documents
 
 - [Event Protocol](../protocol-specification/09-event-protocol.md)
-- [CLI Specification](14-cli-specification.md)
+- [CLI Specification](13-cli-specification.md)
 - [Reference Examples](../appendix/26-reference-examples.md)

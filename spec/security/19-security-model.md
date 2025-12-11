@@ -11,7 +11,7 @@ Defines security principles for SPAS services and platform.
 ## Threat Model (High Level)
 
 - Network egress abuse → Mitigate via `network.allowedEgress[]` + enclosure policies
-- Identity spoofing & token leakage → mTLS + short-lived token rotation + SPIFFE identities
+- Identity spoofing & token leakage → PoC: Identity propagation via CloudEvents payload; Production: mTLS + short-lived token rotation + SPIFFE identities
 - Schema drift causing deserialization issues → enforced additive-only evolution
 - Supply chain tampering → signed commits, dependency scanning (SCA), SBOM (CycloneDX), image signing (cosign), provenance (SLSA targets)
 

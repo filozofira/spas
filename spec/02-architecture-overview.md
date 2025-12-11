@@ -60,5 +60,5 @@ This document provides a high-level view of SPAS components and how they interac
 
 - [INDEX](INDEX.md)
 - [Communication Model](protocol-specification/07-communication-model.md)
-- [Transformation Middleware](component-specification/11-transformation-middleware.md)
+- [Domain Choreography](component-specification/14-domain-choreography.md)
 - [Runtime Environment](infrastructure/17-runtime-environment.md)

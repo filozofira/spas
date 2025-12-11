@@ -14,7 +14,7 @@
 ## Encryption
 
 - Edge: TLS 1.3 SHOULD be used (API Gateway responsibility)
-- East–West: mTLS MUST be used (sidecar↔sidecar and sidecar↔service)
+- East–West: PoC: HTTP (no mTLS); Production: mTLS MUST be used (sidecar↔sidecar and sidecar↔service)
 
 ## Sidecar Enforcement
 

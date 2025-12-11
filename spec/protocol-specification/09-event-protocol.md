@@ -33,6 +33,6 @@
 
 ## Related Documents
 
-- [Transformation Middleware](../component-specification/11-transformation-middleware.md)
+- [Domain Choreography](../component-specification/14-domain-choreography.md)
 - [Schema Registry](../infrastructure/16-schema-registry.md)
 - [Testing Harness](../tooling/18-testing-harness.md)

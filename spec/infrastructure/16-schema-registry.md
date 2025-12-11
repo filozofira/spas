@@ -27,5 +27,5 @@ Unified service-centric path structure:
 ## Related Documents
 
 - [Event Protocol](../protocol-specification/09-event-protocol.md)
-- [SDK Specification](../component-specification/13-sdk-specification.md)
-- [Repository Specification](../component-specification/12-repository-spec.md)
+- [SDK Specification](../component-specification/12-sdk-specification.md)
+- [Repository Specification](../component-specification/11-repository-spec.md)

@@ -4,8 +4,8 @@
 - Domain Context: Composition of services for a specific domain
 - Domain Composition: Deployable description of a Domain Context, defined by `choreography.yaml`
 - Choreography: Event-driven composition
-- North–South: Client-to-service communication
-- East–West: Service-to-service communication
+- North–South: Client-to-service communication via API Gateway
+- East–West: Event-driven or Service-to-service communication via SPAS Sidecar
 - Sidecar: Helper container handling cross-cutting concerns including transformation execution, protocol translation, identity propagation, observability, and (future) idempotency enforcement
 - Adaptation: Configuration-driven transformation of inbound/outbound events using mapping files
 - Domain Composition: Aggregated choreography (routing + mappings + services); Adaptation rules are a subset defined within `choreography.yaml`

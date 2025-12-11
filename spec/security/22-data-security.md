@@ -9,7 +9,7 @@
 ## Encryption
 
 - At rest: RECOMMENDED for `confidential` and `pii` classifications (implementation choice: database encryption, disk encryption)
-- In transit: Enforced via TLS (edge) and mTLS (east–west)
+- In transit: Edge: TLS 1.3 (API Gateway responsibility); East–West: PoC: HTTP (no mTLS); Production: mTLS
 
 ## Minimization & Sovereignty
 

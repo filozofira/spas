@@ -23,10 +23,10 @@ Quick navigation to SPAS specification documents organized by concern and audien
 ## Platform Components
 
 - **[component-specification/10-sidecar-contract.md](component-specification/10-sidecar-contract.md)** - Sidecar/mesh responsibilities
-- **[component-specification/11-transformation-middleware.md](component-specification/11-transformation-middleware.md)** - Message transformation and choreography
-- **[component-specification/12-repository-spec.md](component-specification/12-repository-spec.md)** - SPAS Repository
-- **[component-specification/13-sdk-specification.md](component-specification/13-sdk-specification.md)** - SDK requirements
-- **[component-specification/14-cli-specification.md](component-specification/14-cli-specification.md)** - CLI tools
+- **[component-specification/11-repository-spec.md](component-specification/11-repository-spec.md)** - SPAS Repository
+- **[component-specification/12-sdk-specification.md](component-specification/12-sdk-specification.md)** - SDK requirements
+- **[component-specification/13-cli-specification.md](component-specification/13-cli-specification.md)** - CLI tools
+- **[component-specification/14-domain-choreography.md](component-specification/14-domain-choreography.md)** - Message transformation and choreography
 
 ## Infrastructure & Operations
 
@@ -62,8 +62,8 @@ Quick navigation to SPAS specification documents organized by concern and audien
 | Concept | Document |
 |---------|----------|
 | Bounded Context | [Service Model](service-specification/03-service-model.md) |
-| Domain Context | [Transformation Middleware](component-specification/11-transformation-middleware.md) |
-| Choreography | [Transformation Middleware](component-specification/11-transformation-middleware.md) |
+| Domain Context | [Domain Choreography](component-specification/14-domain-choreography.md) |
+| Choreography | [Domain Choreography](component-specification/14-domain-choreography.md) |
 | CloudEvents | [Event Protocol](protocol-specification/09-event-protocol.md) |
 | Sidecar Pattern | [Sidecar Contract](component-specification/10-sidecar-contract.md) |
 | W3C Trace Context | [Communication Model](protocol-specification/07-communication-model.md) |
@@ -75,10 +75,10 @@ Quick navigation to SPAS specification documents organized by concern and audien
 → Start with [Core Principles](01-core-principles.md), then [Service Model](service-specification/03-service-model.md) and [Service Contract](service-specification/04-service-contract.md)
 
 **I want to compose services into a Domain Context**
-→ Read [Transformation Middleware](component-specification/11-transformation-middleware.md) and [Communication Model](protocol-specification/07-communication-model.md)
+→ Read [Domain Choreography](component-specification/14-domain-choreography.md) and [Communication Model](protocol-specification/07-communication-model.md)
 
 **I want to implement a sidecar or SDK**
-→ Start with [Sidecar Contract](component-specification/10-sidecar-contract.md), [Event Protocol](protocol-specification/09-event-protocol.md), and [Transformation Middleware](component-specification/11-transformation-middleware.md)
+→ Start with [Sidecar Contract](component-specification/10-sidecar-contract.md), [Event Protocol](protocol-specification/09-event-protocol.md), and [Domain Choreography](component-specification/14-domain-choreography.md)
 
 **I want to deploy SPAS services**
 → Read [Service Lifecycle](service-specification/05-service-lifecycle.md) and [Runtime Environment](infrastructure/17-runtime-environment.md)

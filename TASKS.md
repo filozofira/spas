@@ -57,10 +57,10 @@ spas/                                  # Root repository
 │   │   └── 06-service-metadata.md     # spas.json schema
 │   ├── component-specification/
 │   │   ├── 10-sidecar-contract.md
-│   │   ├── 11-transformation-middleware.md
-│   │   ├── 12-repository-spec.md
-│   │   ├── 13-sdk-specification.md
-│   │   └── 14-cli-specification.md
+│   │   ├── 11-repository-spec.md
+│   │   ├── 12-sdk-specification.md
+│   │   ├── 13-cli-specification.md
+│   │   └── 14-domain-choreography.md
 │   ├── protocol-specification/
 │   │   ├── 07-communication-model.md
 │   │   ├── 08-grpc-protocol.md        # (Production; PoC uses HTTP)
@@ -88,7 +88,7 @@ spas/                                  # Root repository
 │   │   │   ├── src/                   # Contains source code for .Net SDKs
 │   │   │   ├── test/                  # Unit test code for .Net SDKs
 │   │   │   ├── SPAS.SDK.sln           # SDK .Net solution file
-│   │   │   └── README.md              # SDK documentation (keyed to spec/13-sdk-specification.md)
+│   │   │   └── README.md              # SDK documentation (keyed to spec/12-sdk-specification.md)
 │   │   ├── go/                        # Go SDK (future)
 │   │   ├── java/                      # Java SDK (future)
 │   │   └── README.md                  # Multi-language SDK guide
@@ -100,12 +100,12 @@ spas/                                  # Root repository
 │   │   ├── spas-compose/              # spas-compose root
 │   │   │   ├── src/                   # source for spas-compose cli
 │   │   │   ├── test/                  # test for spas-compose 
-│   │   └── README.md                  # CLI documentation (keyed to spec/14-cli-specification.md)
+│   │   └── README.md                  # CLI documentation (keyed to spec/13-cli-specification.md)
 │   │
 │   ├── repository/                    # SPAS Repository Service (metadata + schema storage)
 │   │   ├── src/                       # SPAS Repository service source code
 │   │   ├── test/                      # SPAS Repository test
-│   │   └── README.md                  # Repository API docs (keyed to spec/12-repository-spec.md)
+│   │   └── README.md                  # Repository API docs (keyed to spec/11-repository-spec.md)
 │   │
 │   └── sidecar/                       # SPAS Sidecar (from prototype to Poc and to evolve to production-ready in future)
 │       ├── src/                       # JavaScript/Node.js (or migrate to .NET if needed)
@@ -150,7 +150,7 @@ spas/                                  # Root repository
 
 **Goal:** Enable services to author `spas.json` metadata and publish events.
 
-**Spec Cross-Reference:** `spec/component-specification/13-sdk-specification.md` (source-of-truth)
+**Spec Cross-Reference:** `spec/component-specification/12-sdk-specification.md` (source-of-truth)
 
 **Implementation Plan:** To be determined during this phase.
 
@@ -171,7 +171,7 @@ spas/                                  # Root repository
 
 **Goal:** Store service metadata & schemas; enable service discovery.
 
-**Spec Cross-Reference:** `spec/component-specification/12-repository-spec.md` (source-of-truth)
+**Spec Cross-Reference:** `spec/component-specification/11-repository-spec.md` (source-of-truth)
 
 **Implementation Plan:** To be determined during this phase.
 
@@ -195,7 +195,7 @@ spas/                                  # Root repository
 
 **Goal:** Enable service packaging and composition workflow.
 
-**Spec Cross-Reference:** `spec/component-specification/14-cli-specification.md` (source-of-truth)
+**Spec Cross-Reference:** `spec/component-specification/13-cli-specification.md` (source-of-truth)
 
 **Implementation Plan:** To be determined during this phase.
 
@@ -226,7 +226,7 @@ spas/                                  # Root repository
 
 - `spec/02-architecture-overview.md` (architecture)
 - `spec/service-specification/04-service-contract.md` (service contracts)
-- `spec/component-specification/11-transformation-middleware.md` (adaptation rules)
+- `spec/component-specification/14-domain-choreography.md` (adaptation rules)
 
 **Implementation Plan:** To be determined during this phase.
 
@@ -254,7 +254,7 @@ spas/                                  # Root repository
 ```text
 Feature requested: "Event publishing API"
   ↓
-Consult: spec/component-specification/13-sdk-specification.md
+Consult: spec/component-specification/12-sdk-specification.md
 Specifically: "SDK Specification > Responsibilities" section
   ↓
 Implement API to match spec examples
@@ -270,7 +270,7 @@ Validate: Examples match spec/appendix/26-reference-examples.md
 ```text
 Feature: "spas-service pack"
   ↓
-Consult: spec/component-specification/14-cli-specification.md
+Consult: spec/component-specification/13-cli-specification.md
 Specifically: "Commands > PoC Core" section
   ↓
 Understand input: spec/service-specification/06-service-metadata.md
@@ -287,7 +287,7 @@ Validate: Examples from spec/appendix/26-reference-examples.md
 ```text
 Feature: "GET /services/{name}/{version}"
   ↓
-Consult: spec/component-specification/12-repository-spec.md
+Consult: spec/component-specification/11-repository-spec.md
 Specifically: "API Endpoints (baseline)"
   ↓
 Check schema: spec/service-specification/06-service-metadata.md
@@ -343,7 +343,7 @@ All marked in spec as `PoC` vs `Production` using admonition blocks (see spec/02
 
 **Exact next step:**
 → Create `src/` folder structure (as shown above) and begin SDK development Phase 1
-→ Reference spec/component-specification/13-sdk-specification.md as implementation guide
+→ Reference spec/component-specification/12-sdk-specification.md as implementation guide
 
 **Common gotchas:**
 

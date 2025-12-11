@@ -27,8 +27,8 @@ Defines execution assumptions for SPAS services.
 
 ## Observability
 
-- OpenTelemetry traces/metrics/logs
-- Prometheus scraping; structured JSON logs
+- PoC: Zipkin-only distributed tracing; structured JSON logs
+- Production: OpenTelemetry traces/metrics (Prometheus scraping); structured JSON logs
 
 ## Platforms
 

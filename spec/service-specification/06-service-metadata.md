@@ -211,6 +211,6 @@ Services MAY expose endpoints (development-only) to retrieve metadata:
 
 ## Related Documents
 
-- [Repository Specification](../component-specification/12-repository-spec.md)
+- [Repository Specification](../component-specification/11-repository-spec.md)
 - [Schema Registry](../infrastructure/16-schema-registry.md)
 - [Compliance Checklist](../governance/24-compliance-checklist.md)

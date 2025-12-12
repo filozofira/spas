@@ -11,12 +11,27 @@ public static class IdentityAccessors
 {
     /// <summary>
     /// Extracts identity claims from the HTTP context and populates SpasContext.
-    /// Call this early in the request pipeline to make identity available throughout the request.
+    /// Called automatically by SpasIdentityMiddleware.
     /// </summary>
     /// <param name="httpContext">The current HTTP context.</param>
-    public static void PopulateFromHttpContext(HttpContext httpContext)
+    internal static void PopulateFromHttpContext(HttpContext httpContext)
     {
-        if (httpContext?.User?.Identity?.IsAuthenticated != true)
+        if (httpContext == null)
+        {
+            return;
+        }
+
+        if (httpContext.User == null)
+        {
+            return;
+        }
+
+        if (httpContext.User.Identity == null)
+        {
+            return;
+        }
+
+        if (!httpContext.User.Identity.IsAuthenticated)
         {
             return;
         }

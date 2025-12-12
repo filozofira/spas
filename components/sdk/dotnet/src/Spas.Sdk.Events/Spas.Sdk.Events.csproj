@@ -2,6 +2,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Spas.Sdk.Core\Spas.Sdk.Core.csproj" />
+    <ProjectReference Include="..\Spas.Sdk.Metadata\Spas.Sdk.Metadata.csproj" />
   </ItemGroup>
 
   <PropertyGroup>

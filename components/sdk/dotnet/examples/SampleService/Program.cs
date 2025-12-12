@@ -61,12 +61,10 @@ app.MapPost("/commands/create-order",
 
         try
         {
-            // Simple API: topic, eventType, and payload
+            // Generic API: event type derived from [SpasEvent] attribute on OrderCreatedEvent
             // SDK automatically includes headers: traceparent, x-service-name, x-event-type, x-correlation-id, x-user-id, x-tenant-id
-            await publisher.PublishAsync(
-                topic: "orders",
-                eventType: "com.sample-service.order.created",
-                payload: eventPayload);
+            // Sidecar handles topic routing based on event type configuration
+            await publisher.PublishAsync<OrderCreatedEvent>(payload: eventPayload);
         }
         catch (Exception ex)
         {
@@ -158,5 +156,7 @@ app.Run();
 public record CreateOrderRequest(string CustomerId, decimal Total);
 
 // Sample event - auto-discovered from assembly scan
-[SpasEvent("OrderCreated", "1.0", Schema = "schemas/order-created.schema.json")]
+[SpasEvent("OrderCreated", "1.0", 
+    Schema = "schemas/order-created.schema.json",
+    EventType = "com.sample-service.order.created")]
 public record OrderCreatedEvent(Guid OrderId, string CustomerId, decimal Total, DateTime CreatedAt);

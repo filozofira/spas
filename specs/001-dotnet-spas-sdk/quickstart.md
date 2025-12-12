@@ -104,24 +104,34 @@ builder.Services.AddSingleton(sp =>
     return new EventPublisher(httpClientFactory.CreateClient(), "sample-service");
 });
 
+// Define event type with metadata
+[SpasEvent("OrderCreated", "1.0", 
+    EventType = "com.example.order.created")]
+public record OrderCreatedEvent(string OrderId, decimal Amount);
+
 // Publish event with automatic trace/correlation propagation
-await publisher.PublishAsync(
-    topic: "orders",
-    eventType: "com.example.order.created",
+// Event type derived from [SpasEvent] attribute
+await publisher.PublishAsync<OrderCreatedEvent>(
     payload: new { orderId = "ORDER-123", amount = 100.50 }
 );
 ```
+
+**What the SDK does:**
+
+1. Extracts `EventType` from `[SpasEvent]` attribute (or auto-generates: `com.{service}.{event-name}`)
+2. Sends to sidecar `/publish` endpoint with metadata headers
+3. Sidecar routes to topic based on event type (configured in sidecar)
 
 **Headers sent to sidecar:**
 
 - `traceparent`: W3C Trace Context (e.g., `00-{trace-id}-{span-id}-{flags}`)
 - `x-service-name`: Source service name → CloudEvents `source`
-- `x-event-type`: Event type → CloudEvents `type`
+- `x-event-type`: Event type → CloudEvents `type` (from attribute or auto-generated)
 - `x-correlation-id`: Correlation ID → CloudEvents `correlationid` extension
 - `x-user-id`: Optional user identity from `SpasContext`
 - `x-tenant-id`: Optional tenant identity from `SpasContext`
 
-The sidecar wraps the raw payload in a CloudEvents 1.0 envelope using these headers.
+The sidecar wraps the raw payload in a CloudEvents 1.0 envelope using these headers and routes to the configured topic.
 
 ## Handling Inbound Requests
 

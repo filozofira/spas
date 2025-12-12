@@ -93,6 +93,12 @@ public class SpasEventAttribute : Attribute
     /// </summary>
     public string? Schema { get; set; }
 
+    /// <summary>
+    /// The CloudEvents type value (reverse-DNS format, e.g., com.example.order.created).
+    /// Optional; if not provided, will be auto-generated from service name and event name.
+    /// </summary>
+    public string? EventType { get; set; }
+
     public SpasEventAttribute(string name, string version)
     {
         Name = name;

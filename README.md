@@ -62,6 +62,6 @@ SPAS specifies:
 
 ## Related Documents
 
-- [Specification](./spec/INDEX.md)
+- [Specification](./principles/INDEX.md)
 - Prototypes
   - [spas-sidecar](./prototypes/spas-sidecar-prototype/README.md)

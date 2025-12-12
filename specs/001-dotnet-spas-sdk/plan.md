@@ -96,7 +96,17 @@ components/
 
 ## Inbound Package Responsibilities
 
-The `Spas.Sdk.Inbound` package provides developer ergonomics and conventions for receiving commands, queries, and events within a SPAS service while respecting Constitution boundaries.
+**STATUS**: ⚠️ DEFERRED - Not implemented in PoC (2025-12-12)
+
+**Decision**: Use native ASP.NET Core minimal APIs for inbound handlers instead of custom abstractions. See `components/sdk/dotnet/src/Spas.Sdk.Inbound/README.md` for rationale and future implementation path.
+
+**Current Approach**: Services use `app.MapPost/MapGet` with `SpasCommandAttribute`/`SpasQueryAttribute` for metadata discovery and `SpasContext` for identity/correlation access.
+
+---
+
+### Original Plan (for future reference)
+
+The `Spas.Sdk.Inbound` package was planned to provide developer ergonomics and conventions for receiving commands, queries, and events within a SPAS service while respecting Constitution boundaries.
 
 - Responsibilities:
 

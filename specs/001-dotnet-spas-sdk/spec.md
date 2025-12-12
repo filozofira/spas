@@ -99,8 +99,8 @@ Developers can enable a minimal tracelog middleware that captures request/respon
 - **FR-002**: SDK MUST enable composing `spas.json` that validates against the repository schema with clear diagnostics.
 - **FR-003**: SDK MUST provide a dev-only `/_spas/metadata` endpoint, disabled in production and controlled by environment/config.
 - **FR-004**: SDK MUST provide event publishing helpers that send raw payload via HTTP POST with CloudEvents metadata propagated via HTTP headers (`traceparent`, `x-service-name`, `x-event-type`, `x-correlation-id`, `x-user-id`, `x-tenant-id`) for sidecar envelope construction.
-- **FR-005**: SDK MUST offer inbound endpoint scaffolding (attributes/base classes) for commands, queries, and events.
-- **FR-006**: SDK MUST include configuration helpers for environment/file loading and a hook for secret sources.
+- **FR-005**: SDK MUST offer inbound endpoint scaffolding (attributes/base classes) for commands, queries, and events. **[PoC: DEFERRED - using native ASP.NET Core minimal APIs with SPAS attributes instead]**
+- **FR-006**: SDK MUST include configuration helpers for environment/file loading and a hook for secret sources. **[PoC: DEFERRED - using standard ASP.NET Core configuration]**
 - **FR-007**: SDK MUST offer testing utilities including fixtures and stub generators for contracts and events.
 - **FR-008**: SDK MUST provide lightweight identity propagation helpers (principal/claims accessors) for handlers and event publishing.
 - **FR-009**: SDK MUST provide an opt-in tracelog middleware that records request/response timing and includes trace/correlation identifiers in logs.
@@ -155,3 +155,5 @@ Developers can enable a minimal tracelog middleware that captures request/respon
 - Production-grade outbox, mTLS/SPIFFE enforcement, and gRPC scaffolding.
 - Full authorization middleware integrations (e.g., provider-specific authentication wiring) for this feature.
 - Advanced observability features (metrics pipelines, span exporters, configurable sinks) beyond minimal tracelog middleware.
+- Inbound handler scaffolding (FR-005) - deferred in favor of native ASP.NET Core minimal APIs.
+- Custom configuration helpers (FR-006) - using standard ASP.NET Core configuration instead.

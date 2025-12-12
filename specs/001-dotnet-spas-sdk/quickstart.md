@@ -1,19 +1,45 @@
-# Quickstart: .NET SPAS SDK (Phase 1)
+# Quickstart: .NET SPAS SDK
 
-- Place source under `components/sdk/dotnet`
-- Create solution `Spas.Sdk.sln`; add projects:
-  - Spas.Sdk.Core
-  - Spas.Sdk.Metadata
-  - Spas.Sdk.Events
-  - Spas.Sdk.Inbound
-  - Spas.Sdk.Configuration
-  - Spas.Sdk.Observability
-  - Spas.Sdk.Testing
-- Implement SDK composition to generate `spas.json`
-- Add dev endpoint `/_spas/metadata` (dev-only) returning archive with `spas.json` + schemas
-- Use CloudEvents helpers to publish with trace/correlation
-- Enable tracelog middleware for request timing and correlation IDs
-- Configure OpenTelemetry with Zipkin for distributed tracing (PoC)
+## Overview
+
+The .NET SPAS SDK provides:
+- **Metadata Composition**: Auto-discover contracts and generate `spas.json`
+- **Dev Metadata Endpoint**: `/_spas/metadata` returns ZIP with metadata + schemas (dev-only)
+- **Event Publishing**: Publish events to sidecar with automatic trace/correlation propagation
+- **Tracelog Middleware**: Request/response logging with distributed tracing
+- **Environment Variable Conventions**: Matches sidecar prototype patterns for seamless integration
+
+## Quick Setup
+
+```csharp
+using Spas.Sdk.Metadata.Extensions;
+using Spas.Sdk.Observability.Extensions;
+using Spas.Sdk.Observability.Tracing;
+
+var builder = WebApplication.CreateBuilder(args);
+
+// 1. Register metadata services with auto-discovery
+builder.Services.AddSpasMetadata(options =>
+{
+    options.AssembliesToScan.Add(typeof(Program).Assembly);
+});
+
+// 2. Configure all SPAS infrastructure (event publishing + tracing)
+// Reads: SERVICE_NAME, SIDECAR_HOST, SIDECAR_PORT, ZIPKIN_URL from environment
+var serviceName = builder.Services.AddSpasServices(builder.Configuration, "my-service");
+
+var app = builder.Build();
+
+// 3. Enable tracelog middleware
+app.UseSpasTracelog();
+
+// 4. Discover contracts from attributes
+var contracts = app.DiscoverSpasMetadata();
+
+app.Run();
+```
+
+**That's it!** Just set environment variables and the SDK handles everything.
 
 ## Observability & Tracing
 

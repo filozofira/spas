@@ -1,11 +1,10 @@
-using Spas.Sdk.Core.Context;
-using Spas.Sdk.Core.Identity;
 using Spas.Sdk.Events.Publish;
 using Spas.Sdk.Metadata.Attributes;
 using Spas.Sdk.Metadata.Builders;
 using Spas.Sdk.Metadata.Composition;
 using Spas.Sdk.Metadata.Dev;
 using Spas.Sdk.Metadata.Extensions;
+using Spas.Sdk.Observability.Extensions;
 using Spas.Sdk.Observability.Tracing;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -20,24 +19,9 @@ builder.Services.AddSpasMetadata(options =>
 // Register dev metadata endpoint (enabled only in Development)
 builder.Services.AddMetadataEndpoint();
 
-// Configure service name
-var serviceName = builder.Configuration.GetValue<string>("ServiceName") ?? "sample-service";
-
-// Configure OpenTelemetry tracing with Zipkin (PoC)
-var zipkinUrl = builder.Configuration.GetValue<string>("Zipkin:Url") ?? "http://localhost:9411/api/v2/spans";
-builder.Services.AddSpasTracing(serviceName, zipkinUrl);
-
-// Register EventPublisher with HTTP client configured for sidecar
-builder.Services.AddHttpClient<EventPublisher>(client =>
-{
-    // Configure sidecar endpoint (default: localhost:3001)
-    var sidecarUrl = builder.Configuration.GetValue<string>("Sidecar:Url") ?? "http://localhost:3001";
-    client.BaseAddress = new Uri(sidecarUrl);
-})
-.AddTypedClient((httpClient, serviceProvider) =>
-{
-    return new EventPublisher(httpClient, serviceName);
-});
+// Configure all SPAS infrastructure services (event publishing, tracing)
+// Reads: SERVICE_NAME, SIDECAR_HOST, SIDECAR_PORT (or SIDECAR_URL), ZIPKIN_URL
+var serviceName = builder.Services.AddSpasServices(builder.Configuration, "sample-service");
 
 var app = builder.Build();
 

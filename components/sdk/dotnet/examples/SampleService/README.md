@@ -11,11 +11,31 @@ This sample service demonstrates the complete usage of the .NET SPAS SDK, includ
 ## Prerequisites
 
 - .NET 10 SDK
-- Docker (for Zipkin)
+- Docker (optional, for Zipkin)
 
 ## Quick Start
 
-### 1. Start Zipkin (Optional - for distributed tracing)
+### 1. Set Environment Variables
+
+The SDK uses simple environment variables matching the sidecar prototype:
+
+```bash
+export SERVICE_NAME=sample-service
+export SIDECAR_HOST=localhost    # or container name in Docker
+export SIDECAR_PORT=3001
+export ZIPKIN_URL=http://localhost:9411
+```
+
+Or in docker-compose.yml:
+```yaml
+environment:
+  - SERVICE_NAME=sample-service
+  - SIDECAR_HOST=sample-service-sidecar
+  - SIDECAR_PORT=7001
+  - ZIPKIN_URL=http://zipkin:9411
+```
+
+### 2. Start Zipkin (Optional - for distributed tracing)
 
 ```bash
 docker run -d -p 9411:9411 openzipkin/zipkin
@@ -23,14 +43,14 @@ docker run -d -p 9411:9411 openzipkin/zipkin
 
 View traces at: http://localhost:9411
 
-### 2. Run the Sample Service
+### 3. Run the Sample Service
 
 ```bash
 cd components/sdk/dotnet/examples/SampleService
 dotnet run
 ```
 
-The service will start on `http://localhost:5000` (or the port configured in `appsettings.json`).
+The service will start on `http://localhost:5000`.
 
 ### 3. Verify Metadata Endpoint (Dev Only)
 
@@ -264,26 +284,43 @@ var tenantId = SpasContext.TenantId;
 
 ## Configuration
 
-### appsettings.json
+The SDK uses environment variables matching the SPAS sidecar prototype conventions:
+
+### Environment Variables (Primary)
+
+- `SERVICE_NAME`: Service identifier (default: "sample-service")
+- `SIDECAR_HOST`: Sidecar hostname (e.g., "order-service-sidecar")
+- `SIDECAR_PORT`: Sidecar port (e.g., 7001)
+- `SIDECAR_URL`: Alternative single URL (e.g., "http://localhost:3001")
+- `ZIPKIN_URL`: Zipkin endpoint (default: "http://localhost:9411")
+- `PORT`: Service listening port (default: 5000)
+- `ASPNETCORE_ENVIRONMENT`: Set to `Development` to enable `/_spas/metadata` endpoint
+
+### appsettings.json (Alternative)
 
 ```json
 {
-  "ServiceName": "sample-service",
-  "Sidecar": {
-    "Url": "http://localhost:3001"
-  },
-  "Zipkin": {
-    "Url": "http://localhost:9411/api/v2/spans"
-  }
+  "SERVICE_NAME": "sample-service",
+  "SIDECAR_URL": "http://localhost:3001",
+  "ZIPKIN_URL": "http://localhost:9411"
 }
 ```
 
-### Environment Variables
+### Docker Compose Example
 
-- `ASPNETCORE_ENVIRONMENT`: Set to `Development` to enable `/_spas/metadata` endpoint
-- `ServiceName`: Override service name
-- `Sidecar__Url`: Override sidecar URL
-- `Zipkin__Url`: Override Zipkin URL
+```yaml
+services:
+  my-service:
+    build: .
+    environment:
+      - SERVICE_NAME=my-service
+      - SIDECAR_HOST=my-service-sidecar
+      - SIDECAR_PORT=7001
+      - ZIPKIN_URL=http://zipkin:9411
+      - PORT=5001
+```
+
+**Note**: Environment variables take precedence over appsettings.json values.
 
 ## Testing Without Sidecar
 

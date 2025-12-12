@@ -1,16 +1,18 @@
 <!--
-Sync Impact Report (v1.0.1)
+Sync Impact Report (v1.0.3)
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-Version Change: 1.0.0 → 1.0.1 (MINOR)
+Version Change: 1.0.2 → 1.0.3 (PATCH)
 Amended: 2025-12-12 (PoC Phase)
 
 Changes:
   • Clarified Events boundary (SDK prepares payload/context; Sidecar wraps CloudEvents)
   • Softened inbound path convention from mandatory to recommended (route-agnostic SDK)
+  • Clarified SpecKit testing defaults for PoC task generation: unit tests are mandatory; integration test tasks may be omitted unless explicitly requested. Independent test criteria remain mandatory. Does not relax SDK quality gates for non‑PoC releases.
 
 Impact:
   • Update SDK specs and plans to avoid enforcing a specific inbound path
   • Samples may continue to use `/incoming` as a recommended default
+  • SpecKit-generated tasks must include unit test tasks at minimum. Integration test tasks may be omitted when not requested by the feature spec during PoC. Maintainers must still satisfy SDK Quality Gates before non‑PoC releases
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 -->
 
@@ -184,6 +186,7 @@ Services MUST run unchanged across Kubernetes, Docker Compose, and bare metal en
 - File-based repository storage (not PostgreSQL)
 - No contract testing framework
 - Declarative-only security policies (not runtime enforcement)
+- SpecKit testing policy: Unit test tasks MUST be included per user story in generated task lists. Integration test tasks MAY be omitted during PoC unless explicitly requested in the feature spec. Independent test criteria per user story are MANDATORY. This simplification does NOT waive component Quality Gates for non‑PoC releases.
 
 **Production Requirements** (Future):
 
@@ -197,6 +200,8 @@ Services MUST run unchanged across Kubernetes, Docker Compose, and bare metal en
 **Rationale**: PoC prioritizes rapid validation of architecture patterns over production-grade infrastructure. All PoC implementations MUST be designed for future production migration.
 
 **Verification**: Specifications marked with `> PoC vs Production` admonition blocks distinguish requirements.
+
+> Note (Testing Policy, SpecKit): Where a feature spec omits explicit test requirements, SpecKit may generate tasks without automated test tasks. This is a planning convenience during PoC and does not modify component Quality Gates defined in this Constitution. Prior to any non‑PoC SDK release, teams MUST meet applicable Quality Gates (e.g., unit/integration test expectations).
 
 ---
 
@@ -229,15 +234,15 @@ Services MUST run unchanged across Kubernetes, Docker Compose, and bare metal en
 - Validation: fail fast with clear diagnostics when fragments are incomplete or inconsistent.
 
 **Quality Gates**:
+Unit tests are non‑negotiable in both PoC and Production phases. During PoC, integration tests MAY be deferred unless the feature scope requires them; prior to any non‑PoC release, integration tests MUST be in place per capability.
 **Events — Preparation vs Wrapping (Explicit Boundary)**:
 
 - SDK Responsibilities: Prepare event payloads, attach and propagate W3C Trace Context and correlation identifiers, and surface identity claims to publishing code. Provide helpers to construct payloads and pass context to the sidecar publish endpoint.
 - Sidecar Responsibilities: Wrap outgoing events into CloudEvents 1.0 envelopes, inject/propagate trace and correlation context, and perform any required domain/internal transformations configured in choreography.
 - Prohibitions: SDK MUST NOT construct CloudEvents envelopes or duplicate transformation logic owned by sidecar; this prevents coupling and preserves observability/policy boundaries.
 
-
 - Unit test coverage ≥ 80%
-- Integration tests for metadata round-trip serialization
+- Integration tests for metadata round-trip serialization (MAY be deferred in PoC; REQUIRED before non‑PoC release)
 - Examples demonstrating each capability
 - Clear error messages for validation failures
 
@@ -410,4 +415,4 @@ All constitution changes MUST:
 - Prepend Sync Impact Report (HTML comment at top of file)
 - Update dependent templates/docs within same PR
 
-**Version**: 1.0.1 | **Ratified**: 2025-12-12 | **Last Amended**: 2025-12-12
+**Version**: 1.0.3 | **Ratified**: 2025-12-12 | **Last Amended**: 2025-12-12

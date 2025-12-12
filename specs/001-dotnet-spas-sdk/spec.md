@@ -105,6 +105,11 @@ Developers can enable a minimal tracelog middleware that captures request/respon
 - **FR-008**: SDK MUST provide lightweight identity propagation helpers (principal/claims accessors) for handlers and event publishing.
 - **FR-009**: SDK MUST provide an opt-in tracelog middleware that records request/response timing and includes trace/correlation identifiers in logs.
 
+### Testing Approach
+
+- Unit tests are REQUIRED for each user story (PoC and Production). SpecKit task generation MUST include unit test tasks per story.
+- Integration tests are OPTIONAL during PoC unless explicitly requested in this spec; they become REQUIRED before any non-PoC SDK release.
+
 ### Key Entities *(include if feature involves data)*
 
 - **Service Metadata**: Identity, contracts, security, health; composed into `spas.json`.

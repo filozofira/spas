@@ -7,7 +7,7 @@
 
 ## Summary
 
-Deliver a modular .NET SDK enabling SPAS-compliant service development: metadata builders and SDK composition of `spas.json`; dev-only metadata endpoint returning an archive with `spas.json` and contract schemas; CloudEvents publish helpers with W3C trace/correlation; inbound scaffolding for commands/queries/events; configuration helpers; minimal opt-in tracelog middleware; and testing utilities. Projects are placed under `components/sdk/.Net` as separate packages with a shared core.
+Deliver a modular .NET SDK enabling SPAS-compliant service development: metadata builders and SDK composition of `spas.json`; dev-only metadata endpoint returning an archive with `spas.json` and contract schemas; CloudEvents publish helpers with W3C trace/correlation; inbound scaffolding for commands/queries/events; configuration helpers; minimal opt-in tracelog middleware; and testing utilities. Projects are placed under `components/sdk/.net/src` as separate packages with a shared core.
 
 ## Technical Context
 
@@ -53,32 +53,31 @@ specs/[###-feature]/
 ```text
 components/
 └── sdk/
-  └── .Net/
-    ├── Spas.Sdk.sln
-    ├── Spas.Sdk.Core/
-    ├── Spas.Sdk.Metadata/
-    ├── Spas.Sdk.Events/
-    ├── Spas.Sdk.Inbound/
-    ├── Spas.Sdk.Configuration/
-    ├── Spas.Sdk.Observability/
-    ├── Spas.Sdk.Testing/
+  └── .net/
+    ├── SPAS.SDK.sln
+    ├── src/
+    │  ├── Spas.Sdk.Core/
+    │  ├── Spas.Sdk.Metadata/
+    │  ├── Spas.Sdk.Events/
+    │  ├── Spas.Sdk.Inbound/
+    │  ├── Spas.Sdk.Configuration/
+    │  ├── Spas.Sdk.Observability/
+    │  └── Spas.Sdk.Testing/
+    ├── test/
+    │  ├── Spas.Sdk.Core.Tests/
+    │  ├── Spas.Sdk.Metadata.Tests/
+    │  ├── Spas.Sdk.Events.Tests/
+    │  ├── Spas.Sdk.Inbound.Tests/
+    │  ├── Spas.Sdk.Configuration.Tests/
+    │  ├── Spas.Sdk.Observability.Tests/
+    │  └── Spas.Sdk.Testing.Tests/
     └── examples/
-      └── SampleService/
-        ├── SampleService.csproj
-        └── README.md
-
-tests/
-└── dotnet/
-  ├── Spas.Sdk.Core.Tests/
-  ├── Spas.Sdk.Metadata.Tests/
-  ├── Spas.Sdk.Events.Tests/
-  ├── Spas.Sdk.Inbound.Tests/
-  ├── Spas.Sdk.Configuration.Tests/
-  ├── Spas.Sdk.Observability.Tests/
-  └── Spas.Sdk.Testing.Tests/
+       └── SampleService/
+         ├── SampleService.csproj
+         └── README.md
 ```
 
-**Structure Decision**: Multi-package SDK under `components/sdk/.Net` with shared `Spas.Sdk.Core` and capability-specific projects; dedicated tests per package; example service for integration demonstrations.
+**Structure Decision**: Multi-package SDK under `components/sdk/.net` with shared `Spas.Sdk.Core` and capability-specific projects organized beneath `src/`; dedicated tests per package beneath `test/`; example service under `examples/` for integration demonstrations.
 
 ## Complexity Tracking
 

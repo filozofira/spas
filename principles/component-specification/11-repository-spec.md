@@ -30,6 +30,12 @@ Natural key aligns with CLI (`spas-service pull <name> <version>`):
 - Archive integrity check at publish time (PoC: optional checksum; Production: required SHA-256)
 - Image digest existence check (optional in PoC)
 
+### Cross‑Component Boundaries (See Constitution)
+
+- Source of Truth: Stores canonical `spas.json` and schemas post‑publish; serves retrieval APIs to CLI and tooling (Constitution → Repository Service → Responsibilities & Boundaries).
+- Publish Validation: Enforces schema validity, versioning rules, and additive‑only evolution for events/schemas.
+- No Design‑time Aggregation: Does not host service dev aggregation; design‑time metadata assembly resides with the service/SDK when enabled.
+
 ## Auth & Policy
 
 > PoC: No auth; local repo for speed

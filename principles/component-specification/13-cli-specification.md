@@ -36,6 +36,12 @@ Defines the command-line tools that power the SPAS developer workflow.
 - Global config at `~/.spas/config.yaml`
 - Supports multiple repositories and registries
 
+### Cross‑Component Boundaries (See Constitution)
+
+- Responsibilities: Deterministically compose canonical `spas.json`, package artifacts, and publish metadata/schemas to the Repository (Constitution → CLI Tools → Responsibilities & Boundaries).
+- Dev Integration: MAY call a service’s dev‑only `/_spas/metadata` endpoint to fetch an aggregated view for local workflows; MUST NOT rely on it in production.
+- Source of Truth: CLI orchestrates but does not persist runtime metadata. After publish, the Repository is the source of truth.
+
 ## Extension Model
 
 - Plugin architecture with discoverable commands (future); PoC may rely on static core set

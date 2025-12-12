@@ -6,6 +6,7 @@ Quick navigation to SPAS specification documents organized by concern and audien
 
 - **[01-core-principles.md](01-core-principles.md)** - Immutable principles guiding SPAS design
 - **[02-architecture-overview.md](02-architecture-overview.md)** - High-level system architecture
+- **[SPAS Framework Constitution](../.specify/memory/constitution.md)** - Governance, cross-component boundaries, and universal rules
 
 ## For Service Developers
 

@@ -2,6 +2,76 @@
 
 Last updated: 2025-12-12
 
+---
+
+## 🤖 Agent Handover (New Machine / New Session)
+
+**Current Feature State**: .NET SPAS SDK (001-dotnet-spas-sdk)
+
+### ✅ Completion Status
+- **Status**: ✅ Complete (PoC) - Ready for development/testing use
+- **Completed**: 2025-12-12
+- **Branch**: `001-dotnet-spas-sdk` (active feature branch)
+- **Build**: ✅ Success (6 warnings documented in SECURITY.md)
+- **Tests**: 88/88 passing (verified via `dotnet test --no-build`)
+
+### 📁 Essential Reading (Priority Order)
+1. **specs/001-dotnet-spas-sdk/COMPLETION.md** - Comprehensive completion summary with metrics
+2. **specs/001-dotnet-spas-sdk/tasks.md** - All 60 tasks (marked complete), includes agent handover section
+3. **specs/001-dotnet-spas-sdk/plan.md** - Architecture, tech stack, project structure
+4. **specs/001-dotnet-spas-sdk/SECURITY.md** - PoC security review + Production migration checklist
+5. **specs/001-dotnet-spas-sdk/quickstart.md** - Getting started guide
+
+### 🎯 Key Context for New Agents
+
+**What Was Built**:
+- 7 SDK packages: Core, Metadata, Events, Observability, + 3 deferred/placeholder
+- Attribute-based metadata auto-discovery (SpasCommandAttribute, SpasQueryAttribute, SpasEventAttribute)
+- Event publishing to sidecar with W3C Trace Context propagation
+- OpenTelemetry + Zipkin integration for distributed tracing
+- Dev-only metadata endpoint (/_spas/metadata) with environment gating
+- Single-line configuration: `AddSpasServices()` abstracts all SPAS infrastructure
+
+**Critical Decisions Made**:
+1. **FR-005 Deferred**: Spas.Sdk.Inbound empty - using native ASP.NET Core minimal APIs
+   - Documented in `components/sdk/dotnet/src/Spas.Sdk.Inbound/README.md`
+2. **FR-006 Deferred**: Spas.Sdk.Configuration minimal - using standard ASP.NET Core IConfiguration
+3. **Configuration Pattern**: Environment variables match docker-compose prototype (SERVICE_NAME, SIDECAR_HOST, ZIPKIN_URL)
+4. **Full Abstraction**: `AddSpasServices()` configures EventPublisher + OpenTelemetry + Zipkin in one call
+
+**Known Issues** (Non-Blocking for PoC):
+- OpenTelemetry.Api 1.10.0 has CVE (NU1902) - documented, requires upgrade to 2.0+ for Production
+- Package pruning warnings (NU1510) - documented, cosmetic only
+- All warnings tracked in SECURITY.md
+
+### 🚀 Quick Start Commands
+```powershell
+# Navigate to SDK
+cd components/sdk/dotnet
+
+# Build (agent-safe)
+dotnet build --no-restore
+
+# Run tests (user should execute, agent can build only)
+dotnet test --no-build --verbosity minimal
+
+# Run sample service
+cd examples/SampleService
+dotnet run
+```
+
+### ⚠️ Testing Workflow (CRITICAL)
+- **Agent builds**: Use `dotnet build` freely
+- **User runs tests**: Terminal crashes when agent captures test output in VS Code
+- **Established Pattern**: Agent builds, user confirms test results
+
+### 📋 Next Actions if Work Resumes
+- **PoC Deployment**: Follow quickstart.md to run with sidecar prototype
+- **Production Hardening**: Start with SECURITY.md Migration Checklist (mTLS, Key Vault, OTel 2.0+)
+- **Feature Additions**: Review deferred packages before adding new capabilities
+
+---
+
 ## Common Guidance
 
 - Testing Policy: Unit tests are REQUIRED per user story (PoC and Production). Integration tests are OPTIONAL during PoC unless explicitly requested; REQUIRED before non‑PoC releases. See .specify/memory/constitution.md (v1.0.3).

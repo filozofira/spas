@@ -1,3 +1,4 @@
+using Spas.Sdk.Core.Identity;
 using Spas.Sdk.Events.Publish;
 using Spas.Sdk.Metadata.Attributes;
 using Spas.Sdk.Metadata.Builders;
@@ -24,6 +25,9 @@ builder.Services.AddMetadataEndpoint();
 var serviceName = builder.Services.AddSpasServices(builder.Configuration, "sample-service");
 
 var app = builder.Build();
+
+// Enable SPAS identity middleware to populate SpasContext from HTTP context
+app.UseSpasIdentity();
 
 // Enable SPAS tracelog middleware for request/response timing and correlation
 app.UseSpasTracelog();

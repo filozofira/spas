@@ -65,3 +65,7 @@ SPAS specifies:
 - [Specification](./principles/INDEX.md)
 - Prototypes
   - [spas-sidecar](./prototypes/spas-sidecar-prototype/README.md)
+- Specs
+  - [001-dotnet-spas-sdk](./specs/001-dotnet-spas-sdk/spec.md)
+- Components
+  - [.Net SDK](./components/sdk/dotnet/README.md)

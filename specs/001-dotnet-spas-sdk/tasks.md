@@ -200,14 +200,17 @@ This violated DRY principles and created drift risk.
 
 ### Tests for User Story 4 (REQUIRED — Unit)
 
-- [ ] T052 [P] [US4] Add unit tests for TracelogMiddleware in components/sdk/dotnet/test/Spas.Sdk.Observability.Tests/TracelogMiddlewareTests.cs
-- [ ] T053 [P] [US4] Add unit tests for ObservabilityExtensions registration in components/sdk/dotnet/test/Spas.Sdk.Observability.Tests/ObservabilityExtensionsTests.cs
+- [X] T052 [P] [US4] Add unit tests for TracelogMiddleware in components/sdk/dotnet/test/Spas.Sdk.Observability.Tests/TracelogMiddlewareTests.cs
+- [X] T053 [P] [US4] Add unit tests for ObservabilityExtensions registration in components/sdk/dotnet/test/Spas.Sdk.Observability.Tests/ObservabilityExtensionsTests.cs
 
 ### Implementation for User Story 4
 
-- [ ] T054 [US4] Implement tracelog middleware in components/sdk/dotnet/src/Spas.Sdk.Observability/Tracing/TracelogMiddleware.cs
-- [ ] T055 [US4] Add registration extension in components/sdk/dotnet/src/Spas.Sdk.Observability/Tracing/ObservabilityExtensions.cs
-- [ ] T056 [US4] Wire middleware via config in components/sdk/dotnet/examples/SampleService/Program.cs
+- [X] T054 [US4] Implement tracelog middleware in components/sdk/dotnet/src/Spas.Sdk.Observability/Tracing/TracelogMiddleware.cs
+- [X] T055 [US4] Add registration extension in components/sdk/dotnet/src/Spas.Sdk.Observability/Tracing/ObservabilityExtensions.cs
+- [X] T056 [US4] Wire middleware via config in components/sdk/dotnet/examples/SampleService/Program.cs
+
+**Test Results**: Phase 6 complete - 8 middleware tests + 4 extension tests = 12 new tests
+**Total SDK Tests**: Expected ~88 tests (76 previous + 12 new)
 
 **Checkpoint**: All user stories are independently functional
 

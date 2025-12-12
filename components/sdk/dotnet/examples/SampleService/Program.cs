@@ -6,6 +6,7 @@ using Spas.Sdk.Metadata.Builders;
 using Spas.Sdk.Metadata.Composition;
 using Spas.Sdk.Metadata.Dev;
 using Spas.Sdk.Metadata.Extensions;
+using Spas.Sdk.Observability.Tracing;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -19,8 +20,14 @@ builder.Services.AddSpasMetadata(options =>
 // Register dev metadata endpoint (enabled only in Development)
 builder.Services.AddMetadataEndpoint();
 
-// Register EventPublisher with HTTP client configured for sidecar
+// Configure service name
 var serviceName = builder.Configuration.GetValue<string>("ServiceName") ?? "sample-service";
+
+// Configure OpenTelemetry tracing with Zipkin (PoC)
+var zipkinUrl = builder.Configuration.GetValue<string>("Zipkin:Url") ?? "http://localhost:9411/api/v2/spans";
+builder.Services.AddSpasTracing(serviceName, zipkinUrl);
+
+// Register EventPublisher with HTTP client configured for sidecar
 builder.Services.AddHttpClient<EventPublisher>(client =>
 {
     // Configure sidecar endpoint (default: localhost:3001)
@@ -33,6 +40,9 @@ builder.Services.AddHttpClient<EventPublisher>(client =>
 });
 
 var app = builder.Build();
+
+// Enable SPAS tracelog middleware for request/response timing and correlation
+app.UseSpasTracelog();
 
 // Define service identity (still manual - service-level metadata)
 var identity = new ServiceIdentityBuilder()

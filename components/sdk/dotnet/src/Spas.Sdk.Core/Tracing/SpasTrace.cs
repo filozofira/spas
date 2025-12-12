@@ -94,4 +94,36 @@ public static class SpasTrace
         activity.Start();
         return activity;
     }
+
+    /// <summary>
+    /// Sets the trace parent for the current context by starting a new Activity with the parsed trace context.
+    /// </summary>
+    /// <param name="traceParent">The W3C traceparent header value.</param>
+    public static void SetTraceParent(string? traceParent)
+    {
+        if (string.IsNullOrEmpty(traceParent))
+        {
+            return;
+        }
+
+        // Parse W3C Trace Context format: 00-{trace-id}-{span-id}-{flags}
+        var parts = traceParent.Split('-');
+        if (parts.Length == 4)
+        {
+            var traceId = ActivityTraceId.CreateFromString(parts[1].AsSpan());
+            var spanId = ActivitySpanId.CreateFromString(parts[2].AsSpan());
+            
+            var activity = new Activity("SpasRequest");
+            activity.SetParentId(traceId, spanId);
+            activity.Start();
+        }
+    }
+
+    /// <summary>
+    /// Clears the current trace context by stopping the active Activity.
+    /// </summary>
+    public static void Clear()
+    {
+        Activity.Current?.Stop();
+    }
 }

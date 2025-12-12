@@ -13,6 +13,51 @@
 - Add dev endpoint `/_spas/metadata` (dev-only) returning archive with `spas.json` + schemas
 - Use CloudEvents helpers to publish with trace/correlation
 - Enable tracelog middleware for request timing and correlation IDs
+- Configure OpenTelemetry with Zipkin for distributed tracing (PoC)
+
+## Observability & Tracing
+
+The SDK provides two levels of observability:
+
+### 1. Tracelog Middleware (Console/File Logging)
+
+Simple text-based logging of requests:
+
+```csharp
+// Enable tracelog middleware
+app.UseSpasTracelog();
+```
+
+Logs output: `GET /api/orders | Status=200 | Latency=45ms | TraceId=4bf92f... | CorrelationId=550e8400...`
+
+### 2. OpenTelemetry + Zipkin (Distributed Tracing)
+
+For distributed tracing with Zipkin (PoC requirement):
+
+```csharp
+// Configure OpenTelemetry tracing with Zipkin exporter
+builder.Services.AddSpasTracing(
+    serviceName: "sample-service",
+    zipkinEndpoint: "http://localhost:9411/api/v2/spans"
+);
+
+// Enable tracelog middleware (creates Activity spans)
+app.UseSpasTracelog();
+```
+
+**Features:**
+- Creates Activity spans for each HTTP request
+- Propagates W3C Trace Context (traceparent header)
+- Exports traces to Zipkin for visualization
+- Tags: http.method, http.url, http.status_code, correlation.id, user.id, tenant.id
+- Error tracking with exception details
+
+**Running Zipkin (Docker):**
+```bash
+docker run -d -p 9411:9411 openzipkin/zipkin
+```
+
+View traces at: http://localhost:9411
 
 ## Publishing Events
 

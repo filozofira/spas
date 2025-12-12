@@ -22,16 +22,16 @@
 
 ### User Story 1 - Compose Valid Metadata (Priority: P1)
 
-Service developers author metadata fragments in code using SDK builders and generate a canonical `spas.json` via the CLI and repository validation. [NEEDS CLARIFICATION] What do you mean by `via the CLI and repository validation.`? I thought that this is plain SDK, just authoring metadata fragments using SDK builders. CLI and repo will be implemented later.
+Service developers author metadata fragments in code using SDK builders and generate a canonical `spas.json` using SDK composition only (CLI and repository validation are deferred to later features).
 
 **Why this priority**: Metadata is foundational for service identity, contracts, and governance; without it, no SPAS-compliant service can exist.
 
-**Independent Test**: Implement a sample service with minimal builders; run CLI to compose and validate `spas.json`; verify success without other SDK features.
+**Independent Test**: Implement a sample service with minimal builders; use SDK composition to produce `spas.json`; verify local schema alignment where applicable without relying on CLI/repository.
 
 **Acceptance Scenarios**:
 
-1. **Given** a service using SDK builders for identity and contracts, **When** the CLI composes metadata, **Then** a schema-valid `spas.json` is produced with clear diagnostics on failure.
-2. **Given** incomplete metadata fragments, **When** validation runs, **Then** developers receive actionable errors referencing missing sections and constraints.
+1. **Given** a service using SDK builders for identity and contracts, **When** the SDK composes metadata, **Then** a valid `spas.json` is produced with clear diagnostics on failure.
+2. **Given** incomplete metadata fragments, **When** SDK validation runs, **Then** developers receive actionable errors referencing missing sections and constraints.
 
 ---
 
@@ -41,11 +41,11 @@ Developers enable a dev-only endpoint `/_spas/metadata` to surface current metad
 
 **Why this priority**: Speeds local iteration and feedback loops, reducing friction in early development.
 
-**Independent Test**: Enable the endpoint in a sample service; request the endpoint; validate the returned JSON matches schema and fragments.
+**Independent Test**: Enable the endpoint in a sample service; request the endpoint; validate the returned archive contains `spas.json` and all contract schemas, each matching expected schema versions.
 
 **Acceptance Scenarios**:
 
-1. **Given** a service in development mode, **When** `/_spas/metadata` is queried, **Then** the endpoint returns composed metadata matching the schema. [NEEDS CLARIFICATION] I am missing the message schemas which should also be downloaded via this endpoint. I.e. some early dialogs we spoke about returning a package with spas.json and all contract schemas as an archive file. Do you remember?
+1. **Given** a service in development mode, **When** `/_spas/metadata` is queried, **Then** the endpoint returns an archive containing composed metadata (`spas.json`) and all contract schemas.
 2. **Given** production mode, **When** `/_spas/metadata` is queried, **Then** the endpoint is disabled and responds with a safe message indicating non-availability.
 
 ---
@@ -67,11 +67,19 @@ Publish domain events using SDK helpers with W3C Trace Context propagation for c
 
 [Add more user stories as needed, each with an assigned priority]
 
-[NEEDS CLARIFICATION] Missing the user story for observability, i.e. some middleware that can write tracelogs should developer of SPAS service choose to enable this functionality. Is this planned for later features? 
+### User Story 4 - Opt-in Tracelog Middleware (Priority: P3)
 
-[NEEDS CLARIFICATION] Missing the user story for identity propagation, i.e. some component which can be used to get hold of identity principle with claims etc. Is this planned for later features?
+Developers can enable a minimal tracelog middleware that captures request/response timing and attaches trace/correlation identifiers to logs for debugging.
 
-[NEEDS CLARIFICATION] Missing the user story for authorisation, i.e. should we already now add to SDK things like `services.AddAuthentication().AddMicrosoftIdentityWebApi(...)` in .Net, allowing developer to enable this when implementing SPAS compliant service. Is this planned for later features?
+**Why this priority**: Provides immediate observability value without over-scoping; advanced telemetry can follow later.
+
+**Independent Test**: Enable middleware in a sample service; perform a request; verify logs contain trace/correlation IDs and timing metrics.
+
+**Acceptance Scenarios**:
+
+1. **Given** the tracelog middleware is enabled, **When** a request is processed, **Then** a log entry includes trace/correlation IDs and latency.
+2. **Given** the middleware is disabled, **When** a request is processed, **Then** no tracelog entries are emitted by the SDK.
+
 
 ### Edge Cases
 
@@ -94,6 +102,8 @@ Publish domain events using SDK helpers with W3C Trace Context propagation for c
 - **FR-005**: SDK MUST offer inbound endpoint scaffolding (attributes/base classes) for commands, queries, and events.
 - **FR-006**: SDK MUST include configuration helpers for environment/file loading and a hook for secret sources.
 - **FR-007**: SDK MUST offer testing utilities including fixtures and stub generators for contracts and events.
+- **FR-008**: SDK MUST provide lightweight identity propagation helpers (principal/claims accessors) for handlers and event publishing.
+- **FR-009**: SDK MUST provide an opt-in tracelog middleware that records request/response timing and includes trace/correlation identifiers in logs.
 
 ### Key Entities *(include if feature involves data)*
 
@@ -114,6 +124,15 @@ Publish domain events using SDK helpers with W3C Trace Context propagation for c
 - **SC-003**: Dev metadata endpoint returns schema-valid content consistently during local runs.
 - **SC-004**: A sample service demonstrates publish/subscribe flows mediated by the sidecar.
 
+## Clarifications
+
+### Session 2025-12-12
+
+- Q: Should P1 include CLI/repository involvement for metadata composition? → A: SDK-only; defer CLI/repo.
+- Q: What should `/_spas/metadata` return in dev mode? → A: Archive including `spas.json` + all contract schemas.
+- Q: Should identity propagation and authorization integrations be included now? → A: Include identity helpers now; defer authorization integrations to later.
+- Q: Should observability middleware be included now? → A: Include minimal opt-in tracelog middleware now; defer advanced observability features.
+
 ## Assumptions
 
 - PoC uses HTTP transport and identity embedded in payloads.
@@ -128,3 +147,5 @@ Publish domain events using SDK helpers with W3C Trace Context propagation for c
 ## Out of Scope
 
 - Production-grade outbox, mTLS/SPIFFE enforcement, and gRPC scaffolding.
+- Full authorization middleware integrations (e.g., provider-specific authentication wiring) for this feature.
+- Advanced observability features (metrics pipelines, span exporters, configurable sinks) beyond minimal tracelog middleware.

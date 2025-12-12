@@ -41,15 +41,16 @@ artifacts from the spec should guide it?"
   - Zipkin distributed tracing with correlated spans
   - Located: `prototypes/spas-sidecar-prototype/`
   - Ready for integration into `src/sidecar/` as framework component
-- **.NET SDK Development:** ✅ PHASE 3 COMPLETE (User Story 1 + Refactoring)
+- **.NET SDK Development:** ✅ PHASE 4 COMPLETE (User Story 1 + 2)
   - Location: `components/sdk/.net/`
   - Foundation: ISpasClock, SpasTrace, SpasContext, JSON, Logging (Phase 2) ✅
   - Metadata Composition: Builders, Composer, Validator, Diagnostics (Phase 3) ✅
   - Auto-Discovery: Attribute-based contract discovery system ✅
-  - All 40 unit tests passing ✅
+  - Dev Metadata Endpoint: `/_spas/metadata` returns ZIP with spas.json + schemas (Phase 4) ✅
+  - All 52 unit tests passing ✅
   - SampleService generates complete spas.json with auto-discovered contracts ✅
   - **IMPORTANT:** See "SDK Implementation Details" section below for critical decisions
-- **Next Phase:** User Story 2 (Dev Metadata Endpoint) OR continue with Event Publishing (User Story 3)
+- **Next Phase:** User Story 3 (Event Publishing) OR User Story 4 (Tracelog Middleware)
 
 ## Recommended Folder Structure for PoC Implementation
 

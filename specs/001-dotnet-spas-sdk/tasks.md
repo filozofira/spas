@@ -134,7 +134,7 @@ This violated DRY principles and created drift risk.
 
 ---
 
-## Phase 4: User Story 2 - Dev Metadata Endpoint (Priority: P2)
+## Phase 4: User Story 2 - Dev Metadata Endpoint (Priority: P2) ✅ COMPLETE
 
 **Goal**: Dev-only endpoint `/_spas/metadata` returns an archive containing `spas.json` and contract schemas; disabled in production.
 
@@ -142,17 +142,27 @@ This violated DRY principles and created drift risk.
 
 ### Tests for User Story 2 (REQUIRED — Unit)
 
-- [ ] T039 [P] [US2] Add unit tests for MetadataEndpointOptions in components/sdk/.net/test/Spas.Sdk.Metadata.Tests/MetadataEndpointOptionsTests.cs
-- [ ] T040 [P] [US2] Add unit tests for MetadataArchiveWriter in components/sdk/.net/test/Spas.Sdk.Metadata.Tests/MetadataArchiveWriterTests.cs
+- [x] T039 [P] [US2] Add unit tests for MetadataEndpointOptions in components/sdk/.net/test/Spas.Sdk.Metadata.Tests/MetadataEndpointOptionsTests.cs
+- [x] T040 [P] [US2] Add unit tests for MetadataArchiveWriter in components/sdk/.net/test/Spas.Sdk.Metadata.Tests/MetadataArchiveWriterTests.cs
 
 ### Implementation for User Story 2
 
-- [ ] T041 [US2] Add dev endpoint extensions in components/sdk/.net/src/Spas.Sdk.Metadata/Dev/MetadataEndpointExtensions.cs
-- [ ] T042 [US2] Implement archive writer in components/sdk/.net/src/Spas.Sdk.Metadata/Dev/MetadataArchiveWriter.cs
-- [ ] T043 [US2] Add options to gate by env/config in components/sdk/.net/src/Spas.Sdk.Metadata/Dev/MetadataEndpointOptions.cs
-- [ ] T044 [US2] Map `/_spas/metadata` in Development in components/sdk/.net/examples/SampleService/Program.cs
+- [x] T041 [US2] Add dev endpoint extensions in components/sdk/.net/src/Spas.Sdk.Metadata/Dev/MetadataEndpointExtensions.cs
+- [x] T042 [US2] Implement archive writer in components/sdk/.net/src/Spas.Sdk.Metadata/Dev/MetadataArchiveWriter.cs
+- [x] T043 [US2] Add options to gate by env/config in components/sdk/.net/src/Spas.Sdk.Metadata/Dev/MetadataEndpointOptions.cs
+- [x] T044 [US2] Map `/_spas/metadata` in Development in components/sdk/.net/examples/SampleService/Program.cs
 
-**Checkpoint**: User Stories 1 AND 2 each work independently
+**Checkpoint**: User Stories 1 AND 2 each work independently ✅
+
+**Test Results**: All 52 unit tests passing (40 from Phase 3 + 12 from Phase 4)
+
+**End-to-End Verification**:
+
+- ✅ Endpoint returns ZIP archive
+- ✅ Archive contains spas.json with all discovered contracts
+- ✅ Archive contains all contract schemas
+- ✅ Endpoint disabled in Production mode
+- ✅ Environment gating works correctly
 
 ---
 

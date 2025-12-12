@@ -1,6 +1,7 @@
 using Spas.Sdk.Metadata.Attributes;
 using Spas.Sdk.Metadata.Builders;
 using Spas.Sdk.Metadata.Composition;
+using Spas.Sdk.Metadata.Dev;
 using Spas.Sdk.Metadata.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -11,6 +12,9 @@ builder.Services.AddSpasMetadata(options =>
     options.AssembliesToScan.Add(typeof(Program).Assembly);
     options.AutoGenerateSchemaReferences = true;
 });
+
+// Register dev metadata endpoint (enabled only in Development)
+builder.Services.AddMetadataEndpoint();
 
 var app = builder.Build();
 
@@ -61,6 +65,44 @@ var health = new HealthBuilder()
 var composer = new SpasComposer();
 var metadataPath = Path.Combine(AppContext.BaseDirectory, "spas.json");
 composer.ComposeToFile(metadataPath, identity, contracts, security, health);
+
+// Map dev-only metadata endpoint (returns ZIP with spas.json + schemas)
+app.MapSpasMetadataEndpoint(
+    metadataProvider: () => composer.Compose(identity, contracts, security, health),
+    schemasProvider: () => new Dictionary<string, object>
+    {
+        ["schemas/create-order.schema.json"] = new
+        {
+            type = "object",
+            properties = new
+            {
+                customerId = new { type = "string" },
+                total = new { type = "number" }
+            },
+            required = new[] { "customerId", "total" }
+        },
+        ["schemas/get-order.schema.json"] = new
+        {
+            type = "object",
+            properties = new
+            {
+                id = new { type = "string", format = "uuid" }
+            },
+            required = new[] { "id" }
+        },
+        ["schemas/order-created.schema.json"] = new
+        {
+            type = "object",
+            properties = new
+            {
+                orderId = new { type = "string", format = "uuid" },
+                customerId = new { type = "string" },
+                total = new { type = "number" },
+                createdAt = new { type = "string", format = "date-time" }
+            },
+            required = new[] { "orderId", "customerId", "total", "createdAt" }
+        }
+    });
 
 app.MapGet("/", () => "Hello from SPAS Sample Service!");
 

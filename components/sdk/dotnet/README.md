@@ -26,9 +26,10 @@ SPAS is an architectural framework where:
 
 ### 📤 Event Publishing
 
-- **Simple API**: `PublishAsync(topic, eventType, payload)` - that's it!
+- **Type-safe API**: `PublishAsync<TEvent>(payload)` - derives event type from `[SpasEvent]` attribute
 - **Automatic headers**: SDK adds trace context, correlation ID, service name, identity
 - **Sidecar integration**: Publishes to sidecar via HTTP POST; sidecar wraps in CloudEvents
+- **Topic routing**: Sidecar handles topic routing based on event type configuration
 - **Trace propagation**: W3C Trace Context flows through entire event chain
 
 ### 📊 Observability
@@ -166,15 +167,19 @@ public record OrderCreatedEvent(string OrderId, string CustomerId, decimal Total
 ### 2. Publish Events
 
 ```csharp
+// Define event with metadata
+[SpasEvent("OrderCreated", "1.0",
+    EventType = "com.example.order.created",
+    Schema = "schemas/order-created.json")]
+public record OrderCreatedEvent(string OrderId, string CustomerId, decimal Total);
+
 app.MapPost("/commands/create-order",
     async (CreateOrderRequest request, EventPublisher publisher) =>
 {
     var orderId = Guid.NewGuid();
 
-    // Publish event - SDK adds all headers automatically
-    await publisher.PublishAsync(
-        topic: "orders",
-        eventType: "com.example.order.created",
+    // Publish event - type-safe with automatic event type from attribute
+    await publisher.PublishAsync<OrderCreatedEvent>(
         payload: new
         {
             orderId,
@@ -187,11 +192,17 @@ app.MapPost("/commands/create-order",
 });
 ```
 
+**What happens:**
+
+1. SDK extracts `EventType` from `[SpasEvent]` attribute (or auto-generates from service name + event name)
+2. SDK sends to sidecar at `/publish` endpoint with headers
+3. Sidecar routes to appropriate topic based on event type configuration
+
 **Headers sent to sidecar:**
 
 - `traceparent`: `00-4bf92f3577b34da6a3ce929d0e0e4736-00f067aa0ba902b7-01`
 - `x-service-name`: `order-service`
-- `x-event-type`: `com.example.order.created`
+- `x-event-type`: `com.example.order.created` (from attribute)
 - `x-correlation-id`: `550e8400-e29b-41d4-a716-446655440000`
 - `x-user-id`: `user-123` (from SpasContext)
 - `x-tenant-id`: `tenant-456` (from SpasContext)

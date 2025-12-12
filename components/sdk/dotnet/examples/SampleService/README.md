@@ -27,6 +27,7 @@ export ZIPKIN_URL=http://localhost:9411
 ```
 
 Or in docker-compose.yml:
+
 ```yaml
 environment:
   - SERVICE_NAME=sample-service
@@ -41,7 +42,7 @@ environment:
 docker run -d -p 9411:9411 openzipkin/zipkin
 ```
 
-View traces at: http://localhost:9411
+View traces at: <http://localhost:9411>
 
 ### 3. Run the Sample Service
 
@@ -55,11 +56,13 @@ The service will start on `http://localhost:5000`.
 ### 3. Verify Metadata Endpoint (Dev Only)
 
 **Request:**
+
 ```bash
 curl http://localhost:5000/_spas/metadata -o metadata.zip
 ```
 
 **Response:**
+
 - ZIP archive containing:
   - `spas.json` - Composed service metadata with discovered contracts
   - `schemas/create-order.schema.json` - CreateOrder command schema
@@ -67,12 +70,14 @@ curl http://localhost:5000/_spas/metadata -o metadata.zip
   - `schemas/order-created.schema.json` - OrderCreated event schema
 
 **Verify Contents:**
+
 ```bash
 unzip -l metadata.zip
 ```
 
 Expected output:
-```
+
+```text
 Archive:  metadata.zip
   Length      Date    Time    Name
 ---------  ---------- -----   ----
@@ -87,6 +92,7 @@ Archive:  metadata.zip
 ### 4. Test Command Endpoint (Create Order)
 
 **Request:**
+
 ```bash
 curl -X POST http://localhost:5000/commands/create-order \
   -H "Content-Type: application/json" \
@@ -98,6 +104,7 @@ curl -X POST http://localhost:5000/commands/create-order \
 ```
 
 **Response:**
+
 ```json
 {
   "orderId": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
@@ -106,6 +113,7 @@ curl -X POST http://localhost:5000/commands/create-order \
 ```
 
 **What Happens:**
+
 1. Request is logged with trace context by `TracelogMiddleware`
 2. Activity span created for distributed tracing
 3. Order creation logic executes
@@ -120,19 +128,22 @@ curl -X POST http://localhost:5000/commands/create-order \
 6. Request/response logged with timing and trace IDs
 
 **Console Output:**
-```
+
+```text
 POST /commands/create-order | Status=200 | Latency=45ms | TraceId=0af7651916cd43dd8448eb211c80319c | CorrelationId=550e8400-e29b-41d4-a716-446655440000 | UserId=user-123 | TenantId=tenant-abc
 ```
 
 ### 5. Test Query Endpoint (Get Order)
 
 **Request:**
+
 ```bash
 curl http://localhost:5000/queries/get-order/3fa85f64-5717-4562-b3fc-2c963f66afa6 \
   -H "traceparent: 00-0af7651916cd43dd8448eb211c80319c-b7ad6b7169203331-01"
 ```
 
 **Response:**
+
 ```json
 {
   "orderId": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
@@ -143,7 +154,7 @@ curl http://localhost:5000/queries/get-order/3fa85f64-5717-4562-b3fc-2c963f66afa
 
 ### 6. Verify Zipkin Traces
 
-1. Open http://localhost:9411
+1. Open <http://localhost:9411>
 2. Click "Run Query" to see recent traces
 3. Find the trace for your request (search by trace ID: `0af7651916cd43dd8448eb211c80319c`)
 4. Inspect span details:
@@ -162,9 +173,9 @@ Endpoints decorated with `SpasCommandAttribute` and `SpasQueryAttribute`:
 
 ```csharp
 app.MapPost("/commands/create-order", handler)
-    .WithMetadata(new SpasCommandAttribute("CreateOrder", "1.0") 
-    { 
-        Schema = "schemas/create-order.schema.json" 
+    .WithMetadata(new SpasCommandAttribute("CreateOrder", "1.0")
+    {
+        Schema = "schemas/create-order.schema.json"
     });
 ```
 
@@ -227,15 +238,26 @@ builder.Services.AddHttpClient<EventPublisher>(client =>
 .AddTypedClient((httpClient, sp) =>
     new EventPublisher(httpClient, "sample-service"));
 
-// In endpoint handler:
-await publisher.PublishAsync(
-    topic: "orders",
-    eventType: "com.sample-service.order.created",
+// Define event with metadata
+[SpasEvent("OrderCreated", "1.0",
+    EventType = "com.sample-service.order.created",
+    Schema = "schemas/order-created.json")]
+public record OrderCreatedEvent(...);
+
+// In endpoint handler - type-safe publishing:
+await publisher.PublishAsync<OrderCreatedEvent>(
     payload: new { orderId, customerId, total, createdAt }
 );
 ```
 
+**What happens:**
+
+1. SDK derives event type from `[SpasEvent]` attribute → `com.sample-service.order.created`
+2. SDK sends to sidecar `/publish` with metadata headers
+3. Sidecar routes to topic based on its event-type-to-topic mapping configuration
+
 **Headers sent to sidecar:**
+
 - `traceparent`: W3C Trace Context
 - `x-service-name`: `sample-service` → CloudEvents `source`
 - `x-event-type`: `com.sample-service.order.created` → CloudEvents `type`
@@ -253,6 +275,7 @@ app.UseSpasTracelog();
 ```
 
 **Features:**
+
 - Text logging to console/file with trace context
 - Activity span creation for distributed tracing
 - Span tags: `http.method`, `http.url`, `http.status_code`, `correlation.id`, `user.id`, `tenant.id`
@@ -260,7 +283,8 @@ app.UseSpasTracelog();
 - Export to Zipkin via OpenTelemetry
 
 **Log Format:**
-```
+
+```text
 <METHOD> <PATH> | Status=<CODE> | Latency=<MS>ms | TraceId=<ID> | CorrelationId=<ID> | UserId=<ID> | TenantId=<ID>
 ```
 
@@ -276,6 +300,7 @@ var tenantId = SpasContext.TenantId;
 ```
 
 **Inbound Headers** (from sidecar):
+
 - `traceparent`: W3C Trace Context
 - `x-correlation-id`: Correlation ID
 - `x-user-id`: User identity

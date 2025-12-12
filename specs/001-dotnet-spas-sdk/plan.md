@@ -137,7 +137,15 @@ The SDK and sidecar communicate via HTTP headers to propagate metadata and conte
 
 ### Outbound (Service → Sidecar): Event Publishing
 
-When publishing events via `EventPublisher.PublishAsync()`, the SDK sends the event payload as raw JSON in the HTTP body and propagates metadata via HTTP headers. The sidecar uses these headers to construct the CloudEvents 1.0 envelope.
+When publishing events via `EventPublisher.PublishAsync<TEvent>(payload)`, the SDK:
+
+1. Derives the event type from the `[SpasEvent]` attribute on `TEvent` (or auto-generates it)
+2. Sends the event payload as raw JSON to the sidecar's `/publish` endpoint
+3. Propagates metadata via HTTP headers
+
+The sidecar uses these headers to:
+- Construct the CloudEvents 1.0 envelope
+- Route to the appropriate topic based on its event-type-to-topic configuration
 
 **Required Headers:**
 
@@ -145,6 +153,7 @@ When publishing events via `EventPublisher.PublishAsync()`, the SDK sends the ev
 - `x-service-name`: Source service name → maps to CloudEvents `source` field
 - `x-correlation-id`: Correlation ID for request tracking → maps to CloudEvents `correlationid` extension
 - `x-event-type`: Event type identifier → maps to CloudEvents `type` field (e.g., `com.example.order.created`)
+  - Derived from `[SpasEvent(EventType = "...")]` or auto-generated from service name + event name
 
 **Optional Headers:**
 

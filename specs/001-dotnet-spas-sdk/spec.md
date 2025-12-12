@@ -98,7 +98,7 @@ Developers can enable a minimal tracelog middleware that captures request/respon
 - **FR-001**: SDK MUST provide builders for identity, contracts, security, and health metadata.
 - **FR-002**: SDK MUST enable composing `spas.json` that validates against the repository schema with clear diagnostics.
 - **FR-003**: SDK MUST provide a dev-only `/_spas/metadata` endpoint, disabled in production and controlled by environment/config.
-- **FR-004**: SDK MUST provide CloudEvents helpers to build and publish events with W3C Trace Context and correlation identifiers.
+- **FR-004**: SDK MUST provide event publishing helpers that send raw payload via HTTP POST with CloudEvents metadata propagated via HTTP headers (`traceparent`, `x-service-name`, `x-event-type`, `x-correlation-id`, `x-user-id`, `x-tenant-id`) for sidecar envelope construction.
 - **FR-005**: SDK MUST offer inbound endpoint scaffolding (attributes/base classes) for commands, queries, and events.
 - **FR-006**: SDK MUST include configuration helpers for environment/file loading and a hook for secret sources.
 - **FR-007**: SDK MUST offer testing utilities including fixtures and stub generators for contracts and events.
@@ -113,7 +113,8 @@ Developers can enable a minimal tracelog middleware that captures request/respon
 ### Key Entities *(include if feature involves data)*
 
 - **Service Metadata**: Identity, contracts, security, health; composed into `spas.json`.
-- **Event Envelope**: CloudEvents fields plus correlation/trace identifiers; payload carries identity in PoC.
+- **Event Publishing Context**: Topic (routing), eventType (CloudEvents type), payload (domain data), propagated via HTTP headers to sidecar.
+- **Inbound Request Context**: Trace context, correlation ID, identity claims; propagated via HTTP headers from sidecar to service.
 
 ## Success Criteria *(mandatory)*
 

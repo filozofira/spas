@@ -42,7 +42,7 @@ artifacts from the spec should guide it?"
   - Located: `prototypes/spas-sidecar-prototype/`
   - Ready for integration into `src/sidecar/` as framework component
 - **.NET SDK Development:** ✅ PHASE 4 COMPLETE (User Story 1 + 2)
-  - Location: `components/sdk/.net/`
+  - Location: `components/sdk/dotnet/`
   - Foundation: ISpasClock, SpasTrace, SpasContext, JSON, Logging (Phase 2) ✅
   - Metadata Composition: Builders, Composer, Validator, Diagnostics (Phase 3) ✅
   - Auto-Discovery: Attribute-based contract discovery system ✅
@@ -94,10 +94,10 @@ spas/                                  # Root repository
 │
 ├── components/                        # 🔨 TO BUILD - PoC framework components (to evolve to production-ready in future)
 │   ├── sdk/                           # SDKs for multiple languages
-│   │   ├── .net/                      # .NET SDK for SPAS service development
-│   │   │   ├── src/                   # Contains source code for .Net SDKs
-│   │   │   ├── test/                  # Unit test code for .Net SDKs
-│   │   │   ├── SPAS.SDK.sln           # SDK .Net solution file
+│   │   ├── dotnet/                    # .NET SDK for SPAS service development
+│   │   │   ├── src/                   # Contains source code for .NET SDKs
+│   │   │   ├── test/                  # Unit test code for .NET SDKs
+│   │   │   ├── SPAS.SDK.sln           # SDK .NET solution file
 │   │   │   └── README.md              # SDK documentation (keyed to principles/12-sdk-specification.md)
 │   │   ├── go/                        # Go SDK (future)
 │   │   ├── java/                      # Java SDK (future)
@@ -183,7 +183,7 @@ spas/                                  # Root repository
 
 **Outputs:**
 
-- `components/sdk/.net/` with 7 SDK packages + 7 test projects + SampleService ✅
+- `components/sdk/dotnet/` with 7 SDK packages + 7 test projects + SampleService ✅
 - Design decisions documented in `specs/001-dotnet-spas-sdk/tasks.md` ✅
 - Example: SampleService demonstrates attribute-based metadata authoring ✅
 

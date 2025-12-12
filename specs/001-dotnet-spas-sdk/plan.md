@@ -7,7 +7,7 @@
 
 ## Summary
 
-Deliver a modular .NET SDK enabling SPAS-compliant service development: metadata builders and SDK composition of `spas.json`; dev-only metadata endpoint returning an archive with `spas.json` and contract schemas; CloudEvents publish helpers with W3C trace/correlation; inbound scaffolding for commands/queries/events; configuration helpers; minimal opt-in tracelog middleware; and testing utilities. Projects are placed under `components/sdk/.net/src` as separate packages with a shared core.
+Deliver a modular .NET SDK enabling SPAS-compliant service development: metadata builders and SDK composition of `spas.json`; dev-only metadata endpoint returning an archive with `spas.json` and contract schemas; CloudEvents publish helpers with W3C trace/correlation; inbound scaffolding for commands/queries/events; configuration helpers; minimal opt-in tracelog middleware; and testing utilities. Projects are placed under `components/sdk/dotnet/src` as separate packages with a shared core.
 
 ## Technical Context
 
@@ -77,7 +77,7 @@ components/
          └── README.md
 ```
 
-**Structure Decision**: Multi-package SDK under `components/sdk/.net` with shared `Spas.Sdk.Core` and capability-specific projects organized beneath `src/`; dedicated tests per package beneath `test/`; example service under `examples/` for integration demonstrations.
+**Structure Decision**: Multi-package SDK under `components/sdk/dotnet` with shared `Spas.Sdk.Core` and capability-specific projects organized beneath `src/`; dedicated tests per package beneath `test/`; example service under `examples/` for integration demonstrations.
 
 ## Complexity Tracking
 
@@ -109,3 +109,90 @@ The `Spas.Sdk.Inbound` package provides developer ergonomics and conventions for
   - Handlers can access `SpasContext` consistently.
   - Incoming requests validated against declared contract types.
   - Traces recorded via observability middleware when enabled.
+
+## SDK/Sidecar Header Contract
+
+The SDK and sidecar communicate via HTTP headers to propagate metadata and context without coupling to CloudEvents structure within the SDK.
+
+### Outbound (Service → Sidecar): Event Publishing
+
+When publishing events via `EventPublisher.PublishAsync()`, the SDK sends the event payload as raw JSON in the HTTP body and propagates metadata via HTTP headers. The sidecar uses these headers to construct the CloudEvents 1.0 envelope.
+
+**Required Headers:**
+- `traceparent`: W3C Trace Context (format: `00-{trace-id}-{span-id}-{flags}`) — propagates distributed trace
+- `x-service-name`: Source service name → maps to CloudEvents `source` field
+- `x-correlation-id`: Correlation ID for request tracking → maps to CloudEvents `correlationid` extension
+- `x-event-type`: Event type identifier → maps to CloudEvents `type` field (e.g., `com.example.order.created`)
+
+**Optional Headers:**
+- `x-user-id`: User identity claim from `SpasContext.UserId` → included in CloudEvents extensions for identity propagation
+- `x-tenant-id`: Tenant identity claim from `SpasContext.TenantId` → included in CloudEvents extensions for multi-tenancy
+
+**HTTP Request Format:**
+```http
+POST /publish/{topic} HTTP/1.1
+Host: localhost:3001
+Content-Type: application/json
+traceparent: 00-4bf92f3577b34da6a3ce929d0e0e4736-00f067aa0ba902b7-01
+x-service-name: sample-service
+x-correlation-id: 550e8400-e29b-41d4-a716-446655440000
+x-event-type: com.example.order.created
+x-user-id: user-123
+x-tenant-id: tenant-456
+
+{
+  "orderId": "ORDER-123",
+  "amount": 100.50
+}
+```
+
+**Sidecar Responsibilities:**
+1. Extract headers to populate CloudEvents envelope fields
+2. Wrap the raw JSON payload in CloudEvents structure
+3. Publish to the message broker with routing based on `{topic}` parameter
+4. Propagate trace context to downstream systems
+
+### Inbound (Sidecar → Service): Command/Query/Event Handling
+
+When the sidecar invokes service endpoints for commands, queries, or events, it MUST propagate trace context to maintain distributed tracing continuity.
+
+**Required Headers:**
+- `traceparent`: W3C Trace Context — ensures trace continuity from originating request
+- `x-event-type`: Event type identifier from CloudEvents `type` field (for event-driven invocations)
+- `x-correlation-id`: Correlation ID from the originating CloudEvents message
+
+**Optional Headers:**
+- `x-user-id`: User identity extracted from CloudEvents extensions or authentication
+- `x-tenant-id`: Tenant identity for multi-tenant scenarios
+
+**Note**: Sidecar propagates nearly the same headers for inbound invocations as services send for outbound publishing, except `x-service-name` (omitted because sidecar knows the target service).
+
+**HTTP Request Format:**
+```http
+POST /incoming/events HTTP/1.1
+Host: localhost:5000
+Content-Type: application/json
+traceparent: 00-4bf92f3577b34da6a3ce929d0e0e4736-00f067aa0ba902b7-01
+x-event-type: com.example.order.created
+x-correlation-id: 550e8400-e29b-41d4-a716-446655440000
+x-user-id: user-123
+x-tenant-id: tenant-456
+
+{
+  "orderId": "ORDER-123",
+  "amount": 100.50
+}
+```
+
+**SDK Responsibilities:**
+1. Extract `traceparent` header to initialize `SpasTrace` context
+2. Extract optional `x-correlation-id`, `x-user-id`, `x-tenant-id` to populate `SpasContext`
+3. Propagate context through handler execution
+4. Include trace/correlation in any published events or outbound calls
+
+### Header Naming Convention
+
+- **W3C Standards**: Use `traceparent` (lowercase) per W3C Trace Context specification
+- **Custom Headers**: Use `x-` prefix with lowercase-hyphen-case (e.g., `x-service-name`, `x-correlation-id`)
+- **Rationale**: Consistent with HTTP header conventions and easy to filter/route by proxy/gateway layers
+

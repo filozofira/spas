@@ -135,7 +135,7 @@ public class MetadataEndpointIntegrationTests
             schemasProvider: () => new Dictionary<string, object>());
         
         await app.StartAsync();
-        var client = app.GetTestClient();
+        using var client = app.GetTestClient();
 
         // Act
         var response = await client.GetAsync("/_spas/metadata");
@@ -171,7 +171,7 @@ public class MetadataEndpointIntegrationTests
             });
         
         await app.StartAsync();
-        var client = app.GetTestClient();
+        using var client = app.GetTestClient();
 
         // Act
         var response = await client.GetAsync("/custom/metadata");

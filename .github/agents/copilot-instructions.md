@@ -16,14 +16,15 @@ Last updated: 2025-12-12
 
 - Status: Active feature (branch 001-dotnet-spas-sdk)
 - Tech: .NET 10 (target net10.0), Microsoft.Extensions.Logging, System.Text.Json
-- Layout: components/sdk/.net/{src,test,examples}
-- Solution: components/sdk/.net/SPAS.SDK.sln
+- Layout: components/sdk/dotnet/{src,test,examples}
+- Solution: components/sdk/dotnet/SPAS.SDK.sln
 - Packages (src): Spas.Sdk.Core, Spas.Sdk.Metadata, Spas.Sdk.Events, Spas.Sdk.Inbound, Spas.Sdk.Configuration, Spas.Sdk.Observability, Spas.Sdk.Testing
 - Tests (test): One test project per package (unit tests required per story)
-- Example: components/sdk/.net/examples/SampleService
+- Example: components/sdk/dotnet/examples/SampleService
 - Docs: specs/001-dotnet-spas-sdk/{plan.md, spec.md, tasks.md}
 - Boundaries: SDK prepares payload + context; Sidecar handles CloudEvents wrapping and transformations
 - Inbound: Route‑agnostic helpers; samples may use "/incoming"
+- Test Workflow: **IMPORTANT** - Agent builds (`dotnet build`), user runs tests (`dotnet test --no-build`). Agent's terminal execution may cause VS Code crashes when capturing test output. User feedback confirms test results.
 - Immediate Next Step: Scaffold solution/projects per specs/001-dotnet-spas-sdk/plan.md and specs/001-dotnet-spas-sdk/tasks.md
 
 Project Structure
@@ -31,7 +32,7 @@ Project Structure
 ```
 components/
 └── sdk/
-    └── .net/
+    └── dotnet/
         ├── SPAS.SDK.sln
         ├── src/
         │   ├── Spas.Sdk.Core/
@@ -57,13 +58,13 @@ Commands
 
 ```bash
 # Open solution
-code components/sdk/.net/SPAS.SDK.sln
+code components/sdk/dotnet/SPAS.SDK.sln
 
 # Create folders (first-time)
-mkdir -p components/sdk/.net/{src,test,examples}
+mkdir -p components/sdk/dotnet/{src,test,examples}
 
 # Build (after scaffolding)
-dotnet build components/sdk/.net/SPAS.SDK.sln -c Debug
+dotnet build components/sdk/dotnet/SPAS.SDK.sln -c Debug
 ```
 
 ---
@@ -150,30 +151,28 @@ components/
 
 		- Status: Active feature (branch 001-dotnet-spas-sdk)
 		- Tech: .NET 10 (target net10.0), Microsoft.Extensions.Logging, System.Text.Json
-		- Layout: components/sdk/.net/{src,test,examples}
-			- Solution: components/sdk/.net/SPAS.SDK.sln
-			- Packages (src): Spas.Sdk.Core, Metadata, Events, Inbound, Configuration, Observability, Testing
-			- Tests (test): One test project per package
-			- Example: components/sdk/.net/examples/SampleService
-		- Docs: specs/001-dotnet-spas-sdk/{plan.md,spec.md,tasks.md}
-		- Boundaries: SDK prepares payload + context; Sidecar handles CloudEvents wrapping and transformations
-		- Inbound: Route‑agnostic helpers; samples may use `/incoming`
-		- Testing: Unit tests required per story (see tasks.md sections)
-		- Immediate Next Step: Scaffold solution/projects per specs/001-dotnet-spas-sdk/plan.md and specs/001-dotnet-spas-sdk/tasks.md
+	- Layout: components/sdk/dotnet/{src,test,examples}
+		- Solution: components/sdk/dotnet/SPAS.SDK.sln
+		- Packages (src): Spas.Sdk.Core, Metadata, Events, Inbound, Configuration, Observability, Testing
+		- Tests (test): One test project per package
+		- Example: components/sdk/dotnet/examples/SampleService
+	- Docs: specs/001-dotnet-spas-sdk/{plan.md,spec.md,tasks.md}
+	- Boundaries: SDK prepares payload + context; Sidecar handles CloudEvents wrapping and transformations
+	- Inbound: Route‑agnostic helpers; samples may use `/incoming`
+	- Testing: Unit tests required per story (see tasks.md sections)
+	- Immediate Next Step: Scaffold solution/projects per specs/001-dotnet-spas-sdk/plan.md and specs/001-dotnet-spas-sdk/tasks.md
 
-		Commands
+	Commands
 
-		```
-		# Open solution
-		code components/sdk/.net/SPAS.SDK.sln
+	```
+	# Open solution
+	code components/sdk/dotnet/SPAS.SDK.sln
 
-		# Create folders (first-time)
-		mkdir -p components/sdk/.net/{src,test,examples}
+	# Create folders (first-time)
+	mkdir -p components/sdk/dotnet/{src,test,examples}
 
-		# Build (after scaffolding)
-		dotnet build components/sdk/.net/SPAS.SDK.sln -c Debug
-		```
-
+	# Build (after scaffolding)
+	dotnet build components/sdk/dotnet/SPAS.SDK.sln -c Debug
 		---
 
 		## Component: CLI

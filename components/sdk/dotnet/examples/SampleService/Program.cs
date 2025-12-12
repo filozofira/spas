@@ -1,3 +1,6 @@
+using Spas.Sdk.Core.Context;
+using Spas.Sdk.Core.Identity;
+using Spas.Sdk.Events.Publish;
 using Spas.Sdk.Metadata.Attributes;
 using Spas.Sdk.Metadata.Builders;
 using Spas.Sdk.Metadata.Composition;
@@ -16,6 +19,19 @@ builder.Services.AddSpasMetadata(options =>
 // Register dev metadata endpoint (enabled only in Development)
 builder.Services.AddMetadataEndpoint();
 
+// Register EventPublisher with HTTP client configured for sidecar
+var serviceName = builder.Configuration.GetValue<string>("ServiceName") ?? "sample-service";
+builder.Services.AddHttpClient<EventPublisher>(client =>
+{
+    // Configure sidecar endpoint (default: localhost:3001)
+    var sidecarUrl = builder.Configuration.GetValue<string>("Sidecar:Url") ?? "http://localhost:3001";
+    client.BaseAddress = new Uri(sidecarUrl);
+})
+.AddTypedClient((httpClient, serviceProvider) =>
+{
+    return new EventPublisher(httpClient, serviceName);
+});
+
 var app = builder.Build();
 
 // Define service identity (still manual - service-level metadata)
@@ -28,9 +44,39 @@ var identity = new ServiceIdentityBuilder()
 
 // Define endpoints with SPAS attributes - contracts auto-discovered!
 app.MapPost("/commands/create-order",
-    (CreateOrderRequest request) => 
+    async (CreateOrderRequest request, EventPublisher publisher) => 
     {
-        return Results.Ok(new { orderId = Guid.NewGuid(), status = "created" });
+        var orderId = Guid.NewGuid();
+        
+        // Create the order (simulate business logic)
+        var result = new { orderId, status = "created" };
+
+        // Publish OrderCreated event - SDK sends only payload + context headers
+        // Sidecar will wrap this in CloudEvents envelope
+        var eventPayload = new 
+        { 
+            orderId, 
+            customerId = request.CustomerId, 
+            total = request.Total,
+            createdAt = DateTime.UtcNow
+        };
+
+        try
+        {
+            // Simple API: topic, eventType, and payload
+            // SDK automatically includes headers: traceparent, x-service-name, x-event-type, x-correlation-id, x-user-id, x-tenant-id
+            await publisher.PublishAsync(
+                topic: "orders",
+                eventType: "com.sample-service.order.created",
+                payload: eventPayload);
+        }
+        catch (Exception ex)
+        {
+            // Log but don't fail the request if event publishing fails
+            Console.WriteLine($"Failed to publish event: {ex.Message}");
+        }
+
+        return Results.Ok(result);
     })
     .WithMetadata(new SpasCommandAttribute("CreateOrder", "1.0") 
     { 

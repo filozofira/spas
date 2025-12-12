@@ -19,8 +19,8 @@ description: "Task list for .NET SPAS SDK feature implementation"
 
 ## Path Conventions
 
-- SDK source: `components/sdk/.net/src/`
-- Tests: `components/sdk/.net/test/`
+- SDK source: `components/sdk/dotnet/src/`
+- Tests: `components/sdk/dotnet/test/`
 - Feature docs: `specs/001-dotnet-spas-sdk/`
 
 ---
@@ -29,23 +29,23 @@ description: "Task list for .NET SPAS SDK feature implementation"
 
 **Purpose**: Project initialization and basic structure
 
-- [x] T001 Create directories for SDK at components/sdk/.net/{src,test,examples}
-- [x] T002 Create solution file at components/sdk/.net/SPAS.SDK.sln
-- [x] T003 [P] Create project Spas.Sdk.Core at components/sdk/.net/src/Spas.Sdk.Core/Spas.Sdk.Core.csproj
-- [x] T004 [P] Create project Spas.Sdk.Metadata at components/sdk/.net/src/Spas.Sdk.Metadata/Spas.Sdk.Metadata.csproj
-- [x] T005 [P] Create project Spas.Sdk.Events at components/sdk/.net/src/Spas.Sdk.Events/Spas.Sdk.Events.csproj
-- [x] T006 [P] Create project Spas.Sdk.Inbound at components/sdk/.net/src/Spas.Sdk.Inbound/Spas.Sdk.Inbound.csproj
-- [x] T007 [P] Create project Spas.Sdk.Configuration at components/sdk/.net/src/Spas.Sdk.Configuration/Spas.Sdk.Configuration.csproj
-- [x] T008 [P] Create project Spas.Sdk.Observability at components/sdk/.net/src/Spas.Sdk.Observability/Spas.Sdk.Observability.csproj
-- [x] T009 [P] Create project Spas.Sdk.Testing at components/sdk/.net/src/Spas.Sdk.Testing/Spas.Sdk.Testing.csproj
-- [x] T010 [P] Create test project components/sdk/.net/test/Spas.Sdk.Core.Tests/Spas.Sdk.Core.Tests.csproj
-- [x] T011 [P] Create test project components/sdk/.net/test/Spas.Sdk.Metadata.Tests/Spas.Sdk.Metadata.Tests.csproj
-- [x] T012 [P] Create test project components/sdk/.net/test/Spas.Sdk.Events.Tests/Spas.Sdk.Events.Tests.csproj
-- [x] T013 [P] Create test project components/sdk/.net/test/Spas.Sdk.Inbound.Tests/Spas.Sdk.Inbound.Tests.csproj
-- [x] T014 [P] Create test project components/sdk/.net/test/Spas.Sdk.Configuration.Tests/Spas.Sdk.Configuration.Tests.csproj
-- [x] T015 [P] Create test project components/sdk/.net/test/Spas.Sdk.Observability.Tests/Spas.Sdk.Observability.Tests.csproj
-- [x] T016 [P] Create test project components/sdk/.net/test/Spas.Sdk.Testing.Tests/Spas.Sdk.Testing.Tests.csproj
-- [x] T017 Scaffold example service at components/sdk/.net/examples/SampleService/Program.cs
+- [x] T001 Create directories for SDK at components/sdk/dotnet/{src,test,examples}
+- [x] T002 Create solution file at components/sdk/dotnet/SPAS.SDK.sln
+- [x] T003 [P] Create project Spas.Sdk.Core at components/sdk/dotnet/src/Spas.Sdk.Core/Spas.Sdk.Core.csproj
+- [x] T004 [P] Create project Spas.Sdk.Metadata at components/sdk/dotnet/src/Spas.Sdk.Metadata/Spas.Sdk.Metadata.csproj
+- [x] T005 [P] Create project Spas.Sdk.Events at components/sdk/dotnet/src/Spas.Sdk.Events/Spas.Sdk.Events.csproj
+- [x] T006 [P] Create project Spas.Sdk.Inbound at components/sdk/dotnet/src/Spas.Sdk.Inbound/Spas.Sdk.Inbound.csproj
+- [x] T007 [P] Create project Spas.Sdk.Configuration at components/sdk/dotnet/src/Spas.Sdk.Configuration/Spas.Sdk.Configuration.csproj
+- [x] T008 [P] Create project Spas.Sdk.Observability at components/sdk/dotnet/src/Spas.Sdk.Observability/Spas.Sdk.Observability.csproj
+- [x] T009 [P] Create project Spas.Sdk.Testing at components/sdk/dotnet/src/Spas.Sdk.Testing/Spas.Sdk.Testing.csproj
+- [x] T010 [P] Create test project components/sdk/dotnet/test/Spas.Sdk.Core.Tests/Spas.Sdk.Core.Tests.csproj
+- [x] T011 [P] Create test project components/sdk/dotnet/test/Spas.Sdk.Metadata.Tests/Spas.Sdk.Metadata.Tests.csproj
+- [x] T012 [P] Create test project components/sdk/dotnet/test/Spas.Sdk.Events.Tests/Spas.Sdk.Events.Tests.csproj
+- [x] T013 [P] Create test project components/sdk/dotnet/test/Spas.Sdk.Inbound.Tests/Spas.Sdk.Inbound.Tests.csproj
+- [x] T014 [P] Create test project components/sdk/dotnet/test/Spas.Sdk.Configuration.Tests/Spas.Sdk.Configuration.Tests.csproj
+- [x] T015 [P] Create test project components/sdk/dotnet/test/Spas.Sdk.Observability.Tests/Spas.Sdk.Observability.Tests.csproj
+- [x] T016 [P] Create test project components/sdk/dotnet/test/Spas.Sdk.Testing.Tests/Spas.Sdk.Testing.Tests.csproj
+- [x] T017 Scaffold example service at components/sdk/dotnet/examples/SampleService/Program.cs
 
 ---
 
@@ -55,14 +55,14 @@ description: "Task list for .NET SPAS SDK feature implementation"
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [x] T018 Implement ISpasClock abstraction in components/sdk/.net/src/Spas.Sdk.Core/Abstractions/ISpasClock.cs
-- [x] T019 Implement tracing context in components/sdk/.net/src/Spas.Sdk.Core/Tracing/SpasTrace.cs
-- [x] T020 Implement correlation + identity accessors in components/sdk/.net/src/Spas.Sdk.Core/Context/SpasContext.cs
-- [x] T021 Add JSON options factory in components/sdk/.net/src/Spas.Sdk.Core/Serialization/JsonSerializerOptionsFactory.cs
-- [x] T022 Wire solution project references in components/sdk/.net/SPAS.SDK.sln (add Core to all packages)
-- [x] T023 Configure logging usage helpers in components/sdk/.net/src/Spas.Sdk.Core/Logging/Logging.cs
-- [x] T024 Add base config types in components/sdk/.net/src/Spas.Sdk.Configuration/Configuration/SpasConfig.cs
-- [x] T025 Create example service project in components/sdk/.net/examples/SampleService/SampleService.csproj
+- [x] T018 Implement ISpasClock abstraction in components/sdk/dotnet/src/Spas.Sdk.Core/Abstractions/ISpasClock.cs
+- [x] T019 Implement tracing context in components/sdk/dotnet/src/Spas.Sdk.Core/Tracing/SpasTrace.cs
+- [x] T020 Implement correlation + identity accessors in components/sdk/dotnet/src/Spas.Sdk.Core/Context/SpasContext.cs
+- [x] T021 Add JSON options factory in components/sdk/dotnet/src/Spas.Sdk.Core/Serialization/JsonSerializerOptionsFactory.cs
+- [x] T022 Wire solution project references in components/sdk/dotnet/SPAS.SDK.sln (add Core to all packages)
+- [x] T023 Configure logging usage helpers in components/sdk/dotnet/src/Spas.Sdk.Core/Logging/Logging.cs
+- [x] T024 Add base config types in components/sdk/dotnet/src/Spas.Sdk.Configuration/Configuration/SpasConfig.cs
+- [x] T025 Create example service project in components/sdk/dotnet/examples/SampleService/SampleService.csproj
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -76,22 +76,22 @@ description: "Task list for .NET SPAS SDK feature implementation"
 
 ### Tests for User Story 1 (REQUIRED — Unit)
 
-- [x] T026 [P] [US1] Add unit tests for ServiceIdentityBuilder in components/sdk/.net/test/Spas.Sdk.Metadata.Tests/ServiceIdentityBuilderTests.cs
-- [x] T027 [P] [US1] Add unit tests for ContractsBuilder in components/sdk/.net/test/Spas.Sdk.Metadata.Tests/ContractsBuilderTests.cs
-- [x] T028 [P] [US1] Add unit tests for SchemaValidator in components/sdk/.net/test/Spas.Sdk.Metadata.Tests/SchemaValidatorTests.cs
-- [x] T029 [P] [US1] Add unit tests for SpasComposer in components/sdk/.net/test/Spas.Sdk.Metadata.Tests/SpasComposerTests.cs
+- [x] T026 [P] [US1] Add unit tests for ServiceIdentityBuilder in components/sdk/dotnet/test/Spas.Sdk.Metadata.Tests/ServiceIdentityBuilderTests.cs
+- [x] T027 [P] [US1] Add unit tests for ContractsBuilder in components/sdk/dotnet/test/Spas.Sdk.Metadata.Tests/ContractsBuilderTests.cs
+- [x] T028 [P] [US1] Add unit tests for SchemaValidator in components/sdk/dotnet/test/Spas.Sdk.Metadata.Tests/SchemaValidatorTests.cs
+- [x] T029 [P] [US1] Add unit tests for SpasComposer in components/sdk/dotnet/test/Spas.Sdk.Metadata.Tests/SpasComposerTests.cs
 
 ### Implementation for User Story 1
 
-- [x] T030 [P] [US1] Implement Service identity builder in components/sdk/.net/src/Spas.Sdk.Metadata/Builders/ServiceIdentityBuilder.cs
-- [x] T031 [P] [US1] Implement Contracts builder in components/sdk/.net/src/Spas.Sdk.Metadata/Builders/ContractsBuilder.cs
-- [x] T032 [P] [US1] Implement Security metadata builder in components/sdk/.net/src/Spas.Sdk.Metadata/Builders/SecurityBuilder.cs
-- [x] T033 [P] [US1] Implement Health metadata builder in components/sdk/.net/src/Spas.Sdk.Metadata/Builders/HealthBuilder.cs
-- [x] T034 [US1] Implement composer to assemble spas.json in components/sdk/.net/src/Spas.Sdk.Metadata/Composition/SpasComposer.cs
-- [x] T035 [US1] Implement schema validation helper in components/sdk/.net/src/Spas.Sdk.Metadata/Validation/SchemaValidator.cs
+- [x] T030 [P] [US1] Implement Service identity builder in components/sdk/dotnet/src/Spas.Sdk.Metadata/Builders/ServiceIdentityBuilder.cs
+- [x] T031 [P] [US1] Implement Contracts builder in components/sdk/dotnet/src/Spas.Sdk.Metadata/Builders/ContractsBuilder.cs
+- [x] T032 [P] [US1] Implement Security metadata builder in components/sdk/dotnet/src/Spas.Sdk.Metadata/Builders/SecurityBuilder.cs
+- [x] T033 [P] [US1] Implement Health metadata builder in components/sdk/dotnet/src/Spas.Sdk.Metadata/Builders/HealthBuilder.cs
+- [x] T034 [US1] Implement composer to assemble spas.json in components/sdk/dotnet/src/Spas.Sdk.Metadata/Composition/SpasComposer.cs
+- [x] T035 [US1] Implement schema validation helper in components/sdk/dotnet/src/Spas.Sdk.Metadata/Validation/SchemaValidator.cs
 - [x] T036 [P] [US1] Add local schema placeholder at specs/001-dotnet-spas-sdk/contracts/schemas/spas.schema.json
-- [x] T037 [US1] Compose and write `spas.json` in components/sdk/.net/examples/SampleService/spas.json
-- [x] T038 [US1] Add diagnostics helpers for validation in components/sdk/.net/src/Spas.Sdk.Metadata/Diagnostics/Diagnostics.cs
+- [x] T037 [US1] Compose and write `spas.json` in components/sdk/dotnet/examples/SampleService/spas.json
+- [x] T038 [US1] Add diagnostics helpers for validation in components/sdk/dotnet/src/Spas.Sdk.Metadata/Diagnostics/Diagnostics.cs
 
 **Checkpoint**: User Story 1 fully functional and testable independently
 
@@ -106,13 +106,13 @@ This violated DRY principles and created drift risk.
 
 **Solution**: Implemented attribute-based auto-discovery system:
 
-- [x] **Created Attribute Types** (components/sdk/.net/src/Spas.Sdk.Metadata/Attributes/)
+- [x] **Created Attribute Types** (components/sdk/dotnet/src/Spas.Sdk.Metadata/Attributes/)
 
   - SpasCommandAttribute - marks endpoints as commands with name, version, optional schema/path
   - SpasQueryAttribute - marks endpoints as queries with name, version, optional schema/path
   - SpasEventAttribute - marks event types with name, version, optional schema
 
-- [x] **Implemented Discovery System** (components/sdk/.net/src/Spas.Sdk.Metadata/)
+- [x] **Implemented Discovery System** (components/sdk/dotnet/src/Spas.Sdk.Metadata/)
 
   - MetadataDiscovery.cs - discovers events from assemblies via reflection
   - WebApplicationDiscoveryExtensions.cs - discovers endpoints from ASP.NET Core routing
@@ -142,15 +142,15 @@ This violated DRY principles and created drift risk.
 
 ### Tests for User Story 2 (REQUIRED — Unit)
 
-- [x] T039 [P] [US2] Add unit tests for MetadataEndpointOptions in components/sdk/.net/test/Spas.Sdk.Metadata.Tests/MetadataEndpointOptionsTests.cs
-- [x] T040 [P] [US2] Add unit tests for MetadataArchiveWriter in components/sdk/.net/test/Spas.Sdk.Metadata.Tests/MetadataArchiveWriterTests.cs
+- [x] T039 [P] [US2] Add unit tests for MetadataEndpointOptions in components/sdk/dotnet/test/Spas.Sdk.Metadata.Tests/MetadataEndpointOptionsTests.cs
+- [x] T040 [P] [US2] Add unit tests for MetadataArchiveWriter in components/sdk/dotnet/test/Spas.Sdk.Metadata.Tests/MetadataArchiveWriterTests.cs
 
 ### Implementation for User Story 2
 
-- [x] T041 [US2] Add dev endpoint extensions in components/sdk/.net/src/Spas.Sdk.Metadata/Dev/MetadataEndpointExtensions.cs
-- [x] T042 [US2] Implement archive writer in components/sdk/.net/src/Spas.Sdk.Metadata/Dev/MetadataArchiveWriter.cs
-- [x] T043 [US2] Add options to gate by env/config in components/sdk/.net/src/Spas.Sdk.Metadata/Dev/MetadataEndpointOptions.cs
-- [x] T044 [US2] Map `/_spas/metadata` in Development in components/sdk/.net/examples/SampleService/Program.cs
+- [x] T041 [US2] Add dev endpoint extensions in components/sdk/dotnet/src/Spas.Sdk.Metadata/Dev/MetadataEndpointExtensions.cs
+- [x] T042 [US2] Implement archive writer in components/sdk/dotnet/src/Spas.Sdk.Metadata/Dev/MetadataArchiveWriter.cs
+- [x] T043 [US2] Add options to gate by env/config in components/sdk/dotnet/src/Spas.Sdk.Metadata/Dev/MetadataEndpointOptions.cs
+- [x] T044 [US2] Map `/_spas/metadata` in Development in components/sdk/dotnet/examples/SampleService/Program.cs
 
 **Checkpoint**: User Stories 1 AND 2 each work independently ✅
 
@@ -166,7 +166,7 @@ This violated DRY principles and created drift risk.
 
 ---
 
-## Phase 5: User Story 3 - Event Publishing with Trace (Priority: P3)
+## Phase 5: User Story 3 - Event Publishing with Trace (Priority: P3) ✅ COMPLETE
 
 **Goal**: Publish domain events using SDK helpers with W3C Trace Context and correlation identifiers.
 
@@ -174,16 +174,19 @@ This violated DRY principles and created drift risk.
 
 ### Tests for User Story 3 (REQUIRED — Unit)
 
-- [ ] T045 [P] [US3] Add unit tests for SpasEventBuilder in components/sdk/.net/test/Spas.Sdk.Events.Tests/SpasEventBuilderTests.cs
-- [ ] T046 [P] [US3] Add unit tests for EventPublisher (HTTP publish) in components/sdk/.net/test/Spas.Sdk.Events.Tests/EventPublisherTests.cs
+- [x] T045 [P] [US3] Add unit tests for SpasEventBuilder in components/sdk/dotnet/test/Spas.Sdk.Events.Tests/SpasEventBuilderTests.cs
+- [x] T046 [P] [US3] Add unit tests for EventPublisher (HTTP publish) in components/sdk/dotnet/test/Spas.Sdk.Events.Tests/EventPublisherTests.cs
 
 ### Implementation for User Story 3
 
-- [ ] T047 [P] [US3] Add event envelope model in components/sdk/.net/src/Spas.Sdk.Events/Envelope/SpasEventEnvelope.cs
-- [ ] T048 [P] [US3] Implement envelope builder with trace/correlation in components/sdk/.net/src/Spas.Sdk.Events/Envelope/SpasEventBuilder.cs
-- [ ] T049 [US3] Implement publish helper (HTTP to sidecar) in components/sdk/.net/src/Spas.Sdk.Events/Publish/EventPublisher.cs
-- [ ] T050 [US3] Add identity accessors integration in components/sdk/.net/src/Spas.Sdk.Core/Identity/IdentityAccessors.cs
-- [ ] T051 [US3] Publish sample event in components/sdk/.net/examples/SampleService/Program.cs
+- [x] T047 [P] [US3] Add event envelope model in components/sdk/dotnet/src/Spas.Sdk.Events/Envelope/SpasEventEnvelope.cs
+- [x] T048 [P] [US3] Implement envelope builder with trace/correlation in components/sdk/dotnet/src/Spas.Sdk.Events/Envelope/SpasEventBuilder.cs
+- [x] T049 [US3] Implement publish helper (HTTP to sidecar) in components/sdk/dotnet/src/Spas.Sdk.Events/Publish/EventPublisher.cs
+- [x] T050 [US3] Add identity accessors integration in components/sdk/dotnet/src/Spas.Sdk.Core/Identity/IdentityAccessors.cs
+- [x] T051 [US3] Publish sample event in components/sdk/dotnet/examples/SampleService/Program.cs
+
+**Test Results**: All 18 unit tests passing (10 SpasEventBuilder + 8 EventPublisher)
+**Total SDK Tests**: 78 tests passing
 
 **Checkpoint**: User Stories 1, 2, and 3 are independently functional
 
@@ -197,14 +200,14 @@ This violated DRY principles and created drift risk.
 
 ### Tests for User Story 4 (REQUIRED — Unit)
 
-- [ ] T052 [P] [US4] Add unit tests for TracelogMiddleware in components/sdk/.net/test/Spas.Sdk.Observability.Tests/TracelogMiddlewareTests.cs
-- [ ] T053 [P] [US4] Add unit tests for ObservabilityExtensions registration in components/sdk/.net/test/Spas.Sdk.Observability.Tests/ObservabilityExtensionsTests.cs
+- [ ] T052 [P] [US4] Add unit tests for TracelogMiddleware in components/sdk/dotnet/test/Spas.Sdk.Observability.Tests/TracelogMiddlewareTests.cs
+- [ ] T053 [P] [US4] Add unit tests for ObservabilityExtensions registration in components/sdk/dotnet/test/Spas.Sdk.Observability.Tests/ObservabilityExtensionsTests.cs
 
 ### Implementation for User Story 4
 
-- [ ] T054 [US4] Implement tracelog middleware in components/sdk/.net/src/Spas.Sdk.Observability/Tracing/TracelogMiddleware.cs
-- [ ] T055 [US4] Add registration extension in components/sdk/.net/src/Spas.Sdk.Observability/Tracing/ObservabilityExtensions.cs
-- [ ] T056 [US4] Wire middleware via config in components/sdk/.net/examples/SampleService/Program.cs
+- [ ] T054 [US4] Implement tracelog middleware in components/sdk/dotnet/src/Spas.Sdk.Observability/Tracing/TracelogMiddleware.cs
+- [ ] T055 [US4] Add registration extension in components/sdk/dotnet/src/Spas.Sdk.Observability/Tracing/ObservabilityExtensions.cs
+- [ ] T056 [US4] Wire middleware via config in components/sdk/dotnet/examples/SampleService/Program.cs
 
 **Checkpoint**: All user stories are independently functional
 
@@ -215,8 +218,8 @@ This violated DRY principles and created drift risk.
 **Purpose**: Improvements that affect multiple user stories
 
 - [ ] T057 [P] Documentation updates in specs/001-dotnet-spas-sdk/quickstart.md
-- [ ] T058 Code cleanup and refactoring across components/sdk/.net/\*
-- [ ] T059 [P] Validate Quickstart end-to-end in components/sdk/.net/examples/SampleService/README.md
+- [ ] T058 Code cleanup and refactoring across components/sdk/dotnet/*
+- [ ] T059 [P] Validate Quickstart end-to-end in components/sdk/dotnet/examples/SampleService/README.md
 - [ ] T060 Security hardening pass referencing spec/security/19-security-model.md
 
 ---

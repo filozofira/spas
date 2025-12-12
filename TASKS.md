@@ -208,7 +208,7 @@ spas/                                  # Root repository
 
 ## Implementation Sequence & Spec Cross-References
 
-### Phase 1: SDK Development (.NET) — ✅ IN PROGRESS
+### Phase 1: SDK Development (.NET) — ✅ DONE
 
 **Goal:** Enable services to author `spas.json` metadata and publish events.
 
@@ -228,12 +228,6 @@ spas/                                  # Root repository
   - Discovery: MetadataDiscovery (events), WebApplicationDiscoveryExtensions (endpoints)
   - 40 unit tests passing
   - SampleService demonstrates end-to-end auto-discovery
-
-**Next User Stories:**
-
-- [ ] Phase 4: User Story 2 - Dev metadata endpoint `/_spas/metadata` (see below for decision)
-- [ ] Phase 5: User Story 3 - Event publishing with trace context
-- [ ] Phase 6: User Story 4 - Tracelog middleware
 
 **Outputs:**
 

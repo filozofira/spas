@@ -1,0 +1,23 @@
+<Solution>
+  <Folder Name="/examples/">
+    <Project Path="examples/SampleService/SampleService.csproj" />
+  </Folder>
+  <Folder Name="/src/">
+    <Project Path="src/Spas.Sdk.Configuration/Spas.Sdk.Configuration.csproj" />
+    <Project Path="src/Spas.Sdk.Core/Spas.Sdk.Core.csproj" />
+    <Project Path="src/Spas.Sdk.Events/Spas.Sdk.Events.csproj" />
+    <Project Path="src/Spas.Sdk.Inbound/Spas.Sdk.Inbound.csproj" />
+    <Project Path="src/Spas.Sdk.Metadata/Spas.Sdk.Metadata.csproj" />
+    <Project Path="src/Spas.Sdk.Observability/Spas.Sdk.Observability.csproj" />
+    <Project Path="src/Spas.Sdk.Testing/Spas.Sdk.Testing.csproj" />
+  </Folder>
+  <Folder Name="/test/">
+    <Project Path="test/Spas.Sdk.Configuration.Tests/Spas.Sdk.Configuration.Tests.csproj" />
+    <Project Path="test/Spas.Sdk.Core.Tests/Spas.Sdk.Core.Tests.csproj" />
+    <Project Path="test/Spas.Sdk.Events.Tests/Spas.Sdk.Events.Tests.csproj" />
+    <Project Path="test/Spas.Sdk.Inbound.Tests/Spas.Sdk.Inbound.Tests.csproj" />
+    <Project Path="test/Spas.Sdk.Metadata.Tests/Spas.Sdk.Metadata.Tests.csproj" />
+    <Project Path="test/Spas.Sdk.Observability.Tests/Spas.Sdk.Observability.Tests.csproj" />
+    <Project Path="test/Spas.Sdk.Testing.Tests/Spas.Sdk.Testing.Tests.csproj" />
+  </Folder>
+</Solution>

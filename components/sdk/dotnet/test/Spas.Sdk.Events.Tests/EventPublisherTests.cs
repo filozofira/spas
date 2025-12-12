@@ -51,7 +51,7 @@ public class EventPublisherTests
         var testPayload = new { orderId = "123" };
 
         // Act
-        await publisher.PublishAsync("orders", "com.example.order.created", testPayload);
+        await publisher.PublishAsync("com.example.order.created", testPayload);
 
         // Assert
         var request = mockHandler.LastRequest;
@@ -71,7 +71,7 @@ public class EventPublisherTests
         var testPayload = new { orderId = "123" };
 
         // Act
-        await publisher.PublishAsync("orders", "com.example.order.created", testPayload);
+        await publisher.PublishAsync("com.example.order.created", testPayload);
 
         // Assert
         var request = mockHandler.LastRequest;
@@ -97,7 +97,7 @@ public class EventPublisherTests
         try
         {
             // Act
-            await publisher.PublishAsync("orders", "com.example.order.created", testPayload);
+            await publisher.PublishAsync("com.example.order.created", testPayload);
 
             // Assert
             var request = mockHandler.LastRequest;
@@ -128,7 +128,7 @@ public class EventPublisherTests
         try
         {
             // Act
-            await publisher.PublishAsync("orders", "com.example.order.created", testPayload);
+            await publisher.PublishAsync("com.example.order.created", testPayload);
 
             // Assert
             var request = mockHandler.LastRequest;
@@ -159,7 +159,7 @@ public class EventPublisherTests
         try
         {
             // Act
-            await publisher.PublishAsync("orders", "com.example.order.created", testPayload);
+            await publisher.PublishAsync("com.example.order.created", testPayload);
 
             // Assert
             var request = mockHandler.LastRequest;
@@ -184,7 +184,7 @@ public class EventPublisherTests
         var testPayload = new { orderId = "123", amount = 99.50 };
 
         // Act
-        await publisher.PublishAsync("orders", "com.example.order.created", testPayload);
+        await publisher.PublishAsync("com.example.order.created", testPayload);
 
         // Assert
         var request = mockHandler.LastRequest;
@@ -207,28 +207,13 @@ public class EventPublisherTests
         var testPayload = new { orderId = "123" };
 
         // Act
-        await publisher.PublishAsync("orders", "com.example.order.created", testPayload);
+        await publisher.PublishAsync("com.example.order.created", testPayload);
 
         // Assert
         var request = mockHandler.LastRequest;
         Assert.NotNull(request);
-        Assert.Equal("/publish/orders", request!.RequestUri!.AbsolutePath);
+        Assert.Equal("/publish", request!.RequestUri!.AbsolutePath);
         Assert.Equal(HttpMethod.Post, request.Method);
-    }
-
-    [Fact]
-    public async Task PublishAsync_WithNullTopic_ThrowsArgumentNullException()
-    {
-        // Arrange
-        var mockHandler = new MockHttpMessageHandler(HttpStatusCode.OK);
-        using var httpClient = new HttpClient(mockHandler) { BaseAddress = new Uri("http://localhost:8080") };
-        var publisher = new EventPublisher(httpClient, TestServiceName);
-        var testPayload = new { orderId = "123" };
-
-        // Act & Assert
-        var exception = await Assert.ThrowsAsync<ArgumentNullException>(
-            () => publisher.PublishAsync(null!, "com.example.order.created", testPayload));
-        Assert.Equal("topic", exception.ParamName);
     }
 
     [Fact]
@@ -241,7 +226,7 @@ public class EventPublisherTests
 
         // Act & Assert
         var exception = await Assert.ThrowsAsync<ArgumentNullException>(
-            () => publisher.PublishAsync("orders", "com.example.order.created", null!));
+            () => publisher.PublishAsync("com.example.order.created", null!));
         Assert.Equal("payload", exception.ParamName);
     }
 
@@ -256,7 +241,7 @@ public class EventPublisherTests
 
         // Act & Assert
         await Assert.ThrowsAsync<HttpRequestException>(
-            () => publisher.PublishAsync("orders", "com.example.order.created", testPayload));
+            () => publisher.PublishAsync("com.example.order.created", testPayload));
     }
 
     [Fact]
@@ -270,7 +255,7 @@ public class EventPublisherTests
 
         // Act & Assert
         var exception = await Assert.ThrowsAsync<ArgumentNullException>(
-            () => publisher.PublishAsync("orders", null!, testPayload));
+            () => publisher.PublishAsync(null!, testPayload));
         Assert.Equal("eventType", exception.ParamName);
     }
 
@@ -285,7 +270,7 @@ public class EventPublisherTests
         var testEventType = "com.example.order.created";
 
         // Act
-        await publisher.PublishAsync("orders", testEventType, testPayload);
+        await publisher.PublishAsync(testEventType, testPayload);
 
         // Assert
         var request = mockHandler.LastRequest;

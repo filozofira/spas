@@ -1,25 +1,29 @@
 using System.Net.Http.Json;
+using System.Reflection;
 using System.Text.Json;
 using Spas.Sdk.Core.Context;
 using Spas.Sdk.Core.Tracing;
+using Spas.Sdk.Metadata.Attributes;
 
 namespace Spas.Sdk.Events.Publish;
 
 /// <summary>
 /// Publishes events to the SPAS sidecar via HTTP.
 /// The SDK sends only the payload and metadata via headers.
-/// The sidecar wraps the payload in CloudEvents 1.0 format and publishes to the event bus.
+/// The sidecar wraps the payload in CloudEvents 1.0 format and routes to the appropriate topic based on event type.
 /// </summary>
 /// <remarks>
-/// Headers sent to sidecar (used by sidecar to construct CloudEvents envelope):
+/// Headers sent to sidecar (used by sidecar to construct CloudEvents envelope and route events):
 /// - traceparent: W3C Trace Context (format: 00-{trace-id}-{span-id}-{flags})
 /// - x-service-name: Source service name (maps to CloudEvents 'source')
-/// - x-event-type: Event type (maps to CloudEvents 'type' - typically reverse-DNS format)
+/// - x-event-type: Event type (maps to CloudEvents 'type' - typically reverse-DNS format; sidecar uses for topic routing)
 /// - x-correlation-id: Correlation ID for event chain correlation
 /// - x-user-id: Optional user identity claim
 /// - x-tenant-id: Optional tenant identity claim
 /// 
 /// Body: Raw JSON payload (sidecar wraps this as CloudEvents 'data' field)
+/// 
+/// Topic routing is configured in the sidecar, not the service.
 /// </remarks>
 public class EventPublisher
 {
@@ -46,20 +50,15 @@ public class EventPublisher
 
     /// <summary>
     /// Publishes an event payload to the sidecar for wrapping and forwarding to the event bus.
+    /// The sidecar determines topic routing based on the event type.
     /// </summary>
-    /// <param name="topic">The topic/subject to publish to (message bus routing).</param>
     /// <param name="eventType">The CloudEvents type value (typically reverse-DNS format, e.g., com.example.order.created).</param>
     /// <param name="payload">The event payload (business data) to publish.</param>
     /// <returns>A task representing the asynchronous publish operation.</returns>
-    /// <exception cref="ArgumentNullException">Thrown when topic, eventType, or payload is null.</exception>
+    /// <exception cref="ArgumentNullException">Thrown when eventType or payload is null.</exception>
     /// <exception cref="HttpRequestException">Thrown when the sidecar returns an error response.</exception>
-    public async Task PublishAsync(string topic, string eventType, object payload)
+    public async Task PublishAsync(string eventType, object payload)
     {
-        if (topic == null)
-        {
-            throw new ArgumentNullException(nameof(topic));
-        }
-
         if (eventType == null)
         {
             throw new ArgumentNullException(nameof(eventType));
@@ -70,8 +69,8 @@ public class EventPublisher
             throw new ArgumentNullException(nameof(payload));
         }
 
-        // Construct sidecar publish endpoint: /publish/{topic}
-        var publishUrl = $"/publish/{topic}";
+        // Construct sidecar publish endpoint
+        var publishUrl = "/publish";
 
         // Create HTTP request with trace and context headers
         var request = new HttpRequestMessage(HttpMethod.Post, publishUrl);
@@ -106,6 +105,63 @@ public class EventPublisher
         // Send to sidecar
         var response = await _httpClient.SendAsync(request).ConfigureAwait(false);
         response.EnsureSuccessStatusCode();
+    }
+
+    /// <summary>
+    /// Publishes an event payload to the sidecar, deriving the event type from the <see cref="SpasEventAttribute"/> on <typeparamref name="TEvent"/>.
+    /// The sidecar determines topic routing based on the event type.
+    /// </summary>
+    /// <typeparam name="TEvent">The event type decorated with <see cref="SpasEventAttribute"/>.</typeparam>
+    /// <param name="payload">The event payload (business data) to publish.</param>
+    /// <returns>A task representing the asynchronous publish operation.</returns>
+    /// <exception cref="ArgumentNullException">Thrown when payload is null.</exception>
+    /// <exception cref="InvalidOperationException">Thrown when <typeparamref name="TEvent"/> is not decorated with <see cref="SpasEventAttribute"/>.</exception>
+    /// <exception cref="HttpRequestException">Thrown when the sidecar returns an error response.</exception>
+    public async Task PublishAsync<TEvent>(object payload) where TEvent : class
+    {
+        if (payload == null)
+        {
+            throw new ArgumentNullException(nameof(payload));
+        }
+
+        // Extract SpasEventAttribute from TEvent
+        var eventAttribute = typeof(TEvent).GetCustomAttribute<SpasEventAttribute>();
+        if (eventAttribute == null)
+        {
+            throw new InvalidOperationException(
+                $"Type {typeof(TEvent).Name} must be decorated with [SpasEvent] attribute to use generic PublishAsync.");
+        }
+
+        // Derive event type: use explicit EventType if set, otherwise auto-generate
+        var eventType = eventAttribute.EventType;
+        if (string.IsNullOrEmpty(eventType))
+        {
+            // Auto-generate: com.{service-name}.{event-name-kebab}
+            // Example: "OrderCreated" -> "com.sample-service.order-created"
+            var eventName = ConvertToKebabCase(eventAttribute.Name);
+            eventType = $"com.{_serviceName}.{eventName}";
+        }
+
+        // Delegate to the existing PublishAsync method
+        await PublishAsync(eventType, payload);
+    }
+
+    /// <summary>
+    /// Converts PascalCase to kebab-case (e.g., "OrderCreated" -> "order-created").
+    /// </summary>
+    private static string ConvertToKebabCase(string value)
+    {
+        if (string.IsNullOrEmpty(value))
+        {
+            return value;
+        }
+
+        // Insert hyphen before uppercase letters (except first), then lowercase
+        var result = System.Text.RegularExpressions.Regex.Replace(
+            value,
+            "(?<!^)([A-Z])",
+            "-$1");
+        return result.ToLowerInvariant();
     }
 }
 

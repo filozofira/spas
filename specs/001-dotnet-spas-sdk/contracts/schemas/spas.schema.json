@@ -1,0 +1,106 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "SPAS Service Metadata",
+  "description": "Schema for SPAS service metadata (spas.json)",
+  "type": "object",
+  "required": ["identity", "contracts"],
+  "properties": {
+    "identity": {
+      "type": "object",
+      "required": ["name", "version"],
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Service name"
+        },
+        "version": {
+          "type": "string",
+          "description": "Service version (semver)"
+        },
+        "description": {
+          "type": "string",
+          "description": "Service description"
+        },
+        "owner": {
+          "type": "string",
+          "description": "Team or individual owner"
+        },
+        "repository": {
+          "type": "string",
+          "format": "uri",
+          "description": "Source code repository URL"
+        }
+      }
+    },
+    "contracts": {
+      "type": "object",
+      "properties": {
+        "commands": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["name", "version", "path", "schema"],
+            "properties": {
+              "name": { "type": "string" },
+              "version": { "type": "string" },
+              "path": { "type": "string" },
+              "schema": { "type": "string" }
+            }
+          }
+        },
+        "queries": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["name", "version", "path", "schema"],
+            "properties": {
+              "name": { "type": "string" },
+              "version": { "type": "string" },
+              "path": { "type": "string" },
+              "schema": { "type": "string" }
+            }
+          }
+        },
+        "events": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["name", "version", "schema"],
+            "properties": {
+              "name": { "type": "string" },
+              "version": { "type": "string" },
+              "schema": { "type": "string" }
+            }
+          }
+        }
+      }
+    },
+    "security": {
+      "type": "object",
+      "properties": {
+        "authentication": {
+          "type": "string",
+          "description": "Authentication mechanism (e.g., jwt, oauth2)"
+        },
+        "requiredScopes": {
+          "type": "array",
+          "items": { "type": "string" }
+        }
+      }
+    },
+    "health": {
+      "type": "object",
+      "properties": {
+        "healthEndpoint": {
+          "type": "string",
+          "description": "Health check endpoint path"
+        },
+        "timeoutSeconds": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "Health check timeout in seconds"
+        }
+      }
+    }
+  }
+}

@@ -20,7 +20,7 @@ public static class ServiceCollectionExtensions
 
         services.AddSingleton(options);
         services.AddSingleton<MetadataDiscovery>();
-        
+
         return services;
     }
 }

@@ -26,7 +26,7 @@ public class TracelogMiddleware
     {
         // Create Activity/span for distributed tracing
         using var activity = ActivitySource.StartActivity("HTTP Request", ActivityKind.Server);
-        
+
         var stopwatch = Stopwatch.StartNew();
         var method = context.Request.Method;
         var path = context.Request.Path.Value ?? "/";
@@ -37,18 +37,18 @@ public class TracelogMiddleware
         activity?.SetTag("http.url", path);
         activity?.SetTag("http.host", host);
         activity?.SetTag("http.scheme", context.Request.Scheme);
-        
+
         // Add correlation context as span tags
         if (!string.IsNullOrEmpty(SpasContext.CorrelationId))
         {
             activity?.SetTag("correlation.id", SpasContext.CorrelationId);
         }
-        
+
         if (!string.IsNullOrEmpty(SpasContext.UserId))
         {
             activity?.SetTag("user.id", SpasContext.UserId);
         }
-        
+
         if (!string.IsNullOrEmpty(SpasContext.TenantId))
         {
             activity?.SetTag("tenant.id", SpasContext.TenantId);
@@ -62,8 +62,8 @@ public class TracelogMiddleware
             // Set response tags
             activity?.SetTag("http.status_code", context.Response.StatusCode);
             activity?.SetStatus(
-                context.Response.StatusCode >= 400 
-                    ? ActivityStatusCode.Error 
+                context.Response.StatusCode >= 400
+                    ? ActivityStatusCode.Error
                     : ActivityStatusCode.Ok
             );
 
@@ -72,13 +72,13 @@ public class TracelogMiddleware
         catch (Exception ex)
         {
             stopwatch.Stop();
-            
+
             // Mark span as error
             activity?.SetStatus(ActivityStatusCode.Error, ex.Message);
             activity?.SetTag("error", true);
             activity?.SetTag("error.type", ex.GetType().FullName);
             activity?.SetTag("error.message", ex.Message);
-            
+
             LogRequest(method, path, context.Response.StatusCode, stopwatch.ElapsedMilliseconds, ex);
             throw;
         }

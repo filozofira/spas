@@ -303,7 +303,7 @@ public class EventPublisherTests
 internal class MockHttpMessageHandler : HttpMessageHandler
 {
     private readonly HttpStatusCode _statusCode;
-    
+
     public HttpRequestMessage? LastRequest { get; private set; }
 
     public MockHttpMessageHandler(HttpStatusCode statusCode)

@@ -39,8 +39,8 @@ public class EventPublisher
     public EventPublisher(HttpClient httpClient, string serviceName)
     {
         _httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
-        _serviceName = !string.IsNullOrEmpty(serviceName) 
-            ? serviceName 
+        _serviceName = !string.IsNullOrEmpty(serviceName)
+            ? serviceName
             : throw new ArgumentNullException(nameof(serviceName));
     }
 
@@ -75,16 +75,16 @@ public class EventPublisher
 
         // Create HTTP request with trace and context headers
         var request = new HttpRequestMessage(HttpMethod.Post, publishUrl);
-        
+
         // W3C Trace Context - sidecar includes in CloudEvents 'traceparent' extension
         request.Headers.Add("traceparent", SpasTrace.TraceParent);
-        
+
         // Service name - sidecar uses for CloudEvents 'source' field
         request.Headers.Add("x-service-name", _serviceName);
-        
+
         // Event type - sidecar uses for CloudEvents 'type' field
         request.Headers.Add("x-event-type", eventType);
-        
+
         // Correlation ID - sidecar includes in CloudEvents 'correlationid' extension
         var correlationId = SpasContext.CorrelationId ?? Guid.NewGuid().ToString();
         request.Headers.Add("x-correlation-id", correlationId);

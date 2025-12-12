@@ -77,7 +77,7 @@ public class SpasComposer
         HealthMetadata? health = null)
     {
         var json = Compose(identity, contracts, security, health);
-        
+
         var directory = Path.GetDirectoryName(filePath);
         if (!string.IsNullOrEmpty(directory) && !Directory.Exists(directory))
         {

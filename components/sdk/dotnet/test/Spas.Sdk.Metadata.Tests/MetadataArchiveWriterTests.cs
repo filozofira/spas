@@ -58,7 +58,7 @@ public class MetadataArchiveWriterTests
         // Assert
         archive.Position = 0;
         using var zipArchive = new ZipArchive(archive, ZipArchiveMode.Read, leaveOpen: true);
-        
+
         Assert.NotNull(zipArchive.GetEntry("spas.json"));
         Assert.NotNull(zipArchive.GetEntry("commands/CreateOrder.json"));
         Assert.NotNull(zipArchive.GetEntry("events/OrderCreated.json"));
@@ -99,7 +99,7 @@ public class MetadataArchiveWriterTests
         archive.Position = 0;
         using var zipArchive = new ZipArchive(archive, ZipArchiveMode.Read, leaveOpen: true);
         var spasEntry = zipArchive.GetEntry("spas.json");
-        
+
         using var entryStream = spasEntry!.Open();
         using var reader = new StreamReader(entryStream);
         var content = await reader.ReadToEndAsync();
@@ -161,11 +161,11 @@ public class MetadataArchiveWriterTests
         archive.Position = 0;
         using var zipArchive = new ZipArchive(archive, ZipArchiveMode.Read, leaveOpen: true);
         var spasEntry = zipArchive.GetEntry("spas.json");
-        
+
         using var entryStream = spasEntry!.Open();
         using var reader = new StreamReader(entryStream, Encoding.UTF8);
         var content = await reader.ReadToEndAsync();
-        
+
         Assert.Contains("ñ", content);
         Assert.Contains("é", content);
         Assert.Contains("中文", content);

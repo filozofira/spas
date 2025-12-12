@@ -21,9 +21,9 @@ public class MetadataEndpointIntegrationTests
         });
         builder.WebHost.UseTestServer();
         builder.Services.AddMetadataEndpoint();
-        
+
         await using var app = builder.Build();
-        
+
         app.MapSpasMetadataEndpoint(
             metadataProvider: () => new
             {
@@ -72,7 +72,7 @@ public class MetadataEndpointIntegrationTests
                     }
                 }
             });
-        
+
         await app.StartAsync();
         var client = app.GetTestClient();
 
@@ -101,7 +101,7 @@ public class MetadataEndpointIntegrationTests
         // Validate spas.json content
         var spasJsonEntry = archive.GetEntry("spas.json");
         Assert.NotNull(spasJsonEntry);
-        
+
         using var spasJsonReader = new StreamReader(spasJsonEntry.Open());
         var spasJsonContent = await spasJsonReader.ReadToEndAsync();
         Assert.Contains("\"serviceId\":", spasJsonContent);
@@ -111,7 +111,7 @@ public class MetadataEndpointIntegrationTests
         // Validate schema content
         var schemaEntry = archive.GetEntry("schemas/test-command.schema.json");
         Assert.NotNull(schemaEntry);
-        
+
         using var schemaReader = new StreamReader(schemaEntry.Open());
         var schemaContent = await schemaReader.ReadToEndAsync();
         Assert.Contains("\"type\":", schemaContent);
@@ -127,13 +127,13 @@ public class MetadataEndpointIntegrationTests
         });
         builder.WebHost.UseTestServer();
         builder.Services.AddMetadataEndpoint();
-        
+
         await using var app = builder.Build();
-        
+
         app.MapSpasMetadataEndpoint(
             metadataProvider: () => new { serviceId = "test-service" },
             schemasProvider: () => new Dictionary<string, object>());
-        
+
         await app.StartAsync();
         using var client = app.GetTestClient();
 
@@ -160,16 +160,16 @@ public class MetadataEndpointIntegrationTests
         {
             options.Path = "/custom/metadata";
         });
-        
+
         await using var app = builder.Build();
-        
+
         app.MapSpasMetadataEndpoint(
             metadataProvider: () => new { serviceId = "test" },
             schemasProvider: () => new Dictionary<string, object>
             {
                 ["test.schema.json"] = new { type = "object" }
             });
-        
+
         await app.StartAsync();
         using var client = app.GetTestClient();
 

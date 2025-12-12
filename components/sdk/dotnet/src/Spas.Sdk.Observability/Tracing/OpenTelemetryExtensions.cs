@@ -88,7 +88,7 @@ public static class OpenTelemetryExtensions
             {
                 tracing.SetResourceBuilder(ResourceBuilder.CreateDefault()
                     .AddService(serviceName));
-                
+
                 tracing.AddSource("Spas.Sdk.Observability");
                 tracing.AddAspNetCoreInstrumentation();
                 tracing.AddHttpClientInstrumentation();

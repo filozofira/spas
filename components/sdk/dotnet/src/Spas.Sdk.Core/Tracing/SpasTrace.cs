@@ -112,7 +112,7 @@ public static class SpasTrace
         {
             var traceId = ActivityTraceId.CreateFromString(parts[1].AsSpan());
             var spanId = ActivitySpanId.CreateFromString(parts[2].AsSpan());
-            
+
             var activity = new Activity("SpasRequest");
             activity.SetParentId(traceId, spanId);
             activity.Start();

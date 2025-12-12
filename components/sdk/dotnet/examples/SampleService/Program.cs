@@ -54,19 +54,19 @@ var identity = new ServiceIdentityBuilder()
 
 // Define endpoints with SPAS attributes - contracts auto-discovered!
 app.MapPost("/commands/create-order",
-    async (CreateOrderRequest request, EventPublisher publisher) => 
+    async (CreateOrderRequest request, EventPublisher publisher) =>
     {
         var orderId = Guid.NewGuid();
-        
+
         // Create the order (simulate business logic)
         var result = new { orderId, status = "created" };
 
         // Publish OrderCreated event - SDK sends only payload + context headers
         // Sidecar will wrap this in CloudEvents envelope
-        var eventPayload = new 
-        { 
-            orderId, 
-            customerId = request.CustomerId, 
+        var eventPayload = new
+        {
+            orderId,
+            customerId = request.CustomerId,
             total = request.Total,
             createdAt = DateTime.UtcNow
         };
@@ -88,19 +88,19 @@ app.MapPost("/commands/create-order",
 
         return Results.Ok(result);
     })
-    .WithMetadata(new SpasCommandAttribute("CreateOrder", "1.0") 
-    { 
-        Schema = "schemas/create-order.schema.json" 
+    .WithMetadata(new SpasCommandAttribute("CreateOrder", "1.0")
+    {
+        Schema = "schemas/create-order.schema.json"
     });
 
 app.MapGet("/queries/get-order/{id}",
-    (Guid id) => 
+    (Guid id) =>
     {
         return Results.Ok(new { orderId = id, status = "completed", total = 99.99 });
     })
-    .WithMetadata(new SpasQueryAttribute("GetOrder", "1.0") 
-    { 
-        Schema = "schemas/get-order.schema.json" 
+    .WithMetadata(new SpasQueryAttribute("GetOrder", "1.0")
+    {
+        Schema = "schemas/get-order.schema.json"
     });
 
 // Discover contracts from attributes

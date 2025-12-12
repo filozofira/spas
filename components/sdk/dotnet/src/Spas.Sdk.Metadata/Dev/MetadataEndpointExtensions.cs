@@ -41,7 +41,7 @@ public static class MetadataEndpointExtensions
         Func<object> metadataProvider,
         Func<IDictionary<string, object>> schemasProvider)
     {
-        var options = app.Services.GetService<MetadataEndpointOptions>() 
+        var options = app.Services.GetService<MetadataEndpointOptions>()
             ?? new MetadataEndpointOptions();
         var environment = app.Services.GetRequiredService<IHostEnvironment>();
 
@@ -68,7 +68,7 @@ public static class MetadataEndpointExtensions
             var archive = await archiveWriter.CreateArchiveAsync(metadata, schemas);
 
             context.Response.ContentType = "application/zip";
-            context.Response.Headers.Append("Content-Disposition", 
+            context.Response.Headers.Append("Content-Disposition",
                 "attachment; filename=\"spas-metadata.zip\"");
 
             await archive.CopyToAsync(context.Response.Body);

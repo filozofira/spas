@@ -22,7 +22,7 @@ public class TracelogMiddlewareTests
         var httpContext = new DefaultHttpContext();
         httpContext.Request.Method = "GET";
         httpContext.Request.Path = "/test";
-        
+
         SpasTrace.SetTraceParent("00-4bf92f3577b34da6a3ce929d0e0e4736-00f067aa0ba902b7-01");
         SpasContext.CorrelationId = "test-correlation-id";
 
@@ -51,7 +51,7 @@ public class TracelogMiddlewareTests
         var httpContext = new DefaultHttpContext();
         httpContext.Request.Method = "POST";
         httpContext.Request.Path = "/api/test";
-        
+
         SpasTrace.Clear();
         SpasContext.CorrelationId = null;
 
@@ -86,10 +86,10 @@ public class TracelogMiddlewareTests
         Assert.Single(logger.LogEntries);
         var logEntry = logger.LogEntries[0];
         Assert.Contains("ms", logEntry.Message);
-        
+
         // Extract latency value and verify it's >= 45ms (allowing for timing variance)
         var latencyMatch = System.Text.RegularExpressions.Regex.Match(
-            logEntry.Message, 
+            logEntry.Message,
             @"(\d+\.?\d*)ms"
         );
         Assert.True(latencyMatch.Success);
@@ -103,7 +103,7 @@ public class TracelogMiddlewareTests
         // Arrange
         var logger = new TestLogger<TracelogMiddleware>();
         var middleware = new TracelogMiddleware(
-            next: (context) => 
+            next: (context) =>
             {
                 context.Response.StatusCode = 404;
                 return Task.CompletedTask;
@@ -170,7 +170,7 @@ public class TracelogMiddlewareTests
         var thrownException = await Assert.ThrowsAsync<ArgumentException>(
             () => middleware.InvokeAsync(httpContext)
         );
-        
+
         Assert.Same(exception, thrownException);
     }
 
@@ -187,7 +187,7 @@ public class TracelogMiddlewareTests
         var httpContext = new DefaultHttpContext();
         httpContext.Request.Method = "GET";
         httpContext.Request.Path = "/test";
-        
+
         SpasContext.UserId = "user-123";
 
         // Act
@@ -212,7 +212,7 @@ public class TracelogMiddlewareTests
         var httpContext = new DefaultHttpContext();
         httpContext.Request.Method = "GET";
         httpContext.Request.Path = "/test";
-        
+
         SpasContext.TenantId = "tenant-456";
 
         // Act

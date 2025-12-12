@@ -86,8 +86,8 @@ public class MetadataEndpointOptionsTests
     public void IsEnvironmentAllowed_ShouldReturnFalse_WhenDisabled()
     {
         // Arrange
-        var options = new MetadataEndpointOptions 
-        { 
+        var options = new MetadataEndpointOptions
+        {
             Enabled = false,
             AllowedEnvironment = "Development"
         };

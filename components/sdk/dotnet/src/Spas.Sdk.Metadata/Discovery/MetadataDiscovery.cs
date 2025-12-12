@@ -40,7 +40,7 @@ public class MetadataDiscovery
     public MetadataDiscovery(MetadataDiscoveryOptions? options = null)
     {
         _options = options ?? new MetadataDiscoveryOptions();
-        
+
         if (_options.AssembliesToScan.Count == 0)
         {
             _options.AssembliesToScan.Add(Assembly.GetEntryAssembly() ?? Assembly.GetExecutingAssembly());

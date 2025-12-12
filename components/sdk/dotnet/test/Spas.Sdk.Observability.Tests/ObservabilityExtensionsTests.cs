@@ -17,9 +17,9 @@ public class ObservabilityExtensionsTests
         // Arrange
         var builder = WebApplication.CreateBuilder();
         builder.WebHost.UseTestServer();
-        
+
         var app = builder.Build();
-        
+
         // Act
         app.UseSpasTracelog();
         app.MapGet("/test", () => "OK");
@@ -35,7 +35,7 @@ public class ObservabilityExtensionsTests
         var builder = WebApplication.CreateBuilder();
         builder.WebHost.UseTestServer();
         builder.Services.AddSingleton<ILoggerProvider, TestLoggerProvider>();
-        
+
         var app = builder.Build();
         app.UseSpasTracelog();
         app.MapGet("/test", () => "OK");
@@ -48,10 +48,10 @@ public class ObservabilityExtensionsTests
 
         // Assert
         Assert.True(response.IsSuccessStatusCode);
-        
+
         var loggerProvider = app.Services.GetRequiredService<ILoggerProvider>() as TestLoggerProvider;
         Assert.NotNull(loggerProvider);
-        
+
         var logs = loggerProvider!.GetLogs();
         Assert.Contains(logs, log => log.Contains("GET /test"));
     }
@@ -60,7 +60,7 @@ public class ObservabilityExtensionsTests
     public void UseSpasTracelog_RequiresApplicationBuilder()
     {
         // Act & Assert
-        Assert.Throws<ArgumentNullException>(() => 
+        Assert.Throws<ArgumentNullException>(() =>
             ObservabilityExtensions.UseSpasTracelog(null!)
         );
     }
@@ -72,7 +72,7 @@ public class ObservabilityExtensionsTests
         var builder = WebApplication.CreateBuilder();
         builder.WebHost.UseTestServer();
         builder.Services.AddSingleton<ILoggerProvider, TestLoggerProvider>();
-        
+
         var app = builder.Build();
         app.UseSpasTracelog();
         app.MapGet("/test1", () => "Test1");
@@ -88,7 +88,7 @@ public class ObservabilityExtensionsTests
         // Assert
         var loggerProvider = app.Services.GetRequiredService<ILoggerProvider>() as TestLoggerProvider;
         var logs = loggerProvider!.GetLogs();
-        
+
         Assert.Contains(logs, log => log.Contains("GET /test1"));
         Assert.Contains(logs, log => log.Contains("POST /test2"));
     }

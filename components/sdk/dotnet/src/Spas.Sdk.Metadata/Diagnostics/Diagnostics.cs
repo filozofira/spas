@@ -55,7 +55,7 @@ public static class Diagnostics
         ValidationResult validationResult)
     {
         var status = validationResult.IsValid ? "✓ VALID" : "✗ INVALID";
-        
+
         return $"""
             SPAS Metadata Diagnostic Report
             ================================

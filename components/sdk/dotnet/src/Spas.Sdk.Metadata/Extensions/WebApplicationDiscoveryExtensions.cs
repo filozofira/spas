@@ -44,7 +44,7 @@ public static class WebApplicationDiscoveryExtensions
         // Get MetadataDiscovery from DI to discover events
         var metadataDiscoveryType = typeof(MetadataDiscovery);
         var discovery = services.GetService(metadataDiscoveryType) as MetadataDiscovery;
-        
+
         if (discovery == null)
         {
             throw new InvalidOperationException(
@@ -77,7 +77,7 @@ public static class WebApplicationDiscoveryExtensions
         // WebApplication has a property called "DataSources" which is a list of EndpointDataSource
         // Try to access it via reflection
         var dataSourcesProperty = app.GetType().GetProperty("DataSources", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
-        
+
         if (dataSourcesProperty == null)
         {
             throw new InvalidOperationException("DataSources property not found on WebApplication");
@@ -158,7 +158,7 @@ public static class WebApplicationDiscoveryExtensions
         if (endpointDataSources == null)
         {
             Console.WriteLine("Warning: No endpoint data sources found in DI (IEnumerable<EndpointDataSource>)");
-            
+
             // Try getting a single EndpointDataSource
             var singleDataSource = services.GetService(endpointDataSourceType);
             if (singleDataSource != null)
@@ -236,7 +236,7 @@ public static class WebApplicationDiscoveryExtensions
             // Get RoutePattern to extract path
             var routePatternProperty = endpoint.GetType().GetProperty("RoutePattern");
             string? path = null;
-            
+
             if (routePatternProperty != null)
             {
                 var routePattern = routePatternProperty.GetValue(endpoint);

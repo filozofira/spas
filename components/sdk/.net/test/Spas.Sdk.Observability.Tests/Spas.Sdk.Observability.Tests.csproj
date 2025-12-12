@@ -18,4 +18,8 @@
     <Using Include="Xunit" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\Spas.Sdk.Observability\Spas.Sdk.Observability.csproj" />
+  </ItemGroup>
+
 </Project>

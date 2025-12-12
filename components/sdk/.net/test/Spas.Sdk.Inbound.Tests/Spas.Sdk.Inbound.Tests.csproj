@@ -18,4 +18,8 @@
     <Using Include="Xunit" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\Spas.Sdk.Inbound\Spas.Sdk.Inbound.csproj" />
+  </ItemGroup>
+
 </Project>

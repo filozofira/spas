@@ -6,7 +6,7 @@
 
 When an agent starts work on another machine, use this prompt:
 
-```
+```text
 You are continuing SPAS (Self-contained, Portable, Adaptable Services)
 framework PoC implementation. Read these context files first:
 
@@ -29,7 +29,7 @@ artifacts from the spec should guide it?"
 4. **Specification is source-of-truth:** All implementation drives from principles/, cross-referenced via ./principles/INDEX.md.
 5. **Track decisions:** New architectural decisions get recorded in principles/appendix/28-decision-log.md as ADRs.
 
-## Current Status (Dec 11, 2025 - UPDATED)
+## Current Status (Dec 12, 2025 - UPDATED)
 
 - **Architecture:** ✅ COMPLETE. Specs finalized with "HTTP-only PoC", "Identity in Payload", architecture diagrams.
 - **Documentation:** ✅ CONSOLIDATED. Reduced 1,000+ lines of redundancy; clean specification navigation.
@@ -40,7 +40,15 @@ artifacts from the spec should guide it?"
   - Zipkin distributed tracing with correlated spans
   - Located: `prototypes/spas-sidecar-prototype/`
   - Ready for integration into `src/sidecar/` as framework component
-- **Next Phase:** PoC Implementation (Monorepo structure + component development)
+- **.NET SDK Development:** ✅ PHASE 3 COMPLETE (User Story 1 + Refactoring)
+  - Location: `components/sdk/.net/`
+  - Foundation: ISpasClock, SpasTrace, SpasContext, JSON, Logging (Phase 2) ✅
+  - Metadata Composition: Builders, Composer, Validator, Diagnostics (Phase 3) ✅
+  - Auto-Discovery: Attribute-based contract discovery system ✅
+  - All 40 unit tests passing ✅
+  - SampleService generates complete spas.json with auto-discovered contracts ✅
+  - **IMPORTANT:** See "SDK Implementation Details" section below for critical decisions
+- **Next Phase:** User Story 2 (Dev Metadata Endpoint) OR continue with Event Publishing (User Story 3)
 
 ## Recommended Folder Structure for PoC Implementation
 
@@ -94,12 +102,12 @@ spas/                                  # Root repository
 │   │   └── README.md                  # Multi-language SDK guide
 │   │
 │   ├── cli/                           # CLI Tool for service packaging & composition
-│   │   ├── spas-service/              # spas-service root    
+│   │   ├── spas-service/              # spas-service root
 │   │   │   ├── src/                   # source for spas-service cli
-│   │   │   ├── test/                  # test for spas-service 
+│   │   │   ├── test/                  # test for spas-service
 │   │   ├── spas-compose/              # spas-compose root
 │   │   │   ├── src/                   # source for spas-compose cli
-│   │   │   ├── test/                  # test for spas-compose 
+│   │   │   ├── test/                  # test for spas-compose
 │   │   └── README.md                  # CLI documentation (keyed to principles/13-cli-specification.md)
 │   │
 │   ├── repository/                    # SPAS Repository Service (metadata + schema storage)
@@ -146,24 +154,36 @@ spas/                                  # Root repository
 
 ## Implementation Sequence & Spec Cross-References
 
-### Phase 1: SDK Development
+### Phase 1: SDK Development (.NET) — ✅ IN PROGRESS
 
 **Goal:** Enable services to author `spas.json` metadata and publish events.
 
 **Spec Cross-Reference:** `principles/component-specification/12-sdk-specification.md` (source-of-truth)
 
-**Implementation Plan:** To be determined during this phase.
+**Status:** Phase 3 (User Story 1) complete. See detailed progress in `specs/001-dotnet-spas-sdk/tasks.md`
 
-- Assess language priorities (start with .NET; add Go/Java/Python as needed)
-- Design SDK API surface (metadata authoring, event publishing, health checks)
-- Plan SDK module structure across `src/sdk/{language}/` folders
-- Define integration patterns (DI containers, configuration, observability)
+**Completed:**
+- ✅ Phase 1: Project setup (15 projects, solution file, gitignore)
+- ✅ Phase 2: Foundational infrastructure (ISpasClock, SpasTrace, SpasContext, JSON, Logging, Config)
+- ✅ Phase 3: User Story 1 - Metadata composition with attribute-based auto-discovery
+  - Builders: ServiceIdentityBuilder, ContractsBuilder, SecurityBuilder, HealthBuilder
+  - Composition: SpasComposer (Compose, ComposeToFile)
+  - Validation: SchemaValidator, Diagnostics helpers
+  - Auto-Discovery: SpasCommandAttribute, SpasQueryAttribute, SpasEventAttribute
+  - Discovery: MetadataDiscovery (events), WebApplicationDiscoveryExtensions (endpoints)
+  - 40 unit tests passing
+  - SampleService demonstrates end-to-end auto-discovery
+
+**Next User Stories:**
+- [ ] Phase 4: User Story 2 - Dev metadata endpoint `/_spas/metadata` (see below for decision)
+- [ ] Phase 5: User Story 3 - Event publishing with trace context
+- [ ] Phase 6: User Story 4 - Tracelog middleware
 
 **Outputs:**
 
-- `src/sdk/.net/` with NuGet package ready (Phase 1.1)
-- Example: `examples/simple-sync/` services using SDK
-- SDK design document for future language implementations
+- `components/sdk/.net/` with 7 SDK packages + 7 test projects + SampleService ✅
+- Design decisions documented in `specs/001-dotnet-spas-sdk/tasks.md` ✅
+- Example: SampleService demonstrates attribute-based metadata authoring ✅
 
 ---
 
@@ -298,18 +318,18 @@ Review: governance/24-compliance-checklist.md
 
 ## Key Specification Touchstones
 
-| Component              | Spec Reference                                                                                              | Purpose                                  |
-| ---------------------- | ----------------------------------------------------------------------------------------------------------- | ---------------------------------------- |
-| SDK                    | [13-sdk-specification.md](principles/component-specification/13-sdk-specification.md)                       | Service development library              |
-| Repository             | [12-repository-spec.md](principles/component-specification/12-repository-spec.md)                           | Metadata storage & discovery             |
-| CLI                    | [14-cli-specification.md](principles/component-specification/14-cli-specification.md)                       | Packaging & composition tooling          |
-| Sidecar                | [10-sidecar-contract.md](principles/component-specification/10-sidecar-contract.md)                         | Runtime transformation & event I/O       |
-| Service Contracts      | [04-service-contract.md](principles/service-specification/04-service-contract.md)                           | What services expose                     |
-| Service Metadata       | [06-service-metadata.md](principles/service-specification/06-service-metadata.md)                           | spas.json schema                         |
-| Message Transformation | [11-transformation-middleware.md](principles/component-specification/11-transformation-middleware.md)       | Adaptation & mapping                     |
-| Communication Protocol | [07-communication-model.md](principles/protocol-specification/07-communication-model.md)                    | How services talk (HTTP PoC → gRPC prod) |
-| Event Protocol         | [09-event-protocol.md](principles/protocol-specification/09-event-protocol.md)                              | CloudEvents + W3C Trace Context          |
-| Architecture Decisions | [28-decision-log.md](principles/appendix/28-decision-log.md)                                                | Why SPAS looks like this                 |
+| Component              | Spec Reference                                                                                        | Purpose                                  |
+| ---------------------- | ----------------------------------------------------------------------------------------------------- | ---------------------------------------- |
+| SDK                    | [13-sdk-specification.md](principles/component-specification/13-sdk-specification.md)                 | Service development library              |
+| Repository             | [12-repository-spec.md](principles/component-specification/12-repository-spec.md)                     | Metadata storage & discovery             |
+| CLI                    | [14-cli-specification.md](principles/component-specification/14-cli-specification.md)                 | Packaging & composition tooling          |
+| Sidecar                | [10-sidecar-contract.md](principles/component-specification/10-sidecar-contract.md)                   | Runtime transformation & event I/O       |
+| Service Contracts      | [04-service-contract.md](principles/service-specification/04-service-contract.md)                     | What services expose                     |
+| Service Metadata       | [06-service-metadata.md](principles/service-specification/06-service-metadata.md)                     | spas.json schema                         |
+| Message Transformation | [11-transformation-middleware.md](principles/component-specification/11-transformation-middleware.md) | Adaptation & mapping                     |
+| Communication Protocol | [07-communication-model.md](principles/protocol-specification/07-communication-model.md)              | How services talk (HTTP PoC → gRPC prod) |
+| Event Protocol         | [09-event-protocol.md](principles/protocol-specification/09-event-protocol.md)                        | CloudEvents + W3C Trace Context          |
+| Architecture Decisions | [28-decision-log.md](principles/appendix/28-decision-log.md)                                          | Why SPAS looks like this                 |
 
 ## PoC Constraints & Simplifications
 
@@ -328,22 +348,28 @@ All marked in principles as `PoC` vs `Production` using admonition blocks (see p
 **Document to read first on new machine:**
 
 1. This file (TASKS.md) — status + next step
-2. principles/INDEX.md — navigation to all specs
-3. principles/02-architecture-overview.md — architecture overview
-4. principles/appendix/28-decision-log.md — design decisions
-5. README.md — framework overview
-6. prototypes/spas-sidecar-prototype/README.md — what sidecar does
+2. `specs/001-dotnet-spas-sdk/tasks.md` — detailed SDK implementation status
+3. `specs/001-dotnet-spas-sdk/plan.md` — SDK architecture and design decisions
+4. principles/INDEX.md — navigation to all specs
+5. principles/02-architecture-overview.md — architecture overview
+6. principles/appendix/28-decision-log.md — design decisions
+7. README.md — framework overview
+8. prototypes/spas-sidecar-prototype/README.md — what sidecar does
 
-**Last successful state (Dec 11, 2025):**
+**Last successful state (Dec 12, 2025):**
 
-- Specification complete and internally consistent
-- Prototype fully operational with verified trace correlation
-- Documentation consolidated and cleaned up
-- Ready to begin monorepo setup + component development
+- Specification complete and internally consistent ✅
+- Prototype fully operational with verified trace correlation ✅
+- Documentation consolidated and cleaned up ✅
+- .NET SDK Phase 3 (User Story 1) complete with auto-discovery ✅
+- All 40 unit tests passing ✅
 
 **Exact next step:**
-→ Create `src/` folder structure (as shown above) and begin SDK development Phase 1
-→ Reference principles/component-specification/12-sdk-specification.md as implementation guide
+→ **DECISION REQUIRED:** Choose next SDK user story to implement:
+  - Option A: User Story 2 (Dev metadata endpoint `/_spas/metadata`) - enables CLI integration
+  - Option B: User Story 3 (Event publishing with trace context) - enables async messaging
+  - Option C: Implement build-time metadata generation (MSBuild task) - production pattern
+→ Reference `specs/001-dotnet-spas-sdk/tasks.md` for detailed task breakdown
 
 **Common gotchas:**
 
@@ -351,8 +377,100 @@ All marked in principles as `PoC` vs `Production` using admonition blocks (see p
 - "PoC vs Production" markers in principles indicate what's simplified for PoC
 - Architecture decisions (ADRs) in 28-decision-log.md explain "why" for each design choice
 - Cross-reference using principles/INDEX.md for navigation (includes "by audience" sections)
+- SDK attribute-based discovery uses reflection to avoid ASP.NET Core runtime dependencies
 
-## Recent Status (Dec 11, 2025)
+## SDK Implementation Details (Critical for Continuation)
+
+### Architectural Decision: Attribute-Based Auto-Discovery
+
+**Problem Identified:** Original Phase 3 implementation required developers to define contracts twice:
+1. In actual endpoint code (`MapPost`, `MapGet`)
+2. In manual `ContractsBuilder` registration
+
+This violated DRY principles and created drift risk.
+
+**Solution:** Attribute-based auto-discovery system (implemented Dec 12, 2025)
+
+**Key Files:**
+- `components/sdk/.net/src/Spas.Sdk.Metadata/Attributes/SpasContractAttributes.cs`
+  - `SpasCommandAttribute`, `SpasQueryAttribute`, `SpasEventAttribute`
+- `components/sdk/.net/src/Spas.Sdk.Metadata/Discovery/MetadataDiscovery.cs`
+  - Discovers events from assemblies via reflection
+- `components/sdk/.net/src/Spas.Sdk.Metadata/Extensions/WebApplicationDiscoveryExtensions.cs`
+  - Discovers endpoints from ASP.NET Core routing using reflection
+  - Avoids direct ASP.NET Core runtime dependencies in SDK
+
+**Usage Pattern:**
+```csharp
+// 1. Register SDK services
+builder.Services.AddSpasMetadata(options => {
+    options.AssembliesToScan.Add(typeof(Program).Assembly);
+});
+
+// 2. Define endpoints with attributes
+app.MapPost("/commands/create-order", handler)
+   .WithMetadata(new SpasCommandAttribute("CreateOrder", "1.0"));
+
+[SpasEvent("OrderCreated", "1.0")]
+public record OrderCreatedEvent(...);
+
+// 3. Auto-discover all contracts
+var contracts = app.DiscoverSpasMetadata();
+
+// 4. Compose spas.json
+var composer = new SpasComposer();
+composer.ComposeToFile(path, identity, contracts, security, health);
+```
+
+### ComposeToFile Pattern Discussion
+
+**Current State:** `SpasComposer.ComposeToFile()` called in `SampleService/Program.cs` on every startup
+
+**Question Raised:** Is this only for testing?
+
+**Answer:** YES - for demonstration/PoC only. Production should NOT generate metadata at runtime.
+
+**Production Patterns (choose one for User Story 2):**
+
+1. **Dev Endpoint Pattern** (User Story 2):
+   - Expose `/_spas/metadata` endpoint in Development only
+   - CLI calls `GET /_spas/metadata` to retrieve composed metadata
+   - Disabled in Production environment
+   - **Pros:** Easy dev experience, no build-time overhead
+   - **Cons:** Requires running service to get metadata
+
+2. **Build-Time Generation Pattern**:
+   - MSBuild task generates spas.json during `dotnet publish`
+   - Metadata included in build output
+   - No runtime overhead
+   - **Pros:** Production-ready, no runtime permissions needed
+   - **Cons:** More complex build integration
+
+3. **CLI-Driven Pattern** (requires endpoint or build-time gen):
+   - `spas-service metadata get` retrieves from dev endpoint or build output
+   - `spas-service pack` packages metadata + schemas
+   - `spas-service publish` pushes to repository
+   - **Pros:** Matches SPAS specification workflow
+   - **Cons:** Requires #1 or #2 implemented first
+
+**Recommendation:** Implement User Story 2 (dev endpoint) next to enable CLI integration workflow.
+
+**References:**
+- Spec: `principles/component-specification/12-sdk-specification.md` (Design-time metadata endpoint)
+- Spec: `principles/service-specification/06-service-metadata.md` (Metadata endpoints)
+- Tasks: `specs/001-dotnet-spas-sdk/tasks.md` Phase 4 (User Story 2 tasks T039-T044)
+
+## Recent Status (Dec 12, 2025)
+
+**.NET SDK Phase 3 completed:**
+
+- Attribute-based auto-discovery system implemented (fixes DRY violation)
+- 40 unit tests passing
+- SampleService demonstrates end-to-end metadata composition
+- Documented ComposeToFile pattern as demo-only (not production pattern)
+- Identified next decision: User Story 2 (dev endpoint) vs build-time generation
+
+**Previous Status (Dec 11, 2025):**
 
 **Documentation cleanup completed:**
 

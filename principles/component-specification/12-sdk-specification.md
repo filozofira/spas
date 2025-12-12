@@ -21,12 +21,14 @@ Event Publishing Contract (SDK → Sidecar)
 - **Metadata Propagation**: HTTP headers carry CloudEvents metadata for sidecar envelope construction
 
 Required Headers:
+
 - `traceparent`: W3C Trace Context (format: `00-{trace-id}-{span-id}-{flags}`)
 - `x-service-name`: Source service name → maps to CloudEvents `source` field
 - `x-event-type`: Event type identifier → maps to CloudEvents `type` field (reverse-DNS format, e.g., `com.example.order.created`)
 - `x-correlation-id`: Correlation ID → maps to CloudEvents `correlationid` extension
 
 Optional Headers:
+
 - `x-user-id`: User identity claim → included in CloudEvents extensions
 - `x-tenant-id`: Tenant identity claim → included in CloudEvents extensions
 
@@ -36,15 +38,18 @@ Inbound Request Contract (Sidecar → SDK)
 - **Context Propagation**: HTTP headers carry trace and correlation context
 
 Required Headers:
+
 - `traceparent`: W3C Trace Context for distributed tracing continuity
 - `x-event-type`: Event type identifier from CloudEvents `type` field (for event-driven invocations)
 - `x-correlation-id`: Correlation ID from originating CloudEvents message
 
 Optional Headers:
+
 - `x-user-id`: User identity extracted from CloudEvents extensions or authentication
 - `x-tenant-id`: Tenant identity for multi-tenant scenarios
 
 SDK Responsibilities:
+
 - Extract headers and populate `SpasTrace` (trace context) and `SpasContext` (correlation/identity)
 - Propagate context through handler execution
 - Include context in logs and any outbound events/calls

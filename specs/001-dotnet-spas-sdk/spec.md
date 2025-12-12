@@ -6,13 +6,13 @@
 **Status**: ✅ Complete (PoC)  
 **Input**: User description: ".Net SPAS SDK component to support building .Net SPAS compliant services."
 
-## User Scenarios & Testing *(mandatory)*
+## User Scenarios & Testing _(mandatory)_
 
 <!--
   IMPORTANT: User stories should be PRIORITIZED as user journeys ordered by importance.
   Each user story/journey must be INDEPENDENTLY TESTABLE - meaning if you implement just ONE of them,
   you should still have a viable MVP (Minimum Viable Product) that delivers value.
-  
+
   Assign priorities (P1, P2, P3, etc.) to each story, where P1 is the most critical.
   Think of each story as a standalone slice of functionality that can be:
   - Developed independently
@@ -81,13 +81,12 @@ Developers can enable a minimal tracelog middleware that captures request/respon
 1. **Given** the tracelog middleware is enabled, **When** a request is processed, **Then** a log entry includes trace/correlation IDs and latency.
 2. **Given** the middleware is disabled, **When** a request is processed, **Then** no tracelog entries are emitted by the SDK.
 
-
 ### Edge Cases
 
 - What happens when metadata fragments conflict? SDK should detect and surface deterministic merge errors with guidance.
 - How does system handle validation when schema evolves? Provide versioned schema checks and clear migration notes via diagnostics.
 
-## Requirements *(mandatory)*
+## Requirements _(mandatory)_
 
 <!--
   ACTION REQUIRED: The content in this section represents placeholders.
@@ -111,13 +110,13 @@ Developers can enable a minimal tracelog middleware that captures request/respon
 - Unit tests are REQUIRED for each user story (PoC and Production). SpecKit task generation MUST include unit test tasks per story.
 - Integration tests are OPTIONAL during PoC unless explicitly requested in this spec; they become REQUIRED before any non-PoC SDK release.
 
-### Key Entities *(include if feature involves data)*
+### Key Entities _(include if feature involves data)_
 
 - **Service Metadata**: Identity, contracts, security, health; composed into `spas.json`.
 - **Event Publishing Context**: Topic (routing), eventType (CloudEvents type), payload (domain data), propagated via HTTP headers to sidecar.
 - **Inbound Request Context**: Trace context, correlation ID, identity claims; propagated via HTTP headers from sidecar to service.
 
-## Success Criteria *(mandatory)*
+## Success Criteria _(mandatory)_
 
 <!--
   ACTION REQUIRED: Define measurable success criteria.

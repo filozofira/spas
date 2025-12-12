@@ -3,6 +3,7 @@
 ## Overview
 
 The .NET SPAS SDK provides:
+
 - **Metadata Composition**: Auto-discover contracts and generate `spas.json`
 - **Dev Metadata Endpoint**: `/_spas/metadata` returns ZIP with metadata + schemas (dev-only)
 - **Event Publishing**: Publish events to sidecar with automatic trace/correlation propagation
@@ -72,6 +73,7 @@ app.UseSpasTracelog();
 ```
 
 **Features:**
+
 - Creates Activity spans for each HTTP request
 - Propagates W3C Trace Context (traceparent header)
 - Exports traces to Zipkin for visualization
@@ -79,6 +81,7 @@ app.UseSpasTracelog();
 - Error tracking with exception details
 
 **Running Zipkin (Docker):**
+
 ```bash
 docker run -d -p 9411:9411 openzipkin/zipkin
 ```
@@ -95,7 +98,7 @@ builder.Services.AddHttpClient<EventPublisher>(client =>
 {
     client.BaseAddress = new Uri("http://localhost:3001"); // sidecar endpoint
 });
-builder.Services.AddSingleton(sp => 
+builder.Services.AddSingleton(sp =>
 {
     var httpClientFactory = sp.GetRequiredService<IHttpClientFactory>();
     return new EventPublisher(httpClientFactory.CreateClient(), "sample-service");
@@ -110,6 +113,7 @@ await publisher.PublishAsync(
 ```
 
 **Headers sent to sidecar:**
+
 - `traceparent`: W3C Trace Context (e.g., `00-{trace-id}-{span-id}-{flags}`)
 - `x-service-name`: Source service name → CloudEvents `source`
 - `x-event-type`: Event type → CloudEvents `type`
@@ -132,28 +136,29 @@ app.Use(async (context, next) =>
     {
         SpasTrace.SetTraceParent(traceParent);
     }
-    
+
     // Extract optional correlation and identity
     if (context.Request.Headers.TryGetValue("x-correlation-id", out var correlationId))
     {
         SpasContext.CorrelationId = correlationId;
     }
-    
+
     if (context.Request.Headers.TryGetValue("x-user-id", out var userId))
     {
         SpasContext.UserId = userId;
     }
-    
+
     if (context.Request.Headers.TryGetValue("x-tenant-id", out var tenantId))
     {
         SpasContext.TenantId = tenantId;
     }
-    
+
     await next();
 });
 ```
 
 **Expected inbound headers from sidecar:**
+
 - `traceparent`: W3C Trace Context (required for trace continuity)
 - `x-event-type`: Event type from CloudEvents (required for event-driven invocations)
 - `x-correlation-id`: Correlation ID from CloudEvents (required)

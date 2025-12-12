@@ -1,27 +1,16 @@
 <!--
-Sync Impact Report (v1.0.0)
+Sync Impact Report (v1.0.1)
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-Version Change: Template → 1.0.0 (MAJOR - Initial constitution)
-Ratification: 2025-12-12 (PoC Phase)
+Version Change: 1.0.0 → 1.0.1 (MINOR)
+Amended: 2025-12-12 (PoC Phase)
 
-Modified Principles:
-  ✅ All 8 principles defined from SPAS core principles
-  ✅ Component-specific sections added for SDK, CLI, Repository, Sidecar, Services
+Changes:
+  • Clarified Events boundary (SDK prepares payload/context; Sidecar wraps CloudEvents)
+  • Softened inbound path convention from mandatory to recommended (route-agnostic SDK)
 
-Added Sections:
-  ✅ PoC vs Production Distinction
-  ✅ Component Constitutions (SDK, CLI, Repository, Sidecar, SPAS Services)
-  ✅ Governance with version control
-
-Templates Requiring Updates:
-  ✅ .specify/templates/plan-template.md - Constitution principles aligned
-  ✅ .specify/templates/spec-template.md - References SPAS specifications in principles/
-  ✅ .specify/templates/tasks-template.md - Task categorization by component
-
-Follow-up Items:
-  • Monitor PoC implementation for principle violations
-  • Update constitution when transitioning from PoC to Production
-  • Add explicit security enforcement rules when mTLS/SPIFFE implemented
+Impact:
+  • Update SDK specs and plans to avoid enforcing a specific inbound path
+  • Samples may continue to use `/incoming` as a recommended default
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 -->
 
@@ -86,7 +75,7 @@ These principles apply universally to all SPAS framework components, services, t
 - `SERVICE_NAME` is the single source of identity
 - Sidecar hostname: `${SERVICE_NAME}-sidecar`
 - Service invocation: sidecar composes URL from `SERVICE_NAME` + `SERVICE_PORT`
-- Inbound endpoint: `/incoming` (relative path)
+- Recommended inbound base path: `/incoming` (relative path). SDKs SHOULD be route‑agnostic; services MAY choose a different path. Sidecar/choreography mappings MUST NOT rely on a fixed path.
 
 **Rationale**: Reduces per-service configuration, ensures consistency, simplifies choreography composition, enables automation.
 
@@ -94,7 +83,7 @@ These principles apply universally to all SPAS framework components, services, t
 
 - Machine: Service metadata validates `SERVICE_NAME` format (lowercase, hyphen-separated)
 - Machine: Deployment manifests follow hostname conventions
-- Machine: Choreography references use `SERVICE_NAME` identifiers
+- Machine: Choreography references use `SERVICE_NAME` identifiers; inbound route is discoverable via service metadata or configuration where applicable (not hard‑coded)
 
 **Consequences of Violation**: Service discovery fails; choreography generation produces invalid configuration.
 
@@ -240,6 +229,12 @@ Services MUST run unchanged across Kubernetes, Docker Compose, and bare metal en
 - Validation: fail fast with clear diagnostics when fragments are incomplete or inconsistent.
 
 **Quality Gates**:
+**Events — Preparation vs Wrapping (Explicit Boundary)**:
+
+- SDK Responsibilities: Prepare event payloads, attach and propagate W3C Trace Context and correlation identifiers, and surface identity claims to publishing code. Provide helpers to construct payloads and pass context to the sidecar publish endpoint.
+- Sidecar Responsibilities: Wrap outgoing events into CloudEvents 1.0 envelopes, inject/propagate trace and correlation context, and perform any required domain/internal transformations configured in choreography.
+- Prohibitions: SDK MUST NOT construct CloudEvents envelopes or duplicate transformation logic owned by sidecar; this prevents coupling and preserves observability/policy boundaries.
+
 
 - Unit test coverage ≥ 80%
 - Integration tests for metadata round-trip serialization
@@ -415,4 +410,4 @@ All constitution changes MUST:
 - Prepend Sync Impact Report (HTML comment at top of file)
 - Update dependent templates/docs within same PR
 
-**Version**: 1.0.0 | **Ratified**: 2025-12-12 | **Last Amended**: 2025-12-12
+**Version**: 1.0.1 | **Ratified**: 2025-12-12 | **Last Amended**: 2025-12-12

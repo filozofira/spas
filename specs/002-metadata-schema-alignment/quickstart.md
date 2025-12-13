@@ -13,36 +13,108 @@
 
 ## Sample Snippets
 
-```csharp
-// Discover contracts
-var contracts = app.DiscoverSpasMetadata();
+### Building Metadata
 
-// Compose design-time spas.json
+```csharp
+using Spas.Sdk.Metadata.Builders;
+using Spas.Sdk.Metadata.Composition;
+
+// Define service identity
+var identity = new ServiceIdentityBuilder()
+    .WithId("payment-service")
+    .WithName("Payment Service")
+    .WithVersion("1.2.0")
+    .WithDescription("Handles payment processing")
+    .WithBoundedContext("Payments")
+    .AddCapability("ProcessPayments")
+    .AddCapability("RefundPayments")
+    .Build();
+
+// Define contracts with schemaRef
+var contracts = new ContractsBuilder()
+    .AddEndpoint("CreatePayment", "Command", "Http", "POST /api/payments", "1.0", "schemas/create-payment.schema.json")
+    .AddEndpoint("GetPayment", "Query", "Http", "GET /api/payments/{id}", "1.0", "schemas/get-payment.schema.json")
+    .AddEvent("PaymentCreated", "1.0", "schemas/payment-created.schema.json")
+    .AddEvent("PaymentFailed", "1.0", "schemas/payment-failed.schema.json")
+    .Build();
+
+// Define security requirements
+var security = new SecurityBuilder()
+    .WithAuthenticationType("OAuth2")
+    .AddRequiredScope("payments.read")
+    .AddRequiredScope("payments.write")
+    .AddDataClassification("Internal")
+    .AddDataClassification("Confidential")
+    .Build();
+
+// Define consistency guarantees
+var consistency = new ConsistencyBuilder()
+    .WithCommands("ACID")
+    .WithQueries("EVENTUAL")
+    .Build();
+
+// Define network dependencies
+var network = new NetworkBuilder()
+    .AddRequiredEgress("payment-gateway.stripe.com")
+    .AddRequiredEgress("fraud-detection-service")
+    .Build();
+
+// Compose to file
 var composer = new SpasComposer();
-await composer.ComposeToFileAsync(
+composer.ComposeToFile(
     path: "spas.json",
-    identity: new ServiceIdentityBuilder()
-        .WithName("payment-service")
-        .WithVersion("1.2.0")
-        .WithDescription("Payment Service")
-        .Build(),
+    identity: identity,
     contracts: contracts,
-    security: new SecurityBuilder()
-        .WithAuthentication(required: true, schemes: ["jwt"], requiredScopes: ["payments.read", "payments.write"]) 
-        .WithDataClassification(["pii"]) 
-        .Build(),
-    network: new NetworkBuilder().WithRequiredEgress(["api.stripe.com:443"]).Build(),
-    consistency: new ConsistencyBuilder().WithCommandsAcid().WithQueriesEventual().Build()
+    security: security,
+    consistency: consistency,
+    network: network,
+    license: "MIT"
 );
 ```
 
+### Auto-Discovery with ASP.NET Core
+
 ```csharp
-// Validate spas.json (example using JsonSchema.Net)
+// Discover contracts from attributed endpoints
+var contracts = app.DiscoverSpasMetadata();
+
+// Compose with discovered contracts
+composer.ComposeToFile(
+    path: "spas.json",
+    identity: identity,
+    contracts: contracts,
+    security: security,
+    consistency: consistency,
+    network: network,
+    license: "MIT"
+);
+```
+
+### Validation with JsonSchema.Net
+
+```csharp
+using System.Text.Json;
 using Json.Schema;
-var json = await File.ReadAllTextAsync("spas.json");
-var schema = JsonSchema.FromFile("design-time-metadata-v1.schema.json");
-var result = schema.Validate(json);
-if (!result.IsValid) throw new Exception(result.ToJsonString());
+
+// Load design-time schema (distributed via CLI/Repository, not bundled in SDK)
+// Schema location: components/sdk/schemas/design-time-metadata-v1.schema.json
+var schemaJson = await File.ReadAllTextAsync("design-time-metadata-v1.schema.json");
+var schema = JsonSchema.FromText(schemaJson);
+
+// Load generated spas.json
+var metadataJson = await File.ReadAllTextAsync("spas.json");
+var metadataDoc = JsonDocument.Parse(metadataJson);
+
+// Validate
+var validationResult = schema.Evaluate(metadataDoc, new EvaluationOptions { OutputFormat = OutputFormat.List });
+
+if (!validationResult.IsValid)
+{
+    var errors = validationResult.Errors?.Select(e => e.ToString()) ?? Enumerable.Empty<string>();
+    throw new InvalidOperationException($"Metadata validation failed: {string.Join(", ", errors)}");
+}
+
+Console.WriteLine("✓ Metadata validation passed");
 ```
 
 ## Contracts

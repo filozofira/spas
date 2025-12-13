@@ -34,10 +34,13 @@ app.UseSpasTracelog();
 
 // Define service identity (still manual - service-level metadata)
 var identity = new ServiceIdentityBuilder()
+    .WithId("sample-service")
     .WithName("sample-service")
     .WithVersion("1.0.0")
+    .WithBoundedContext("samples")
     .WithDescription("Sample SPAS service demonstrating SDK usage")
-    .WithOwner("platform-team")
+    .AddCapability("create-order")
+    .AddCapability("query-order")
     .Build();
 
 // Define endpoints with SPAS attributes - contracts auto-discovered!
@@ -93,24 +96,28 @@ app.MapGet("/queries/get-order/{id}",
 var contracts = app.DiscoverSpasMetadata();
 
 var security = new SecurityBuilder()
-    .WithAuthentication("jwt")
+    .WithAuthenticationType("jwt")
     .AddRequiredScope("orders.read")
     .AddRequiredScope("orders.write")
+    .AddDataClassification("internal")
     .Build();
 
-var health = new HealthBuilder()
-    .WithHealthEndpoint("/health")
-    .WithTimeout(30)
+var consistency = new ConsistencyBuilder()
+    .WithQueries("EVENTUAL")
+    .Build();
+
+var network = new NetworkBuilder()
+    .AddRequiredEgress("localhost:6379")
     .Build();
 
 // Compose and write spas.json using discovered contracts
 var composer = new SpasComposer();
 var metadataPath = Path.Combine(AppContext.BaseDirectory, "spas.json");
-composer.ComposeToFile(metadataPath, identity, contracts, security, health);
+composer.ComposeToFile(metadataPath, identity, contracts, security, consistency, network, "MIT");
 
 // Map dev-only metadata endpoint (returns ZIP with spas.json + schemas)
 app.MapSpasMetadataEndpoint(
-    metadataProvider: () => composer.Compose(identity, contracts, security, health),
+    metadataProvider: () => composer.Compose(identity, contracts, security, consistency, network, "MIT"),
     schemasProvider: () => new Dictionary<string, object>
     {
         ["schemas/create-order.schema.json"] = new

@@ -7,11 +7,21 @@ namespace Spas.Sdk.Metadata.Builders;
 /// </summary>
 public class ServiceIdentityBuilder
 {
+    private string? _id;
     private string? _name;
     private string? _version;
     private string? _description;
-    private string? _owner;
-    private string? _repository;
+    private string? _boundedContext;
+    private readonly List<string> _capabilities = new();
+
+    /// <summary>
+    /// Sets the service ID (kebab-case identifier).
+    /// </summary>
+    public ServiceIdentityBuilder WithId(string id)
+    {
+        _id = id;
+        return this;
+    }
 
     /// <summary>
     /// Sets the service name.
@@ -41,20 +51,20 @@ public class ServiceIdentityBuilder
     }
 
     /// <summary>
-    /// Sets the service owner.
+    /// Sets the bounded context.
     /// </summary>
-    public ServiceIdentityBuilder WithOwner(string owner)
+    public ServiceIdentityBuilder WithBoundedContext(string boundedContext)
     {
-        _owner = owner;
+        _boundedContext = boundedContext;
         return this;
     }
 
     /// <summary>
-    /// Sets the repository URL.
+    /// Adds a capability.
     /// </summary>
-    public ServiceIdentityBuilder WithRepository(string repository)
+    public ServiceIdentityBuilder AddCapability(string capability)
     {
-        _repository = repository;
+        _capabilities.Add(capability);
         return this;
     }
 
@@ -63,6 +73,11 @@ public class ServiceIdentityBuilder
     /// </summary>
     public ServiceIdentity Build()
     {
+        if (string.IsNullOrEmpty(_id))
+        {
+            throw new InvalidOperationException("Service id is required.");
+        }
+
         if (string.IsNullOrEmpty(_name))
         {
             throw new InvalidOperationException("Service name is required.");
@@ -73,13 +88,19 @@ public class ServiceIdentityBuilder
             throw new InvalidOperationException("Service version is required.");
         }
 
+        if (string.IsNullOrEmpty(_boundedContext))
+        {
+            throw new InvalidOperationException("Bounded context is required.");
+        }
+
         return new ServiceIdentity
         {
+            Id = _id,
             Name = _name,
             Version = _version,
             Description = _description,
-            Owner = _owner,
-            Repository = _repository
+            BoundedContext = _boundedContext,
+            Capabilities = _capabilities
         };
     }
 }

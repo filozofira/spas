@@ -7,15 +7,16 @@ namespace Spas.Sdk.Metadata.Builders;
 /// </summary>
 public class SecurityBuilder
 {
-    private string? _authentication;
+    private string? _authenticationType;
     private readonly List<string> _requiredScopes = new();
+    private readonly List<string> _dataClassification = new();
 
     /// <summary>
-    /// Sets the authentication mechanism.
+    /// Sets the authentication type (e.g., jwt).
     /// </summary>
-    public SecurityBuilder WithAuthentication(string authentication)
+    public SecurityBuilder WithAuthenticationType(string type)
     {
-        _authentication = authentication;
+        _authenticationType = type;
         return this;
     }
 
@@ -29,14 +30,29 @@ public class SecurityBuilder
     }
 
     /// <summary>
+    /// Adds a data classification.
+    /// </summary>
+    public SecurityBuilder AddDataClassification(string classification)
+    {
+        _dataClassification.Add(classification);
+        return this;
+    }
+
+    /// <summary>
     /// Builds the security metadata.
     /// </summary>
     public SecurityMetadata Build()
     {
         return new SecurityMetadata
         {
-            Authentication = _authentication,
-            RequiredScopes = _requiredScopes
+            Authentication = !string.IsNullOrEmpty(_authenticationType) || _requiredScopes.Any()
+                ? new AuthenticationMetadata
+                {
+                    Type = _authenticationType ?? "jwt",
+                    RequiredScopes = _requiredScopes
+                }
+                : null,
+            DataClassification = _dataClassification
         };
     }
 }

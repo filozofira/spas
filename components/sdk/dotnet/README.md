@@ -24,9 +24,20 @@ SPAS is an architectural framework where:
 
 ### 🎯 Metadata Composition
 
+- **Design-time metadata**: SDK emits `spas.json` aligned with SPAS design-time-metadata-v1 schema
+  - Includes `schemaVersion`, service identity (`id`, `boundedContext`, `capabilities`), contracts, consistency, network, security
+  - Runtime metadata (container image, env, resources) managed by Repository/CLI (not SDK)
 - **Attribute-based auto-discovery**: Decorate endpoints with `[SpasCommand]`, `[SpasQuery]`, `[SpasEvent]`
-- **Fluent builders**: Compose identity, contracts, security, health metadata programmatically
-- **Schema validation**: Validates generated `spas.json` against SPAS schema
+- **Fluent builders**: Compose identity, contracts, security, consistency, network metadata programmatically
+  - `ServiceIdentityBuilder`: Define service ID, bounded context, capabilities
+  - `ContractsBuilder`: Add endpoints (type, protocol, methodPath, schemaRef) and events (type, version, schemaRef)
+  - `SecurityBuilder`: Configure authentication + data classification levels
+  - `ConsistencyBuilder`: Specify consistency guarantees (commands: ACID/EVENTUAL, queries: STRONG/EVENTUAL)
+  - `NetworkBuilder`: Declare required egress dependencies
+- **Schema references**: Endpoints and events use `schemaRef` (relative/absolute URIs) instead of embedded schemas
+- **Schema validation**: Validates generated `spas.json` against design-time-metadata-v1 JSON Schema
+  - Schema location: `components/sdk/schemas/design-time-metadata-v1.schema.json`
+  - Distributed via CLI/Repository for validation (not bundled in SDK packages)
 - **Dev endpoint**: `/_spas/metadata` returns ZIP with metadata + all schemas (Development only)
 
 ### 📤 Event Publishing

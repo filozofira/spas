@@ -10,8 +10,10 @@ public class ServiceIdentityBuilderTests
     {
         // Arrange
         var builder = new ServiceIdentityBuilder()
+            .WithId("order-service")
             .WithName("order-service")
             .WithVersion("1.0.0")
+            .WithBoundedContext("orders")
             .WithDescription("Order processing service");
 
         // Act
@@ -19,8 +21,10 @@ public class ServiceIdentityBuilderTests
 
         // Assert
         Assert.NotNull(identity);
+        Assert.Equal("order-service", identity.Id);
         Assert.Equal("order-service", identity.Name);
         Assert.Equal("1.0.0", identity.Version);
+        Assert.Equal("orders", identity.BoundedContext);
         Assert.Equal("Order processing service", identity.Description);
     }
 
@@ -29,7 +33,9 @@ public class ServiceIdentityBuilderTests
     {
         // Arrange
         var builder = new ServiceIdentityBuilder()
-            .WithVersion("1.0.0");
+            .WithId("test-service")
+            .WithVersion("1.0.0")
+            .WithBoundedContext("test");
 
         // Act & Assert
         Assert.Throws<InvalidOperationException>(() => builder.Build());
@@ -47,34 +53,40 @@ public class ServiceIdentityBuilderTests
     }
 
     [Fact]
-    public void Build_WithOwner_IncludesOwner()
+    public void Build_WithCapabilities_IncludesCapabilities()
     {
         // Arrange
         var builder = new ServiceIdentityBuilder()
+            .WithId("order-service")
             .WithName("order-service")
             .WithVersion("1.0.0")
-            .WithOwner("platform-team");
+            .WithBoundedContext("orders")
+            .AddCapability("create-order")
+            .AddCapability("query-order");
 
         // Act
         var identity = builder.Build();
 
         // Assert
-        Assert.Equal("platform-team", identity.Owner);
+        Assert.Equal(2, identity.Capabilities.Count);
+        Assert.Contains("create-order", identity.Capabilities);
+        Assert.Contains("query-order", identity.Capabilities);
     }
 
     [Fact]
-    public void Build_WithRepository_IncludesRepository()
+    public void Build_WithBoundedContext_IncludesBoundedContext()
     {
         // Arrange
         var builder = new ServiceIdentityBuilder()
+            .WithId("order-service")
             .WithName("order-service")
             .WithVersion("1.0.0")
-            .WithRepository("https://github.com/org/order-service");
+            .WithBoundedContext("orders");
 
         // Act
         var identity = builder.Build();
 
         // Assert
-        Assert.Equal("https://github.com/org/order-service", identity.Repository);
+        Assert.Equal("orders", identity.BoundedContext);
     }
 }

@@ -10,7 +10,7 @@
  */
 
 import type { IStorageProvider } from './IStorageProvider';
-import type { ServiceMetadata, Schema, ServiceInfo } from '../models/types';
+import type { ServiceMetadata, Schema, ServiceInfo, Runtime } from '../models/types';
 
 interface PostgresS3Config {
   postgresUrl: string;
@@ -35,7 +35,8 @@ export class PostgresS3StorageProvider implements IStorageProvider {
     _name: string,
     _version: string,
     _metadata: ServiceMetadata,
-    _schemas: Schema[]
+    _schemas: Schema[],
+    _runtime?: Runtime
   ): Promise<void> {
     throw new NotImplementedError('PostgresS3StorageProvider not implemented');
   }

@@ -9,6 +9,16 @@ Repository service for the SPAS (Service Package Archive Schema) framework. Hand
 - **Search Services**: Query available services with advanced filtering
 - **Schema Management**: Store and evolve service schemas following SPAS evolution rules
 - **Validation**: Validate schemas against SPAS specification using JSON Schema
+- **Runtime Metadata**: Enrich design-time metadata with deployment information (image digests, tags)
+
+## Metadata Schemas
+
+The repository handles two types of metadata:
+
+- **Design-time Metadata** (`design-time-metadata-v1`): Authored by service developers, stored in `spas.json`
+- **Runtime Metadata** (`runtime-metadata-v1`): Repository output with design-time enriched with deployment info
+
+See [schemas/runtime-metadata-v1.schema.json](./schemas/runtime-metadata-v1.schema.json) for the complete runtime metadata schema specification.
 
 ## Tech Stack
 
@@ -87,6 +97,9 @@ Content-Type: multipart/form-data
 - `version` (path): Semantic version (e.g., "1.0.0")
 - `archive` (form field): ZIP file containing spas.json + schemas
 - `checksum` (form field, optional): SHA-256 checksum for verification
+- `imageDigest` (form field, optional): Docker image SHA256 digest (e.g., "sha256:abc123...")
+- `imageRepository` (form field, optional): Image repository (e.g., "ghcr.io/org/service")
+- `imageTag` (form field, optional): Image tag (e.g., "1.0.0", "latest")
 
 **Response:**
 - `201 Created`: Service published successfully
@@ -97,7 +110,10 @@ Content-Type: multipart/form-data
 ```bash
 curl -X POST http://localhost:3000/services/order-service:1.0.0 \
   -F "archive=@order-service-1.0.0.zip" \
-  -F "checksum=abc123..."
+  -F "checksum=abc123..." \
+  -F "imageDigest=sha256:def456..." \
+  -F "imageRepository=ghcr.io/myorg/order-service" \
+  -F "imageTag=1.0.0"
 ```
 
 ### Retrieval
@@ -126,9 +142,17 @@ curl http://localhost:3000/services/order-service
   "description": "Manages order lifecycle",
   "boundedContext": "orders",
   "capabilities": ["order-management", "payment-processing"],
-  "publishedAt": "2025-12-13T10:30:00Z"
+  "publishedAt": "2025-12-13T10:30:00Z",
+  "runtime": {
+    "digest": "sha256:def456...",
+    "repository": "ghcr.io/myorg/order-service",
+    "tag": "2.0.0",
+    "image": "ghcr.io/myorg/order-service@sha256:def456..."
+  }
 }
 ```
+
+**Note:** The `runtime` object is only present if runtime metadata was provided during publish.
 
 #### List Service Versions
 

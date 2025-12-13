@@ -5,18 +5,9 @@
  */
 
 import type { IStorageProvider } from '../storage/IStorageProvider';
-import type { ServiceMetadata, Schema } from '../models/types';
+import type { ServiceMetadata, Schema, ServiceInfo } from '../models/types';
 import { ArchiveBuilder } from './ArchiveBuilder';
 import { Readable } from 'stream';
-
-export interface ServiceInfo {
-  id: string;
-  name: string;
-  version: string;
-  description: string;
-  boundedContext: string;
-  capabilities: string[];
-}
 
 export interface ServiceVersionInfo {
   version: string;
@@ -53,6 +44,7 @@ export class RetrievalService {
       description: metadata.description || '',
       boundedContext: metadata.boundedContext,
       capabilities: metadata.capabilities || [],
+      runtime: metadata.runtime,
     };
   }
 

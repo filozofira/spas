@@ -9,7 +9,7 @@ import Database from 'better-sqlite3';
 import { readFileSync } from 'fs';
 import { join } from 'path';
 import type { IStorageProvider } from './IStorageProvider';
-import type { ServiceMetadata, Schema, ServiceInfo } from '../models/types';
+import type { ServiceMetadata, Schema, ServiceInfo, Runtime } from '../models/types';
 
 export class SqliteStorageProvider implements IStorageProvider {
   private db: Database.Database;
@@ -45,7 +45,8 @@ export class SqliteStorageProvider implements IStorageProvider {
     name: string,
     version: string,
     metadata: ServiceMetadata,
-    schemas: Schema[]
+    schemas: Schema[],
+    runtime?: Runtime
   ): Promise<void> {
     try {
       const transaction = this.db.transaction(() => {
@@ -54,8 +55,11 @@ export class SqliteStorageProvider implements IStorageProvider {
         const metadataJson = JSON.stringify(metadata);
 
         const insertService = this.db.prepare(`
-          INSERT INTO services (service_id, version, name, description, bounded_context, capabilities, metadata)
-          VALUES (?, ?, ?, ?, ?, ?, ?)
+          INSERT INTO services (
+            service_id, version, name, description, bounded_context, capabilities, metadata,
+            image_digest, image_repository, image_tag
+          )
+          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         `);
 
         insertService.run(
@@ -65,7 +69,10 @@ export class SqliteStorageProvider implements IStorageProvider {
           metadata.description,
           metadata.boundedContext,
           capabilities,
-          metadataJson
+          metadataJson,
+          runtime?.digest || null,
+          runtime?.repository || null,
+          runtime?.tag || null
         );
 
         // Insert schemas
@@ -90,16 +97,37 @@ export class SqliteStorageProvider implements IStorageProvider {
   }
 
   async getServiceMetadata(name: string, version: string): Promise<ServiceMetadata | null> {
-    const stmt = this.db.prepare(
-      'SELECT metadata FROM services WHERE service_id = ? AND version = ? LIMIT 1'
-    );
+    const stmt = this.db.prepare(`
+      SELECT metadata, image_digest, image_repository, image_tag 
+      FROM services 
+      WHERE service_id = ? AND version = ? 
+      LIMIT 1
+    `);
     const result = stmt.get(name, version) as any;
 
     if (!result) {
       return null;
     }
 
-    return JSON.parse(result.metadata);
+    const metadata = JSON.parse(result.metadata) as ServiceMetadata;
+
+    // Add runtime metadata if available
+    if (result.image_digest || result.image_repository || result.image_tag) {
+      metadata.runtime = {
+        digest: result.image_digest || undefined,
+        repository: result.image_repository || undefined,
+        tag: result.image_tag || undefined,
+        image: result.image_repository
+          ? result.image_digest
+            ? `${result.image_repository}@${result.image_digest}`
+            : result.image_tag
+              ? `${result.image_repository}:${result.image_tag}`
+              : undefined
+          : undefined,
+      };
+    }
+
+    return metadata;
   }
 
   async getServiceVersions(name: string): Promise<string[]> {
@@ -159,7 +187,10 @@ export class SqliteStorageProvider implements IStorageProvider {
         description,
         bounded_context,
         capabilities,
-        published_at
+        published_at,
+        image_digest,
+        image_repository,
+        image_tag
       FROM services, json_each(services.capabilities)
       WHERE json_each.value = ?
       GROUP BY service_id
@@ -174,17 +205,40 @@ export class SqliteStorageProvider implements IStorageProvider {
       bounded_context: string;
       capabilities: string;
       published_at: string;
+      image_digest: string | null;
+      image_repository: string | null;
+      image_tag: string | null;
     }>;
 
-    return results.map(r => ({
-      id: r.service_id,
-      name: r.name,
-      version: r.version,
-      description: r.description,
-      boundedContext: r.bounded_context,
-      capabilities: JSON.parse(r.capabilities),
-      publishedAt: r.published_at,
-    }));
+    return results.map(r => {
+      const info: ServiceInfo = {
+        id: r.service_id,
+        name: r.name,
+        version: r.version,
+        description: r.description,
+        boundedContext: r.bounded_context,
+        capabilities: JSON.parse(r.capabilities),
+        publishedAt: r.published_at,
+      };
+
+      // Add runtime if available
+      if (r.image_digest || r.image_repository || r.image_tag) {
+        info.runtime = {
+          digest: r.image_digest || undefined,
+          repository: r.image_repository || undefined,
+          tag: r.image_tag || undefined,
+          image: r.image_repository
+            ? r.image_digest
+              ? `${r.image_repository}@${r.image_digest}`
+              : r.image_tag
+                ? `${r.image_repository}:${r.image_tag}`
+                : undefined
+            : undefined,
+        };
+      }
+
+      return info;
+    });
   }
 
   async searchByBoundedContext(context: string): Promise<ServiceInfo[]> {
@@ -197,7 +251,10 @@ export class SqliteStorageProvider implements IStorageProvider {
         description,
         bounded_context,
         capabilities,
-        published_at
+        published_at,
+        image_digest,
+        image_repository,
+        image_tag
       FROM services
       WHERE bounded_context = ?
       GROUP BY service_id
@@ -212,17 +269,40 @@ export class SqliteStorageProvider implements IStorageProvider {
       bounded_context: string;
       capabilities: string;
       published_at: string;
+      image_digest: string | null;
+      image_repository: string | null;
+      image_tag: string | null;
     }>;
 
-    return results.map(r => ({
-      id: r.service_id,
-      name: r.name,
-      version: r.version,
-      description: r.description,
-      boundedContext: r.bounded_context,
-      capabilities: JSON.parse(r.capabilities),
-      publishedAt: r.published_at,
-    }));
+    return results.map(r => {
+      const info: ServiceInfo = {
+        id: r.service_id,
+        name: r.name,
+        version: r.version,
+        description: r.description,
+        boundedContext: r.bounded_context,
+        capabilities: JSON.parse(r.capabilities),
+        publishedAt: r.published_at,
+      };
+
+      // Add runtime if available
+      if (r.image_digest || r.image_repository || r.image_tag) {
+        info.runtime = {
+          digest: r.image_digest || undefined,
+          repository: r.image_repository || undefined,
+          tag: r.image_tag || undefined,
+          image: r.image_repository
+            ? r.image_digest
+              ? `${r.image_repository}@${r.image_digest}`
+              : r.image_tag
+                ? `${r.image_repository}:${r.image_tag}`
+                : undefined
+            : undefined,
+        };
+      }
+
+      return info;
+    });
   }
 
   async deleteService(name: string, version: string): Promise<void> {

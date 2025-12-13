@@ -11,6 +11,7 @@ import { registerRetrieveRoutes } from '../../src/routes/retrieve';
 import path from 'path';
 import fs from 'fs';
 import FormData from 'form-data';
+import unzipper from 'unzipper';
 
 describe('GET /services/* Integration', () => {
   let app: FastifyInstance;
@@ -21,6 +22,7 @@ describe('GET /services/* Integration', () => {
   // Test fixtures
   const fixturesDir = path.join(__dirname, '../fixtures');
   const validArchivePath = path.join(fixturesDir, 'valid-service.zip');
+  const correctIdArchivePath = path.join(fixturesDir, 'correct-id.zip');
 
   beforeAll(async () => {
     // Create ephemeral test database
@@ -62,11 +64,21 @@ describe('GET /services/* Integration', () => {
     }
   });
 
-  async function publishTestService(serviceId: string, version: string) {
+  async function publishTestService(serviceId: string, version: string, runtime?: { digest?: string; repository?: string; tag?: string }, archivePath: string = validArchivePath) {
     const form = new FormData();
-    form.append('archive', fs.createReadStream(validArchivePath), { 
+    form.append('archive', fs.createReadStream(archivePath), { 
       filename: `${serviceId}-${version}.zip` 
     });
+
+    if (runtime?.digest) {
+      form.append('imageDigest', runtime.digest);
+    }
+    if (runtime?.repository) {
+      form.append('imageRepository', runtime.repository);
+    }
+    if (runtime?.tag) {
+      form.append('imageTag', runtime.tag);
+    }
 
     try {
       await axios.post(
@@ -216,6 +228,68 @@ describe('GET /services/* Integration', () => {
       );
 
       expect(response.status).toBe(404);
+    });
+  });
+
+  describe('Runtime metadata retrieval', () => {
+    beforeAll(async () => {
+      // Publish correct-id with version 1.0.0 and runtime metadata
+      await publishTestService('correct-id', '1.0.0', {
+        digest: 'sha256:integration-test-digest',
+        repository: 'ghcr.io/test/integration-service',
+        tag: '1.0.0',
+      }, correctIdArchivePath);
+    });
+
+    it('should include runtime metadata in service info response', async () => {
+      const response = await axios.get(`${baseURL}/services/correct-id`, {
+        validateStatus: () => true,
+      });
+
+      expect(response.status).toBe(200);
+      expect(response.data.runtime).toBeDefined();
+      expect(response.data.runtime.digest).toBe('sha256:integration-test-digest');
+      expect(response.data.runtime.repository).toBe('ghcr.io/test/integration-service');
+      expect(response.data.runtime.tag).toBe('1.0.0');
+      expect(response.data.runtime.image).toBe('ghcr.io/test/integration-service@sha256:integration-test-digest');
+    });
+
+    it('should include runtime metadata in full metadata response', async () => {
+      const response = await axios.get(`${baseURL}/services/correct-id/versions/1.0.0`, {
+        validateStatus: () => true,
+      });
+
+      expect(response.status).toBe(200);
+      expect(response.data.runtime).toBeDefined();
+      expect(response.data.runtime.digest).toBe('sha256:integration-test-digest');
+      expect(response.data.runtime.repository).toBe('ghcr.io/test/integration-service');
+      expect(response.data.runtime.tag).toBe('1.0.0');
+    });
+
+    it('should include runtime metadata in downloaded ZIP archive', async () => {
+      const response = await axios.get(`${baseURL}/services/correct-id/versions/1.0.0/download`, {
+        responseType: 'arraybuffer',
+        validateStatus: () => true,
+      });
+
+      expect(response.status).toBe(200);
+      expect(response.headers['content-type']).toBe('application/zip');
+
+      // Extract and parse the ZIP archive
+      const directory = await unzipper.Open.buffer(Buffer.from(response.data));
+      const spasJsonFile = directory.files.find(f => f.path === 'spas.json');
+      
+      expect(spasJsonFile).toBeDefined();
+      
+      const spasJsonContent = await spasJsonFile!.buffer();
+      const metadata = JSON.parse(spasJsonContent.toString('utf-8'));
+
+      // Verify runtime metadata is present in spas.json
+      expect(metadata.runtime).toBeDefined();
+      expect(metadata.runtime.digest).toBe('sha256:integration-test-digest');
+      expect(metadata.runtime.repository).toBe('ghcr.io/test/integration-service');
+      expect(metadata.runtime.tag).toBe('1.0.0');
+      expect(metadata.runtime.image).toBe('ghcr.io/test/integration-service@sha256:integration-test-digest');
     });
   });
 

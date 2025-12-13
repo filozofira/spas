@@ -6,7 +6,7 @@
  * without modifying business logic (Open-Closed Principle).
  */
 
-import type { ServiceMetadata, Schema, ServiceInfo } from '../models/types';
+import type { ServiceMetadata, Schema, ServiceInfo, Runtime } from '../models/types';
 
 export interface IStorageProvider {
   /**
@@ -27,7 +27,8 @@ export interface IStorageProvider {
     name: string,
     version: string,
     metadata: ServiceMetadata,
-    schemas: Schema[]
+    schemas: Schema[],
+    runtime?: Runtime
   ): Promise<void>;
 
   /**

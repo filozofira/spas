@@ -96,6 +96,30 @@ describe('SqliteStorageProvider', () => {
       expect(schemas).toHaveLength(2);
       expect(schemas.map(s => s.name)).toEqual(['schema-1', 'schema-2']);
     });
+
+    it('should store runtime metadata when provided', async () => {
+      const runtime = {
+        digest: 'sha256:abc123',
+        repository: 'ghcr.io/test/service',
+        tag: '1.0.0',
+      };
+
+      await provider.publishService('test-service', '1.0.0', sampleMetadata, sampleSchemas, runtime);
+
+      const metadata = await provider.getServiceMetadata('test-service', '1.0.0');
+      expect(metadata?.runtime).toBeDefined();
+      expect(metadata?.runtime?.digest).toBe('sha256:abc123');
+      expect(metadata?.runtime?.repository).toBe('ghcr.io/test/service');
+      expect(metadata?.runtime?.tag).toBe('1.0.0');
+      expect(metadata?.runtime?.image).toBe('ghcr.io/test/service@sha256:abc123');
+    });
+
+    it('should handle missing runtime metadata gracefully', async () => {
+      await provider.publishService('test-service', '1.0.0', sampleMetadata, sampleSchemas);
+
+      const metadata = await provider.getServiceMetadata('test-service', '1.0.0');
+      expect(metadata?.runtime).toBeUndefined();
+    });
   });
 
   describe('serviceExists', () => {
@@ -429,6 +453,38 @@ describe('SqliteStorageProvider', () => {
     it('should return empty array when repository is empty', async () => {
       const results = await provider.searchByCapability('any-capability');
       expect(results).toEqual([]);
+    });
+
+    it('should include runtime metadata in search results when available', async () => {
+      const metadata: ServiceMetadata = {
+        schemaVersion: 'design-time-metadata-v1',
+        id: 'runtime-test',
+        name: 'Runtime Test Service',
+        description: 'Service with runtime metadata',
+        version: '1.0.0',
+        boundedContext: 'testing',
+        capabilities: ['runtime-capability'],
+        endpoints: [],
+        events: [],
+        consistency: { commands: 'ACID', queries: 'STRONG' },
+        network: { requiredEgress: [] },
+        security: { dataClassification: ['internal'] },
+        license: 'MIT',
+      };
+
+      const runtime = {
+        digest: 'sha256:xyz789',
+        repository: 'ghcr.io/test/runtime-service',
+        tag: '1.0.0',
+      };
+
+      await provider.publishService('runtime-test', '1.0.0', metadata, [], runtime);
+
+      const results = await provider.searchByCapability('runtime-capability');
+      expect(results).toHaveLength(1);
+      expect(results[0].runtime).toBeDefined();
+      expect(results[0].runtime?.digest).toBe('sha256:xyz789');
+      expect(results[0].runtime?.image).toBe('ghcr.io/test/runtime-service@sha256:xyz789');
     });
   });
 

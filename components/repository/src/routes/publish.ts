@@ -61,6 +61,9 @@ export async function registerPublishRoutes(
       const parts = request.parts();
       let archiveStream: any = null;
       let checksum: string | undefined;
+      let imageDigest: string | undefined;
+      let imageRepository: string | undefined;
+      let imageTag: string | undefined;
 
       try {
         for await (const part of parts) {
@@ -68,6 +71,12 @@ export async function registerPublishRoutes(
             archiveStream = part.file;
           } else if (part.fieldname === 'checksum' && 'value' in part) {
             checksum = String(part.value);
+          } else if (part.fieldname === 'imageDigest' && 'value' in part) {
+            imageDigest = String(part.value);
+          } else if (part.fieldname === 'imageRepository' && 'value' in part) {
+            imageRepository = String(part.value);
+          } else if (part.fieldname === 'imageTag' && 'value' in part) {
+            imageTag = String(part.value);
           }
         }
       } catch (err) {
@@ -101,6 +110,13 @@ export async function registerPublishRoutes(
         version,
         archiveStream,
         checksum,
+        runtime: imageDigest || imageRepository || imageTag
+          ? {
+              digest: imageDigest,
+              repository: imageRepository,
+              tag: imageTag,
+            }
+          : undefined,
       });
 
       return reply.status(201).send({

@@ -36,7 +36,7 @@ Service developers using the .NET SDK must generate `spas.json` that exactly mat
 
 - **FR-001**: SDK MUST generate and validate design-time metadata against `design-time-metadata-v1` (no runtime emission from SDK)
 - **FR-002**: SDK MUST include required fields: `id`, `name`, `description`, `version`, `boundedContext`, `capabilities`, `endpoints[]`, `events[]`, `consistency`, `network.requiredEgress`, `security`, `license`, and `schemaVersion`
-- **FR-003**: SDK MUST represent commands and queries as a single `endpoints[]` array with `type` (`Command`|`Query`), `protocol` (`Http`|`gRPC`), `methodPath` (HTTP route or gRPC method path), `version`, `schema`
+- **FR-003**: SDK MUST represent commands and queries as a single `endpoints[]` array with `type` (`Command`|`Query`), `protocol` (`Http`|`gRPC`), `methodPath` (HTTP route or gRPC method path), `version`, `schemaRef` (reference to registry or local schema)
 - **FR-004**: SDK MUST support outbound-only `events[]` with `type`, `version`, `schemaRef`; inbound events are handled via choreography/sidecar, not listed in metadata
 - **FR-005**: SDK MUST include `consistency` (`commands`: ACID, `queries`: STRONG|EVENTUAL)
 - **FR-006**: SDK MUST include `network.requiredEgress[]`; `allowedEgress` is determined later by choreography/domain context
@@ -54,6 +54,9 @@ Service developers using the .NET SDK must generate `spas.json` that exactly mat
 
 ## Clarifications (Resolved)
 
+### Session 2025-12-13
+
+- Q: Should endpoints carry `schemaRef` (like events) or inline `schema`? → A: Endpoints use `schemaRef` (reference to registry or local schema)
 - Endpoint field strategy: use `methodPath` (protocol-agnostic) with `protocol` to distinguish HTTP vs gRPC; single endpoints array for commands/queries
 - Security model: replace `level` with optional `authentication` (e.g., jwt + requiredScopes) plus `dataClassification[]`; choreography governs domain-context security level
 - Health representation: rely on standard health endpoints/convention; no dedicated health block in the schema

@@ -89,6 +89,11 @@ Service developers using the .NET SDK must generate `spas.json` that exactly mat
 - CLI tools (Phase 3) will consume this metadata format
 - Existing .NET SDK implementation (specs/001-dotnet-spas-sdk)
 
+## Platform
+
+- SDK and sample projects target **.NET net10.0** (per csproj). Plans, tasks, and validation should assume net10.0 unless explicitly overridden.
+- Testing framework: **xUnit** for SDK unit tests and validation tasks.
+
 ## Out of Scope
 
 - Changing fundamental SDK architecture or builder patterns

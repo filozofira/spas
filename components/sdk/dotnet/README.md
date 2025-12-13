@@ -6,6 +6,11 @@
 
 The .NET SDK for building **SPAS (Self-contained, Portable, Adaptable Services)** - services that publish rich metadata, communicate via events, and maintain distributed trace context.
 
+> Platform:
+>
+> - SDK and sample projects target **.NET net10.0**. Plans, tasks, and validation assume net10.0 unless explicitly overridden.
+> - Testing framework: **xUnit** for SDK unit tests and validation tasks.
+
 ## 📦 What is SPAS?
 
 SPAS is an architectural framework where:

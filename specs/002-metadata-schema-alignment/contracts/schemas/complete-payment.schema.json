@@ -1,0 +1,10 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://spas.dev/example/schemas/complete-payment.schema.json",
+  "type": "object",
+  "required": ["paymentId", "amount"],
+  "properties": {
+    "paymentId": {"type": "string"},
+    "amount": {"type": "number", "minimum": 0}
+  }
+}

@@ -559,3 +559,65 @@ composer.ComposeToFile(path, identity, contracts, security, health);
 **Last updated:** December 11, 2025  
 **By:** GitHub Copilot  
 **Status:** Ready for Phase 1 (SDK Development)
+
+---
+
+## 🧭 Agent Activity Log (Dec 13, 2025)
+
+### What Was Done
+
+- Initialized Repository Service feature and branch:
+  - Branch: `003-repository-service`
+  - Paths: `specs/003-repository-service/`
+- Authored and refined repository specification:
+  - Updated `specs/003-repository-service/spec.md` to:
+    - Use path-keyed publish endpoint `POST /v1/services/{serviceName}:{version}`
+    - PoC content type: `multipart/form-data` with part `archive` (ZIP containing `spas.json` + `schemas/`)
+    - Added checksum delivery via multipart part `checksum` (FR-008a) and path identity validation (FR-034a)
+    - Replaced domainContext with boundedContext across spec (User Story 4 + FRs)
+    - Fixed FR numbering consistency
+- Updated principles to match decisions:
+  - `principles/component/11-repository.md`: Publish endpoint path-keyed; PoC multipart; boundedContext search; validation notes
+- Generated plan and Phase 0/1 artifacts:
+  - `specs/003-repository-service/plan.md`: Filled Summary, Technical Context (NEEDS DECISION for language/storage), Constitution Check, proposed structure
+  - `specs/003-repository-service/research.md`: Tech options shortlists (language, libs, storage), validation sequence, recommendation (marked NEEDS DECISION)
+  - `specs/003-repository-service/data-model.md`: Entities and relationships
+  - `specs/003-repository-service/contracts/openapi.yaml`: Initial OpenAPI reflecting path-keyed POST + multipart `archive`/`checksum`, core GET endpoints
+  - `specs/003-repository-service/quickstart.md`: Curl examples for publish/retrieve/search
+
+### What Failed or Needed Adjustments
+
+- Minor patch application errors due to context mismatch; resolved by reading current file range and reapplying patches precisely.
+- Detected duplicate FR numbers after refactor; corrected to sequential numbering.
+
+### Precise Next Steps
+
+1. Decide implementation language/runtime (PoC):
+   - Options: .NET 10 Minimal API, Node.js 20 Fastify, Python 3.11 FastAPI
+   - My recommendation for PoC speed: Node.js 20 + Fastify (+ Ajv, `unzipper`)
+2. Confirm production storage targets:
+   - Metadata: PostgreSQL (JSONB)
+   - Schemas: S3-compatible object store
+3. Once decided, update:
+   - `specs/003-repository-service/plan.md` Technical Context
+   - `research.md` Decision section
+4. Scaffold repository service in `components/repository/` with selected stack:
+   - Implement `/v1/services/{serviceName}:{version}` (multipart `archive` + `checksum`) with path identity validation
+   - Implement retrieval endpoints and file-based storage (PoC)
+   - Add unit tests per user stories (at least publish, retrieve, search)
+5. Run SpecKit agent context update:
+   - `.specify/scripts/powershell/update-agent-context.ps1 -AgentType copilot`
+6. Optional: Add `tasks.md` for this feature (Phase 2 planning) via SpecKit
+
+### Quick Repro / Validation
+
+- Spec and contracts:
+  - Check `specs/003-repository-service/spec.md` and `contracts/openapi.yaml`
+- Quickstart publish example:
+  - See `specs/003-repository-service/quickstart.md`
+
+### Contact Points / References
+
+- Principles source-of-truth: `principles/component/11-repository.md`
+- Constitution (PoC vs Prod gates): `.specify/memory/constitution.md`
+- Current branch context: `003-repository-service`

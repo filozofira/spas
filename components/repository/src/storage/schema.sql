@@ -11,7 +11,13 @@ CREATE TABLE IF NOT EXISTS services (
   description TEXT NOT NULL,
   bounded_context TEXT NOT NULL,
   capabilities TEXT NOT NULL, -- JSON array stored as TEXT
-  metadata JSON NOT NULL, -- Full runtime metadata (design-time + runtime fields)
+  metadata JSON NOT NULL, -- Design-time metadata (spas.json)
+  
+  -- Runtime metadata (added by Repository at publish time)
+  image_digest TEXT, -- SHA256 digest (e.g., sha256:abc123...)
+  image_repository TEXT, -- e.g., ghcr.io/org/payment-service
+  image_tag TEXT, -- e.g., 1.0.0 or latest
+  
   published_at DATETIME DEFAULT CURRENT_TIMESTAMP,
   created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
   updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
@@ -39,5 +45,6 @@ CREATE TABLE IF NOT EXISTS schemas (
 -- Indexes for search performance
 CREATE INDEX IF NOT EXISTS idx_services_service_id ON services(service_id);
 CREATE INDEX IF NOT EXISTS idx_services_bounded_context ON services(bounded_context);
+CREATE INDEX IF NOT EXISTS idx_services_image_digest ON services(image_digest);
 CREATE INDEX IF NOT EXISTS idx_schemas_service ON schemas(service_id, service_version);
 CREATE INDEX IF NOT EXISTS idx_schemas_type ON schemas(type);

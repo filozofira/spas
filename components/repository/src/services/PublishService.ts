@@ -9,6 +9,7 @@
  */
 
 import type { IStorageProvider } from '../storage/IStorageProvider';
+import type { Runtime } from '../models/types';
 import { ArchiveService } from './ArchiveService';
 import { SpasSchemaValidator } from '../validation/SpasSchemaValidator';
 import { SchemaEvolutionValidator } from '../validation/SchemaEvolutionValidator';
@@ -20,6 +21,11 @@ export interface PublishRequest {
   version: string;
   archiveStream: Readable;
   checksum?: string;
+  runtime?: {
+    digest?: string;
+    repository?: string;
+    tag?: string;
+  };
 }
 
 export class PublishService {
@@ -41,7 +47,7 @@ export class PublishService {
    * Implements FR-001 through FR-010
    */
   async publish(request: PublishRequest): Promise<void> {
-    const { serviceId, version, archiveStream, checksum } = request;
+    const { serviceId, version, archiveStream, checksum, runtime } = request;
 
     // FR-002: Validate version format
     VersionValidator.validate(version);
@@ -135,7 +141,25 @@ export class PublishService {
       publishedAt: new Date().toISOString(),
     };
 
-    await this.storage.publishService(serviceId, version, runtimeMetadata, schemas);
+    // Build runtime metadata from request if provided
+    let runtimeInfo: Runtime | undefined;
+    if (runtime?.digest || runtime?.repository || runtime?.tag) {
+      runtimeInfo = {
+        digest: runtime.digest,
+        repository: runtime.repository,
+        tag: runtime.tag,
+        // Construct full image reference if we have repository and either tag or digest
+        image: runtime.repository 
+          ? runtime.digest 
+            ? `${runtime.repository}@${runtime.digest}`
+            : runtime.tag
+              ? `${runtime.repository}:${runtime.tag}`
+              : undefined
+          : undefined,
+      };
+    }
+
+    await this.storage.publishService(serviceId, version, runtimeMetadata, schemas, runtimeInfo);
   }
 }
 

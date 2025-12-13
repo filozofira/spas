@@ -54,7 +54,10 @@ export interface Security {
  * Runtime deployment details (added by repository)
  */
 export interface Runtime {
-  image: string; // OCI image reference or digest
+  image?: string; // Full OCI reference with digest (e.g., ghcr.io/org/service@sha256:...)
+  repository?: string; // Image repository (e.g., ghcr.io/org/service)
+  tag?: string; // Image tag (e.g., 1.0.0, latest)
+  digest?: string; // SHA256 digest (e.g., sha256:abc123...)
   resources?: {
     cpu?: string;
     memory?: string;
@@ -105,6 +108,7 @@ export interface ServiceInfo {
   boundedContext: string;
   capabilities: string[];
   publishedAt?: string;
+  runtime?: Runtime; // Runtime metadata if available
 }
 
 /**

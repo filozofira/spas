@@ -121,6 +121,30 @@ describe('POST /services/{serviceId}:{version} Integration', () => {
 
       expect(response.status).toBe(201);
     });
+
+    it('should accept and store runtime metadata when provided', async () => {
+      const form = new FormData();
+      form.append('archive', fs.createReadStream(correctIdArchivePath), { filename: 'correct-id-1.0.0.zip' });
+      form.append('imageDigest', 'sha256:abc123def456');
+      form.append('imageRepository', 'ghcr.io/test/runtime-service');
+      form.append('imageTag', '1.0.0');
+
+      const response = await axios.post(
+        `${baseURL}/services/correct-id:1.0.0`,
+        form,
+        { headers: form.getHeaders(), validateStatus: () => true }
+      );
+
+      expect(response.status).toBe(201);
+
+      // Verify runtime metadata was stored
+      const metadata = await storageProvider.getServiceMetadata('correct-id', '1.0.0');
+      expect(metadata?.runtime).toBeDefined();
+      expect(metadata?.runtime?.digest).toBe('sha256:abc123def456');
+      expect(metadata?.runtime?.repository).toBe('ghcr.io/test/runtime-service');
+      expect(metadata?.runtime?.tag).toBe('1.0.0');
+      expect(metadata?.runtime?.image).toBe('ghcr.io/test/runtime-service@sha256:abc123def456');
+    });
   });
 
   describe('Path validation', () => {

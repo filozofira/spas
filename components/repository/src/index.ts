@@ -105,8 +105,10 @@ export async function start(): Promise<FastifyInstance> {
   const { registerPublishRoutes } = await import('./routes/publish');
   await registerPublishRoutes(fastifyInstance, config.spasSchemaPath);
 
+  const { registerRetrieveRoutes } = await import('./routes/retrieve');
+  await registerRetrieveRoutes(fastifyInstance);
+
   // TODO: Register additional routes when implemented
-  // fastifyInstance.register(retrieveRoutes);
   // fastifyInstance.register(searchRoutes);
   // fastifyInstance.register(unpublishRoutes);
 

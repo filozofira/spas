@@ -90,27 +90,27 @@
 
 ### Tests for User Story 2
 
-- [ ] T031 [P] [US2] Unit test for SqliteStorageProvider.getServiceMetadata in `test/unit/storage/sqlite-storage-provider.test.ts`
-- [ ] T032 [P] [US2] Unit test for SqliteStorageProvider.getServiceVersions in `test/unit/storage/sqlite-storage-provider.test.ts` (descending order per FR-012)
-- [ ] T033 [P] [US2] Unit test for SqliteStorageProvider.getSchemas in `test/unit/storage/sqlite-storage-provider.test.ts`
-- [ ] T034 [P] [US2] Integration test for all retrieval endpoints in `test/integration/retrieve.test.ts` (all acceptance scenarios from spec.md)
+- [X] T031 [P] [US2] Unit test for SqliteStorageProvider.getServiceMetadata in `test/unit/storage/sqlite-storage-provider.test.ts`
+- [X] T032 [P] [US2] Unit test for SqliteStorageProvider.getServiceVersions in `test/unit/storage/sqlite-storage-provider.test.ts` (descending order per FR-012)
+- [X] T033 [P] [US2] Unit test for SqliteStorageProvider.getSchemas in `test/unit/storage/sqlite-storage-provider.test.ts`
+- [X] T034 [P] [US2] Integration test for all retrieval endpoints in `test/integration/retrieve.test.ts` (all acceptance scenarios from spec.md)
 
 ### Implementation for User Story 2
 
-- [ ] T035 [P] [US2] Implement SqliteStorageProvider.getServiceMetadata in `src/storage/SqliteStorageProvider.ts` (retrieve from services table by name+version)
-- [ ] T036 [P] [US2] Implement SqliteStorageProvider.getServiceVersions in `src/storage/SqliteStorageProvider.ts` (ORDER BY version DESC per FR-012)
-- [ ] T037 [P] [US2] Implement SqliteStorageProvider.getLatestVersion in `src/storage/SqliteStorageProvider.ts`
-- [ ] T038 [P] [US2] Implement SqliteStorageProvider.getSchemas in `src/storage/SqliteStorageProvider.ts` (join with schemas table)
-- [ ] T039 [P] [US2] Implement SqliteStorageProvider.getSchema in `src/storage/SqliteStorageProvider.ts` (single schema by name)
-- [ ] T040 [US2] Create ArchiveBuilder in `src/services/ArchiveBuilder.ts` (generate ZIP with spas.json + schemas for download endpoint per FR-014)
-- [ ] T041 [US2] Create RetrievalService in `src/services/RetrievalService.ts` (orchestrate metadata retrieval, schema assembly)
-- [ ] T042 [P] [US2] Implement GET /services/{serviceName} route in `src/routes/retrieve.ts`
-- [ ] T043 [P] [US2] Implement GET /services/{serviceName}/versions route in `src/routes/retrieve.ts`
-- [ ] T044 [P] [US2] Implement GET /services/{serviceName}/versions/{version} route in `src/routes/retrieve.ts`
-- [ ] T045 [P] [US2] Implement GET /services/{serviceName}/versions/{version}/schemas route in `src/routes/retrieve.ts`
-- [ ] T046 [P] [US2] Implement GET /services/{serviceName}/versions/{version}/schemas/{schemaName} route in `src/routes/retrieve.ts`
-- [ ] T047 [P] [US2] Implement GET /services/{serviceName}/versions/{version}/download route in `src/routes/retrieve.ts` (ZIP generation)
-- [ ] T048 [US2] Register retrieval routes in `src/index.ts`
+- [X] T035 [P] [US2] Implement SqliteStorageProvider.getServiceMetadata in `src/storage/SqliteStorageProvider.ts` (retrieve from services table by name+version)
+- [X] T036 [P] [US2] Implement SqliteStorageProvider.getServiceVersions in `src/storage/SqliteStorageProvider.ts` (ORDER BY version DESC per FR-012)
+- [X] T037 [P] [US2] Implement SqliteStorageProvider.getLatestVersion in `src/storage/SqliteStorageProvider.ts`
+- [X] T038 [P] [US2] Implement SqliteStorageProvider.getSchemas in `src/storage/SqliteStorageProvider.ts` (join with schemas table)
+- [X] T039 [P] [US2] Implement SqliteStorageProvider.getSchema in `src/storage/SqliteStorageProvider.ts` (single schema by name)
+- [X] T040 [US2] Create ArchiveBuilder in `src/services/ArchiveBuilder.ts` (generate ZIP with spas.json + schemas for download endpoint per FR-014)
+- [X] T041 [US2] Create RetrievalService in `src/services/RetrievalService.ts` (orchestrate metadata retrieval, schema assembly)
+- [X] T042 [P] [US2] Implement GET /services/{serviceName} route in `src/routes/retrieve.ts`
+- [X] T043 [P] [US2] Implement GET /services/{serviceName}/versions route in `src/routes/retrieve.ts`
+- [X] T044 [P] [US2] Implement GET /services/{serviceName}/versions/{version} route in `src/routes/retrieve.ts`
+- [X] T045 [P] [US2] Implement GET /services/{serviceName}/versions/{version}/schemas route in `src/routes/retrieve.ts`
+- [X] T046 [P] [US2] Implement GET /services/{serviceName}/versions/{version}/schemas/{schemaName} route in `src/routes/retrieve.ts`
+- [X] T047 [P] [US2] Implement GET /services/{serviceName}/versions/{version}/download route in `src/routes/retrieve.ts` (ZIP generation)
+- [X] T048 [US2] Register retrieval routes in `src/index.ts`
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently (publish and retrieve)
 

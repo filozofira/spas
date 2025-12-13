@@ -9,7 +9,7 @@ import Database from 'better-sqlite3';
 import { readFileSync } from 'fs';
 import { join } from 'path';
 import type { IStorageProvider } from './IStorageProvider';
-import type { ServiceMetadata, Schema } from '../models/types';
+import type { ServiceMetadata, Schema, ServiceInfo } from '../models/types';
 
 export class SqliteStorageProvider implements IStorageProvider {
   private db: Database.Database;
@@ -148,67 +148,81 @@ export class SqliteStorageProvider implements IStorageProvider {
     };
   }
 
-  async searchByCapability(
-    capability: string,
-    limit = 10,
-    offset = 0
-  ): Promise<{ results: Array<{ name: string; version: string; title: string }>; total: number }> {
-    // Count total matching
-    const countStmt = this.db.prepare(`
-      SELECT COUNT(*) as count FROM services
-      WHERE json_extract(capabilities, '$') LIKE ?
-    `);
-    const countResult = countStmt.get(`%"${capability}"%`) as any;
-    const total = countResult?.count || 0;
-
-    // Get paginated results
+  async searchByCapability(capability: string): Promise<ServiceInfo[]> {
+    // Use json_each to query JSON array of capabilities
+    // Return latest version only per service using GROUP BY and MAX(version)
     const stmt = this.db.prepare(`
-      SELECT service_id, version, name FROM services
-      WHERE json_extract(capabilities, '$') LIKE ?
+      SELECT 
+        service_id,
+        MAX(version) as version,
+        name,
+        description,
+        bounded_context,
+        capabilities,
+        published_at
+      FROM services, json_each(services.capabilities)
+      WHERE json_each.value = ?
+      GROUP BY service_id
       ORDER BY published_at DESC
-      LIMIT ? OFFSET ?
     `);
-    const results = stmt.all(`%"${capability}"%`, limit, offset) as Array<{
+    
+    const results = stmt.all(capability) as Array<{
       service_id: string;
       version: string;
       name: string;
+      description: string;
+      bounded_context: string;
+      capabilities: string;
+      published_at: string;
     }>;
 
-    return { 
-      results: results.map(r => ({ name: r.service_id, version: r.version, title: r.name })), 
-      total 
-    };
+    return results.map(r => ({
+      id: r.service_id,
+      name: r.name,
+      version: r.version,
+      description: r.description,
+      boundedContext: r.bounded_context,
+      capabilities: JSON.parse(r.capabilities),
+      publishedAt: r.published_at,
+    }));
   }
 
-  async searchByBoundedContext(
-    context: string,
-    limit = 10,
-    offset = 0
-  ): Promise<{ results: Array<{ name: string; version: string; title: string }>; total: number }> {
-    // Count total matching
-    const countStmt = this.db.prepare(`
-      SELECT COUNT(*) as count FROM services WHERE bounded_context = ?
-    `);
-    const countResult = countStmt.get(context) as any;
-    const total = countResult?.count || 0;
-
-    // Get paginated results
+  async searchByBoundedContext(context: string): Promise<ServiceInfo[]> {
+    // Return latest version only per service using GROUP BY and MAX(version)
     const stmt = this.db.prepare(`
-      SELECT service_id, version, name FROM services
+      SELECT 
+        service_id,
+        MAX(version) as version,
+        name,
+        description,
+        bounded_context,
+        capabilities,
+        published_at
+      FROM services
       WHERE bounded_context = ?
+      GROUP BY service_id
       ORDER BY published_at DESC
-      LIMIT ? OFFSET ?
     `);
-    const results = stmt.all(context, limit, offset) as Array<{
+    
+    const results = stmt.all(context) as Array<{
       service_id: string;
       version: string;
       name: string;
+      description: string;
+      bounded_context: string;
+      capabilities: string;
+      published_at: string;
     }>;
 
-    return { 
-      results: results.map(r => ({ name: r.service_id, version: r.version, title: r.name })), 
-      total 
-    };
+    return results.map(r => ({
+      id: r.service_id,
+      name: r.name,
+      version: r.version,
+      description: r.description,
+      boundedContext: r.bounded_context,
+      capabilities: JSON.parse(r.capabilities),
+      publishedAt: r.published_at,
+    }));
   }
 
   async deleteService(name: string, version: string): Promise<void> {

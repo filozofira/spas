@@ -331,4 +331,204 @@ describe('SqliteStorageProvider', () => {
       expect(retrieved).toBeNull();
     });
   });
+
+  describe('searchByCapability', () => {
+    it('should return services with matching capability', async () => {
+      const paymentService: ServiceMetadata = {
+        schemaVersion: 'design-time-metadata-v1',
+        id: 'payment-service',
+        name: 'Payment Service',
+        description: 'Handles payments',
+        version: '1.0.0',
+        boundedContext: 'payments',
+        capabilities: ['payment-processing', 'refunds'],
+        endpoints: [],
+        events: [],
+        consistency: { commands: 'ACID', queries: 'STRONG' },
+        network: { requiredEgress: [] },
+        security: { dataClassification: ['internal'] },
+        license: 'MIT',
+      };
+
+      const orderService: ServiceMetadata = {
+        schemaVersion: 'design-time-metadata-v1',
+        id: 'order-service',
+        name: 'Order Service',
+        description: 'Manages orders',
+        version: '1.0.0',
+        boundedContext: 'orders',
+        capabilities: ['order-management', 'payment-processing'],
+        endpoints: [],
+        events: [],
+        consistency: { commands: 'ACID', queries: 'STRONG' },
+        network: { requiredEgress: [] },
+        security: { dataClassification: ['internal'] },
+        license: 'MIT',
+      };
+
+      await provider.publishService('payment-service', '1.0.0', paymentService, []);
+      await provider.publishService('order-service', '1.0.0', orderService, []);
+
+      const results = await provider.searchByCapability('payment-processing');
+      
+      expect(results).toHaveLength(2);
+      expect(results.map(r => r.id)).toContain('payment-service');
+      expect(results.map(r => r.id)).toContain('order-service');
+    });
+
+    it('should return latest version only per service', async () => {
+      const metadata: ServiceMetadata = {
+        schemaVersion: 'design-time-metadata-v1',
+        id: 'multi-version',
+        name: 'Multi Version Service',
+        description: 'Service with multiple versions',
+        version: '1.0.0',
+        boundedContext: 'testing',
+        capabilities: ['test-capability'],
+        endpoints: [],
+        events: [],
+        consistency: { commands: 'ACID', queries: 'STRONG' },
+        network: { requiredEgress: [] },
+        security: { dataClassification: ['internal'] },
+        license: 'MIT',
+      };
+
+      await provider.publishService('multi-version', '1.0.0', metadata, []);
+      await provider.publishService('multi-version', '2.0.0', { ...metadata, version: '2.0.0' }, []);
+      await provider.publishService('multi-version', '1.5.0', { ...metadata, version: '1.5.0' }, []);
+
+      const results = await provider.searchByCapability('test-capability');
+      
+      expect(results).toHaveLength(1);
+      expect(results[0].version).toBe('2.0.0'); // Latest version
+    });
+
+    it('should return empty array when no services match', async () => {
+      const metadata: ServiceMetadata = {
+        schemaVersion: 'design-time-metadata-v1',
+        id: 'no-match',
+        name: 'No Match Service',
+        description: 'Service without matching capability',
+        version: '1.0.0',
+        boundedContext: 'testing',
+        capabilities: ['other-capability'],
+        endpoints: [],
+        events: [],
+        consistency: { commands: 'ACID', queries: 'STRONG' },
+        network: { requiredEgress: [] },
+        security: { dataClassification: ['internal'] },
+        license: 'MIT',
+      };
+
+      await provider.publishService('no-match', '1.0.0', metadata, []);
+
+      const results = await provider.searchByCapability('payment-processing');
+      expect(results).toEqual([]);
+    });
+
+    it('should return empty array when repository is empty', async () => {
+      const results = await provider.searchByCapability('any-capability');
+      expect(results).toEqual([]);
+    });
+  });
+
+  describe('searchByBoundedContext', () => {
+    it('should return services in matching bounded context', async () => {
+      const paymentService: ServiceMetadata = {
+        schemaVersion: 'design-time-metadata-v1',
+        id: 'payment-service',
+        name: 'Payment Service',
+        description: 'Handles payments',
+        version: '1.0.0',
+        boundedContext: 'payments',
+        capabilities: ['payment-processing'],
+        endpoints: [],
+        events: [],
+        consistency: { commands: 'ACID', queries: 'STRONG' },
+        network: { requiredEgress: [] },
+        security: { dataClassification: ['internal'] },
+        license: 'MIT',
+      };
+
+      const orderService: ServiceMetadata = {
+        schemaVersion: 'design-time-metadata-v1',
+        id: 'order-service',
+        name: 'Order Service',
+        description: 'Manages orders',
+        version: '1.0.0',
+        boundedContext: 'orders',
+        capabilities: ['order-management'],
+        endpoints: [],
+        events: [],
+        consistency: { commands: 'ACID', queries: 'STRONG' },
+        network: { requiredEgress: [] },
+        security: { dataClassification: ['internal'] },
+        license: 'MIT',
+      };
+
+      await provider.publishService('payment-service', '1.0.0', paymentService, []);
+      await provider.publishService('order-service', '1.0.0', orderService, []);
+
+      const results = await provider.searchByBoundedContext('payments');
+      
+      expect(results).toHaveLength(1);
+      expect(results[0].id).toBe('payment-service');
+      expect(results[0].boundedContext).toBe('payments');
+    });
+
+    it('should return latest version only per service', async () => {
+      const metadata: ServiceMetadata = {
+        schemaVersion: 'design-time-metadata-v1',
+        id: 'multi-version',
+        name: 'Multi Version Service',
+        description: 'Service with multiple versions',
+        version: '1.0.0',
+        boundedContext: 'testing',
+        capabilities: [],
+        endpoints: [],
+        events: [],
+        consistency: { commands: 'ACID', queries: 'STRONG' },
+        network: { requiredEgress: [] },
+        security: { dataClassification: ['internal'] },
+        license: 'MIT',
+      };
+
+      await provider.publishService('multi-version', '1.0.0', metadata, []);
+      await provider.publishService('multi-version', '2.0.0', { ...metadata, version: '2.0.0' }, []);
+      await provider.publishService('multi-version', '1.5.0', { ...metadata, version: '1.5.0' }, []);
+
+      const results = await provider.searchByBoundedContext('testing');
+      
+      expect(results).toHaveLength(1);
+      expect(results[0].version).toBe('2.0.0'); // Latest version
+    });
+
+    it('should return empty array when no services match', async () => {
+      const metadata: ServiceMetadata = {
+        schemaVersion: 'design-time-metadata-v1',
+        id: 'no-match',
+        name: 'No Match Service',
+        description: 'Service in different context',
+        version: '1.0.0',
+        boundedContext: 'payments',
+        capabilities: [],
+        endpoints: [],
+        events: [],
+        consistency: { commands: 'ACID', queries: 'STRONG' },
+        network: { requiredEgress: [] },
+        security: { dataClassification: ['internal'] },
+        license: 'MIT',
+      };
+
+      await provider.publishService('no-match', '1.0.0', metadata, []);
+
+      const results = await provider.searchByBoundedContext('orders');
+      expect(results).toEqual([]);
+    });
+
+    it('should return empty array when repository is empty', async () => {
+      const results = await provider.searchByBoundedContext('any-context');
+      expect(results).toEqual([]);
+    });
+  });
 });

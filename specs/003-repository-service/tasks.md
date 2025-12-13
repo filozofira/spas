@@ -124,15 +124,15 @@
 
 ### Tests for User Story 3
 
-- [ ] T049 [P] [US3] Unit test for SqliteStorageProvider.searchByCapability in `test/unit/storage/sqlite-storage-provider.test.ts` (JSON array query)
-- [ ] T050 [P] [US3] Integration test for GET /services?capability={cap} in `test/integration/search.test.ts` (all acceptance scenarios from spec.md)
+- [X] T049 [P] [US3] Unit test for SqliteStorageProvider.searchByCapability in `test/unit/storage/sqlite-storage-provider.test.ts` (JSON array query)
+- [X] T050 [P] [US3] Integration test for GET /services?capability={cap} in `test/integration/search.test.ts` (all acceptance scenarios from spec.md)
 
 ### Implementation for User Story 3
 
-- [ ] T051 [US3] Implement SqliteStorageProvider.searchByCapability in `src/storage/SqliteStorageProvider.ts` using json_each() for JSON array query per research.md
-- [ ] T052 [US3] Create SearchService in `src/services/SearchService.ts` (capability search orchestration, result formatting)
-- [ ] T053 [US3] Implement GET /services?capability={cap} route in `src/routes/search.ts`
-- [ ] T054 [US3] Register search route in `src/index.ts`
+- [X] T051 [US3] Implement SqliteStorageProvider.searchByCapability in `src/storage/SqliteStorageProvider.ts` using json_each() for JSON array query per research.md
+- [X] T052 [US3] Create SearchService in `src/services/SearchService.ts` (capability search orchestration, result formatting)
+- [X] T053 [US3] Implement GET /services?capability={cap} route in `src/routes/search.ts`
+- [X] T054 [US3] Register search route in `src/index.ts`
 
 **Checkpoint**: Capability search should now work independently
 
@@ -146,14 +146,14 @@
 
 ### Tests for User Story 4
 
-- [ ] T055 [P] [US4] Unit test for SqliteStorageProvider.searchByBoundedContext in `test/unit/storage/sqlite-storage-provider.test.ts`
-- [ ] T056 [P] [US4] Integration test for GET /services?boundedContext={context} in `test/integration/search.test.ts` (all acceptance scenarios from spec.md)
+- [X] T055 [P] [US4] Unit test for SqliteStorageProvider.searchByBoundedContext in `test/unit/storage/sqlite-storage-provider.test.ts`
+- [X] T056 [P] [US4] Integration test for GET /services?boundedContext={context} in `test/integration/search.test.ts` (all acceptance scenarios from spec.md)
 
 ### Implementation for User Story 4
 
-- [ ] T057 [US4] Implement SqliteStorageProvider.searchByBoundedContext in `src/storage/SqliteStorageProvider.ts` using generated column index per research.md
-- [ ] T058 [US4] Add boundedContext search to SearchService in `src/services/SearchService.ts`
-- [ ] T059 [US4] Implement GET /services?boundedContext={context} route in `src/routes/search.ts`
+- [X] T057 [US4] Implement SqliteStorageProvider.searchByBoundedContext in `src/storage/SqliteStorageProvider.ts` using generated column index per research.md
+- [X] T058 [US4] Add boundedContext search to SearchService in `src/services/SearchService.ts`
+- [X] T059 [US4] Implement GET /services?boundedContext={context} route in `src/routes/search.ts`
 
 **Checkpoint**: Both search capabilities (capability + boundedContext) should now work
 

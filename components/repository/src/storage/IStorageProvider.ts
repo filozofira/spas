@@ -56,23 +56,18 @@ export interface IStorageProvider {
   getSchema(name: string, version: string, schemaName: string): Promise<Schema | null>;
 
   /**
-   * Search services by capability (JSON array field)
-   * Returns service names that include the capability
+   * Search services by capability (JSON array field using json_each)
+   * Returns latest version of each service that includes the capability
+   * Per FR-017 and research.md
    */
-  searchByCapability(
-    capability: string,
-    limit?: number,
-    offset?: number
-  ): Promise<{ results: Array<{ name: string; version: string; title: string }>, total: number }>;
+  searchByCapability(capability: string): Promise<ServiceInfo[]>;
 
   /**
    * Search services by bounded context
+   * Returns latest version of each service in the bounded context
+   * Per FR-018
    */
-  searchByBoundedContext(
-    context: string,
-    limit?: number,
-    offset?: number
-  ): Promise<{ results: Array<{ name: string; version: string; title: string }>, total: number }>;
+  searchByBoundedContext(context: string): Promise<ServiceInfo[]>;
 
   /**
    * Delete a service version (cascades to schemas)

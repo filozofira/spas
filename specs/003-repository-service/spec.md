@@ -5,11 +5,11 @@
 **Status**: Draft  
 **Input**: User description: "Build SPAS Repository while following all principles defined in principles\component\11-repository.md as well as any other decision you may find in docs."
 
-## User Scenarios & Testing *(mandatory)*
+## User Scenarios & Testing _(mandatory)_
 
 ### User Story 1 - Publish Service Metadata (Priority: P1)
 
- A service developer packages their service with `spas.json` and schemas, then publishes it to the repository via `POST /services/{serviceName}:{version}` using a multipart/form-data archive (ZIP) so the service can be discovered and deployed by platform operators.
+A service developer packages their service with `spas.json` and schemas, then publishes it to the repository via `POST /services/{serviceName}:{version}` using a multipart/form-data archive (ZIP) so the service can be discovered and deployed by platform operators.
 
 **Why this priority**: This is the foundational capability - without the ability to publish service metadata, the repository has no content and provides no value. This represents the minimal viable repository functionality.
 
@@ -106,7 +106,7 @@ A service maintainer needs to remove a published service version due to critical
 - What happens when storage reaches capacity during a publish operation?
 - How are orphaned schemas (schemas stored but not referenced by any current service version) handled?
 
-## Requirements *(mandatory)*
+## Requirements _(mandatory)_
 
 ### Functional Requirements
 
@@ -120,6 +120,7 @@ A service maintainer needs to remove a published service version due to critical
 - **FR-005**: System MUST store image digest from metadata for integrity verification
 - **FR-007**: System MUST accept and store schemas associated with service version at publish time
 - **FR-008**: System MUST perform archive integrity validation during publish using checksums (SHA-256 required for production, optional for PoC)
+- **FR-008a**: In PoC, checksum MAY be provided as a separate multipart/form-data part named `checksum` (SHA-256 of the `archive` ZIP); if present, it MUST be verified; in production, checksum verification is REQUIRED
 - **FR-009**: System MUST validate schema evolution rules for services with existing versions (additive-only changes)
 - **FR-010**: System MUST provide detailed validation error messages when publish is rejected
 
@@ -164,7 +165,7 @@ A service maintainer needs to remove a published service version due to critical
 - **FR-032**: System MUST validate semantic versioning format for service versions (MAJOR.MINOR.PATCH)
 - **FR-033**: System MUST verify required fields in `spas.json`: serviceName, version, boundedContext, capabilities
 - **FR-034**: System MUST validate that version numbers follow semantic versioning rules and evolution (new versions should be higher)
- - **FR-034a**: System MUST reject publish when `{serviceName}:{version}` in the URL does not match the values in `spas.json` (conflict 409)
+- **FR-034a**: System MUST reject publish when `{serviceName}:{version}` in the URL does not match the values in `spas.json` (conflict 409)
 
 #### Authorization & Policy (PoC vs Production)
 
@@ -185,7 +186,7 @@ A service maintainer needs to remove a published service version due to critical
 
 - **Image Reference**: Represents the OCI container image associated with a service version. Contains attributes: registry URL (string), image name (string), digest (SHA-256 hash string), and relationship to Service Version. The repository stores references only, not the actual images.
 
-## Success Criteria *(mandatory)*
+## Success Criteria _(mandatory)_
 
 ### Measurable Outcomes
 
@@ -199,6 +200,16 @@ A service maintainer needs to remove a published service version due to critical
 - **SC-008**: Schema evolution validation catches 100% of non-additive breaking changes when configured
 - **SC-009**: Unpublish operations complete within 3 seconds and correctly remove all associated data
 - **SC-010**: Repository API responses conform to documented API contract with 100% compliance for all endpoints
+
+## Clarifications
+
+### Session 2025-12-13
+
+- Q: What is the source of the archive checksum for integrity validation? → A: Multipart part `checksum` (SHA-256)
+
+Applied updates:
+
+- Publishing: Added **FR-008a** to define `checksum` multipart part and verification behavior.
 
 ## Assumptions
 

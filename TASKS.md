@@ -168,6 +168,10 @@ Understand output: principles/infrastructure/15-package-format.md
 Validate: Examples from principles/appendix/26-reference-examples.md
 ```
 
+## How to Cross-Reference GitHub SpecKit Specs During Implementation
+
+Update [README.md](./specs/README.md) Specs section by adding your feature at the end of list.
+
 ## Key Specification Touchstones
 
 | Component              | Spec Reference                                                              | Purpose                                  |

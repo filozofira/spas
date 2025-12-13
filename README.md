@@ -40,6 +40,7 @@ SPAS specifies:
 ### PoC Phase (December 2025)
 
 - ✅ **SPAS Sidecar Component**: Custom sidecar prototype complete
+
   - Service invocation: Command/query patterns via HTTP endpoints
   - Event-driven flows: Redis pub/sub with event consumption
   - Message transformation with CloudEvents 1.0 wrapper
@@ -70,11 +71,10 @@ SPAS specifies:
 
 ## Related Documents
 
-- [Principles](./principles/README.md)
+- [Principles](./principles/README.md) - SPAS Framework guiding principles
 - Prototypes
-  - [spas-sidecar](./prototypes/spas-sidecar-prototype/README.md)
-- Specs
-  - [001-dotnet-spas-sdk](./specs/001-dotnet-spas-sdk/spec.md) - Initial PoC implementation
-  - [002-metadata-schema-alignment](./specs/002-metadata-schema-alignment/spec.md) - Design-time metadata alignment
+  - [spas-sidecar](./prototypes/spas-sidecar-prototype/README.md) - SPAS Sidecar prototype
+- [Specs](./specs/README.md) - GitHub SpecKit files
 - Components
-  - [.Net SDK](./components/sdk/dotnet/README.md)
+  - [.Net SDK](./components/sdk/dotnet/README.md) - SPAS .Net SDK
+  - [SPAS Repository](./components/repository/README.md) - SPAS Repository for storing the SPAS service metadata

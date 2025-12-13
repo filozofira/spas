@@ -6,7 +6,6 @@
 
 import Fastify, { FastifyInstance } from 'fastify';
 import fastifyMultipart from '@fastify/multipart';
-import pino from 'pino';
 import { ConfigLoader } from './config';
 import { StorageFactory } from './storage/StorageFactory';
 import type { IStorageProvider } from './storage/IStorageProvider';
@@ -22,22 +21,26 @@ export async function start(): Promise<FastifyInstance> {
   // Load configuration
   const config = ConfigLoader.load();
 
-  // Create logger
-  const logger = pino({
-    level: config.logLevel,
-    transport: {
-      target: 'pino-pretty',
-      options: {
-        colorize: config.nodeEnv === 'development',
-        translateTime: 'SYS:standard',
-        ignore: 'pid,hostname',
-      },
-    },
-  });
+  // Create logger config for Fastify
+  const loggerConfig = config.nodeEnv === 'development'
+    ? {
+        level: config.logLevel,
+        transport: {
+          target: 'pino-pretty',
+          options: {
+            colorize: true,
+            translateTime: 'SYS:standard',
+            ignore: 'pid,hostname',
+          },
+        },
+      }
+    : {
+        level: config.logLevel,
+      };
 
   // Initialize Fastify
   fastifyInstance = Fastify({
-    logger,
+    logger: loggerConfig,
     requestIdLogLabel: 'reqId',
     disableRequestLogging: false,
     requestTimeout: 30000,
@@ -56,7 +59,7 @@ export async function start(): Promise<FastifyInstance> {
   storageProvider = StorageFactory.createProvider(config.storage);
   await storageProvider.initialize();
 
-  logger.info({ storage: config.storage }, 'Storage provider initialized');
+  fastifyInstance.log.info({ storage: config.storage }, 'Storage provider initialized');
 
   // Global error handler
   fastifyInstance.setErrorHandler((error: unknown, request, reply) => {
@@ -116,7 +119,7 @@ export async function start(): Promise<FastifyInstance> {
 
   // Start server
   await fastifyInstance.listen({ port: config.port, host: '0.0.0.0' });
-  logger.info(`Repository service listening on port ${config.port}`);
+  fastifyInstance.log.info(`Repository service listening on port ${config.port}`);
 
   return fastifyInstance;
 }

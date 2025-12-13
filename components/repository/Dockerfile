@@ -3,11 +3,14 @@ FROM node:20-alpine AS builder
 
 WORKDIR /app
 COPY package*.json ./
-RUN npm ci --omit=dev
+RUN npm ci
 
 COPY tsconfig.json ./
 COPY src ./src
 RUN npm run build
+
+# Copy non-TypeScript files (SQL schemas) to dist
+RUN cp src/storage/schema.sql dist/storage/
 
 # Runtime stage
 FROM node:20-alpine

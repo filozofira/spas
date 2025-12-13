@@ -44,7 +44,6 @@ Services MAY expose endpoints (development-only) to retrieve design-time metadat
 - `version`: SemVer string
 - `boundedContext`: Single bounded context name
 - `capabilities[]`: Predefined capability enum values (PoC: curated list; Future: extensible)
-- `domainContext` (optional): Informational default domain context
 - `endpoints[]` (commands and queries):
   - `name`: Logical name
   - `type`: `Command | Query`
@@ -95,7 +94,6 @@ Design-time metadata does not include `runtime`.
     "version": {"type": "string"},
     "boundedContext": {"type": "string"},
     "capabilities": {"type": "array", "items": {"type": "string"}},
-    "domainContext": {"type": "string"},
     "endpoints": {
       "type": "array",
       "items": {

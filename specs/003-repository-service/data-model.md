@@ -3,11 +3,13 @@
 ## Entities
 
 ### Service
+
 - serviceName: string
 - boundedContext: string
 - capabilities: string[]
 
 ### ServiceVersion
+
 - serviceName: string (FK to Service)
 - version: string (semver)
 - spasJson: object
@@ -15,6 +17,7 @@
 - publishedAt: datetime
 
 ### Schema
+
 - serviceName: string
 - version: string
 - schemaName: string
@@ -22,10 +25,12 @@
 - content: object (JSON Schema)
 
 ## Relationships
-- Service 1..* ServiceVersion
-- ServiceVersion 1..* Schema
+
+- Service 1..\* ServiceVersion
+- ServiceVersion 1..\* Schema
 
 ## Validation Rules
+
 - Duplicate detection: unique (serviceName, version)
 - Path authority: `{serviceName}:{version}` in URL must match `spas.json`
 - Schema evolution: additive-only (new optional fields)

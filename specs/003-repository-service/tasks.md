@@ -37,16 +37,16 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T009 Define TypeScript interfaces in `src/models/types.ts` (ServiceMetadata, Schema, ServiceInfo, StorageConfig)
-- [ ] T010 [P] Define storage abstraction interface in `src/storage/IStorageProvider.ts` per research.md (publishService, getServiceMetadata, searchByCapability, etc.)
-- [ ] T011 [P] Create StorageFactory in `src/storage/StorageFactory.ts` for environment-based provider selection
-- [ ] T012 [P] Setup validation infrastructure in `src/validation/SpasSchemaValidator.ts` using Ajv with SPAS schema from `components/sdk/schemas/design-time-metadata-v1.schema.json`
-- [ ] T013 [P] Create schema evolution validator in `src/validation/SchemaEvolutionValidator.ts` for additive-only rule checking
-- [ ] T014 [P] Implement semver validator in `src/validation/VersionValidator.ts` for MAJOR.MINOR.PATCH format
-- [ ] T015 Setup Fastify app initialization in `src/index.ts` with pino logger, multipart plugin, error handler
-- [ ] T016 [P] Create environment configuration loader in `src/config.ts` (PORT, STORAGE_PROVIDER, SQLITE_PATH, LOG_LEVEL, ZIPKIN_URL)
-- [ ] T017 [P] Create database schema initialization in `src/storage/schema.sql` (services table with JSON columns, schemas table, indexes)
-- [ ] T018 Create test fixtures directory `test/fixtures/` with sample valid-service.zip, invalid-schema.zip, spas-schema.json
+- [x] T009 Define TypeScript interfaces in `src/models/types.ts` (ServiceMetadata, Schema, ServiceInfo, StorageConfig)
+- [x] T010 [P] Define storage abstraction interface in `src/storage/IStorageProvider.ts` per research.md (publishService, getServiceMetadata, searchByCapability, etc.)
+- [x] T011 [P] Create StorageFactory in `src/storage/StorageFactory.ts` for environment-based provider selection
+- [x] T012 [P] Setup validation infrastructure in `src/validation/SpasSchemaValidator.ts` using Ajv with SPAS schema from `components/sdk/schemas/design-time-metadata-v1.schema.json`
+- [x] T013 [P] Create schema evolution validator in `src/validation/SchemaEvolutionValidator.ts` for additive-only rule checking
+- [x] T014 [P] Implement semver validator in `src/validation/VersionValidator.ts` for MAJOR.MINOR.PATCH format
+- [x] T015 Setup Fastify app initialization in `src/index.ts` with pino logger, multipart plugin, error handler
+- [x] T016 [P] Create environment configuration loader in `src/config.ts` (PORT, STORAGE_PROVIDER, SQLITE_PATH, LOG_LEVEL, ZIPKIN_URL)
+- [x] T017 [P] Create database schema initialization in `src/storage/schema.sql` (services table with JSON columns, schemas table, indexes)
+- [x] T018 Create test fixtures directory `test/fixtures/` with sample valid-service.zip, invalid-schema.zip, spas-schema.json
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 

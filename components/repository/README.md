@@ -425,7 +425,18 @@ See [SPAS Principles](../../principles/) for detailed architecture documentation
 
 ## Specification
 
-See [Repository Service Specification](./spec.md) for complete feature list, user stories, and success criteria.
+See [Repository Service Specification](../../specs/003-repository-service/spec.md) for complete feature list, user stories, and success criteria.
+
+## Optional Enhancements Not Completed (Phase 8)
+
+The following tasks were optional for the PoC and remain incomplete:
+
+- T066: OpenTelemetry integration (Zipkin export)
+- T071: Edge case unit tests (concurrent publishes, storage full, corrupted ZIP)
+- T072: Performance validation (publish ≤5s, retrieve ≤2s, search ≤1s)
+- T074: Quickstart validation (curl examples against running service)
+
+PoC completion: All 5 user stories implemented, 10 endpoints documented, security reviewed, and 99 tests passing.
 
 ## License
 

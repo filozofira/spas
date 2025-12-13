@@ -6,7 +6,7 @@
  * without modifying business logic (Open-Closed Principle).
  */
 
-import type { ServiceMetadata, Schema } from '../models/types';
+import type { ServiceMetadata, Schema, ServiceInfo } from '../models/types';
 
 export interface IStorageProvider {
   /**

@@ -10,7 +10,7 @@
  */
 
 import type { IStorageProvider } from './IStorageProvider';
-import type { ServiceMetadata, Schema } from '../models/types';
+import type { ServiceMetadata, Schema, ServiceInfo } from '../models/types';
 
 interface PostgresS3Config {
   postgresUrl: string;
@@ -64,19 +64,11 @@ export class PostgresS3StorageProvider implements IStorageProvider {
     throw new NotImplementedError('PostgresS3StorageProvider not implemented');
   }
 
-  async searchByCapability(
-    _capability: string,
-    _limit?: number,
-    _offset?: number
-  ): Promise<{ results: Array<{ name: string; version: string; title: string }>; total: number }> {
+  async searchByCapability(_capability: string): Promise<ServiceInfo[]> {
     throw new NotImplementedError('PostgresS3StorageProvider not implemented');
   }
 
-  async searchByBoundedContext(
-    _context: string,
-    _limit?: number,
-    _offset?: number
-  ): Promise<{ results: Array<{ name: string; version: string; title: string }>; total: number }> {
+  async searchByBoundedContext(_context: string): Promise<ServiceInfo[]> {
     throw new NotImplementedError('PostgresS3StorageProvider not implemented');
   }
 

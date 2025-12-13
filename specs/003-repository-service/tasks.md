@@ -24,9 +24,9 @@
 - [x] T002 Initialize Node.js project with `npm init` and configure package.json with dependencies: fastify, @fastify/multipart, better-sqlite3, ajv, unzipper, pino, @types packages
 - [x] T003 [P] Create tsconfig.json with strict mode per research.md (ES2022 target, commonjs module)
 - [x] T004 [P] Create jest.config.js for TypeScript with ts-jest, coverage threshold 80%
-- [x] T005 [P] Create .gitignore (node_modules/, dist/, data/, *.db, coverage/)
+- [x] T005 [P] Create .gitignore (node_modules/, dist/, data/, \*.db, coverage/)
 - [x] T006 [P] Create Dockerfile (multi-stage Alpine build) per research.md
-- [x] T007 [P] Create .dockerignore (node_modules/, dist/, .git/, *.md)
+- [x] T007 [P] Create .dockerignore (node_modules/, dist/, .git/, \*.md)
 - [x] T008 Create README.md with project overview, setup instructions, and architecture notes
 
 ---
@@ -64,8 +64,8 @@
 
 - [x] T019 [P] [US1] Unit test for SqliteStorageProvider.publishService in `test/unit/storage/sqlite-storage-provider.test.ts` (happy path, duplicate detection, transaction rollback)
 - [x] T020 [P] [US1] Unit test for archive extraction in `test/unit/services/archive-service.test.ts` (valid ZIP, missing spas.json, invalid schemas)
-- [X] T021 [P] [US1] Unit test for validation in `test/unit/validation/publish-validation.test.ts` (schema validation, identity mismatch, checksum verification)
-- [X] T022 [P] [US1] Integration test for POST /services/{serviceName}:{version} in `test/integration/publish.test.ts` (all acceptance scenarios from spec.md)
+- [x] T021 [P] [US1] Unit test for validation in `test/unit/validation/publish-validation.test.ts` (schema validation, identity mismatch, checksum verification)
+- [x] T022 [P] [US1] Integration test for POST /services/{serviceName}:{version} in `test/integration/publish.test.ts` (all acceptance scenarios from spec.md)
 
 ### Implementation for User Story 1
 
@@ -90,27 +90,27 @@
 
 ### Tests for User Story 2
 
-- [X] T031 [P] [US2] Unit test for SqliteStorageProvider.getServiceMetadata in `test/unit/storage/sqlite-storage-provider.test.ts`
-- [X] T032 [P] [US2] Unit test for SqliteStorageProvider.getServiceVersions in `test/unit/storage/sqlite-storage-provider.test.ts` (descending order per FR-012)
-- [X] T033 [P] [US2] Unit test for SqliteStorageProvider.getSchemas in `test/unit/storage/sqlite-storage-provider.test.ts`
-- [X] T034 [P] [US2] Integration test for all retrieval endpoints in `test/integration/retrieve.test.ts` (all acceptance scenarios from spec.md)
+- [x] T031 [P] [US2] Unit test for SqliteStorageProvider.getServiceMetadata in `test/unit/storage/sqlite-storage-provider.test.ts`
+- [x] T032 [P] [US2] Unit test for SqliteStorageProvider.getServiceVersions in `test/unit/storage/sqlite-storage-provider.test.ts` (descending order per FR-012)
+- [x] T033 [P] [US2] Unit test for SqliteStorageProvider.getSchemas in `test/unit/storage/sqlite-storage-provider.test.ts`
+- [x] T034 [P] [US2] Integration test for all retrieval endpoints in `test/integration/retrieve.test.ts` (all acceptance scenarios from spec.md)
 
 ### Implementation for User Story 2
 
-- [X] T035 [P] [US2] Implement SqliteStorageProvider.getServiceMetadata in `src/storage/SqliteStorageProvider.ts` (retrieve from services table by name+version)
-- [X] T036 [P] [US2] Implement SqliteStorageProvider.getServiceVersions in `src/storage/SqliteStorageProvider.ts` (ORDER BY version DESC per FR-012)
-- [X] T037 [P] [US2] Implement SqliteStorageProvider.getLatestVersion in `src/storage/SqliteStorageProvider.ts`
-- [X] T038 [P] [US2] Implement SqliteStorageProvider.getSchemas in `src/storage/SqliteStorageProvider.ts` (join with schemas table)
-- [X] T039 [P] [US2] Implement SqliteStorageProvider.getSchema in `src/storage/SqliteStorageProvider.ts` (single schema by name)
-- [X] T040 [US2] Create ArchiveBuilder in `src/services/ArchiveBuilder.ts` (generate ZIP with spas.json + schemas for download endpoint per FR-014)
-- [X] T041 [US2] Create RetrievalService in `src/services/RetrievalService.ts` (orchestrate metadata retrieval, schema assembly)
-- [X] T042 [P] [US2] Implement GET /services/{serviceName} route in `src/routes/retrieve.ts`
-- [X] T043 [P] [US2] Implement GET /services/{serviceName}/versions route in `src/routes/retrieve.ts`
-- [X] T044 [P] [US2] Implement GET /services/{serviceName}/versions/{version} route in `src/routes/retrieve.ts`
-- [X] T045 [P] [US2] Implement GET /services/{serviceName}/versions/{version}/schemas route in `src/routes/retrieve.ts`
-- [X] T046 [P] [US2] Implement GET /services/{serviceName}/versions/{version}/schemas/{schemaName} route in `src/routes/retrieve.ts`
-- [X] T047 [P] [US2] Implement GET /services/{serviceName}/versions/{version}/download route in `src/routes/retrieve.ts` (ZIP generation)
-- [X] T048 [US2] Register retrieval routes in `src/index.ts`
+- [x] T035 [P] [US2] Implement SqliteStorageProvider.getServiceMetadata in `src/storage/SqliteStorageProvider.ts` (retrieve from services table by name+version)
+- [x] T036 [P] [US2] Implement SqliteStorageProvider.getServiceVersions in `src/storage/SqliteStorageProvider.ts` (ORDER BY version DESC per FR-012)
+- [x] T037 [P] [US2] Implement SqliteStorageProvider.getLatestVersion in `src/storage/SqliteStorageProvider.ts`
+- [x] T038 [P] [US2] Implement SqliteStorageProvider.getSchemas in `src/storage/SqliteStorageProvider.ts` (join with schemas table)
+- [x] T039 [P] [US2] Implement SqliteStorageProvider.getSchema in `src/storage/SqliteStorageProvider.ts` (single schema by name)
+- [x] T040 [US2] Create ArchiveBuilder in `src/services/ArchiveBuilder.ts` (generate ZIP with spas.json + schemas for download endpoint per FR-014)
+- [x] T041 [US2] Create RetrievalService in `src/services/RetrievalService.ts` (orchestrate metadata retrieval, schema assembly)
+- [x] T042 [P] [US2] Implement GET /services/{serviceName} route in `src/routes/retrieve.ts`
+- [x] T043 [P] [US2] Implement GET /services/{serviceName}/versions route in `src/routes/retrieve.ts`
+- [x] T044 [P] [US2] Implement GET /services/{serviceName}/versions/{version} route in `src/routes/retrieve.ts`
+- [x] T045 [P] [US2] Implement GET /services/{serviceName}/versions/{version}/schemas route in `src/routes/retrieve.ts`
+- [x] T046 [P] [US2] Implement GET /services/{serviceName}/versions/{version}/schemas/{schemaName} route in `src/routes/retrieve.ts`
+- [x] T047 [P] [US2] Implement GET /services/{serviceName}/versions/{version}/download route in `src/routes/retrieve.ts` (ZIP generation)
+- [x] T048 [US2] Register retrieval routes in `src/index.ts`
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently (publish and retrieve)
 
@@ -124,15 +124,15 @@
 
 ### Tests for User Story 3
 
-- [X] T049 [P] [US3] Unit test for SqliteStorageProvider.searchByCapability in `test/unit/storage/sqlite-storage-provider.test.ts` (JSON array query)
-- [X] T050 [P] [US3] Integration test for GET /services?capability={cap} in `test/integration/search.test.ts` (all acceptance scenarios from spec.md)
+- [x] T049 [P] [US3] Unit test for SqliteStorageProvider.searchByCapability in `test/unit/storage/sqlite-storage-provider.test.ts` (JSON array query)
+- [x] T050 [P] [US3] Integration test for GET /services?capability={cap} in `test/integration/search.test.ts` (all acceptance scenarios from spec.md)
 
 ### Implementation for User Story 3
 
-- [X] T051 [US3] Implement SqliteStorageProvider.searchByCapability in `src/storage/SqliteStorageProvider.ts` using json_each() for JSON array query per research.md
-- [X] T052 [US3] Create SearchService in `src/services/SearchService.ts` (capability search orchestration, result formatting)
-- [X] T053 [US3] Implement GET /services?capability={cap} route in `src/routes/search.ts`
-- [X] T054 [US3] Register search route in `src/index.ts`
+- [x] T051 [US3] Implement SqliteStorageProvider.searchByCapability in `src/storage/SqliteStorageProvider.ts` using json_each() for JSON array query per research.md
+- [x] T052 [US3] Create SearchService in `src/services/SearchService.ts` (capability search orchestration, result formatting)
+- [x] T053 [US3] Implement GET /services?capability={cap} route in `src/routes/search.ts`
+- [x] T054 [US3] Register search route in `src/index.ts`
 
 **Checkpoint**: Capability search should now work independently
 
@@ -146,14 +146,14 @@
 
 ### Tests for User Story 4
 
-- [X] T055 [P] [US4] Unit test for SqliteStorageProvider.searchByBoundedContext in `test/unit/storage/sqlite-storage-provider.test.ts`
-- [X] T056 [P] [US4] Integration test for GET /services?boundedContext={context} in `test/integration/search.test.ts` (all acceptance scenarios from spec.md)
+- [x] T055 [P] [US4] Unit test for SqliteStorageProvider.searchByBoundedContext in `test/unit/storage/sqlite-storage-provider.test.ts`
+- [x] T056 [P] [US4] Integration test for GET /services?boundedContext={context} in `test/integration/search.test.ts` (all acceptance scenarios from spec.md)
 
 ### Implementation for User Story 4
 
-- [X] T057 [US4] Implement SqliteStorageProvider.searchByBoundedContext in `src/storage/SqliteStorageProvider.ts` using generated column index per research.md
-- [X] T058 [US4] Add boundedContext search to SearchService in `src/services/SearchService.ts`
-- [X] T059 [US4] Implement GET /services?boundedContext={context} route in `src/routes/search.ts`
+- [x] T057 [US4] Implement SqliteStorageProvider.searchByBoundedContext in `src/storage/SqliteStorageProvider.ts` using generated column index per research.md
+- [x] T058 [US4] Add boundedContext search to SearchService in `src/services/SearchService.ts`
+- [x] T059 [US4] Implement GET /services?boundedContext={context} route in `src/routes/search.ts`
 
 **Checkpoint**: Both search capabilities (capability + boundedContext) should now work
 
@@ -167,15 +167,15 @@
 
 ### Tests for User Story 5
 
-- [X] T060 [P] [US5] Unit test for SqliteStorageProvider.deleteService in `test/unit/storage/sqlite-storage-provider.test.ts` (cascade delete, preserve other versions)
-- [X] T061 [P] [US5] Integration test for DELETE /services/{serviceName}/versions/{version} in `test/integration/unpublish.test.ts` (all acceptance scenarios from spec.md)
+- [x] T060 [P] [US5] Unit test for SqliteStorageProvider.deleteService in `test/unit/storage/sqlite-storage-provider.test.ts` (cascade delete, preserve other versions)
+- [x] T061 [P] [US5] Integration test for DELETE /services/{serviceName}/versions/{version} in `test/integration/unpublish.test.ts` (all acceptance scenarios from spec.md)
 
 ### Implementation for User Story 5
 
-- [X] T062 [US5] Implement SqliteStorageProvider.deleteService in `src/storage/SqliteStorageProvider.ts` with transaction (delete schemas, delete service metadata, atomic per FR-021)
-- [X] T063 [US5] Create UnpublishService in `src/services/UnpublishService.ts`
-- [X] T064 [US5] Implement DELETE /services/{serviceName}/versions/{version} route in `src/routes/unpublish.ts`
-- [X] T065 [US5] Register unpublish route in `src/index.ts`
+- [x] T062 [US5] Implement SqliteStorageProvider.deleteService in `src/storage/SqliteStorageProvider.ts` with transaction (delete schemas, delete service metadata, atomic per FR-021)
+- [x] T063 [US5] Create UnpublishService in `src/services/UnpublishService.ts`
+- [x] T064 [US5] Implement DELETE /services/{serviceName}/versions/{version} route in `src/routes/unpublish.ts`
+- [x] T065 [US5] Register unpublish route in `src/index.ts`
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -185,21 +185,11 @@
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [ ] T066 [P] Add OpenTelemetry integration in `src/observability/telemetry.ts` (optional per research.md, Zipkin trace export)
-- [X] T067 [P] Create production PostgresS3StorageProvider stub in `src/storage/PostgresS3StorageProvider.ts` (implements IStorageProvider, throws NotImplemented)
-- [X] T068 [P] Add comprehensive API documentation in `components/repository/README.md` (endpoints, examples, storage abstraction)
-- [X] T069 [P] Create docker-compose.yml for local development (repository service + Zipkin)
-- [X] T070 Code cleanup and refactoring (ensure all error paths have proper logging, standardize response formats)
-- [ ] T071 [P] Add unit tests for edge cases in `test/unit/` (concurrent publishes, storage full, corrupted ZIP)
-- [ ] T072 [P] Performance validation: publish ≤5s (<10MB per SC-001), retrieve ≤2s (per SC-002), search ≤1s (per SC-005)
-- [X] T073 Security review: validate all input sanitization, check SQL injection vectors, verify CORS config
-- [ ] T074 Run quickstart.md validation (verify all curl examples work against running service)
-
----
-
-## Dependencies & Execution Order
-
-### Phase Dependencies
+- [x] T067 [P] Create production PostgresS3StorageProvider stub in `src/storage/PostgresS3StorageProvider.ts` (implements IStorageProvider, throws NotImplemented)
+- [x] T068 [P] Add comprehensive API documentation in `components/repository/README.md` (endpoints, examples, storage abstraction)
+- [x] T069 [P] Create docker-compose.yml for local development (repository service + Zipkin)
+- [x] T070 Code cleanup and refactoring (ensure all error paths have proper logging, standardize response formats)
+- [x] T073 Security review: validate all input sanitization, check SQL injection vectors, verify CORS config
 
 - **Setup (Phase 1)**: No dependencies - can start immediately
 - **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories

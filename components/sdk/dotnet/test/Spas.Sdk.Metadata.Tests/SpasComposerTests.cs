@@ -12,8 +12,10 @@ public class SpasComposerTests
         // Arrange
         var composer = new SpasComposer();
         var identity = new ServiceIdentityBuilder()
+            .WithId("test-service")
             .WithName("test-service")
             .WithVersion("1.0.0")
+            .WithBoundedContext("test")
             .Build();
 
         // Act
@@ -23,6 +25,7 @@ public class SpasComposerTests
         Assert.NotNull(json);
         Assert.Contains("test-service", json);
         Assert.Contains("1.0.0", json);
+        Assert.Contains("design-time-metadata-v1", json);
     }
 
     [Fact]
@@ -31,11 +34,13 @@ public class SpasComposerTests
         // Arrange
         var composer = new SpasComposer();
         var identity = new ServiceIdentityBuilder()
+            .WithId("test-service")
             .WithName("test-service")
             .WithVersion("1.0.0")
+            .WithBoundedContext("test")
             .Build();
         var contracts = new ContractsBuilder()
-            .AddCommand("CreateOrder", "1.0", "/commands/create-order", "schemas/create-order.schema.json")
+            .AddEndpoint("CreateOrder", "Command", "Http", "/commands/create-order", "1.0", "schemas/create-order.schema.json")
             .Build();
 
         // Act
@@ -44,7 +49,7 @@ public class SpasComposerTests
         // Assert
         Assert.Contains("test-service", json);
         Assert.Contains("CreateOrder", json);
-        Assert.Contains("commands", json);
+        Assert.Contains("endpoints", json);
     }
 
     [Fact]
@@ -53,32 +58,40 @@ public class SpasComposerTests
         // Arrange
         var composer = new SpasComposer();
         var identity = new ServiceIdentityBuilder()
+            .WithId("test-service")
             .WithName("test-service")
             .WithVersion("1.0.0")
+            .WithBoundedContext("test")
             .WithDescription("Test service")
             .Build();
         var contracts = new ContractsBuilder()
-            .AddCommand("CreateOrder", "1.0", "/commands/create-order", "schemas/create-order.schema.json")
-            .AddQuery("GetOrder", "1.0", "/queries/get-order", "schemas/get-order.schema.json")
-            .AddEvent("OrderCreated", "1.0", "schemas/order-created.schema.json")
+            .AddEndpoint("CreateOrder", "Command", "Http", "/commands/create-order", "1.0", "schemas/create-order.schema.json")
+            .AddEndpoint("GetOrder", "Query", "Http", "/queries/get-order", "1.0", "schemas/get-order.schema.json")
+            .AddEvent("orders.order-created.v1", "1.0", "schemas/order-created.schema.json")
             .Build();
         var security = new SecurityBuilder()
-            .WithAuthentication("jwt")
+            .WithAuthenticationType("jwt")
+            .AddDataClassification("pii")
             .Build();
-        var health = new HealthBuilder()
-            .WithHealthEndpoint("/health")
+        var consistency = new ConsistencyBuilder()
+            .WithQueries("EVENTUAL")
+            .Build();
+        var network = new NetworkBuilder()
+            .AddRequiredEgress("api.example.com:443")
             .Build();
 
         // Act
-        var json = composer.Compose(identity, contracts, security, health);
+        var json = composer.Compose(identity, contracts, security, consistency, network, "MIT");
 
         // Assert
         Assert.Contains("test-service", json);
         Assert.Contains("CreateOrder", json);
         Assert.Contains("GetOrder", json);
-        Assert.Contains("OrderCreated", json);
+        Assert.Contains("orders.order-created.v1", json);
         Assert.Contains("jwt", json);
-        Assert.Contains("/health", json);
+        Assert.Contains("pii", json);
+        Assert.Contains("EVENTUAL", json);
+        Assert.Contains("api.example.com:443", json);
     }
 
     [Fact]
@@ -87,8 +100,10 @@ public class SpasComposerTests
         // Arrange
         var composer = new SpasComposer();
         var identity = new ServiceIdentityBuilder()
+            .WithId("test-service")
             .WithName("test-service")
             .WithVersion("1.0.0")
+            .WithBoundedContext("test")
             .Build();
         var tempFile = Path.Combine(Path.GetTempPath(), "spas-test.json");
 

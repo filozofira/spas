@@ -55,7 +55,7 @@ public static class WebApplicationDiscoveryExtensions
         var eventContracts = discovery.DiscoverEvents();
         foreach (var evt in eventContracts.Events)
         {
-            builder.AddEvent(evt.Name, evt.Version, evt.Schema);
+            builder.AddEvent(evt.Type, evt.Version, evt.SchemaRef);
         }
 
         // Discover endpoints - access them directly from WebApplication's DataSources property
@@ -258,8 +258,14 @@ public static class WebApplicationDiscoveryExtensions
                 if (item is SpasCommandAttribute commandAttr)
                 {
                     var finalPath = commandAttr.Path ?? path ?? string.Empty;
-                    var schema = commandAttr.Schema ?? $"schemas/{commandAttr.Name.ToLowerInvariant()}.schema.json";
-                    builder.AddCommand(commandAttr.Name, commandAttr.Version, finalPath, schema);
+                    var schemaRef = commandAttr.Schema ?? $"schemas/{commandAttr.Name.ToLowerInvariant()}.schema.json";
+                    builder.AddEndpoint(
+                        name: commandAttr.Name,
+                        type: "Command",
+                        protocol: "Http",
+                        methodPath: finalPath,
+                        version: commandAttr.Version,
+                        schemaRef: schemaRef);
                     return true; // Only one SPAS attribute per endpoint
                 }
 
@@ -267,8 +273,14 @@ public static class WebApplicationDiscoveryExtensions
                 if (item is SpasQueryAttribute queryAttr)
                 {
                     var finalPath = queryAttr.Path ?? path ?? string.Empty;
-                    var schema = queryAttr.Schema ?? $"schemas/{queryAttr.Name.ToLowerInvariant()}.schema.json";
-                    builder.AddQuery(queryAttr.Name, queryAttr.Version, finalPath, schema);
+                    var schemaRef = queryAttr.Schema ?? $"schemas/{queryAttr.Name.ToLowerInvariant()}.schema.json";
+                    builder.AddEndpoint(
+                        name: queryAttr.Name,
+                        type: "Query",
+                        protocol: "Http",
+                        methodPath: finalPath,
+                        version: queryAttr.Version,
+                        schemaRef: schemaRef);
                     return true; // Only one SPAS attribute per endpoint
                 }
             }

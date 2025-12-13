@@ -1,0 +1,44 @@
+openapi: 3.0.3
+info:
+  title: Sample Service API (Design-Time)
+  version: 1.0.0
+servers:
+  - url: http://localhost:5000
+paths:
+  /commands/complete-payment:
+    post:
+      summary: CompletePayment (Command)
+      operationId: CompletePayment
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: ./schemas/complete-payment.schema.json
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  paymentId:
+                    type: string
+  /queries/get-payment/{id}:
+    get:
+      summary: GetPayment (Query)
+      operationId: GetPayment
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/get-payment.schema.json

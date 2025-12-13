@@ -1,0 +1,170 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://spas.io/schemas/design-time-metadata-v1.schema.json",
+  "title": "SPAS Design-Time Metadata",
+  "description": "Schema for SPAS design-time service metadata (spas.json) - SDK output only, no runtime fields",
+  "type": "object",
+  "required": ["schemaVersion", "id", "name", "version", "boundedContext"],
+  "properties": {
+    "schemaVersion": {
+      "type": "string",
+      "const": "design-time-metadata-v1",
+      "description": "Schema version identifier"
+    },
+    "id": {
+      "type": "string",
+      "description": "Unique service identifier (kebab-case recommended)"
+    },
+    "name": {
+      "type": "string",
+      "description": "Human-readable service name"
+    },
+    "description": {
+      "type": "string",
+      "description": "Service description"
+    },
+    "version": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+\\.\\d+(-[a-zA-Z0-9.-]+)?$",
+      "description": "Service version (semver)"
+    },
+    "boundedContext": {
+      "type": "string",
+      "description": "Domain bounded context (e.g., Payments, Orders)"
+    },
+    "capabilities": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "List of service capabilities"
+    },
+    "endpoints": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["name", "type", "protocol", "methodPath", "version", "schemaRef"],
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Endpoint name"
+          },
+          "type": {
+            "type": "string",
+            "enum": ["Command", "Query"],
+            "description": "Endpoint type: Command (write) or Query (read)"
+          },
+          "protocol": {
+            "type": "string",
+            "enum": ["Http", "Grpc"],
+            "description": "Communication protocol"
+          },
+          "methodPath": {
+            "type": "string",
+            "description": "HTTP method and path (e.g., POST /api/orders) or gRPC method"
+          },
+          "version": {
+            "type": "string",
+            "description": "Endpoint version"
+          },
+          "schemaRef": {
+            "type": "string",
+            "format": "uri-reference",
+            "description": "Relative or absolute URI reference to endpoint schema (e.g., schemas/create-order.schema.json)"
+          }
+        }
+      },
+      "description": "Service endpoints (commands and queries)"
+    },
+    "events": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["type", "version", "schemaRef"],
+        "properties": {
+          "type": {
+            "type": "string",
+            "description": "Event type identifier (e.g., OrderCreated)"
+          },
+          "version": {
+            "type": "string",
+            "description": "Event schema version"
+          },
+          "schemaRef": {
+            "type": "string",
+            "format": "uri-reference",
+            "description": "Relative or absolute URI reference to event schema"
+          }
+        }
+      },
+      "description": "Events published by this service (outbound only)"
+    },
+    "consistency": {
+      "type": "object",
+      "properties": {
+        "commands": {
+          "type": "string",
+          "enum": ["ACID", "EVENTUAL"],
+          "description": "Consistency guarantee for command endpoints"
+        },
+        "queries": {
+          "type": "string",
+          "enum": ["STRONG", "EVENTUAL"],
+          "description": "Consistency guarantee for query endpoints"
+        }
+      },
+      "description": "Consistency guarantees"
+    },
+    "network": {
+      "type": "object",
+      "properties": {
+        "requiredEgress": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Required outbound network dependencies (hostnames or service IDs)"
+        }
+      },
+      "description": "Network requirements"
+    },
+    "security": {
+      "type": "object",
+      "required": ["dataClassification"],
+      "properties": {
+        "authentication": {
+          "type": "object",
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": ["OAuth2", "JWT", "ApiKey", "mTLS", "None"],
+              "description": "Authentication mechanism"
+            },
+            "requiredScopes": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "Required OAuth2/OIDC scopes"
+            }
+          },
+          "description": "Authentication configuration (optional)"
+        },
+        "dataClassification": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": ["Public", "Internal", "Confidential", "Restricted"]
+          },
+          "minItems": 1,
+          "description": "Data classification levels handled by this service"
+        }
+      },
+      "description": "Security metadata"
+    },
+    "license": {
+      "type": "string",
+      "description": "License identifier (e.g., MIT, Apache-2.0)"
+    }
+  }
+}

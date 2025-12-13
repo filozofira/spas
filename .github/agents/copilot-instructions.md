@@ -184,6 +184,9 @@ dotnet build components/sdk/dotnet/SPAS.SDK.sln -c Debug
 Auto-generated from all feature plans. Last updated: 2025-12-12
 
 ## Active Technologies
+- C# / .NET (net10.0 per SDK csproj targets) + SPAS .NET SDK projects (`Spas.Sdk.*`), JSON serialization (System.Text.Json), JSON Schema validation lib (NEEDS CLARIFICATION which) (002-metadata-schema-alignment)
+- .Net Testing framework: **xUnit** for SDK unit tests and validation tasks.
+- N/A (design-time metadata files) (002-metadata-schema-alignment)
 
 - .NET 10 (target net10.0); Microsoft.Extensions.Logging; System.Text.Json (001-dotnet-spas-sdk)
 

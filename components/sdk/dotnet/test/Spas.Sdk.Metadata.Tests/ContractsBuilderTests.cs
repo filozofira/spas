@@ -16,43 +16,44 @@ public class ContractsBuilderTests
 
         // Assert
         Assert.NotNull(contracts);
-        Assert.Empty(contracts.Commands);
-        Assert.Empty(contracts.Queries);
+        Assert.Empty(contracts.Endpoints);
         Assert.Empty(contracts.Events);
     }
 
     [Fact]
-    public void AddCommand_AddsCommandToContracts()
+    public void AddEndpoint_AddsEndpointToContracts()
     {
         // Arrange
         var builder = new ContractsBuilder();
 
         // Act
-        builder.AddCommand("CreateOrder", "1.0", "/commands/create-order", "schemas/create-order.schema.json");
+        builder.AddEndpoint("CreateOrder", "Command", "Http", "/commands/create-order", "1.0", "schemas/create-order.schema.json");
         var contracts = builder.Build();
 
         // Assert
-        Assert.Single(contracts.Commands);
-        Assert.Equal("CreateOrder", contracts.Commands[0].Name);
-        Assert.Equal("1.0", contracts.Commands[0].Version);
-        Assert.Equal("/commands/create-order", contracts.Commands[0].Path);
-        Assert.Equal("schemas/create-order.schema.json", contracts.Commands[0].Schema);
+        Assert.Single(contracts.Endpoints);
+        Assert.Equal("CreateOrder", contracts.Endpoints[0].Name);
+        Assert.Equal("Command", contracts.Endpoints[0].Type);
+        Assert.Equal("Http", contracts.Endpoints[0].Protocol);
+        Assert.Equal("/commands/create-order", contracts.Endpoints[0].MethodPath);
+        Assert.Equal("1.0", contracts.Endpoints[0].Version);
+        Assert.Equal("schemas/create-order.schema.json", contracts.Endpoints[0].SchemaRef);
     }
 
     [Fact]
-    public void AddQuery_AddsQueryToContracts()
+    public void AddEndpoint_Query_AddsQueryToContracts()
     {
         // Arrange
         var builder = new ContractsBuilder();
 
         // Act
-        builder.AddQuery("GetOrder", "1.0", "/queries/get-order", "schemas/get-order.schema.json");
+        builder.AddEndpoint("GetOrder", "Query", "Http", "/queries/get-order", "1.0", "schemas/get-order.schema.json");
         var contracts = builder.Build();
 
         // Assert
-        Assert.Single(contracts.Queries);
-        Assert.Equal("GetOrder", contracts.Queries[0].Name);
-        Assert.Equal("1.0", contracts.Queries[0].Version);
+        Assert.Single(contracts.Endpoints);
+        Assert.Equal("GetOrder", contracts.Endpoints[0].Name);
+        Assert.Equal("Query", contracts.Endpoints[0].Type);
     }
 
     [Fact]
@@ -62,14 +63,14 @@ public class ContractsBuilderTests
         var builder = new ContractsBuilder();
 
         // Act
-        builder.AddEvent("OrderCreated", "1.0", "schemas/order-created.schema.json");
+        builder.AddEvent("orders.order-created.v1", "1.0", "schemas/order-created.schema.json");
         var contracts = builder.Build();
 
         // Assert
         Assert.Single(contracts.Events);
-        Assert.Equal("OrderCreated", contracts.Events[0].Name);
+        Assert.Equal("orders.order-created.v1", contracts.Events[0].Type);
         Assert.Equal("1.0", contracts.Events[0].Version);
-        Assert.Equal("schemas/order-created.schema.json", contracts.Events[0].Schema);
+        Assert.Equal("schemas/order-created.schema.json", contracts.Events[0].SchemaRef);
     }
 
     [Fact]
@@ -77,16 +78,15 @@ public class ContractsBuilderTests
     {
         // Arrange
         var builder = new ContractsBuilder()
-            .AddCommand("CreateOrder", "1.0", "/commands/create-order", "schemas/create-order.schema.json")
-            .AddQuery("GetOrder", "1.0", "/queries/get-order", "schemas/get-order.schema.json")
-            .AddEvent("OrderCreated", "1.0", "schemas/order-created.schema.json");
+            .AddEndpoint("CreateOrder", "Command", "Http", "/commands/create-order", "1.0", "schemas/create-order.schema.json")
+            .AddEndpoint("GetOrder", "Query", "Http", "/queries/get-order", "1.0", "schemas/get-order.schema.json")
+            .AddEvent("orders.order-created.v1", "1.0", "schemas/order-created.schema.json");
 
         // Act
         var contracts = builder.Build();
 
         // Assert
-        Assert.Single(contracts.Commands);
-        Assert.Single(contracts.Queries);
+        Assert.Equal(2, contracts.Endpoints.Count);
         Assert.Single(contracts.Events);
     }
 }

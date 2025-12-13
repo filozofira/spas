@@ -7,36 +7,23 @@ namespace Spas.Sdk.Metadata.Builders;
 /// </summary>
 public class ContractsBuilder
 {
-    private readonly List<ContractDefinition> _commands = new();
-    private readonly List<ContractDefinition> _queries = new();
-    private readonly List<EventDefinition> _events = new();
+    private readonly List<EndpointContract> _endpoints = new();
+    private readonly List<EventContract> _events = new();
 
     /// <summary>
-    /// Adds a command contract.
+    /// Adds an endpoint (command or query).
     /// </summary>
-    public ContractsBuilder AddCommand(string name, string version, string path, string schema)
+    public ContractsBuilder AddEndpoint(string name, string type, string protocol, string methodPath, string version, string schemaRef, string? description = null)
     {
-        _commands.Add(new ContractDefinition
+        _endpoints.Add(new EndpointContract
         {
             Name = name,
+            Type = type,
+            Protocol = protocol,
+            MethodPath = methodPath,
             Version = version,
-            Path = path,
-            Schema = schema
-        });
-        return this;
-    }
-
-    /// <summary>
-    /// Adds a query contract.
-    /// </summary>
-    public ContractsBuilder AddQuery(string name, string version, string path, string schema)
-    {
-        _queries.Add(new ContractDefinition
-        {
-            Name = name,
-            Version = version,
-            Path = path,
-            Schema = schema
+            SchemaRef = schemaRef,
+            Description = description
         });
         return this;
     }
@@ -44,13 +31,13 @@ public class ContractsBuilder
     /// <summary>
     /// Adds an event contract.
     /// </summary>
-    public ContractsBuilder AddEvent(string name, string version, string schema)
+    public ContractsBuilder AddEvent(string type, string version, string schemaRef)
     {
-        _events.Add(new EventDefinition
+        _events.Add(new EventContract
         {
-            Name = name,
+            Type = type,
             Version = version,
-            Schema = schema
+            SchemaRef = schemaRef
         });
         return this;
     }
@@ -62,8 +49,7 @@ public class ContractsBuilder
     {
         return new ServiceContracts
         {
-            Commands = _commands,
-            Queries = _queries,
+            Endpoints = _endpoints,
             Events = _events
         };
     }

@@ -49,6 +49,14 @@ SPAS specifies:
   - Configuration-driven routing and transformation
   - See: `prototypes/spas-sidecar-prototype/`
 
+- ✅ **.NET SDK**: Production-ready implementation complete (2025-12-13)
+  - Initial PoC (001-dotnet-spas-sdk): Metadata composition, event publishing, observability
+  - Schema Alignment (002-metadata-schema-alignment): Design-time metadata aligned with spec
+  - 60 unit tests passing, JsonSchema.Net validation
+  - Builder APIs: ServiceIdentity, Contracts, Security, Consistency, Network
+  - Schema location: `components/sdk/schemas/design-time-metadata-v1.schema.json`
+  - See: `components/sdk/dotnet/README.md` and `specs/002-metadata-schema-alignment/COMPLETION.md`
+
 ## Out of Scope (v1.0)
 
 - Central orchestration (choreography-only)
@@ -66,6 +74,7 @@ SPAS specifies:
 - Prototypes
   - [spas-sidecar](./prototypes/spas-sidecar-prototype/README.md)
 - Specs
-  - [001-dotnet-spas-sdk](./specs/001-dotnet-spas-sdk/spec.md)
+  - [001-dotnet-spas-sdk](./specs/001-dotnet-spas-sdk/spec.md) - Initial PoC implementation
+  - [002-metadata-schema-alignment](./specs/002-metadata-schema-alignment/spec.md) - Design-time metadata alignment
 - Components
   - [.Net SDK](./components/sdk/dotnet/README.md)

@@ -16,51 +16,54 @@ public class SpasComposer
         ServiceIdentity identity,
         ServiceContracts? contracts = null,
         SecurityMetadata? security = null,
-        HealthMetadata? health = null)
+        ConsistencyMetadata? consistency = null,
+        NetworkMetadata? network = null,
+        string? license = null)
     {
         var metadata = new
         {
-            identity = new
+            schemaVersion = "design-time-metadata-v1",
+            id = identity.Id,
+            name = identity.Name,
+            description = identity.Description,
+            version = identity.Version,
+            boundedContext = identity.BoundedContext,
+            capabilities = identity.Capabilities,
+            endpoints = contracts != null ? contracts.Endpoints.Select(e => new
             {
-                name = identity.Name,
-                version = identity.Version,
-                description = identity.Description,
-                owner = identity.Owner,
-                repository = identity.Repository
-            },
-            contracts = contracts != null ? new
+                name = e.Name,
+                type = e.Type,
+                protocol = e.Protocol,
+                methodPath = e.MethodPath,
+                version = e.Version,
+                schemaRef = e.SchemaRef,
+                description = e.Description
+            }).ToArray() : Array.Empty<object>(),
+            events = contracts != null ? contracts.Events.Select(ev => new
             {
-                commands = contracts.Commands.Select(c => new
-                {
-                    name = c.Name,
-                    version = c.Version,
-                    path = c.Path,
-                    schema = c.Schema
-                }),
-                queries = contracts.Queries.Select(q => new
-                {
-                    name = q.Name,
-                    version = q.Version,
-                    path = q.Path,
-                    schema = q.Schema
-                }),
-                events = contracts.Events.Select(e => new
-                {
-                    name = e.Name,
-                    version = e.Version,
-                    schema = e.Schema
-                })
+                type = ev.Type,
+                version = ev.Version,
+                schemaRef = ev.SchemaRef
+            }).ToArray() : Array.Empty<object>(),
+            consistency = consistency != null ? new
+            {
+                commands = consistency.Commands,
+                queries = consistency.Queries
+            } : null,
+            network = network != null ? new
+            {
+                requiredEgress = network.RequiredEgress
             } : null,
             security = security != null ? new
             {
-                authentication = security.Authentication,
-                requiredScopes = security.RequiredScopes
+                authentication = security.Authentication != null ? new
+                {
+                    type = security.Authentication.Type,
+                    requiredScopes = security.Authentication.RequiredScopes
+                } : null,
+                dataClassification = security.DataClassification
             } : null,
-            health = health != null ? new
-            {
-                healthEndpoint = health.HealthEndpoint,
-                timeoutSeconds = health.TimeoutSeconds
-            } : null
+            license = license
         };
 
         return JsonSerializer.Serialize(metadata, JsonSerializerOptionsFactory.Indented);
@@ -74,9 +77,11 @@ public class SpasComposer
         ServiceIdentity identity,
         ServiceContracts? contracts = null,
         SecurityMetadata? security = null,
-        HealthMetadata? health = null)
+        ConsistencyMetadata? consistency = null,
+        NetworkMetadata? network = null,
+        string? license = null)
     {
-        var json = Compose(identity, contracts, security, health);
+        var json = Compose(identity, contracts, security, consistency, network, license);
 
         var directory = Path.GetDirectoryName(filePath);
         if (!string.IsNullOrEmpty(directory) && !Directory.Exists(directory))

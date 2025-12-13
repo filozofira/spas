@@ -93,6 +93,7 @@ Content-Type: multipart/form-data
 ```
 
 **Parameters:**
+
 - `serviceName` (path): Service identifier (e.g., "order-service")
 - `version` (path): Semantic version (e.g., "1.0.0")
 - `archive` (form field): ZIP file containing spas.json + schemas
@@ -102,11 +103,13 @@ Content-Type: multipart/form-data
 - `imageTag` (form field, optional): Image tag (e.g., "1.0.0", "latest")
 
 **Response:**
+
 - `201 Created`: Service published successfully
 - `400 Bad Request`: Invalid archive or validation failure
 - `409 Conflict`: Service version already exists or identity mismatch
 
-**Example:**
+**CURL Example:**
+
 ```bash
 curl -X POST http://localhost:3000/services/order-service:1.0.0 \
   -F "archive=@order-service-1.0.0.zip" \
@@ -114,6 +117,18 @@ curl -X POST http://localhost:3000/services/order-service:1.0.0 \
   -F "imageDigest=sha256:def456..." \
   -F "imageRepository=ghcr.io/myorg/order-service" \
   -F "imageTag=1.0.0"
+```
+
+**PowerShell Example:**
+
+```powershell:
+$form = @{
+    archive = Get-Item -Path "test/fixtures/valid-service.zip"
+    imageDigest = "sha256:abc123def456789abcdef123456789abcdef123456789abcdef123456789abcd"
+    imageRepository = "ghcr.io/myorg/test-service"
+    imageTag = "1.0.0"
+}
+Invoke-RestMethod -Uri "http://localhost:3000/services/test-service:1.0.0" -Method Post -Form $form
 ```
 
 ### Retrieval
@@ -125,15 +140,18 @@ GET /services/{serviceName}
 ```
 
 **Response:**
+
 - `200 OK`: Returns ServiceInfo for latest version
 - `404 Not Found`: Service does not exist
 
 **Example:**
+
 ```bash
 curl http://localhost:3000/services/order-service
 ```
 
 **Response Body:**
+
 ```json
 {
   "id": "order-service",
@@ -161,15 +179,18 @@ GET /services/{serviceName}/versions
 ```
 
 **Response:**
+
 - `200 OK`: Returns list of versions in descending order
 - `404 Not Found`: Service does not exist
 
 **Example:**
+
 ```bash
 curl http://localhost:3000/services/order-service/versions
 ```
 
 **Response Body:**
+
 ```json
 {
   "serviceName": "order-service",
@@ -184,10 +205,12 @@ GET /services/{serviceName}/versions/{version}
 ```
 
 **Response:**
+
 - `200 OK`: Returns complete ServiceMetadata
 - `404 Not Found`: Service version does not exist
 
 **Example:**
+
 ```bash
 curl http://localhost:3000/services/order-service/versions/1.0.0
 ```
@@ -199,15 +222,18 @@ GET /services/{serviceName}/versions/{version}/schemas
 ```
 
 **Response:**
+
 - `200 OK`: Returns array of schemas (alphabetically sorted)
 - `404 Not Found`: Service version does not exist
 
 **Example:**
+
 ```bash
 curl http://localhost:3000/services/order-service/versions/1.0.0/schemas
 ```
 
 **Response Body:**
+
 ```json
 {
   "serviceName": "order-service",
@@ -234,10 +260,12 @@ GET /services/{serviceName}/versions/{version}/schemas/{schemaName}
 ```
 
 **Response:**
+
 - `200 OK`: Returns schema content
 - `404 Not Found`: Schema or service version does not exist
 
 **Example:**
+
 ```bash
 curl http://localhost:3000/services/order-service/versions/1.0.0/schemas/order-created
 ```
@@ -249,16 +277,25 @@ GET /services/{serviceName}/versions/{version}/download
 ```
 
 **Response:**
+
 - `200 OK`: ZIP archive containing spas.json + all schemas
 - `404 Not Found`: Service version does not exist
 
 **Headers:**
+
 - `Content-Type: application/zip`
 - `Content-Disposition: attachment; filename="order-service-1.0.0.zip"`
 
-**Example:**
+**CURL Example:**
+
 ```bash
 curl -O -J http://localhost:3000/services/order-service/versions/1.0.0/download
+```
+
+**PowerShell Example:\***
+
+```powershell
+Invoke-RestMethod -Uri "http://localhost:3000/services/test-service/versions/1.0.0/download" -OutFile "test-service-1.0.0.zip"
 ```
 
 ### Search
@@ -270,18 +307,22 @@ GET /services?capability={capability}
 ```
 
 **Parameters:**
+
 - `capability` (query): Capability name to search for
 
 **Response:**
+
 - `200 OK`: Returns SearchResults with matching services (latest version only)
 - `400 Bad Request`: Missing or empty capability parameter
 
 **Example:**
+
 ```bash
 curl http://localhost:3000/services?capability=payment-processing
 ```
 
 **Response Body:**
+
 ```json
 {
   "total": 2,
@@ -317,13 +358,16 @@ GET /services?boundedContext={context}
 ```
 
 **Parameters:**
+
 - `boundedContext` (query): Bounded context name to search for
 
 **Response:**
+
 - `200 OK`: Returns SearchResults with matching services (latest version only)
 - `400 Bad Request`: Missing or empty boundedContext parameter
 
 **Example:**
+
 ```bash
 curl http://localhost:3000/services?boundedContext=payments
 ```
@@ -337,10 +381,12 @@ DELETE /services/{serviceName}/versions/{version}
 ```
 
 **Response:**
+
 - `204 No Content`: Service version deleted successfully
 - `404 Not Found`: Service version does not exist
 
 **Example:**
+
 ```bash
 curl -X DELETE http://localhost:3000/services/order-service/versions/1.0.0
 ```
@@ -354,15 +400,18 @@ GET /health
 ```
 
 **Response:**
+
 - `200 OK`: Service is healthy
 - `503 Service Unavailable`: Service or storage is unhealthy
 
 **Example:**
+
 ```bash
 curl http://localhost:3000/health
 ```
 
 **Response Body:**
+
 ```json
 {
   "status": "ok",

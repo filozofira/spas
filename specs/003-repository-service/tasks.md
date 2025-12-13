@@ -186,13 +186,13 @@
 **Purpose**: Improvements that affect multiple user stories
 
 - [ ] T066 [P] Add OpenTelemetry integration in `src/observability/telemetry.ts` (optional per research.md, Zipkin trace export)
-- [ ] T067 [P] Create production PostgresS3StorageProvider stub in `src/storage/PostgresS3StorageProvider.ts` (implements IStorageProvider, throws NotImplemented)
-- [ ] T068 [P] Add comprehensive API documentation in `components/repository/README.md` (endpoints, examples, storage abstraction)
-- [ ] T069 [P] Create docker-compose.yml for local development (repository service + Zipkin)
-- [ ] T070 Code cleanup and refactoring (ensure all error paths have proper logging, standardize response formats)
+- [X] T067 [P] Create production PostgresS3StorageProvider stub in `src/storage/PostgresS3StorageProvider.ts` (implements IStorageProvider, throws NotImplemented)
+- [X] T068 [P] Add comprehensive API documentation in `components/repository/README.md` (endpoints, examples, storage abstraction)
+- [X] T069 [P] Create docker-compose.yml for local development (repository service + Zipkin)
+- [X] T070 Code cleanup and refactoring (ensure all error paths have proper logging, standardize response formats)
 - [ ] T071 [P] Add unit tests for edge cases in `test/unit/` (concurrent publishes, storage full, corrupted ZIP)
 - [ ] T072 [P] Performance validation: publish ≤5s (<10MB per SC-001), retrieve ≤2s (per SC-002), search ≤1s (per SC-005)
-- [ ] T073 Security review: validate all input sanitization, check SQL injection vectors, verify CORS config
+- [X] T073 Security review: validate all input sanitization, check SQL injection vectors, verify CORS config
 - [ ] T074 Run quickstart.md validation (verify all curl examples work against running service)
 
 ---

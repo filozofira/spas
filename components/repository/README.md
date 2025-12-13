@@ -73,37 +73,282 @@ test/
 
 ## API Endpoints
 
-### Publish Service
+### Publishing
 
-- **POST** `/services/{name}:{version}`
-- **Body**: Multipart form with archive and metadata
-- **Response**: `201 Created` with service metadata
+#### Publish Service Version
 
-### Retrieve Service
+```http
+POST /services/{serviceName}:{version}
+Content-Type: multipart/form-data
+```
 
-- **GET** `/services/{name}:{version}`
-- **Response**: `200 OK` with archived service package
+**Parameters:**
+- `serviceName` (path): Service identifier (e.g., "order-service")
+- `version` (path): Semantic version (e.g., "1.0.0")
+- `archive` (form field): ZIP file containing spas.json + schemas
+- `checksum` (form field, optional): SHA-256 checksum for verification
 
-### List Services
+**Response:**
+- `201 Created`: Service published successfully
+- `400 Bad Request`: Invalid archive or validation failure
+- `409 Conflict`: Service version already exists or identity mismatch
 
-- **GET** `/services`
-- **Query**: `?search=term&limit=10&offset=0`
-- **Response**: `200 OK` with service list
+**Example:**
+```bash
+curl -X POST http://localhost:3000/services/order-service:1.0.0 \
+  -F "archive=@order-service-1.0.0.zip" \
+  -F "checksum=abc123..."
+```
 
-### Get Service Metadata
+### Retrieval
 
-- **GET** `/services/{name}:{version}/metadata`
-- **Response**: `200 OK` with metadata
+#### Get Latest Service Information
 
-### Get Service Schema
+```http
+GET /services/{serviceName}
+```
 
-- **GET** `/services/{name}:{version}/schema`
-- **Response**: `200 OK` with JSON schema
+**Response:**
+- `200 OK`: Returns ServiceInfo for latest version
+- `404 Not Found`: Service does not exist
 
-### Unpublish Service
+**Example:**
+```bash
+curl http://localhost:3000/services/order-service
+```
 
-- **DELETE** `/services/{name}:{version}`
-- **Response**: `204 No Content`
+**Response Body:**
+```json
+{
+  "id": "order-service",
+  "name": "Order Service",
+  "version": "2.0.0",
+  "description": "Manages order lifecycle",
+  "boundedContext": "orders",
+  "capabilities": ["order-management", "payment-processing"],
+  "publishedAt": "2025-12-13T10:30:00Z"
+}
+```
+
+#### List Service Versions
+
+```http
+GET /services/{serviceName}/versions
+```
+
+**Response:**
+- `200 OK`: Returns list of versions in descending order
+- `404 Not Found`: Service does not exist
+
+**Example:**
+```bash
+curl http://localhost:3000/services/order-service/versions
+```
+
+**Response Body:**
+```json
+{
+  "serviceName": "order-service",
+  "versions": ["2.0.0", "1.5.0", "1.0.0"]
+}
+```
+
+#### Get Service Metadata
+
+```http
+GET /services/{serviceName}/versions/{version}
+```
+
+**Response:**
+- `200 OK`: Returns complete ServiceMetadata
+- `404 Not Found`: Service version does not exist
+
+**Example:**
+```bash
+curl http://localhost:3000/services/order-service/versions/1.0.0
+```
+
+#### List Service Schemas
+
+```http
+GET /services/{serviceName}/versions/{version}/schemas
+```
+
+**Response:**
+- `200 OK`: Returns array of schemas (alphabetically sorted)
+- `404 Not Found`: Service version does not exist
+
+**Example:**
+```bash
+curl http://localhost:3000/services/order-service/versions/1.0.0/schemas
+```
+
+**Response Body:**
+```json
+{
+  "serviceName": "order-service",
+  "version": "1.0.0",
+  "schemas": [
+    {
+      "name": "create-order",
+      "type": "endpoint",
+      "content": { "$schema": "...", "type": "object", ... }
+    },
+    {
+      "name": "order-created",
+      "type": "event",
+      "content": { "$schema": "...", "type": "object", ... }
+    }
+  ]
+}
+```
+
+#### Get Single Schema
+
+```http
+GET /services/{serviceName}/versions/{version}/schemas/{schemaName}
+```
+
+**Response:**
+- `200 OK`: Returns schema content
+- `404 Not Found`: Schema or service version does not exist
+
+**Example:**
+```bash
+curl http://localhost:3000/services/order-service/versions/1.0.0/schemas/order-created
+```
+
+#### Download Service Archive
+
+```http
+GET /services/{serviceName}/versions/{version}/download
+```
+
+**Response:**
+- `200 OK`: ZIP archive containing spas.json + all schemas
+- `404 Not Found`: Service version does not exist
+
+**Headers:**
+- `Content-Type: application/zip`
+- `Content-Disposition: attachment; filename="order-service-1.0.0.zip"`
+
+**Example:**
+```bash
+curl -O -J http://localhost:3000/services/order-service/versions/1.0.0/download
+```
+
+### Search
+
+#### Search by Capability
+
+```http
+GET /services?capability={capability}
+```
+
+**Parameters:**
+- `capability` (query): Capability name to search for
+
+**Response:**
+- `200 OK`: Returns SearchResults with matching services (latest version only)
+- `400 Bad Request`: Missing or empty capability parameter
+
+**Example:**
+```bash
+curl http://localhost:3000/services?capability=payment-processing
+```
+
+**Response Body:**
+```json
+{
+  "total": 2,
+  "limit": 2,
+  "offset": 0,
+  "results": [
+    {
+      "id": "payment-service",
+      "name": "Payment Service",
+      "version": "2.0.0",
+      "description": "Handles payments",
+      "boundedContext": "payments",
+      "capabilities": ["payment-processing", "refunds"],
+      "publishedAt": "2025-12-13T10:30:00Z"
+    },
+    {
+      "id": "order-service",
+      "name": "Order Service",
+      "version": "1.5.0",
+      "description": "Manages orders",
+      "boundedContext": "orders",
+      "capabilities": ["order-management", "payment-processing"],
+      "publishedAt": "2025-12-13T09:15:00Z"
+    }
+  ]
+}
+```
+
+#### Search by Bounded Context
+
+```http
+GET /services?boundedContext={context}
+```
+
+**Parameters:**
+- `boundedContext` (query): Bounded context name to search for
+
+**Response:**
+- `200 OK`: Returns SearchResults with matching services (latest version only)
+- `400 Bad Request`: Missing or empty boundedContext parameter
+
+**Example:**
+```bash
+curl http://localhost:3000/services?boundedContext=payments
+```
+
+### Unpublishing
+
+#### Unpublish Service Version
+
+```http
+DELETE /services/{serviceName}/versions/{version}
+```
+
+**Response:**
+- `204 No Content`: Service version deleted successfully
+- `404 Not Found`: Service version does not exist
+
+**Example:**
+```bash
+curl -X DELETE http://localhost:3000/services/order-service/versions/1.0.0
+```
+
+**Note:** This operation is atomic and cascades to delete all associated schemas. Other versions of the service are preserved.
+
+### Health Check
+
+```http
+GET /health
+```
+
+**Response:**
+- `200 OK`: Service is healthy
+- `503 Service Unavailable`: Service or storage is unhealthy
+
+**Example:**
+```bash
+curl http://localhost:3000/health
+```
+
+**Response Body:**
+```json
+{
+  "status": "ok",
+  "timestamp": "2025-12-13T10:30:00Z",
+  "version": "1.0.0",
+  "storage": {
+    "status": "ok"
+  }
+}
+```
 
 ## Storage Abstraction
 

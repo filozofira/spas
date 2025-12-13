@@ -10,7 +10,6 @@
   - version: string (SemVer)
   - boundedContext: string
   - capabilities: string[]
-  - domainContext: string (optional)
   - endpoints: EndpointContract[]
   - events: EventContract[]
   - consistency: Consistency

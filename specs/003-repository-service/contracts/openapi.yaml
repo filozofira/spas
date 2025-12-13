@@ -1,0 +1,115 @@
+openapi: 3.0.3
+info:
+  title: SPAS Repository Service API
+  version: 1.0.0-poc
+servers:
+  - url: /v1
+paths:
+  /services/{serviceName}:{version}:
+    post:
+      summary: Publish service metadata and schemas via archive upload
+      parameters:
+        - name: serviceName
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: version
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                archive:
+                  type: string
+                  format: binary
+                checksum:
+                  type: string
+              required:
+                - archive
+      responses:
+        '201':
+          description: Published
+        '400':
+          description: Validation error
+        '409':
+          description: Conflict (duplicate or identity mismatch)
+  /services/{serviceName}:
+    get:
+      summary: Get service details
+      parameters:
+        - name: serviceName
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+  /services/{serviceName}/versions:
+    get:
+      summary: List service versions
+      parameters:
+        - name: serviceName
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+  /services/{serviceName}/versions/{version}:
+    get:
+      summary: Get merged spas.json with schema references
+      parameters:
+        - name: serviceName
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: version
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+  /services/{serviceName}/versions/{version}/download:
+    get:
+      summary: Download archive of spas.json and all schemas
+      parameters:
+        - name: serviceName
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: version
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+  /services:
+    get:
+      summary: Search services
+      parameters:
+        - name: capability
+          in: query
+          schema:
+            type: string
+        - name: boundedContext
+          in: query
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK

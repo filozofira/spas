@@ -78,7 +78,7 @@ dotnet run
 - Events Boundary: SDKs prepare payload/trace/correlation/identity; Sidecar wraps CloudEvents and performs transformations. See principles/component/12-sdk.md.
 - Inbound Routing: SDKs are route‑agnostic. "/incoming" is a recommended sample default, not enforced.
 - PoC vs Production: PoC uses HTTP, identity in payload, Zipkin tracing. Production introduces gRPC, mTLS/SPIFFE, full OTel, Prometheus, etc. See principles/02-architecture-overview.md.
-- Specs Navigation: Start at principles/INDEX.md. Decisions recorded in principles/appendix/28-decision-log.md.
+- Specs Navigation: Start at principles/README.md. Decisions recorded in principles/appendix/28-decision-log.md.
 
 ---
 
@@ -216,7 +216,7 @@ components/
 		- Events Boundary: SDKs prepare payload/trace/correlation/identity; Sidecar wraps CloudEvents and performs transformations. See principles/component/12-sdk.md.
 		- Inbound Routing: SDKs are route‑agnostic. `/incoming` is a recommended sample default, not enforced.
 		- PoC vs Production: PoC uses HTTP, identity in payload, Zipkin tracing. Production introduces gRPC, mTLS/SPIFFE, full OTel, Prometheus, etc. See principles/02-architecture-overview.md.
-		- Specs Navigation: Start at principles/INDEX.md. Decisions recorded in principles/appendix/28-decision-log.md.
+		- Specs Navigation: Start at principles/README.md. Decisions recorded in principles/appendix/28-decision-log.md.
 
 		---
 

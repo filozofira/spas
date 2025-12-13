@@ -183,7 +183,7 @@ Services MUST run unchanged across Kubernetes, Docker Compose, and bare metal en
 - HTTP transport (not gRPC)
 - Identity in CloudEvents payload (not mTLS/SPIFFE)
 - Zipkin-only observability (not full OpenTelemetry + Prometheus)
-- File-based repository storage (not PostgreSQL)
+- SQLite repository storage (not PostgreSQL + S3)
 - No contract testing framework
 - Declarative-only security policies (not runtime enforcement)
 - SpecKit testing policy: Unit test tasks MUST be included per user story in generated task lists. Integration test tasks MAY be omitted during PoC unless explicitly requested in the feature spec. Independent test criteria per user story are MANDATORY. This simplification does NOT waive component Quality Gates for non‑PoC releases.
@@ -193,7 +193,7 @@ Services MUST run unchanged across Kubernetes, Docker Compose, and bare metal en
 - gRPC for all service APIs
 - mTLS with SPIFFE/SPIRE for identity
 - Full OpenTelemetry + Prometheus metrics
-- PostgreSQL document store for repository
+- PostgreSQL (JSONB) + S3 for repository storage
 - Contract testing framework (Pact-style)
 - Runtime policy enforcement via service mesh
 
@@ -298,7 +298,8 @@ Unit tests are non‑negotiable in both PoC and Production phases. During PoC, i
 **Design Constraints**:
 
 - RESTful API design
-- PoC: File-based storage; Production: PostgreSQL document store
+- PoC: SQLite (embedded, ACID, JSON queries); Production: PostgreSQL (JSONB) + S3
+- Storage abstraction layer (IStorageProvider) for migration path
 - Metadata validation against `spas.json` JSON schema
 - Schema versioning and compatibility checks (additive-only evolution)
 

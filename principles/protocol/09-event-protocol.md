@@ -40,7 +40,7 @@ Sidecar constructs the CloudEvents envelope from HTTP headers received from SDK:
 
 ## Topics & Routing
 
-- Topic naming: `{domainContext}.{boundedContext}.{eventType}.{version}`
+- Topic naming: `{boundedContext}.{eventType}.{version}`
 - Routing rules defined in `choreography.yaml`
 
 ## Delivery Semantics

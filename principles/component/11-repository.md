@@ -5,14 +5,14 @@ Defines the SPAS repository API and storage model.
 ## Responsibilities
 
 - Store `spas.json` and schema artifacts for services
-- Index services by `serviceName`, `version`, `capabilities`, `boundedContext` (retain optional `domainContext` for future discovery)
+- Index services by `serviceName`, `version`, `capabilities`, `boundedContext`
 - Link to OCI images in external registries (store image digest for integrity)
 
 ## API Endpoints (baseline)
 
 Natural key aligns with CLI (`spas-service pull <name> <version>`):
 
-- `POST /services` — publish metadata (serviceName + version in body, globally unique pair)
+- `POST /services/{serviceName}:{version}` — publish metadata (PoC: multipart/form-data with `archive` ZIP containing `spas.json` + schemas; path `{serviceName}:{version}` is the source of truth)
 - `GET /services/{serviceName}` — service details
 - `GET /services/{serviceName}/versions` — list versions
 - `GET /services/{serviceName}/versions/{version}` — merged spas.json + schema references
@@ -20,7 +20,7 @@ Natural key aligns with CLI (`spas-service pull <name> <version>`):
 - `GET /services/{serviceName}/versions/{version}/schemas` — list schemas
 - `GET /services/{serviceName}/versions/{version}/schemas/{schemaName}` — retrieve schema
 - `GET /services?capability={cap}` — search by capability
-- `GET /services?domainContext={domainContext}` — search by domain context (optional; future)
+- `GET /services?boundedContext={context}` — search by bounded context
 - `DELETE /services/{serviceName}/versions/{version}` — unpublish
 
 ## Validation
@@ -29,6 +29,8 @@ Natural key aligns with CLI (`spas-service pull <name> <version>`):
 - Duplicate detection (serviceName + version)
 - Archive integrity check at publish time (PoC: optional checksum; Production: required SHA-256)
 - Image digest existence check (optional in PoC)
+- Path authority: `{serviceName}:{version}` in URL MUST match values declared in `spas.json` inside the archive; mismatch results in conflict (409)
+- Multipart handling (PoC): Only `archive` part is required; repository extracts `spas.json` + schemas and validates per rules
 
 ### Cross‑Component Boundaries (See Constitution)
 

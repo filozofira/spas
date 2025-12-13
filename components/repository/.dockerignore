@@ -8,8 +8,6 @@ Dockerfile
 coverage/
 dist/
 test/
-src/
-tsconfig.json
 jest.config.js
 README.md
 .vscode/

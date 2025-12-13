@@ -1,17 +1,17 @@
-version: '3.8'
+version: "3.8"
 
 services:
   # SPAS Repository Service
-  repository:
+  spas-repository:
     build:
       context: .
       dockerfile: Dockerfile
     ports:
       - "3000:3000"
     environment:
-      - NODE_ENV=development
+      - NODE_ENV=production
       - PORT=3000
-      - LOG_LEVEL=debug
+      - LOG_LEVEL=info
       - STORAGE_PROVIDER=sqlite
       - DATABASE_URL=sqlite:////app/data/repository.db
       - SPAS_SCHEMA_PATH=/app/node_modules/@spas/schemas/design-time-metadata-v1.schema.json
@@ -24,16 +24,6 @@ services:
       timeout: 10s
       retries: 3
       start_period: 40s
-    networks:
-      - spas-network
-
-  # Zipkin for distributed tracing (optional)
-  zipkin:
-    image: openzipkin/zipkin:latest
-    ports:
-      - "9411:9411"
-    environment:
-      - STORAGE_TYPE=mem
     networks:
       - spas-network
 

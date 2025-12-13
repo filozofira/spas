@@ -44,15 +44,23 @@ Once read, answer: "What is the immediate next task and what implementation arti
   - **Location:** `components/sdk/dotnet/`
   - **Completion Date:** 2025-12-12
   - **Details:** See `specs/001-dotnet-spas-sdk/COMPLETION.md` for comprehensive summary
+- **.NET SDK Schema Alignment (002-metadata-schema-alignment):** ✅ COMPLETE - Design-time metadata aligned with spec
+  - **Status:** Production-ready, all validation passing
+  - **Location:** `components/sdk/dotnet/` (updated implementation)
+  - **Completion Date:** 2025-12-13
+  - **Details:** See `specs/002-metadata-schema-alignment/COMPLETION.md`
+  - **Key Changes:** SchemaVersion emission, schemaRef for endpoints/events, consistency/network/security builders
+  - **Validation:** 60 tests passing (100%), schema validation with JsonSchema.Net
 
 ### 📋 Critical Reading Order
 
 1. **This file (TASKS.md)** - Overall project status and framework implementation plan
-2. **specs/001-dotnet-spas-sdk/COMPLETION.md** - .NET SDK completion summary with metrics
-3. **specs/001-dotnet-spas-sdk/tasks.md** - Detailed 60-task breakdown (all complete)
-4. **specs/001-dotnet-spas-sdk/SECURITY.md** - PoC→Production migration checklist
-5. **principles/appendix/28-decision-log.md** - 14 ADRs explaining key decisions
-6. **prototypes/spas-sidecar-prototype/README.md** - Working sidecar reference
+2. **specs/002-metadata-schema-alignment/COMPLETION.md** - Latest: Schema alignment completion (2025-12-13)
+3. **specs/001-dotnet-spas-sdk/COMPLETION.md** - .NET SDK initial PoC completion summary
+4. **specs/001-dotnet-spas-sdk/tasks.md** - Detailed 60-task breakdown (all complete)
+5. **specs/001-dotnet-spas-sdk/SECURITY.md** - PoC→Production migration checklist
+6. **principles/appendix/28-decision-log.md** - 14 ADRs explaining key decisions
+7. **prototypes/spas-sidecar-prototype/README.md** - Working sidecar reference
 
 ### 🎯 Current State Summary
 
@@ -65,7 +73,7 @@ Once read, answer: "What is the immediate next task and what implementation arti
   - Zipkin distributed tracing with correlated spans
   - Located: `prototypes/spas-sidecar-prototype/`
   - Ready for integration into `src/sidecar/` as framework component
-- **.NET SDK Development:** ✅ ALL 7 PHASES COMPLETE (PoC-Ready)
+- **.NET SDK Development:** ✅ ALL 7 PHASES COMPLETE (PoC-Ready) + SCHEMA ALIGNMENT COMPLETE
   - Location: `components/sdk/dotnet/`
   - Phase 1: Setup - 17 tasks (solution, 7 packages, 7 test projects, SampleService)
   - Phase 2: Foundation - 8 tasks (ISpasClock, SpasTrace, SpasContext, JSON, Logging)
@@ -74,10 +82,11 @@ Once read, answer: "What is the immediate next task and what implementation arti
   - Phase 5: User Story 3 - 7 tasks (Event publishing with trace context)
   - Phase 6: User Story 4 - 5 tasks (Tracelog middleware + Zipkin)
   - Phase N: Polish - 4 tasks (Documentation, cleanup, security, validation)
-  - **All 88 unit tests passing** ✅
-  - **Build successful** (6 warnings documented in SECURITY.md)
-  - **Single-line config:** `AddSpasServices()` abstracts all SPAS infrastructure
-  - **Complete docs:** quickstart.md, COMPLETION.md, SECURITY.md, README.md
+  - **Schema Alignment (002):** 17 tasks (Design-time metadata alignment with 06-service-metadata.md)
+  - **All 60 unit tests passing** ✅ (updated from 88 after schema refactoring)
+  - **Build successful** (7 warnings documented)
+  - **Schema validation:** JsonSchema.Net integration, design-time-metadata-v1 schema
+  - **Complete docs:** quickstart.md, COMPLETION.md, README.md with builder APIs
   - **IMPORTANT:** See "SDK Implementation Details" section below for critical decisions
 
 ### 🚀 Next Actions

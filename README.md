@@ -70,7 +70,7 @@ SPAS specifies:
 
 ## Related Documents
 
-- [Specification](./principles/INDEX.md)
+- [Principles](./principles/README.md)
 - Prototypes
   - [spas-sidecar](./prototypes/spas-sidecar-prototype/README.md)
 - Specs

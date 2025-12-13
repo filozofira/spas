@@ -51,4 +51,4 @@ Conceptual items: bounded context alignment.
 
 - [Service Contract](04-service-contract.md)
 - [Service Metadata](06-service-metadata.md)
-- [Communication Model](../protocol-specification/07-communication-model.md)
+- [Communication Model](../protocol/07-communication-model.md)

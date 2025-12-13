@@ -54,5 +54,5 @@ These principles are stable across versions and apply to all SPAS services and t
 ## Related Documents
 
 - [INDEX](./INDEX.md)
-- [Service Model](service-specification/03-service-model.md)
-- [Communication Model](protocol-specification/07-communication-model.md)
+- [Service Model](service/03-service-model.md)
+- [Communication Model](protocol/07-communication-model.md)

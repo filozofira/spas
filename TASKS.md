@@ -122,18 +122,18 @@ spas/                                  # Root repository
 │   ├── INDEX.md                       # Navigation entry point
 │   ├── 01-core-principles.md
 │   ├── 02-architecture-overview.md
-│   ├── service-specification/
+│   ├── service/
 │   │   ├── 03-service-model.md
 │   │   ├── 04-service-contract.md
 │   │   ├── 05-service-lifecycle.md
 │   │   └── 06-service-metadata.md     # spas.json schema
-│   ├── component-specification/
+│   ├── component/
 │   │   ├── 10-sidecar-contract.md
-│   │   ├── 11-repository-spec.md
-│   │   ├── 12-sdk-specification.md
-│   │   ├── 13-cli-specification.md
+│   │   ├── 11-repository.md
+│   │   ├── 12-sdk.md
+│   │   ├── 13-cli.md
 │   │   └── 14-domain-choreography.md
-│   ├── protocol-specification/
+│   ├── protocol/
 │   │   ├── 07-communication-model.md
 │   │   ├── 08-grpc-protocol.md        # (Production; PoC uses HTTP)
 │   │   └── 09-event-protocol.md
@@ -160,7 +160,7 @@ spas/                                  # Root repository
 │   │   │   ├── src/                   # Contains source code for .NET SDKs
 │   │   │   ├── test/                  # Unit test code for .NET SDKs
 │   │   │   ├── SPAS.SDK.sln           # SDK .NET solution file
-│   │   │   └── README.md              # SDK documentation (keyed to principles/12-sdk-specification.md)
+│   │   │   └── README.md              # SDK documentation (keyed to principles/12-sdk.md)
 │   │   ├── go/                        # Go SDK (future)
 │   │   ├── java/                      # Java SDK (future)
 │   │   └── README.md                  # Multi-language SDK guide
@@ -172,12 +172,12 @@ spas/                                  # Root repository
 │   │   ├── spas-compose/              # spas-compose root
 │   │   │   ├── src/                   # source for spas-compose cli
 │   │   │   ├── test/                  # test for spas-compose
-│   │   └── README.md                  # CLI documentation (keyed to principles/13-cli-specification.md)
+│   │   └── README.md                  # CLI documentation (keyed to principles/13-cli.md)
 │   │
 │   ├── repository/                    # SPAS Repository Service (metadata + schema storage)
 │   │   ├── src/                       # SPAS Repository service source code
 │   │   ├── test/                      # SPAS Repository test
-│   │   └── README.md                  # Repository API docs (keyed to principles/11-repository-spec.md)
+│   │   └── README.md                  # Repository API docs (keyed to principles/11-repository.md)
 │   │
 │   └── sidecar/                       # SPAS Sidecar (from prototype to Poc and to evolve to production-ready in future)
 │       ├── src/                       # JavaScript/Node.js (or migrate to .NET if needed)
@@ -222,7 +222,7 @@ spas/                                  # Root repository
 
 **Goal:** Enable services to author `spas.json` metadata and publish events.
 
-**Spec Cross-Reference:** `principles/component-specification/12-sdk-specification.md` (source-of-truth)
+**Spec Cross-Reference:** `principles/component/12-sdk.md` (source-of-truth)
 
 **Status:** Phase 3 (User Story 1) complete. See detailed progress in `specs/001-dotnet-spas-sdk/tasks.md`
 
@@ -251,7 +251,7 @@ spas/                                  # Root repository
 
 **Goal:** Store service metadata & schemas; enable service discovery.
 
-**Spec Cross-Reference:** `principles/component-specification/11-repository-spec.md` (source-of-truth)
+**Spec Cross-Reference:** `principles/component/11-repository.md` (source-of-truth)
 
 **Implementation Plan:** To be determined during this phase.
 
@@ -275,7 +275,7 @@ spas/                                  # Root repository
 
 **Goal:** Enable service packaging and composition workflow.
 
-**Spec Cross-Reference:** `principles/component-specification/13-cli-specification.md` (source-of-truth)
+**Spec Cross-Reference:** `principles/component/13-cli.md` (source-of-truth)
 
 **Implementation Plan:** To be determined during this phase.
 
@@ -305,8 +305,8 @@ spas/                                  # Root repository
 **Spec Cross-Reference:**
 
 - `principles/02-architecture-overview.md` (architecture)
-- `principles/service-specification/04-service-contract.md` (service contracts)
-- `principles/component-specification/14-domain-choreography.md` (adaptation rules)
+- `principles/service/04-service-contract.md` (service contracts)
+- `principles/component/14-domain-choreography.md` (adaptation rules)
 
 **Implementation Plan:** To be determined during this phase.
 
@@ -334,12 +334,12 @@ spas/                                  # Root repository
 ```text
 Feature requested: "Event publishing API"
   ↓
-Consult: principles/component-specification/12-sdk-specification.md
+Consult: principles/component/12-sdk.md
 Specifically: "SDK Specification > Responsibilities" section
   ↓
 Implement API to match spec examples
   ↓
-Cross-check: principles/service-specification/04-service-contract.md
+Cross-check: principles/service/04-service-contract.md
 (events[] published definitions)
   ↓
 Validate: Examples match principles/appendix/26-reference-examples.md
@@ -350,10 +350,10 @@ Validate: Examples match principles/appendix/26-reference-examples.md
 ```text
 Feature: "spas-service pack"
   ↓
-Consult: principles/component-specification/13-cli-specification.md
+Consult: principles/component/13-cli.md
 Specifically: "Commands > PoC Core" section
   ↓
-Understand input: principles/service-specification/06-service-metadata.md
+Understand input: principles/service/06-service-metadata.md
 (spas.json schema structure)
   ↓
 Understand output: principles/infrastructure/15-package-format.md
@@ -367,10 +367,10 @@ Validate: Examples from principles/appendix/26-reference-examples.md
 ```text
 Feature: "GET /services/{name}/{version}"
   ↓
-Consult: principles/component-specification/11-repository-spec.md
+Consult: principles/component/11-repository.md
 Specifically: "API Endpoints (baseline)"
   ↓
-Check schema: principles/service-specification/06-service-metadata.md
+Check schema: principles/service/06-service-metadata.md
   ↓
 Review: governance/24-compliance-checklist.md
 (what validation repository must perform)
@@ -380,15 +380,15 @@ Review: governance/24-compliance-checklist.md
 
 | Component              | Spec Reference                                                                                        | Purpose                                  |
 | ---------------------- | ----------------------------------------------------------------------------------------------------- | ---------------------------------------- |
-| SDK                    | [13-sdk-specification.md](principles/component-specification/13-sdk-specification.md)                 | Service development library              |
-| Repository             | [12-repository-spec.md](principles/component-specification/12-repository-spec.md)                     | Metadata storage & discovery             |
-| CLI                    | [14-cli-specification.md](principles/component-specification/14-cli-specification.md)                 | Packaging & composition tooling          |
-| Sidecar                | [10-sidecar-contract.md](principles/component-specification/10-sidecar-contract.md)                   | Runtime transformation & event I/O       |
-| Service Contracts      | [04-service-contract.md](principles/service-specification/04-service-contract.md)                     | What services expose                     |
-| Service Metadata       | [06-service-metadata.md](principles/service-specification/06-service-metadata.md)                     | spas.json schema                         |
-| Message Transformation | [11-transformation-middleware.md](principles/component-specification/11-transformation-middleware.md) | Adaptation & mapping                     |
-| Communication Protocol | [07-communication-model.md](principles/protocol-specification/07-communication-model.md)              | How services talk (HTTP PoC → gRPC prod) |
-| Event Protocol         | [09-event-protocol.md](principles/protocol-specification/09-event-protocol.md)                        | CloudEvents + W3C Trace Context          |
+| SDK                    | [12-sdk.md](principles/component/12-sdk.md)                 | Service development library              |
+| Repository             | [11-repository.md](principles/component/11-repository.md)                     | Metadata storage & discovery             |
+| CLI                    | [13-cli.md](principles/component/13-cli.md)                 | Packaging & composition tooling          |
+| Sidecar                | [10-sidecar-contract.md](principles/component/10-sidecar-contract.md)                   | Runtime transformation & event I/O       |
+| Service Contracts      | [04-service-contract.md](principles/service/04-service-contract.md)                     | What services expose                     |
+| Service Metadata       | [06-service-metadata.md](principles/service/06-service-metadata.md)                     | spas.json schema                         |
+| Message Transformation | [14-domain-choreography.md](principles/component/14-domain-choreography.md) | Adaptation & mapping                     |
+| Communication Protocol | [07-communication-model.md](principles/protocol/07-communication-model.md)              | How services talk (HTTP PoC → gRPC prod) |
+| Event Protocol         | [09-event-protocol.md](principles/protocol/09-event-protocol.md)                        | CloudEvents + W3C Trace Context          |
 | Architecture Decisions | [28-decision-log.md](principles/appendix/28-decision-log.md)                                          | Why SPAS looks like this                 |
 
 ## PoC Constraints & Simplifications
@@ -523,8 +523,8 @@ composer.ComposeToFile(path, identity, contracts, security, health);
 
 **References:**
 
-- Spec: `principles/component-specification/12-sdk-specification.md` (Design-time metadata endpoint)
-- Spec: `principles/service-specification/06-service-metadata.md` (Metadata endpoints)
+- Spec: `principles/component/12-sdk.md` (Design-time metadata endpoint)
+- Spec: `principles/service/06-service-metadata.md` (Metadata endpoints)
 - Tasks: `specs/001-dotnet-spas-sdk/tasks.md` Phase 4 (User Story 2 tasks T039-T044)
 
 ## Recent Status (Dec 12, 2025)

@@ -82,7 +82,7 @@
 - `specs/002-metadata-schema-alignment/contracts/schemas/design-time-metadata-v1.schema.json` - Schema copy in spec folder
 
 ### Modified Files
-- `principles/service-specification/06-service-metadata.md` - Design-time/runtime split, schema updates
+- `principles/service/06-service-metadata.md` - Design-time/runtime split, schema updates
 - `components/sdk/dotnet/src/Spas.Sdk.Metadata/Models/MetadataModels.cs` - Refactored to ServiceIdentity, EndpointContract, EventContract
 - `components/sdk/dotnet/src/Spas.Sdk.Metadata/Composition/SpasComposer.cs` - Flat JSON with schemaVersion, new signature
 - `components/sdk/dotnet/src/Spas.Sdk.Metadata/Builders/*.cs` - All builders updated to new schema
@@ -185,7 +185,7 @@
 
 ## 📚 References
 
-- **Specification**: [06-service-metadata.md](../../principles/service-specification/06-service-metadata.md)
+- **Specification**: [06-service-metadata.md](../../principles/service/06-service-metadata.md)
 - **Schema**: [design-time-metadata-v1.schema.json](../../components/sdk/schemas/design-time-metadata-v1.schema.json)
 - **Quickstart**: [quickstart.md](quickstart.md)
 - **Tests**: [SchemaValidationTests.cs](../../components/sdk/dotnet/test/Spas.Sdk.Metadata.Tests/SchemaValidationTests.cs)

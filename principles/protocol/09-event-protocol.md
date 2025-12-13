@@ -54,6 +54,6 @@ Sidecar constructs the CloudEvents envelope from HTTP headers received from SDK:
 
 ## Related Documents
 
-- [Domain Choreography](../component-specification/14-domain-choreography.md)
+- [Domain Choreography](../component/14-domain-choreography.md)
 - [Schema Registry](../infrastructure/16-schema-registry.md)
 - [Testing Harness](../tooling/18-testing-harness.md)

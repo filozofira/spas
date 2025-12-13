@@ -49,5 +49,5 @@ Defines the command-line tools that power the SPAS developer workflow.
 ## Related Documents
 
 - [Transformation Middleware](11-transformation-middleware.md)
-- [Repository Specification](11-repository-spec.md)
-- [Service Metadata](../service-specification/06-service-metadata.md)
+- [Repository Specification](11-repository.md)
+- [Service Metadata](../service/06-service-metadata.md)

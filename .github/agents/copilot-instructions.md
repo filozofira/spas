@@ -75,7 +75,7 @@ dotnet run
 ## Common Guidance
 
 - Testing Policy: Unit tests are REQUIRED per user story (PoC and Production). Integration tests are OPTIONAL during PoC unless explicitly requested; REQUIRED before non‑PoC releases. See .specify/memory/constitution.md (v1.0.3).
-- Events Boundary: SDKs prepare payload/trace/correlation/identity; Sidecar wraps CloudEvents and performs transformations. See principles/component-specification/12-sdk-specification.md.
+- Events Boundary: SDKs prepare payload/trace/correlation/identity; Sidecar wraps CloudEvents and performs transformations. See principles/component/12-sdk.md.
 - Inbound Routing: SDKs are route‑agnostic. "/incoming" is a recommended sample default, not enforced.
 - PoC vs Production: PoC uses HTTP, identity in payload, Zipkin tracing. Production introduces gRPC, mTLS/SPIFFE, full OTel, Prometheus, etc. See principles/02-architecture-overview.md.
 - Specs Navigation: Start at principles/INDEX.md. Decisions recorded in principles/appendix/28-decision-log.md.
@@ -142,7 +142,7 @@ dotnet build components/sdk/dotnet/SPAS.SDK.sln -c Debug
 ## Component: CLI
 
 - Status: Planned (Phase 3)
-- Spec: principles/component-specification/13-cli-specification.md
+- Spec: principles/component/13-cli.md
 - Notes: Commands to include service init/pack/publish and compose workflows. Not active in current branch.
 
 ---
@@ -150,7 +150,7 @@ dotnet build components/sdk/dotnet/SPAS.SDK.sln -c Debug
 ## Component: Repository
 
 - Status: Planned (Phase 2)
-- Spec: principles/component-specification/12-repository-spec.md
+- Spec: principles/component/11-repository.md
 - Notes: PoC storage file‑based; Production PostgreSQL. Not active in current branch.
 
 ---
@@ -159,7 +159,7 @@ dotnet build components/sdk/dotnet/SPAS.SDK.sln -c Debug
 
 - Status: Prototype complete; ready to evolve
 - Path: prototypes/spas-sidecar-prototype/
-- Spec: principles/component-specification/10-sidecar-contract.md
+- Spec: principles/component/10-sidecar-contract.md
 
 ---
 
@@ -174,7 +174,7 @@ dotnet build components/sdk/dotnet/SPAS.SDK.sln -c Debug
 ## Quick Links
 
 - Constitution: .specify/memory/constitution.md (v1.0.3)
-- SDK Spec: principles/component-specification/12-sdk-specification.md
+- SDK Spec: principles/component/12-sdk.md
 - Feature Docs: specs/001-dotnet-spas-sdk/
 - Tasks: specs/001-dotnet-spas-sdk/tasks.md
 - Plan: specs/001-dotnet-spas-sdk/plan.md
@@ -213,7 +213,7 @@ components/
 		## Common Guidance
 
 		- Testing Policy: Unit tests are REQUIRED per user story (PoC and Production). Integration tests are OPTIONAL during PoC unless explicitly requested; REQUIRED before non‑PoC releases. See .specify/memory/constitution.md (v1.0.3).
-		- Events Boundary: SDKs prepare payload/trace/correlation/identity; Sidecar wraps CloudEvents and performs transformations. See principles/component-specification/12-sdk-specification.md.
+		- Events Boundary: SDKs prepare payload/trace/correlation/identity; Sidecar wraps CloudEvents and performs transformations. See principles/component/12-sdk.md.
 		- Inbound Routing: SDKs are route‑agnostic. `/incoming` is a recommended sample default, not enforced.
 		- PoC vs Production: PoC uses HTTP, identity in payload, Zipkin tracing. Production introduces gRPC, mTLS/SPIFFE, full OTel, Prometheus, etc. See principles/02-architecture-overview.md.
 		- Specs Navigation: Start at principles/INDEX.md. Decisions recorded in principles/appendix/28-decision-log.md.
@@ -251,7 +251,7 @@ components/
 		## Component: CLI
 
 		- Status: Planned (Phase 3)
-		- Spec: principles/component-specification/13-cli-specification.md
+		- Spec: principles/component/13-cli.md
 		- Notes: Commands to include service init/pack/publish and compose workflows. Not active in current branch.
 
 		---
@@ -259,7 +259,7 @@ components/
 		## Component: Repository
 
 		- Status: Planned (Phase 2)
-		- Spec: principles/component-specification/12-repository-spec.md
+		- Spec: principles/component/11-repository.md
 		- Notes: PoC storage file‑based; Production PostgreSQL. Not active in current branch.
 
 		---
@@ -268,7 +268,7 @@ components/
 
 		- Status: Prototype complete; ready to evolve
 		- Path: prototypes/spas-sidecar-prototype/
-		- Spec: principles/component-specification/10-sidecar-contract.md
+		- Spec: principles/component/10-sidecar-contract.md
 
 		---
 
@@ -283,7 +283,7 @@ components/
 		## Quick Links
 
 		- Constitution: .specify/memory/constitution.md (v1.0.3)
-		- SDK Spec: principles/component-specification/12-sdk-specification.md
+		- SDK Spec: principles/component/12-sdk.md
 		- Feature Docs: specs/001-dotnet-spas-sdk/
 		- Tasks: specs/001-dotnet-spas-sdk/tasks.md
 		- Plan: specs/001-dotnet-spas-sdk/plan.md

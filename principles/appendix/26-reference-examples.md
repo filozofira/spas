@@ -61,6 +61,6 @@ security:
 
 ## Related Documents
 
-- [Domain Choreography](../component-specification/14-domain-choreography.md)
-- [CLI Specification](../component-specification/13-cli-specification.md)
+- [Domain Choreography](../component/14-domain-choreography.md)
+- [CLI](../component/13-cli.md)
 - [Glossary](27-glossary.md)

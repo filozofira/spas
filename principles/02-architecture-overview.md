@@ -59,6 +59,6 @@ This document provides a high-level view of SPAS components and how they interac
 ## Related Documents
 
 - [INDEX](INDEX.md)
-- [Communication Model](protocol-specification/07-communication-model.md)
-- [Domain Choreography](component-specification/14-domain-choreography.md)
+- [Communication Model](protocol/07-communication-model.md)
+- [Domain Choreography](component/14-domain-choreography.md)
 - [Runtime Environment](infrastructure/17-runtime-environment.md)

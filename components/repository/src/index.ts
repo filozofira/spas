@@ -111,8 +111,8 @@ export async function start(): Promise<FastifyInstance> {
   const { registerSearchRoutes } = await import('./routes/search');
   await registerSearchRoutes(fastifyInstance, storageProvider);
 
-  // TODO: Register additional routes when implemented
-  // fastifyInstance.register(unpublishRoutes);
+  const { registerUnpublishRoutes } = await import('./routes/unpublish');
+  await registerUnpublishRoutes(fastifyInstance, storageProvider);
 
   // Start server
   await fastifyInstance.listen({ port: config.port, host: '0.0.0.0' });

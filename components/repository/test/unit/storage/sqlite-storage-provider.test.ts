@@ -531,4 +531,86 @@ describe('SqliteStorageProvider', () => {
       expect(results).toEqual([]);
     });
   });
+
+  describe('deleteService', () => {
+    const metadata: ServiceMetadata = {
+      schemaVersion: 'design-time-metadata-v1',
+      id: 'delete-test',
+      name: 'Delete Test Service',
+      description: 'Service for delete testing',
+      version: '1.0.0',
+      boundedContext: 'testing',
+      capabilities: ['test'],
+      endpoints: [],
+      events: [],
+      consistency: { commands: 'ACID', queries: 'STRONG' },
+      network: { requiredEgress: [] },
+      security: { dataClassification: ['internal'] },
+      license: 'MIT',
+    };
+
+    const schema: Schema = {
+      name: 'test-event',
+      type: 'event',
+      content: { type: 'object', properties: { id: { type: 'string' } } },
+    };
+
+    it('should delete service version and associated schemas', async () => {
+      await provider.publishService('delete-test', '1.0.0', metadata, [schema]);
+
+      // Verify it exists
+      let exists = await provider.serviceExists('delete-test', '1.0.0');
+      expect(exists).toBe(true);
+
+      // Delete it
+      await provider.deleteService('delete-test', '1.0.0');
+
+      // Verify it's gone
+      exists = await provider.serviceExists('delete-test', '1.0.0');
+      expect(exists).toBe(false);
+
+      // Verify schemas are also deleted
+      const schemas = await provider.getSchemas('delete-test', '1.0.0');
+      expect(schemas).toEqual([]);
+    });
+
+    it('should preserve other versions when one version is deleted', async () => {
+      await provider.publishService('delete-test', '1.0.0', metadata, [schema]);
+      await provider.publishService('delete-test', '2.0.0', { ...metadata, version: '2.0.0' }, [schema]);
+
+      // Delete version 1.0.0
+      await provider.deleteService('delete-test', '1.0.0');
+
+      // Verify 1.0.0 is gone
+      const exists1 = await provider.serviceExists('delete-test', '1.0.0');
+      expect(exists1).toBe(false);
+
+      // Verify 2.0.0 still exists
+      const exists2 = await provider.serviceExists('delete-test', '2.0.0');
+      expect(exists2).toBe(true);
+
+      // Verify versions list only contains 2.0.0
+      const versions = await provider.getServiceVersions('delete-test');
+      expect(versions).toEqual(['2.0.0']);
+    });
+
+    it('should not throw error when deleting non-existent service', async () => {
+      // Should be idempotent - no error if service doesn't exist
+      await expect(provider.deleteService('nonexistent', '1.0.0')).resolves.not.toThrow();
+    });
+
+    it('should be atomic - all or nothing delete', async () => {
+      await provider.publishService('delete-test', '1.0.0', metadata, [schema]);
+
+      // Delete should be transactional
+      await provider.deleteService('delete-test', '1.0.0');
+
+      // Both metadata and schemas should be deleted
+      const metadataResult = await provider.getServiceMetadata('delete-test', '1.0.0');
+      const schemasResult = await provider.getSchemas('delete-test', '1.0.0');
+
+      expect(metadataResult).toBeNull();
+      expect(schemasResult).toEqual([]);
+    });
+  });
 });

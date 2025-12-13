@@ -167,15 +167,15 @@
 
 ### Tests for User Story 5
 
-- [ ] T060 [P] [US5] Unit test for SqliteStorageProvider.deleteService in `test/unit/storage/sqlite-storage-provider.test.ts` (cascade delete, preserve other versions)
-- [ ] T061 [P] [US5] Integration test for DELETE /services/{serviceName}/versions/{version} in `test/integration/unpublish.test.ts` (all acceptance scenarios from spec.md)
+- [X] T060 [P] [US5] Unit test for SqliteStorageProvider.deleteService in `test/unit/storage/sqlite-storage-provider.test.ts` (cascade delete, preserve other versions)
+- [X] T061 [P] [US5] Integration test for DELETE /services/{serviceName}/versions/{version} in `test/integration/unpublish.test.ts` (all acceptance scenarios from spec.md)
 
 ### Implementation for User Story 5
 
-- [ ] T062 [US5] Implement SqliteStorageProvider.deleteService in `src/storage/SqliteStorageProvider.ts` with transaction (delete schemas, delete service metadata, atomic per FR-021)
-- [ ] T063 [US5] Create UnpublishService in `src/services/UnpublishService.ts`
-- [ ] T064 [US5] Implement DELETE /services/{serviceName}/versions/{version} route in `src/routes/unpublish.ts`
-- [ ] T065 [US5] Register unpublish route in `src/index.ts`
+- [X] T062 [US5] Implement SqliteStorageProvider.deleteService in `src/storage/SqliteStorageProvider.ts` with transaction (delete schemas, delete service metadata, atomic per FR-021)
+- [X] T063 [US5] Create UnpublishService in `src/services/UnpublishService.ts`
+- [X] T064 [US5] Implement DELETE /services/{serviceName}/versions/{version} route in `src/routes/unpublish.ts`
+- [X] T065 [US5] Register unpublish route in `src/index.ts`
 
 **Checkpoint**: All user stories should now be independently functional
 

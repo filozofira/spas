@@ -62,21 +62,21 @@
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [ ] T019 [P] [US1] Unit test for SqliteStorageProvider.publishService in `test/unit/storage/sqlite-storage-provider.test.ts` (happy path, duplicate detection, transaction rollback)
-- [ ] T020 [P] [US1] Unit test for archive extraction in `test/unit/services/archive-service.test.ts` (valid ZIP, missing spas.json, invalid schemas)
-- [ ] T021 [P] [US1] Unit test for validation in `test/unit/validation/publish-validation.test.ts` (schema validation, identity mismatch, checksum verification)
-- [ ] T022 [P] [US1] Integration test for POST /services/{serviceName}:{version} in `test/integration/publish.test.ts` (all acceptance scenarios from spec.md)
+- [x] T019 [P] [US1] Unit test for SqliteStorageProvider.publishService in `test/unit/storage/sqlite-storage-provider.test.ts` (happy path, duplicate detection, transaction rollback)
+- [x] T020 [P] [US1] Unit test for archive extraction in `test/unit/services/archive-service.test.ts` (valid ZIP, missing spas.json, invalid schemas)
+- [X] T021 [P] [US1] Unit test for validation in `test/unit/validation/publish-validation.test.ts` (schema validation, identity mismatch, checksum verification)
+- [X] T022 [P] [US1] Integration test for POST /services/{serviceName}:{version} in `test/integration/publish.test.ts` (all acceptance scenarios from spec.md)
 
 ### Implementation for User Story 1
 
-- [ ] T023 [P] [US1] Implement SqliteStorageProvider.initialize in `src/storage/SqliteStorageProvider.ts` (create DB, run schema, create indexes)
-- [ ] T024 [P] [US1] Implement SqliteStorageProvider.serviceExists in `src/storage/SqliteStorageProvider.ts` (query by name+version)
-- [ ] T025 [US1] Implement SqliteStorageProvider.publishService in `src/storage/SqliteStorageProvider.ts` with transaction (insert service, insert schemas, update index, ACID guarantee per FR-026)
-- [ ] T026 [P] [US1] Create ArchiveService in `src/services/ArchiveService.ts` (extract ZIP, parse spas.json, extract schemas using unzipper)
-- [ ] T027 [P] [US1] Create ChecksumService in `src/services/ChecksumService.ts` (SHA-256 verification for multipart checksum part per FR-008a)
-- [ ] T028 [US1] Create PublishService in `src/services/PublishService.ts` (orchestrate validation, extraction, storage, handle FR-001 through FR-010)
-- [ ] T029 [US1] Implement POST /services/{serviceName}:{version} route in `src/routes/publish.ts` (multipart handler, path authority validation per FR-034a, error responses)
-- [ ] T030 [US1] Register publish route in `src/index.ts` and add route-level error handling
+- [x] T023 [P] [US1] Implement SqliteStorageProvider.initialize in `src/storage/SqliteStorageProvider.ts` (create DB, run schema, create indexes)
+- [x] T024 [P] [US1] Implement SqliteStorageProvider.serviceExists in `src/storage/SqliteStorageProvider.ts` (query by name+version)
+- [x] T025 [US1] Implement SqliteStorageProvider.publishService in `src/storage/SqliteStorageProvider.ts` with transaction (insert service, insert schemas, update index, ACID guarantee per FR-026)
+- [x] T026 [P] [US1] Create ArchiveService in `src/services/ArchiveService.ts` (extract ZIP, parse spas.json, extract schemas using unzipper)
+- [x] T027 [P] [US1] Create ChecksumService in `src/services/ChecksumService.ts` (SHA-256 verification for multipart checksum part per FR-008a)
+- [x] T028 [US1] Create PublishService in `src/services/PublishService.ts` (orchestrate validation, extraction, storage, handle FR-001 through FR-010)
+- [x] T029 [US1] Implement POST /services/{serviceName}:{version} route in `src/routes/publish.ts` (multipart handler, path authority validation per FR-034a, error responses)
+- [x] T030 [US1] Register publish route in `src/index.ts` and add route-level error handling
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 

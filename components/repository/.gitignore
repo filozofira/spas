@@ -12,6 +12,7 @@ build/
 # Testing
 coverage/
 .nyc_output/
+test/tmp/
 
 # Environment
 .env
@@ -29,6 +30,8 @@ lerna-debug.log*
 *.db
 *.db-shm
 *.db-wal
+*.test.db
+*.test.db-*
 
 # IDE
 .vscode/

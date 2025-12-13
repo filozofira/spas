@@ -6,6 +6,7 @@
  */
 
 import Ajv from 'ajv';
+import addFormats from 'ajv-formats';
 import type { ServiceMetadata } from '../models/types';
 
 export class SpasSchemaValidator {
@@ -19,6 +20,9 @@ export class SpasSchemaValidator {
       useDefaults: true,
       coerceTypes: true,
     });
+    
+    // Add format validators (uuid, email, date-time, etc.)
+    addFormats(this.ajv);
 
     // Load SPAS schema - will be done in initialization
     // For now, create basic schema that will be replaced

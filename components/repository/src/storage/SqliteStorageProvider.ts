@@ -47,38 +47,46 @@ export class SqliteStorageProvider implements IStorageProvider {
     metadata: ServiceMetadata,
     schemas: Schema[]
   ): Promise<void> {
-    const transaction = this.db.transaction(() => {
-      // Insert service metadata
-      const capabilities = JSON.stringify(metadata.capabilities);
-      const metadataJson = JSON.stringify(metadata);
+    try {
+      const transaction = this.db.transaction(() => {
+        // Insert service metadata
+        const capabilities = JSON.stringify(metadata.capabilities);
+        const metadataJson = JSON.stringify(metadata);
 
-      const insertService = this.db.prepare(`
-        INSERT INTO services (service_id, version, name, description, bounded_context, capabilities, metadata)
-        VALUES (?, ?, ?, ?, ?, ?, ?)
-      `);
+        const insertService = this.db.prepare(`
+          INSERT INTO services (service_id, version, name, description, bounded_context, capabilities, metadata)
+          VALUES (?, ?, ?, ?, ?, ?, ?)
+        `);
 
-      insertService.run(
-        name,
-        version,
-        metadata.name,
-        metadata.description,
-        metadata.boundedContext,
-        capabilities,
-        metadataJson
-      );
+        insertService.run(
+          name,
+          version,
+          metadata.name,
+          metadata.description,
+          metadata.boundedContext,
+          capabilities,
+          metadataJson
+        );
 
-      // Insert schemas
-      const insertSchema = this.db.prepare(`
-        INSERT INTO schemas (service_id, service_version, name, type, content)
-        VALUES (?, ?, ?, ?, ?)
-      `);
+        // Insert schemas
+        const insertSchema = this.db.prepare(`
+          INSERT INTO schemas (service_id, service_version, name, type, content)
+          VALUES (?, ?, ?, ?, ?)
+        `);
 
-      for (const schema of schemas) {
-        insertSchema.run(name, version, schema.name, schema.type, JSON.stringify(schema.content));
+        for (const schema of schemas) {
+          insertSchema.run(name, version, schema.name, schema.type, JSON.stringify(schema.content));
+        }
+      });
+
+      transaction();
+    } catch (error: any) {
+      // Check for unique constraint violations (duplicate service/version)
+      if (error.message && error.message.includes('UNIQUE constraint')) {
+        throw new Error(`Service ${name}:${version} already exists`);
       }
-    });
-
-    transaction();
+      throw error;
+    }
   }
 
   async getServiceMetadata(name: string, version: string): Promise<ServiceMetadata | null> {

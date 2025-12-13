@@ -62,15 +62,28 @@ export class SchemaEvolutionValidator {
       }
     }
 
-    // Check that required array only grew (additive)
+    // Check that required array doesn't make previously optional fields required
     const prevRequired = (prevContent.required as string[]) || [];
     const newRequired = (newContent.required as string[]) || [];
 
+    // Check for removed required fields (making required fields optional)
     const removedRequired = prevRequired.filter(r => !newRequired.includes(r));
     if (removedRequired.length > 0) {
       throw new EvolutionError(
         'Required properties removed',
         `Properties can no longer be optional: ${removedRequired.join(', ')}`
+      );
+    }
+
+    // Check for added required fields that existed previously as optional
+    const addedRequired = newRequired.filter(r => !prevRequired.includes(r));
+    const prevPropKeys = Object.keys(prevProps || {});
+    const invalidRequired = addedRequired.filter(r => prevPropKeys.includes(r));
+    
+    if (invalidRequired.length > 0) {
+      throw new EvolutionError(
+        'Optional fields made required',
+        `Cannot make optional fields required: ${invalidRequired.join(', ')}`
       );
     }
   }

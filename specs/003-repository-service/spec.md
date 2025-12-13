@@ -26,6 +26,7 @@ A service developer packages their service with `spas.json` and schemas, then pu
 6. **Given** an archive (ZIP) containing `spas.json` and associated schema files, **When** developer publishes via `POST /services/{serviceName}:{version}` with multipart `archive`, **Then** the archive is validated, unpacked, and both metadata and schemas are stored together
 7. **Given** an archive missing `spas.json` or containing invalid schema files, **When** developer publishes via multipart `archive`, **Then** publish is rejected with specific error messages indicating missing/invalid artifacts
 8. **Given** an archive where `spas.json` declares a different serviceName or version than the path, **When** developer publishes via `POST /services/{serviceName}:{version}`, **Then** publish is rejected with a 409 Conflict indicating identity mismatch
+9. **Given** runtime deployment information (imageDigest, imageRepository, imageTag), **When** developer publishes via `POST /services/{serviceName}:{version}` with optional multipart fields, **Then** runtime metadata is stored in dedicated database columns and merged into API responses
 
 ---
 
@@ -39,12 +40,12 @@ A platform operator or CLI tool queries the repository to retrieve service metad
 
 **Acceptance Scenarios**:
 
-1. **Given** a published service "order-service", **When** user requests `GET /services/order-service`, **Then** service details are returned with current metadata
+1. **Given** a published service "order-service", **When** user requests `GET /services/order-service`, **Then** service details are returned with current metadata including runtime information if available
 2. **Given** a service with multiple versions (1.0.0, 1.1.0, 2.0.0), **When** user requests `GET /services/order-service/versions`, **Then** all versions are listed in descending order
-3. **Given** a published service version, **When** user requests `GET /services/{serviceName}/versions/{version}`, **Then** merged `spas.json` with schema references is returned
+3. **Given** a published service version, **When** user requests `GET /services/{serviceName}/versions/{version}`, **Then** complete metadata with runtime information merged from database is returned
 4. **Given** a service version with schemas, **When** user requests `GET /services/{serviceName}/versions/{version}/schemas`, **Then** list of all schemas is returned
 5. **Given** a specific schema for a service version, **When** user requests `GET /services/{serviceName}/versions/{version}/schemas/{schemaName}`, **Then** schema content is returned
-6. **Given** a published service, **When** user requests `GET /services/{serviceName}/versions/{version}/download`, **Then** a complete archive containing `spas.json` and all schemas is returned
+6. **Given** a published service with runtime metadata, **When** user requests `GET /services/{serviceName}/versions/{version}/download`, **Then** a complete archive containing `spas.json` (with runtime merged) and all schemas is returned
 
 ---
 
@@ -124,13 +125,16 @@ A service maintainer needs to remove a published service version due to critical
 - **FR-008a**: In PoC, checksum MAY be provided as a separate multipart/form-data part named `checksum` (SHA-256 of the `archive` ZIP); if present, it MUST be verified; in production, checksum verification is REQUIRED
 - **FR-009**: System MUST validate schema evolution rules for services with existing versions (additive-only changes)
 - **FR-010**: System MUST provide detailed validation error messages when publish is rejected
+- **FR-010a**: System MUST accept optional runtime deployment metadata (imageDigest, imageRepository, imageTag) as multipart form fields during publish
+- **FR-010b**: System MUST store runtime metadata in dedicated database columns separate from design-time spas.json
+- **FR-010c**: System MUST merge runtime metadata with design-time metadata in all API responses when runtime information is available
 
 #### Retrieval
 
-- **FR-011**: System MUST provide `GET /services/{serviceName}` endpoint to retrieve current service details
+- **FR-011**: System MUST provide `GET /services/{serviceName}` endpoint to retrieve current service details including runtime metadata if available
 - **FR-012**: System MUST provide `GET /services/{serviceName}/versions` endpoint to list all versions in descending order
-- **FR-013**: System MUST provide `GET /services/{serviceName}/versions/{version}` endpoint to retrieve merged `spas.json` with schema references
-- **FR-014**: System MUST provide `GET /services/{serviceName}/versions/{version}/download` endpoint to download complete service archive (spas.json + all schemas)
+- **FR-013**: System MUST provide `GET /services/{serviceName}/versions/{version}` endpoint to retrieve complete metadata with runtime information merged from database
+- **FR-014**: System MUST provide `GET /services/{serviceName}/versions/{version}/download` endpoint to download complete service archive with spas.json (including runtime metadata) and all schemas
 - **FR-015**: System MUST provide `GET /services/{serviceName}/versions/{version}/schemas` endpoint to list all schemas for a version
 - **FR-016**: System MUST provide `GET /services/{serviceName}/versions/{version}/schemas/{schemaName}` endpoint to retrieve specific schema content
 
@@ -177,7 +181,7 @@ A service maintainer needs to remove a published service version due to critical
 
 ### Key Entities
 
-- **Service Metadata**: Represents a published service with unique serviceName+version. Contains attributes: serviceName (string, required), version (semver string, required), boundedContext (string, required), capabilities (array of strings, required), imageDigest (string, optional), schemas (array of schema references), publishDate (timestamp), and custom metadata fields from `spas.json`.
+- **Service Metadata**: Represents a published service with unique serviceName+version. Contains attributes: serviceName (string, required), version (semver string, required), boundedContext (string, required), capabilities (array of strings, required), schemas (array of schema references), publishDate (timestamp), custom metadata fields from `spas.json`, and runtime deployment information (imageDigest, imageRepository, imageTag stored in dedicated columns and merged into responses).
 
 - **Service Version**: Represents a specific versioned release of a service. Related to Service Metadata (one service can have many versions). Contains the complete `spas.json` content and references to associated schemas.
 

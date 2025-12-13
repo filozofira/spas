@@ -9,6 +9,16 @@ Repository service for the SPAS (Service Package Archive Schema) framework. Hand
 - **Search Services**: Query available services with advanced filtering
 - **Schema Management**: Store and evolve service schemas following SPAS evolution rules
 - **Validation**: Validate schemas against SPAS specification using JSON Schema
+- **Runtime Metadata**: Enrich design-time metadata with deployment information (image digests, tags)
+
+## Metadata Schemas
+
+The repository handles two types of metadata:
+
+- **Design-time Metadata** (`design-time-metadata-v1`): Authored by service developers, stored in `spas.json`
+- **Runtime Metadata** (`runtime-metadata-v1`): Repository output with design-time enriched with deployment info
+
+See [schemas/runtime-metadata-v1.schema.json](./schemas/runtime-metadata-v1.schema.json) for the complete runtime metadata schema specification.
 
 ## Tech Stack
 

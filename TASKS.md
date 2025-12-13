@@ -17,7 +17,7 @@ framework PoC implementation. Read these context files first:
 5. ./principles/INDEX.md - Complete specification navigation
 6. ./principles/appendix/28-decision-log.md - Architecture decisions (ADRs)
 7. ./principles/02-architecture-overview.md - High-level system design
-8. ./specs (all files in subfolders) - contains GitHub specifications for features
+8. ./specs (all files in subfolders) - contains GitHub SpecKit specifications for features
 9. ./prototypes/spas-sidecar-prototype/README.md - Prototype documentation
 
 Once read, answer: "What is the immediate next task and what implementation artifacts from the spec should guide it?"
@@ -253,20 +253,21 @@ spas/                                  # Root repository
 
 **Spec Cross-Reference:** `principles/component/11-repository.md` (source-of-truth)
 
-**Implementation Plan:** To be determined during this phase.
+**Status:** ✅ DECISIONS COMPLETE (2025-12-13)
 
-- Evaluate storage layer options (file-based, database, or hybrid)
-- Design REST API endpoints per spec (GET /services, POST publish, GET schemas)
-- Plan metadata validation strategy against spec schema
-- Define schema registry integration approach
-- Plan integration points with CLI (pull/publish commands)
+**Implementation Decisions:**
 
-**Decision Point:** Storage layer choice (file-based PoC vs. production-ready) deferred until Phase 2 execution.
+- Language: Node.js 20 + Fastify (TypeScript strict mode)
+- Storage: SQLite (PoC) with IStorageProvider abstraction → PostgreSQL + S3 (Production)
+- Dependencies: Ajv (JSON Schema), unzipper (archives), pino (logging), better-sqlite3
+- Testing: Jest with >80% coverage
+- Design: Storage abstraction layer (Open-Closed Principle) for migration path
 
 **Outputs:**
 
-- `src/repository/` service (ready to containerize)
-- Storage layer implementation (choice TBD)
+- `components/repository/` service (ready to containerize)
+- SQLite storage implementation with IStorageProvider interface
+- PostgresS3StorageProvider stub for production migration
 - Example repository populated with e-commerce services
 
 ---
@@ -394,7 +395,7 @@ Review: governance/24-compliance-checklist.md
 ## PoC Constraints & Simplifications
 
 1. **HTTP-only** (not gRPC) — simplifies PoC, spec marks gRPC as production feature
-2. **Repository storage layer** — decision deferred to Phase 2 execution (options: file-based, embedded database, or production-ready)
+2. **Repository storage layer** — SQLite (PoC) with IStorageProvider abstraction for migration to PostgreSQL + S3 (Production)
 3. **Metadata-only policy** — security policies declared but not enforced in PoC
 4. **Local identity** — "Identity in Payload" (JWT/claims embedded in request)
 5. **No service mesh** — SPAS sidecar runs independently; no Istio/Linkerd
@@ -592,22 +593,19 @@ composer.ComposeToFile(path, identity, contracts, security, health);
 
 ### Precise Next Steps
 
-1. Decide implementation language/runtime (PoC):
-   - Options: .NET 10 Minimal API, Node.js 20 Fastify, Python 3.11 FastAPI
-   - My recommendation for PoC speed: Node.js 20 + Fastify (+ Ajv, `unzipper`)
-2. Confirm production storage targets:
-   - Metadata: PostgreSQL (JSONB)
-   - Schemas: S3-compatible object store
-3. Once decided, update:
-   - `specs/003-repository-service/plan.md` Technical Context
-   - `research.md` Decision section
-4. Scaffold repository service in `components/repository/` with selected stack:
+1. ✅ COMPLETE: Implementation decisions finalized (2025-12-13)
+   - Language: Node.js 20 + Fastify
+   - Storage: SQLite (PoC) with IStorageProvider abstraction
+   - All technical decisions documented in plan.md and research.md
+2. Next: Generate tasks.md via SpecKit:
+   - Command: `/speckit.tasks` or `.specify/scripts/powershell/generate-tasks.ps1`
+3. Then: Scaffold repository service in `components/repository/` with selected stack:
+   - Implement storage abstraction (IStorageProvider, SqliteStorageProvider)
    - Implement `/v1/services/{serviceName}:{version}` (multipart `archive` + `checksum`) with path identity validation
-   - Implement retrieval endpoints and file-based storage (PoC)
-   - Add unit tests per user stories (at least publish, retrieve, search)
-5. Run SpecKit agent context update:
+   - Implement retrieval endpoints and SQLite storage (PoC)
+   - Add unit tests per user stories (publish, retrieve, search, unpublish)
+4. Run SpecKit agent context update:
    - `.specify/scripts/powershell/update-agent-context.ps1 -AgentType copilot`
-6. Optional: Add `tasks.md` for this feature (Phase 2 planning) via SpecKit
 
 ### Quick Repro / Validation
 

@@ -147,8 +147,8 @@ A service maintainer needs to remove a published service version due to critical
 
 #### Storage & Persistence
 
-- **FR-023**: System MUST use file-based storage for service metadata and schemas on local volume for PoC (enables offline operation)
-- **FR-024**: System MUST organize storage to support efficient retrieval by serviceName, version, capability, and boundedContext
+- **FR-023**: System MUST use SQLite (embedded database) for service metadata and schemas in PoC with storage abstraction layer (IStorageProvider) enabling migration to PostgreSQL + S3 for production
+- **FR-024**: System MUST organize storage (database schema) to support efficient retrieval by serviceName, version, capability, and boundedContext
 - **FR-025**: System MUST store OCI image references (registry URL and digest) but NOT store the actual container images
 - **FR-026**: System MUST maintain transactional integrity for publish operations (all-or-nothing commits)
 
@@ -236,9 +236,9 @@ Applied updates:
 ## Constraints
 
 - **PoC Scope**: Authentication, authorization, and package signing are explicitly out of scope for PoC; must be documented for production
-- **Single Instance**: PoC repository runs as single instance; horizontal scaling and high availability are future considerations
-- **Storage Backend**: PoC uses file-based storage; migration path to RDBMS/NoSQL must be designed but not implemented initially
-- **Schema Registry Separation**: PoC integrates schema registry; production may separate into standalone service - API design should support this evolution
+- **Single Instance**: PoC repository runs as single instance (SQLite single-writer); horizontal scaling and high availability are future considerations
+- **Storage Backend**: PoC uses SQLite with storage abstraction layer (IStorageProvider); production migration to PostgreSQL + S3 requires only implementation of PostgresS3StorageProvider
+- **Schema Registry Separation**: PoC integrates schema registry in SQLite; production may separate into standalone service - API design should support this evolution
 - **Offline-First**: Repository must work completely offline for PoC to support local development without internet connectivity
 
 ## Out of Scope

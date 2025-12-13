@@ -46,8 +46,9 @@ Natural key aligns with CLI (`spas-service pull <name> <version>`):
 
 ## Storage Model
 
-- PoC: File-based storage for service metadata + schemas on local volume (simple to run offline and align with CLI pull/publish)
-- Production: Metadata in RDBMS/NoSQL; schemas in a durable object store (or pluggable schema registry backend)
+- PoC: SQLite (embedded database) for service metadata + schemas with JSON support (enables offline operation, ACID transactions, native JSON queries; single file `repository.db` on local volume)
+- Production: Metadata in PostgreSQL (JSONB); schemas in S3-compatible object store
+- Migration Path: Storage abstraction layer (IStorageProvider interface) enables PoC-to-Production migration without code changes
 - Schema registry: Integrated with repository service in PoC; pluggable backend or external registry in Production
 - OCI images: External registry (Docker Hub/ACR/ECR) — store digest in metadata
 - Domain transformations: Stored in domain composition artifacts, not in the service repository

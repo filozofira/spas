@@ -86,7 +86,7 @@ Service developers using the .NET SDK must generate `spas.json` that exactly mat
 ## Dependencies
 
 - Constitution boundaries and SDK responsibilities
-- Repository specification (11-repository-spec.md) expects specific schema format
+- Repository specification (11-repository.md) expects specific schema format
 - CLI tools (Phase 3) will consume this metadata format
 - Existing .NET SDK implementation (specs/001-dotnet-spas-sdk)
 

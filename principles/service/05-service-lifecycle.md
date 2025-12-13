@@ -56,4 +56,4 @@ Defines expectations from authoring through retirement.
 
 - [Service Metadata](06-service-metadata.md)
 - [Package Format](../infrastructure/15-package-format.md)
-- [CLI Specification](../component-specification/13-cli-specification.md)
+- [CLI](../component/13-cli.md)

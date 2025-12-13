@@ -33,11 +33,11 @@ Specifies required interfaces and behaviors for a SPAS service.
 
 ## Health & Readiness
 
-- Service implements gRPC health or HTTP endpoints; sidecar exposes its own health separately (`../component-specification/10-sidecar-contract.md`)
+- Service implements gRPC health or HTTP endpoints; sidecar exposes its own health separately (`../component/10-sidecar-contract.md`)
 - Readiness indicates critical dependency availability (databases, caches, external APIs) and should fail closed if dependencies unavailable
 
 ## Related Documents
 
 - [Service Model](03-service-model.md)
-- [gRPC Protocol](../protocol-specification/08-grpc-protocol.md)
-- [Event Protocol](../protocol-specification/09-event-protocol.md)
+- [gRPC Protocol](../protocol/08-grpc-protocol.md)
+- [Event Protocol](../protocol/09-event-protocol.md)

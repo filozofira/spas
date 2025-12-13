@@ -45,6 +45,6 @@ Captured by domain authors; describes **what** to transform and route:
 
 ## Related Documents
 
-- [Event Protocol](../protocol-specification/09-event-protocol.md)
-- [CLI Specification](13-cli-specification.md)
+- [Event Protocol](../protocol/09-event-protocol.md)
+- [CLI Specification](13-cli.md)
 - [Reference Examples](../appendix/26-reference-examples.md)

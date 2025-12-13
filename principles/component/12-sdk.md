@@ -76,6 +76,6 @@ Clarifications
 
 ## Related Documents
 
-- [Service Contract](../service-specification/04-service-contract.md)
-- [gRPC Protocol](../protocol-specification/08-grpc-protocol.md)
+- [Service Contract](../service/04-service-contract.md)
+- [gRPC Protocol](../protocol/08-grpc-protocol.md)
 - [Testing Harness](../tooling/18-testing-harness.md)

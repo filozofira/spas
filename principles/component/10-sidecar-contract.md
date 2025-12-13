@@ -107,6 +107,6 @@ Specifies responsibilities and interfaces for the platform-injected sidecar/mesh
 
 ## Related Documents
 
-- [Communication Model](../protocol-specification/07-communication-model.md)
+- [Communication Model](../protocol/07-communication-model.md)
 - [Runtime Environment](../infrastructure/17-runtime-environment.md)
 - [Network Security](../security/21-network-security.md)

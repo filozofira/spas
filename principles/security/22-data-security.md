@@ -23,5 +23,5 @@
 ## Related Documents
 
 - [Security Model](19-security-model.md)
-- [Service Metadata](../service-specification/06-service-metadata.md)
+- [Service Metadata](../service/06-service-metadata.md)
 - [Compliance Checklist](../governance/24-compliance-checklist.md)

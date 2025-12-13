@@ -205,6 +205,6 @@ Design-time metadata does not include `runtime`.
 
 ## Related Documents
 
-- [Repository Specification](../component-specification/11-repository-spec.md)
+- [Repository](../component/11-repository.md)
 - [Schema Registry](../infrastructure/16-schema-registry.md)
 - [Compliance Checklist](../governance/24-compliance-checklist.md)

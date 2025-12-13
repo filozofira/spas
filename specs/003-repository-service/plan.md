@@ -11,12 +11,6 @@ Build a PoC Repository Service that publishes and serves canonical service metad
 
 ## Technical Context
 
-<!--
-  ACTION REQUIRED: Replace the content in this section with the technical details
-  for the project. The structure here is presented in advisory capacity to guide
-  the iteration process.
--->
-
 **Language/Version**: Node.js 20 LTS with TypeScript (strict mode)
 **Primary Dependencies**: Fastify (HTTP framework), Ajv (JSON Schema validation), unzipper (archive handling), pino (structured logging), better-sqlite3 (PoC storage)
 **Storage**: PoC: SQLite (embedded, ACID transactions, JSON queries). Production: PostgreSQL (JSONB) + S3-compatible object store. **REQUIRED**: Storage abstraction layer (IStorageProvider interface) to enable PoC-to-Production migration without code changes (Open-Closed Principle).
@@ -55,50 +49,6 @@ specs/[###-feature]/
 ```
 
 ### Source Code (repository root)
-<!--
-  ACTION REQUIRED: Replace the placeholder tree below with the concrete layout
-  for this feature. Delete unused options and expand the chosen structure with
-  real paths (e.g., apps/admin, packages/something). The delivered plan must
-  not include Option labels.
--->
-
-```text
-# [REMOVE IF UNUSED] Option 1: Single project (DEFAULT)
-src/
-├── models/
-├── services/
-├── cli/
-└── lib/
-
-tests/
-├── contract/
-├── integration/
-└── unit/
-
-# [REMOVE IF UNUSED] Option 2: Web application (when "frontend" + "backend" detected)
-backend/
-├── src/
-│   ├── models/
-│   ├── services/
-│   └── api/
-└── tests/
-
-frontend/
-├── src/
-│   ├── components/
-│   ├── pages/
-│   └── services/
-└── tests/
-
-# [REMOVE IF UNUSED] Option 3: Mobile + API (when "iOS/Android" detected)
-api/
-└── [same as backend above]
-
-ios/ or android/
-└── [platform-specific structure: feature modules, UI flows, platform tests]
-```
-
-**Structure Decision**: Node.js 20 backend service with Jest tests.
 
 ```text
 components/repository/
@@ -123,12 +73,3 @@ components/repository/
 ├── Dockerfile
 └── README.md
 ```
-
-## Complexity Tracking
-
-> **Fill ONLY if Constitution Check has violations that must be justified**
-
-| Violation | Why Needed | Simpler Alternative Rejected Because |
-|-----------|------------|-------------------------------------|
-| [e.g., 4th project] | [current need] | [why 3 projects insufficient] |
-| [e.g., Repository pattern] | [specific problem] | [why direct DB access insufficient] |

@@ -1,6 +1,6 @@
 # Research & Decisions (Phase 0)
 
-This document consolidates unknowns and proposes options for the SPAS Repository Service PoC. Items marked NEEDS DECISION are open for dialog.
+This document consolidates research and final decisions for the SPAS Repository Service PoC.
 
 ## Unknowns extracted from Technical Context
 

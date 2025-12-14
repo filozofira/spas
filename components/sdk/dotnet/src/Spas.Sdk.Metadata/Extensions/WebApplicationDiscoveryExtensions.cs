@@ -258,7 +258,7 @@ public static class WebApplicationDiscoveryExtensions
                 if (item is SpasCommandAttribute commandAttr)
                 {
                     var finalPath = commandAttr.Path ?? path ?? string.Empty;
-                    var schemaRef = commandAttr.Schema ?? $"schemas/{commandAttr.Name.ToLowerInvariant()}.schema.json";
+                    var schemaRef = commandAttr.Schema ?? $"schemas/endpoints/{commandAttr.Name.ToLowerInvariant()}.schema.json";
                     builder.AddEndpoint(
                         name: commandAttr.Name,
                         type: "Command",
@@ -273,7 +273,7 @@ public static class WebApplicationDiscoveryExtensions
                 if (item is SpasQueryAttribute queryAttr)
                 {
                     var finalPath = queryAttr.Path ?? path ?? string.Empty;
-                    var schemaRef = queryAttr.Schema ?? $"schemas/{queryAttr.Name.ToLowerInvariant()}.schema.json";
+                    var schemaRef = queryAttr.Schema ?? $"schemas/endpoints/{queryAttr.Name.ToLowerInvariant()}.schema.json";
                     builder.AddEndpoint(
                         name: queryAttr.Name,
                         type: "Query",

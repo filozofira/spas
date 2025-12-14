@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Spas.Sdk.Metadata.Attributes;
 using Spas.Sdk.Metadata.Dev;
 
 namespace Spas.Sdk.Metadata.Tests;
@@ -27,35 +28,35 @@ public class MetadataEndpointIntegrationTests
         app.MapSpasMetadataEndpoint(
             metadataProvider: () => new
             {
-                serviceId = "test-service",
-                serviceName = "Test Service",
+                schemaVersion = "design-time-metadata-v1",
+                id = "test-service",
+                name = "Test Service",
                 version = "1.0.0",
-                contracts = new
+                endpoints = new[]
                 {
-                    commands = new[]
+                    new
                     {
-                        new
-                        {
-                            name = "TestCommand",
-                            version = "1.0",
-                            path = "/commands/test",
-                            schemaPath = "schemas/test-command.schema.json"
-                        }
-                    },
-                    events = new[]
+                        name = "TestCommand",
+                        type = "Command",
+                        protocol = "Http",
+                        methodPath = "/commands/test",
+                        version = "1.0",
+                        schemaRef = "schemas/endpoints/test-command.schema.json"
+                    }
+                },
+                events = new[]
+                {
+                    new
                     {
-                        new
-                        {
-                            name = "TestEvent",
-                            version = "1.0",
-                            schemaPath = "schemas/test-event.schema.json"
-                        }
+                        type = "TestEvent",
+                        version = "1.0",
+                        schemaRef = "schemas/events/test-event.schema.json"
                     }
                 }
             },
             schemasProvider: () => new Dictionary<string, object>
             {
-                ["schemas/test-command.schema.json"] = new
+                ["schemas/endpoints/test-command.schema.json"] = new
                 {
                     type = "object",
                     properties = new
@@ -63,7 +64,7 @@ public class MetadataEndpointIntegrationTests
                         commandId = new { type = "string" }
                     }
                 },
-                ["schemas/test-event.schema.json"] = new
+                ["schemas/events/test-event.schema.json"] = new
                 {
                     type = "object",
                     properties = new
@@ -95,8 +96,8 @@ public class MetadataEndpointIntegrationTests
 
         var entries = archive.Entries.Select(e => e.FullName).ToList();
         Assert.Contains("spas.json", entries);
-        Assert.Contains("schemas/test-command.schema.json", entries);
-        Assert.Contains("schemas/test-event.schema.json", entries);
+        Assert.Contains("schemas/endpoints/test-command.schema.json", entries);
+        Assert.Contains("schemas/events/test-event.schema.json", entries);
 
         // Validate spas.json content
         var spasJsonEntry = archive.GetEntry("spas.json");
@@ -104,12 +105,14 @@ public class MetadataEndpointIntegrationTests
 
         using var spasJsonReader = new StreamReader(spasJsonEntry.Open());
         var spasJsonContent = await spasJsonReader.ReadToEndAsync();
-        Assert.Contains("\"serviceId\":", spasJsonContent);
-        Assert.Contains("\"serviceName\":", spasJsonContent);
-        Assert.Contains("\"contracts\":", spasJsonContent);
+        Assert.Contains("\"schemaVersion\":", spasJsonContent);
+        Assert.Contains("\"id\":", spasJsonContent);
+        Assert.Contains("\"name\":", spasJsonContent);
+        Assert.Contains("\"endpoints\":", spasJsonContent);
+        Assert.Contains("\"events\":", spasJsonContent);
 
         // Validate schema content
-        var schemaEntry = archive.GetEntry("schemas/test-command.schema.json");
+        var schemaEntry = archive.GetEntry("schemas/endpoints/test-command.schema.json");
         Assert.NotNull(schemaEntry);
 
         using var schemaReader = new StreamReader(schemaEntry.Open());
@@ -131,7 +134,7 @@ public class MetadataEndpointIntegrationTests
         await using var app = builder.Build();
 
         app.MapSpasMetadataEndpoint(
-            metadataProvider: () => new { serviceId = "test-service" },
+            metadataProvider: () => new { id = "test-service", name = "Test Service", version = "1.0.0", schemaVersion = "design-time-metadata-v1" },
             schemasProvider: () => new Dictionary<string, object>());
 
         await app.StartAsync();
@@ -180,6 +183,98 @@ public class MetadataEndpointIntegrationTests
         Assert.True(response.IsSuccessStatusCode);
         Assert.Equal("application/zip", response.Content.Headers.ContentType?.MediaType);
     }
+
+    [Fact]
+    public async Task MetadataEndpoint_WithAutoGeneratedSchemas_ReturnsZipWithGeneratedSchemas()
+    {
+        // Arrange
+        var builder = WebApplication.CreateBuilder(new WebApplicationOptions
+        {
+            EnvironmentName = Environments.Development
+        });
+        builder.WebHost.UseTestServer();
+        builder.Services.AddMetadataEndpoint();
+
+        await using var app = builder.Build();
+
+        app.MapSpasMetadataEndpoint(
+            metadataProvider: () => new
+            {
+                schemaVersion = "design-time-metadata-v1",
+                id = "test-service",
+                name = "Test Service",
+                version = "1.0.0",
+                endpoints = new[]
+                {
+                    new
+                    {
+                        name = "CreateTestCommand",
+                        type = "Command",
+                        protocol = "Http",
+                        methodPath = "/commands/test",
+                        version = "1.0",
+                        schemaRef = "schemas/endpoints/create-test-command.schema.json"
+                    }
+                },
+                events = new[]
+                {
+                    new
+                    {
+                        type = "TestCreated",
+                        version = "1.0",
+                        schemaRef = "schemas/events/test-created.schema.json"
+                    }
+                }
+            },
+            assemblyToScan: typeof(TestCommandRequest).Assembly);
+
+        await app.StartAsync();
+        var client = app.GetTestClient();
+
+        // Act
+        var response = await client.GetAsync("/_spas/metadata");
+
+        // Assert
+        Assert.True(response.IsSuccessStatusCode);
+        Assert.Equal("application/zip", response.Content.Headers.ContentType?.MediaType);
+
+        var zipBytes = await response.Content.ReadAsByteArrayAsync();
+        using var zipStream = new MemoryStream(zipBytes);
+        using var archive = new ZipArchive(zipStream, ZipArchiveMode.Read);
+
+        var entries = archive.Entries.Select(e => e.FullName).ToList();
+        Assert.Contains("spas.json", entries);
+        Assert.Contains("schemas/endpoints/create-test-command.schema.json", entries);
+        Assert.Contains("schemas/events/test-created.schema.json", entries);
+
+        // Validate auto-generated schema content
+        var schemaEntry = archive.GetEntry("schemas/endpoints/create-test-command.schema.json");
+        Assert.NotNull(schemaEntry);
+
+        using var schemaReader = new StreamReader(schemaEntry.Open());
+        var schemaContent = await schemaReader.ReadToEndAsync();
+        Assert.Contains("$schema", schemaContent);
+        Assert.Contains("type", schemaContent);
+        Assert.Contains("properties", schemaContent);
+        Assert.Contains("TestId", schemaContent);
+        Assert.Contains("Name", schemaContent);
+
+        // Validate event schema
+        var eventSchemaEntry = archive.GetEntry("schemas/events/test-created.schema.json");
+        Assert.NotNull(eventSchemaEntry);
+
+        using var eventSchemaReader = new StreamReader(eventSchemaEntry.Open());
+        var eventSchemaContent = await eventSchemaReader.ReadToEndAsync();
+        Assert.Contains("type", eventSchemaContent);
+        Assert.Contains("EventId", eventSchemaContent);
+    }
 }
+
+// Test types for auto-generated schema tests
+[SpasCommand("CreateTestCommand", "1.0")]
+public record TestCommandRequest(string TestId, string Name);
+
+[SpasEvent("TestCreated", "1.0", EventType = "com.test.created")]
+public record TestCreatedEvent(Guid EventId, string TestId, DateTime CreatedAt);
 
 

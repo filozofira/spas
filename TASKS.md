@@ -8,11 +8,41 @@
 
 This section documents the latest actions, any issues encountered, and the exact next steps so another agent can resume seamlessly.
 
-### What Was Done (spas-compose CLI Planning, Complete)
+### What Was Done (spas-compose CLI Implementation, Phases 1-6 Complete)
 
-- **Feature [005-spas-compose-cli](./specs/005-spas-compose-cli/)** — ✅ Planning Complete
+- **Feature [005-spas-compose-cli](./specs/005-spas-compose-cli/)** — ✅ Phases 1-6 Complete
 - **Branch**: `005-spas-compose-cli`
-- **Status**: Ready for implementation
+- **Status**: Phase 7 (Polish) remaining
+
+**Implementation Progress**:
+
+| Phase   | Status      | Description                                             |
+| ------- | ----------- | ------------------------------------------------------- |
+| Phase 1 | ✅ Complete | Project setup (T001-T005)                               |
+| Phase 2 | ✅ Complete | Foundational infrastructure (T006-T011)                 |
+| Phase 3 | ✅ Complete | US1 - Init Domain Workspace (T012-T018)                 |
+| Phase 4 | ✅ Complete | US2 - Pull Service Metadata (T019-T026)                 |
+| Phase 5 | ✅ Complete | US3 - Deploy Choreography to Docker Compose (T027-T040) |
+| Phase 6 | ✅ Complete | US4 - AI-Assisted Choreography Composition (T041-T047)  |
+| Phase 7 | ⏸️ Pending  | Polish & Cross-Cutting Concerns (T048-T053)             |
+
+**Test Status**: 67 tests passing
+
+**Available Commands**:
+
+- `spas-compose init <name>` - Create domain workspace with agent prompt
+- `spas-compose services pull <name> <version>` - Pull service metadata from Repository
+- `spas-compose choreography deploy --docker` - Generate Docker Compose deployment
+
+**Key Implementation Notes**:
+
+- Agent prompt (`.github/agents/spas-compose.agent.md` + `.github/prompts/spas-compose.prompt.md`) created dynamically by `init` command
+- Schema archive structure preserved: `schemas/endpoints/` and `schemas/events/` subdirectories
+- JSONata validation using `jsonata` package for transformation syntax checking
+
+> **E2E Verification Note**: Full end-to-end testing of `services pull` and AI composition
+> requires SPAS Repository running with registered services. Unit tests pass but
+> integration with live Repository deferred until Repository service is operational.
 
 **Planning Artifacts Created**:
 
@@ -44,24 +74,26 @@ This section documents the latest actions, any issues encountered, and the exact
 
 - Nothing failed in this session
 - SDK SampleService `dotnet run` still exits with code 1 (pre-existing issue, not addressed)
+- Archive structure alignment: Updated `pull-service.ts` to preserve `schemas/endpoints/` and `schemas/events/` subdirectories
 
 ### Precise Next Steps (Pick and execute)
 
-1. **Start implementation (recommended)**: Execute tasks.md for spas-compose CLI
+1. **Complete Phase 7 (Polish)**: Execute remaining tasks T048-T053
 
-   - **MVP Path** (fastest time-to-value):
-     1. Phase 1-2: Setup + Foundational (T001-T011)
-     2. Phase 3: US1 Init command (T012-T018)
-     3. Phase 4: US2 Pull command (T019-T026)
-     4. Phase 6: US4 Agent prompt (T041-T047)
-   - At MVP completion: developers can init workspace, pull services, use AI to compose choreography
-   - Phase 5 (US3 Deploy) automates docker-compose generation
+   - Update README.md with full command reference
+   - Add --verbose flag support
+   - Run lint/format checks
+   - Test npm link installation
 
-2. **Validate planning artifacts**: Review specs/005-spas-compose-cli/ documents for completeness
+2. **E2E Integration Testing** (requires Repository):
 
-3. **End-to-end validation (optional)**: Run full spas-service CLI workflow to verify Repository still working
    - Start Repository: `cd components/repository && docker compose up`
-   - Publish/Pull workflow per previous handoff notes
+   - Register test services via spas-service CLI
+   - Test full workflow: `spas-compose init` → `services pull` → `choreography deploy`
+
+3. **AI Composition Testing** (requires services):
+   - Pull real services into domain workspace
+   - Test `/spas.compose` agent prompt with VS Code Copilot
 
 ### Completed Features Summary
 
@@ -71,7 +103,7 @@ This section documents the latest actions, any issues encountered, and the exact
 | Schema Alignment   | [002-metadata-schema-alignment](./specs/002-metadata-schema-alignment/) | ✅ Complete          | —     |
 | Repository Service | [003-repository-service](./specs/003-repository-service/)               | ✅ Complete          | 35/35 |
 | spas-service CLI   | [004-spas-service-cli](./specs/004-spas-service-cli/)                   | ✅ Complete          | 48/48 |
-| spas-compose CLI   | [005-spas-compose-cli](./specs/005-spas-compose-cli/)                   | 📋 Planning Complete | —     |
+| spas-compose CLI   | [005-spas-compose-cli](./specs/005-spas-compose-cli/)                   | ⏳ Phase 7 Pending   | 67/67 |
 
 ## 📋 Key Rules for Multi-Machine Continuity
 

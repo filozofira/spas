@@ -204,6 +204,8 @@ export interface ChoreographyDeployOptions extends CommonOptions {
   docker?: boolean;
   /** Validate without generating files */
   dryRun?: boolean;
+  /** Output filename */
+  output?: string;
 }
 
 /**
@@ -231,9 +233,13 @@ export interface CommandResult {
 export interface RepositoryServiceResponse {
   /** Service metadata */
   metadata: ServiceMetadata;
-  /** Schema files */
+  /** Schema files with relative path from archive root */
   schemas: Array<{
+    /** Relative path preserving archive structure (e.g., 'schemas/events/OrderCreated.schema.json') */
+    path: string;
+    /** Schema filename */
     name: string;
+    /** Schema content (JSON string or parsed object) */
     content: string;
   }>;
 }

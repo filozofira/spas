@@ -11,7 +11,7 @@ import { PullService } from '../../../src/services/pull-service.js';
 import { WorkspaceService } from '../../../src/services/workspace-service.js';
 import type { RepositoryServiceResponse } from '../../../src/types.js';
 
-// Mock RepositoryClient responses
+// Mock RepositoryClient responses with archive structure
 const mockServiceResponse: RepositoryServiceResponse = {
   metadata: {
     id: 'order-service',
@@ -19,11 +19,11 @@ const mockServiceResponse: RepositoryServiceResponse = {
     boundedContext: 'orders',
     events: {
       published: [
-        { name: 'OrderCreated', schema: 'schemas/OrderCreated.schema.json' },
-        { name: 'OrderUpdated', schema: 'schemas/OrderUpdated.schema.json' },
+        { name: 'OrderCreated', schema: 'schemas/events/OrderCreated.schema.json' },
+        { name: 'OrderUpdated', schema: 'schemas/events/OrderUpdated.schema.json' },
       ],
       subscribed: [
-        { name: 'PaymentReceived', schema: 'schemas/PaymentReceived.schema.json' },
+        { name: 'PaymentReceived', schema: 'schemas/events/PaymentReceived.schema.json' },
       ],
     },
     network: {
@@ -32,9 +32,9 @@ const mockServiceResponse: RepositoryServiceResponse = {
     },
   },
   schemas: [
-    { name: 'OrderCreated.schema.json', content: '{"type":"object","properties":{"orderId":{"type":"string"}}}' },
-    { name: 'OrderUpdated.schema.json', content: '{"type":"object","properties":{"orderId":{"type":"string"},"status":{"type":"string"}}}' },
-    { name: 'PaymentReceived.schema.json', content: '{"type":"object","properties":{"paymentId":{"type":"string"}}}' },
+    { path: 'schemas/events/OrderCreated.schema.json', name: 'OrderCreated.schema.json', content: '{"type":"object","properties":{"orderId":{"type":"string"}}}' },
+    { path: 'schemas/events/OrderUpdated.schema.json', name: 'OrderUpdated.schema.json', content: '{"type":"object","properties":{"orderId":{"type":"string"},"status":{"type":"string"}}}' },
+    { path: 'schemas/events/PaymentReceived.schema.json', name: 'PaymentReceived.schema.json', content: '{"type":"object","properties":{"paymentId":{"type":"string"}}}' },
   ],
 };
 
@@ -78,7 +78,7 @@ describe('PullService', () => {
       expect(savedMetadata.version).toBe('1.0.0');
     });
 
-    it('should save schemas to schemas/ subdirectory', async () => {
+    it('should save schemas preserving archive subdirectory structure', async () => {
       // Arrange
       const pullService = new PullService(workspacePath);
 
@@ -87,16 +87,19 @@ describe('PullService', () => {
 
       // Assert
       expect(result.success).toBe(true);
-      const schemasDir = path.join(workspacePath, 'services', 'order-service', 'schemas');
-      expect(fs.existsSync(schemasDir)).toBe(true);
       
-      const schemaFiles = fs.readdirSync(schemasDir);
-      expect(schemaFiles).toContain('OrderCreated.schema.json');
-      expect(schemaFiles).toContain('OrderUpdated.schema.json');
-      expect(schemaFiles).toContain('PaymentReceived.schema.json');
+      // Check events subdirectory exists
+      const eventsDir = path.join(workspacePath, 'services', 'order-service', 'schemas', 'events');
+      expect(fs.existsSync(eventsDir)).toBe(true);
+      
+      // Check schema files are in the correct subdirectory
+      const eventSchemas = fs.readdirSync(eventsDir);
+      expect(eventSchemas).toContain('OrderCreated.schema.json');
+      expect(eventSchemas).toContain('OrderUpdated.schema.json');
+      expect(eventSchemas).toContain('PaymentReceived.schema.json');
     });
 
-    it('should return correct artifact list', async () => {
+    it('should return correct artifact list with paths', async () => {
       // Arrange
       const pullService = new PullService(workspacePath);
 
@@ -108,7 +111,7 @@ describe('PullService', () => {
       expect(result.data?.service.name).toBe('order-service');
       expect(result.data?.service.version).toBe('1.0.0');
       expect(result.data?.artifacts.metadata).toBe('spas.json');
-      expect(result.data?.artifacts.schemas).toContain('OrderCreated.schema.json');
+      expect(result.data?.artifacts.schemas).toContain('schemas/events/OrderCreated.schema.json');
     });
 
     it('should overwrite existing service if pulling again', async () => {

@@ -167,7 +167,11 @@ ${workspaceName}/
 ├── services/                      # Pulled service metadata (read-only)
 │   └── <service-name>/
 │       ├── spas.json              # Service contract
-│       └── schemas/               # Event schemas
+│       └── schemas/               # Schemas (preserves archive structure)
+│           ├── endpoints/         # Endpoint request/response schemas
+│           │   └── <endpoint>.schema.json
+│           └── events/            # Event payload schemas
+│               └── <event-type>.schema.json
 └── choreography/
     └── transformations/           # JSONata files (you create these)
         └── <service-name>/

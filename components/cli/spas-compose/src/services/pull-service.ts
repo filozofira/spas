@@ -43,9 +43,10 @@ export class PullService {
   /**
    * Save downloaded service metadata to the workspace
    * 
-   * Creates:
+   * Preserves archive structure:
    * - services/<service-name>/spas.json
-   * - services/<service-name>/schemas/*.schema.json
+   * - services/<service-name>/schemas/endpoints/*.schema.json
+   * - services/<service-name>/schemas/events/*.schema.json
    */
   async saveService(response: RepositoryServiceResponse): Promise<PullServiceResult> {
     // Validate workspace structure
@@ -57,7 +58,6 @@ export class PullService {
     const { metadata, schemas } = response;
     const serviceName = metadata.id;
     const servicePath = path.join(this.servicesPath, serviceName);
-    const schemasPath = path.join(servicePath, 'schemas');
 
     try {
       // Create service directory (overwrites if exists)
@@ -65,23 +65,31 @@ export class PullService {
         fs.rmSync(servicePath, { recursive: true, force: true });
       }
       fs.mkdirSync(servicePath, { recursive: true });
-      fs.mkdirSync(schemasPath, { recursive: true });
 
       // Write spas.json
       const metadataPath = path.join(servicePath, 'spas.json');
       fs.writeFileSync(metadataPath, JSON.stringify(metadata, null, 2), 'utf-8');
 
-      // Write schema files
+      // Write schema files preserving archive structure
       const schemaNames: string[] = [];
       let totalBytes = Buffer.byteLength(JSON.stringify(metadata));
 
       for (const schema of schemas) {
-        const schemaFilePath = path.join(schemasPath, schema.name);
+        // Use path if available, otherwise fall back to name in schemas/
+        const relativePath = schema.path || `schemas/${schema.name}`;
+        const schemaFilePath = path.join(servicePath, relativePath);
+        
+        // Create subdirectories if needed (e.g., schemas/events/, schemas/endpoints/)
+        const schemaDir = path.dirname(schemaFilePath);
+        if (!fs.existsSync(schemaDir)) {
+          fs.mkdirSync(schemaDir, { recursive: true });
+        }
+        
         const content = typeof schema.content === 'string' 
           ? schema.content 
           : JSON.stringify(schema.content, null, 2);
         fs.writeFileSync(schemaFilePath, content, 'utf-8');
-        schemaNames.push(schema.name);
+        schemaNames.push(relativePath);
         totalBytes += Buffer.byteLength(content);
       }
 

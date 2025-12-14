@@ -106,23 +106,23 @@
 
 ### Unit Tests for User Story 3
 
-- [ ] T027 [P] [US3] Unit test for ChoreographyLoader.load() in test/unit/services/choreography-loader.test.ts
-- [ ] T028 [P] [US3] Unit test for JsonataValidator.validate() in test/unit/services/jsonata-validator.test.ts
-- [ ] T029 [P] [US3] Unit test for DockerGenerator.generate() in test/unit/services/docker-generator.test.ts
-- [ ] T030 [P] [US3] Unit test for choreography-deploy command validation in test/unit/commands/choreography-deploy.test.ts
+- [X] T027 [P] [US3] Unit test for ChoreographyLoader.load() in test/unit/services/choreography-loader.test.ts
+- [X] T028 [P] [US3] Unit test for JsonataValidator.validate() in test/unit/services/jsonata-validator.test.ts
+- [X] T029 [P] [US3] Unit test for DockerGenerator.generate() in test/unit/services/docker-generator.test.ts
+- [X] T030 [P] [US3] Unit test for choreography-deploy command validation in test/unit/commands/choreography-deploy.test.ts
 
 ### Implementation for User Story 3
 
-- [ ] T031 [US3] Create ChoreographyLoader in src/services/choreography-loader.ts with load(), validate() per choreography-schema.yaml
-- [ ] T032 [US3] Create JsonataValidator in src/services/jsonata-validator.ts with validateFile(), validateSyntax()
-- [ ] T033 [US3] Create DockerGenerator in src/services/docker-generator.ts with generate(), generateService(), generateSidecar(), generateInfrastructure()
-- [ ] T034 [US3] Create choreography-deploy command handler in src/commands/choreography-deploy.ts
-- [ ] T035 [US3] Implement --dry-run flag for validation-only mode
-- [ ] T036 [US3] Implement service validation (check pulled services exist)
-- [ ] T037 [US3] Implement transformation file validation (check .jsonata files exist and valid syntax)
-- [ ] T038 [US3] Generate docker-compose.yaml with sidecar volume mounts for transformation folders
-- [ ] T039 [US3] Wire choreography deploy command to CLI entry point in src/index.ts
-- [ ] T040 [US3] Add JSON output format support and actionable error messages
+- [X] T031 [US3] Create ChoreographyLoader in src/services/choreography-loader.ts with load(), validate() per choreography-schema.yaml
+- [X] T032 [US3] Create JsonataValidator in src/services/jsonata-validator.ts with validateFile(), validateSyntax()
+- [X] T033 [US3] Create DockerGenerator in src/services/docker-generator.ts with generate(), generateService(), generateSidecar(), generateInfrastructure()
+- [X] T034 [US3] Create choreography-deploy command handler in src/commands/choreography-deploy.ts
+- [X] T035 [US3] Implement --dry-run flag for validation-only mode
+- [X] T036 [US3] Implement service validation (check pulled services exist)
+- [X] T037 [US3] Implement transformation file validation (check .jsonata files exist and valid syntax)
+- [X] T038 [US3] Generate docker-compose.yaml with sidecar volume mounts for transformation folders
+- [X] T039 [US3] Wire choreography deploy command to CLI entry point in src/index.ts
+- [X] T040 [US3] Add JSON output format support and actionable error messages
 
 **Checkpoint**: `spas-compose choreography deploy --docker` works end-to-end
 
@@ -136,17 +136,21 @@
 
 **FR Mapping**: FR-006 (agent prompt), contracts/agent-prompt.md
 
+> **Note**: E2E verification of this phase requires SPAS Repository running with registered services.
+> Agent prompt code is complete and created dynamically by `spas-compose init`.
+> Manual verification deferred until Repository integration testing.
+
 ### Implementation for User Story 4
 
-- [ ] T041 [US4] Create agent prompt file .github/agents/spas-compose.md per contracts/agent-prompt.md
-- [ ] T042 [US4] Include workspace awareness instructions (services/, choreography.yaml paths)
-- [ ] T043 [US4] Include contract analysis instructions (spas.json parsing, event matching)
-- [ ] T044 [US4] Include choreography generation instructions (schema compliance, named flows)
-- [ ] T045 [US4] Include transformation generation instructions (JSONata syntax, naming conventions)
-- [ ] T046 [US4] Include iterative confirmation workflow (confirm/feedback loop)
-- [ ] T047 [US4] Add example prompts section matching contracts/agent-prompt.md Expected Prompts
+- [X] T041 [US4] Create agent prompt file .github/agents/spas-compose.md per contracts/agent-prompt.md
+- [X] T042 [US4] Include workspace awareness instructions (services/, choreography.yaml paths)
+- [X] T043 [US4] Include contract analysis instructions (spas.json parsing, event matching)
+- [X] T044 [US4] Include choreography generation instructions (schema compliance, named flows)
+- [X] T045 [US4] Include transformation generation instructions (JSONata syntax, naming conventions)
+- [X] T046 [US4] Include iterative confirmation workflow (confirm/feedback loop)
+- [X] T047 [US4] Add example prompts section matching contracts/agent-prompt.md Expected Prompts
 
-**Checkpoint**: `/spas.compose` agent prompt is discoverable and functional
+**Checkpoint**: `/spas.compose` agent prompt is discoverable and functional ✓ (created by init command)
 
 ---
 

@@ -6,6 +6,7 @@ import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
 import { createInitCommand } from './commands/init.js';
 import { createServicesPullCommand } from './commands/services-pull.js';
+import { createChoreographyCommand } from './commands/choreography-deploy.js';
 
 // Get package.json for version
 const __filename = fileURLToPath(import.meta.url);
@@ -24,10 +25,7 @@ program
 // Register commands
 program.addCommand(createInitCommand());
 program.addCommand(createServicesPullCommand());
-
-// Future commands (uncomment when implemented):
-// import { createChoreographyDeployCommand } from './commands/choreography-deploy.js';
-// program.addCommand(createChoreographyDeployCommand());
+program.addCommand(createChoreographyCommand());
 
 // Global options
 program.option('--verbose', 'Enable verbose output', false);

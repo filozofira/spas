@@ -130,4 +130,57 @@ describe('Publish Command Integration', () => {
                 .toThrow('Version conflict');
         });
     });
+
+    describe('Dry-run mode', () => {
+        it('should not call repository when dry-run is enabled', async () => {
+            // Arrange
+            const serviceHost = 'http://localhost:5000';
+            const archiveBuffer = Buffer.from('mock-zip');
+            const identity = { id: 'test-service', version: '1.0.0' };
+            const schemas = ['schemas/endpoints/test.schema.json'];
+
+            mockMetadataClient.downloadMetadata.mockResolvedValue(archiveBuffer);
+            mockArchiveReader.extractIdentity.mockResolvedValue(identity);
+            mockArchiveReader.listSchemas.mockReturnValue(schemas);
+
+            const publishService = new PublishService(
+                mockMetadataClient,
+                mockArchiveReader,
+                mockRepositoryClient
+            );
+
+            // Act
+            const result = await publishService.publishDryRun(serviceHost);
+
+            // Assert
+            expect(mockMetadataClient.downloadMetadata).toHaveBeenCalledWith(serviceHost);
+            expect(mockArchiveReader.extractIdentity).toHaveBeenCalledWith(archiveBuffer);
+            expect(mockRepositoryClient.publishService).not.toHaveBeenCalled();
+            expect(result.identity).toEqual(identity);
+            expect(result.schemas).toEqual(schemas);
+        });
+
+        it('should save archive locally during dry-run', async () => {
+            // Arrange
+            const serviceHost = 'http://localhost:5000';
+            const archiveBuffer = Buffer.from('mock-zip');
+            const identity = { id: 'test-service', version: '1.0.0' };
+
+            mockMetadataClient.downloadMetadata.mockResolvedValue(archiveBuffer);
+            mockArchiveReader.extractIdentity.mockResolvedValue(identity);
+            mockArchiveReader.listSchemas.mockReturnValue([]);
+
+            const publishService = new PublishService(
+                mockMetadataClient,
+                mockArchiveReader,
+                mockRepositoryClient
+            );
+
+            // Act
+            const result = await publishService.publishDryRun(serviceHost);
+
+            // Assert
+            expect(result.savedPath).toContain('test-service-1.0.0.zip');
+        });
+    });
 });

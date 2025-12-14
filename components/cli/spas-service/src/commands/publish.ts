@@ -8,7 +8,7 @@ import { ArchiveReader } from '../services/archive-reader.js';
 import { RepositoryClient } from '../services/repository-client.js';
 import { PublishService } from '../services/publish-service.js';
 import { resolveRepositoryUrl } from '../utils/config.js';
-import { success, error, info, printError, verbose } from '../utils/output.js';
+import { success, error, info, printError, verbose, printArchiveContents } from '../utils/output.js';
 import type { CliError, PublishOptions } from '../types.js';
 
 /**
@@ -19,6 +19,8 @@ export function createPublishCommand(): Command {
     .description('Publish service metadata to the SPAS Repository')
     .argument('<service-host>', 'URL of the running service (e.g., http://localhost:5000)')
     .option('--repo <url>', 'Repository URL (overrides SPAS_REPOSITORY_URL)')
+    .option('--dry-run', 'Download and inspect metadata without publishing to repository')
+    .option('--output <dir>', 'Output directory for dry-run archive (default: current directory)')
     .action(async (serviceHost: string, options: PublishOptions) => {
       await executePublish(serviceHost, options);
     });
@@ -33,7 +35,6 @@ async function executePublish(serviceHost: string, options: PublishOptions): Pro
   try {
     // Resolve repository URL from options, env var, or default
     const repositoryUrl = resolveRepositoryUrl(options.repo);
-    verbose(`Using repository: ${repositoryUrl}`);
 
     // Create service instances
     const metadataClient = new MetadataClient();
@@ -45,21 +46,54 @@ async function executePublish(serviceHost: string, options: PublishOptions): Pro
       repositoryClient
     );
 
-    info(`Publishing service metadata from ${serviceHost}`);
-    info(`Target repository: ${repositoryUrl}`);
+    if (options.dryRun) {
+      // Dry-run mode
+      await executeDryRun(serviceHost, publishService, options.output);
+    } else {
+      // Normal publish mode
+      verbose(`Using repository: ${repositoryUrl}`);
+      info(`Publishing service metadata from ${serviceHost}`);
+      info(`Target repository: ${repositoryUrl}`);
 
-    // Execute publish workflow
-    const identity = await publishService.publish(serviceHost);
+      const identity = await publishService.publish(serviceHost);
 
-    // Success output
-    success(`Downloaded metadata from ${serviceHost}`);
-    success(`Extracted identity: ${identity.id} v${identity.version}`);
-    success(`Published ${identity.id}:${identity.version} to ${repositoryUrl}`);
-
+      success(`Downloaded metadata from ${serviceHost}`);
+      success(`Extracted identity: ${identity.id} v${identity.version}`);
+      success(`Published ${identity.id}:${identity.version} to ${repositoryUrl}`);
+    }
   } catch (err) {
     handlePublishError(err);
     process.exit(1);
   }
+}
+
+/**
+ * Execute dry-run workflow: download, inspect, and save locally
+ */
+async function executeDryRun(
+  serviceHost: string,
+  publishService: PublishService,
+  outputDir?: string
+): Promise<void> {
+  info('Dry-run mode: Metadata will be downloaded but NOT published to repository');
+  info(`Downloading service metadata from ${serviceHost}`);
+
+  const result = await publishService.publishDryRun(serviceHost, outputDir);
+
+  success(`Downloaded metadata from ${serviceHost}`);
+  success(`Extracted identity: ${result.identity.id} v${result.identity.version}`);
+  success(`Archive saved to: ${result.savedPath}`);
+
+  // Display archive contents
+  printArchiveContents({
+    id: result.identity.id,
+    name: result.identity.name || result.identity.id,
+    version: result.identity.version
+  }, result.schemas);
+
+  // Final dry-run message
+  info('');
+  info('Dry run complete. No changes published to repository.');
 }
 
 /**

@@ -14,6 +14,8 @@ export interface PublishOptions {
   repo?: string;
   /** Download only, don't publish */
   dryRun?: boolean;
+  /** Output directory for dry-run archive */
+  output?: string;
 }
 
 /**

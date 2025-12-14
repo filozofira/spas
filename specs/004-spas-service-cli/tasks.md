@@ -101,15 +101,15 @@
 
 ### Tests for User Story 2
 
-- [ ] T035 [P] [US2] Unit test for dry-run in publish-service.ts in `test/unit/services/publish-service.test.ts` (saves file, skips repository client)
-- [ ] T036 [P] [US2] Integration test for --dry-run in `test/integration/publish.test.ts` (verify no HTTP to Repository, file created locally)
+- [X] T035 [P] [US2] Unit test for dry-run in publish-service.ts in `test/unit/services/publish-service.test.ts` (saves file, skips repository client)
+- [X] T036 [P] [US2] Integration test for --dry-run in `test/integration/publish.test.ts` (verify no HTTP to Repository, file created locally)
 
 ### Implementation for User Story 2
 
-- [ ] T037 [US2] Extend PublishService for dry-run mode (save archive locally, display contents summary, skip publish)
-- [ ] T038 [US2] Add --dry-run flag to publish command in `src/commands/publish.ts`
-- [ ] T039 [US2] Implement archive contents display (spas.json identity, schemas count, file list)
-- [ ] T040 [US2] Add dry-run specific output formatting ("Dry run complete. No changes published.")
+- [X] T037 [US2] Extend PublishService for dry-run mode (save archive locally, display contents summary, skip publish)
+- [X] T038 [US2] Add --dry-run flag to publish command in `src/commands/publish.ts`
+- [X] T039 [US2] Implement archive contents display (spas.json identity, schemas count, file list)
+- [X] T040 [US2] Add dry-run specific output formatting ("Dry run complete. No changes published.")
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -133,6 +133,16 @@
 - [ ] T045 [US3] Add --archive <path> flag to publish command in `src/commands/publish.ts` (mutual exclusivity with service-host)
 - [ ] T046 [US3] Add validation error for archive without spas.json (ARCHIVE_INVALID error code)
 - [ ] T047 [US3] Skip user prompt when --archive is used (no service startup needed)
+
+### Runtime Metadata Support (CI/CD)
+
+- [ ] T047b [P] [US3] Unit test for runtime metadata flags in `test/unit/services/repository-client.test.ts` (imageDigest, imageRepository, imageTag sent as form fields)
+- [ ] T047c [US3] Add --image-digest <digest> flag to publish command (SHA256 container digest)
+- [ ] T047d [US3] Add --image-repository <repo> flag to publish command (e.g., ghcr.io/org/service)
+- [ ] T047e [US3] Add --image-tag <tag> flag to publish command (e.g., 1.0.0, latest)
+- [ ] T047f [US3] Extend RepositoryClient.publishService() to send runtime metadata form fields when provided
+- [ ] T047g [US3] Update PublishOptions type with imageDigest, imageRepository, imageTag properties
+- [ ] T047h [US3] Document local development usage in README (local images without registry push)
 
 **Checkpoint**: At this point, User Stories 1, 2, AND 3 should all work independently
 

@@ -139,6 +139,7 @@ spas-service publish --archive <path> [options]
 
 - `--repo <url>` - Repository URL (default: `$SPAS_REPOSITORY_URL` or `http://localhost:3000`)
 - `--dry-run` - Download and inspect metadata without publishing
+- `--output <dir>` - Output directory for dry-run archive (default: current directory)
 - `--archive <path>` - Publish a local ZIP file instead of downloading from service
 
 **Examples:**
@@ -152,6 +153,9 @@ spas-service publish http://localhost:5000 --repo http://repo.example.com
 
 # Dry run mode
 spas-service publish http://localhost:5000 --dry-run
+
+# Dry run with custom output directory
+spas-service publish http://localhost:5000 --dry-run --output ./archives/
 
 # Archive mode
 spas-service publish --archive ./my-service-1.0.0.zip

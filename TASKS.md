@@ -43,8 +43,9 @@ This section documents the latest actions, any issues encountered, and the exact
 ### Precise Next Steps (Pick and execute)
 
 1. **Next feature (recommended)**: Begin `spas-compose` CLI tool per `principles/component/13-cli.md`
-   - Commands: `context init`, `services pull`, `choreography init`, `choreography generate`
-   - Generates Docker Compose and sidecar configuration from Repository metadata
+   - Commands: `init`, `services pull`, `choreography deploy --docker`
+   - AI-in-the-loop: `/spas.compose` agent prompt for choreography composition
+   - JSONata transformation files (`.jsonata`) for language-agnostic sidecar compatibility
 2. **End-to-end validation**: Run full publish/pull workflow with Repository + SDK + CLI
    - Start Repository: `cd components/repository && docker compose up`
    - Start SDK sample: `cd components/sdk/dotnet/examples/SampleService && dotnet run`
@@ -108,7 +109,7 @@ Once read, answer: "What is the immediate next task and what implementation arti
 **Prioritized Commands for Phase 3:**
 
 - Service management: init, metadata get, pack, publish, pull
-- Composition: context init, services pull, choreography init, choreography generate
+- Composition: init, services pull, choreography deploy (AI-assisted via `/spas.compose` prompt)
 
 **Outputs:**
 
@@ -316,8 +317,10 @@ spas/                                  # Root repository
 │   │   │   ├── shipping-service/      # NEW - additional service
 │   │   │   └── notification-service/  # NEW - additional service
 │   │   ├── choreography/
-│   │   │   ├── choreography.yaml      # Domain composition (routing + topic mappings)
-│   │   │   ├── transformations/       # Mapping files for topic adaptation
+│   │   │   ├── choreography.yaml      # Domain composition (named flows + routing)
+│   │   │   ├── transformations/       # JSONata files organized by service
+│   │   │   │   ├── order-service/     # .jsonata files for order-service sidecar
+│   │   │   │   └── fulfillment-service/
 │   │   │   └── schemas/               # Canonical schemas for e-commerce domain
 │   │   └── test/
 │   │       ├── contract-test/        # Pact-style contract testing

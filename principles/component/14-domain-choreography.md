@@ -19,8 +19,9 @@ Captured by domain authors; describes **what** to transform and route:
 - Outbound: Service internal schema → domain event/response
 - Applies to both event-driven flows and sidecar-mediated invocations
 - Transformations should be declarative and testable
-- Transformation rules MUST reside in external mapping files and be referenced from `choreography.yaml` (e.g. `mappings[]`). Transformation rules are NOT referenced from spas.json because they are Domain Context specific, not service specific.
-- Each mapping file declares: source topic/command, source event/command type, transformation rules/operations, and destination endpoint/topic (i.e. endpoint for inbound traffic and topic for outbound traffic from the SPAS service.)
+- Transformation rules MUST reside in external `.jsonata` files organized by service: `choreography/transformations/<service-name>/*.jsonata`. These are referenced from `choreography.yaml` (e.g. `mappings[]`). Transformation rules are NOT referenced from spas.json because they are Domain Context specific, not service specific.
+- Each `.jsonata` file contains a JSONata expression that transforms the source payload to the destination schema. JSONata provides declarative, language-agnostic transformations compatible with both Node.js and Go sidecar implementations.
+- At runtime (Docker PoC), transformation folders are volume-mounted to corresponding sidecars: `choreography/transformations/<service-name>` → `<service-name>-sidecar:/app/transformations`
 
 ## Validation — split by concern
 

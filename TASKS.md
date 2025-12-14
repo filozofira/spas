@@ -198,3 +198,105 @@ Update [README.md](./specs/README.md) Specs section by adding your feature at th
 7. **Zipkin tracing** — not production-grade observability, but demonstrates concepts
 
 All marked in principles as `PoC` vs `Production` using admonition blocks (see principles/02-architecture-overview.md).
+
+## Recommended Folder Structure for PoC Implementation
+
+```text
+spas/                                  # Root repository
+├── principles/                        # ✅ COMPLETE - Specification (source-of-truth)
+│   ├── INDEX.md                       # Navigation entry point
+│   ├── 01-core-principles.md
+│   ├── 02-architecture-overview.md
+│   ├── service/
+│   │   ├── 03-service-model.md
+│   │   ├── 04-service-contract.md
+│   │   ├── 05-service-lifecycle.md
+│   │   └── 06-service-metadata.md     # spas.json schema
+│   ├── component/
+│   │   ├── 10-sidecar-contract.md
+│   │   ├── 11-repository.md
+│   │   ├── 12-sdk.md
+│   │   ├── 13-cli.md
+│   │   └── 14-domain-choreography.md
+│   ├── protocol/
+│   │   ├── 07-communication-model.md
+│   │   ├── 08-grpc-protocol.md        # (Production; PoC uses HTTP)
+│   │   └── 09-event-protocol.md
+│   ├── security/
+│   ├── infrastructure/
+│   ├── governance/
+│   ├── appendix/
+│   │   ├── 27-glossary.md
+│   │   └── 28-decision-log.md         # Architecture Decision Records (ADRs)
+│   └── README.md
+│
+├── prototypes/                        # ✅ COMPLETE - Proof-of-concept implementations
+│   └── spas-sidecar-prototype/
+│       ├── README.md                  # Complete sidecar documentation
+│       ├── docker-compose.yml         # Full working example
+│       ├── spas-sidecar/              # Sidecar component prototype to reuse or at least use inspiration from
+│       ├── order-service/
+│       ├── fulfillment-service/
+│       └── [Order/Fulfillment clients]
+│
+├── components/                        # 🔨 TO BUILD - PoC framework components (to evolve to production-ready in future)
+│   ├── sdk/                           # SDKs for multiple languages
+│   │   ├── dotnet/                    # .NET SDK for SPAS service development
+│   │   │   ├── src/                   # Contains source code for .NET SDKs
+│   │   │   ├── test/                  # Unit test code for .NET SDKs
+│   │   │   ├── SPAS.SDK.sln           # SDK .NET solution file
+│   │   │   └── README.md              # SDK documentation (keyed to principles/12-sdk.md)
+│   │   ├── go/                        # Go SDK (future)
+│   │   ├── java/                      # Java SDK (future)
+│   │   └── README.md                  # Multi-language SDK guide
+│   │
+│   ├── cli/                           # CLI Tool for service packaging & composition
+│   │   ├── spas-service/              # spas-service root
+│   │   │   ├── src/                   # source for spas-service cli
+│   │   │   ├── test/                  # test for spas-service
+│   │   ├── spas-compose/              # spas-compose root
+│   │   │   ├── src/                   # source for spas-compose cli
+│   │   │   ├── test/                  # test for spas-compose
+│   │   └── README.md                  # CLI documentation (keyed to principles/13-cli.md)
+│   │
+│   ├── repository/                    # SPAS Repository Service (metadata + schema storage)
+│   │   ├── src/                       # SPAS Repository service source code
+│   │   ├── test/                      # SPAS Repository test
+│   │   └── README.md                  # Repository API docs (keyed to principles/11-repository.md)
+│   │
+│   └── sidecar/                       # SPAS Sidecar (from prototype to Poc and to evolve to production-ready in future)
+│       ├── src/                       # JavaScript/Node.js (or migrate to .NET if needed)
+│       ├── config/
+│       │   ├── default.config.json    # Default configuration template
+│       └── Dockerfile
+│       ├── README.md                  # Integration guide
+│
+├── examples/                          # 🔨 TO BUILD - End-to-end PoC demonstrations
+│   ├── e-commerce/                    # E-commerce domain PoC
+│   │   ├── README.md                  # Domain walkthrough
+│   │   ├── docker-compose.yml         # Local deployment
+│   │   ├── services/
+│   │   │   ├── order-service/         # Evolved from prototype
+│   │   │   │   ├── spas.json          # Service metadata (example)
+│   │   │   │   ├── src/
+│   │   │   │   └── metadata/          # Decomposed metadata structure
+│   │   │   ├── fulfillment-service/
+│   │   │   ├── shipping-service/      # NEW - additional service
+│   │   │   └── notification-service/  # NEW - additional service
+│   │   ├── choreography/
+│   │   │   ├── choreography.yaml      # Domain composition (routing + topic mappings)
+│   │   │   ├── transformations/       # Mapping files for topic adaptation
+│   │   │   └── schemas/               # Canonical schemas for e-commerce domain
+│   │   └── test/
+│   │       ├── contract-test/        # Pact-style contract testing
+│   │       └── integration-test/     # End-to-end scenario test
+│   │
+│   └── simple-sync/                   # Minimal synchronous example
+│       └── [Two services + choreography]
+│
+├── TASKS.md                           # This file - multi-machine continuity
+├── README.md                          # Framework overview
+├── LICENSE
+└── .github/
+    └── workflows/                     # CI/CD (future)
+```

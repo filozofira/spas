@@ -141,9 +141,52 @@ dotnet build components/sdk/dotnet/SPAS.SDK.sln -c Debug
 
 ## Component: CLI
 
-- Status: Planned (Phase 3)
-- Spec: principles/component/13-cli.md
-- Notes: Commands to include service init/pack/publish and compose workflows. Not active in current branch.
+- Status: ✅ Complete (PoC) - Ready for development/testing use
+- Completed: 2025-01 (Phase 7 finished)
+- Tech: Node.js 20 LTS + TypeScript 5.x + Commander.js, axios, adm-zip, form-data
+- Layout: components/cli/spas-service/{src,test,dist}
+- Spec: specs/004-spas-service-cli/{plan.md, spec.md, tasks.md}
+- Tests: 48/48 passing (verified via `npm test`)
+- Commands: `publish`, `pull`
+
+**What Was Built**:
+- `spas-service publish <service-host>` - Publish from running service with interactive prompt
+- `spas-service publish --archive <path>` - Publish from pre-built ZIP (CI/CD mode)
+- `spas-service publish --dry-run` - Download and inspect metadata without publishing
+- `spas-service pull <name> <version>` - Download published service metadata
+- Runtime metadata flags: `--image-digest`, `--image-repository`, `--image-tag`
+- Repository URL resolution: `--repo` flag or `SPAS_REPOSITORY_URL` env var
+
+**Key Features**:
+- TDD approach: All commands tested with unit and integration tests
+- ESM modules with `.js` extension imports
+- Retry logic with exponential backoff for service availability
+- Chalk-based colored output for success/error messages
+- Comprehensive error handling with actionable hints
+
+**Quick Start Commands**:
+```bash
+# Navigate to CLI
+cd components/cli/spas-service
+
+# Install dependencies
+npm install
+
+# Build
+npm run build
+
+# Run tests
+npm test
+
+# Use CLI locally (after build)
+node dist/index.js --version
+node dist/index.js publish http://localhost:5000 --dry-run
+node dist/index.js pull order-service 1.0.0
+
+# Or link globally for development
+npm link
+spas-service --version
+```
 
 ---
 

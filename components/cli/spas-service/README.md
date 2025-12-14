@@ -44,13 +44,13 @@ spas-service --version
 
 3. **When prompted**, start your service and press Enter:
 
-   ```
+   ```text
    Start your service at http://localhost:5000 and press Enter to continue...
    ```
 
 4. **Success output**:
 
-   ```
+   ```text
    ✓ Downloaded metadata from http://localhost:5000/_spas/metadata
    ✓ Extracted service identity: order-service:1.0.0
    ✓ Published to http://localhost:3000/services/order-service:1.0.0
@@ -66,7 +66,7 @@ spas-service publish http://localhost:5000 --dry-run
 
 Output:
 
-```
+```text
 ✓ Downloaded metadata from http://localhost:5000/_spas/metadata
 ✓ Saved to ./order-service-1.0.0.zip
 
@@ -96,7 +96,7 @@ spas-service pull order-service 1.0.0 --repo http://localhost:3000
 
 Output:
 
-```
+```text
 ✓ Downloaded order-service:1.0.0
 ✓ Saved to ./order-service-1.0.0.zip
 ```
@@ -216,7 +216,7 @@ spas-service pull order-service 1.0.0 --repo http://repo.example.com
 
 ### Service Not Available
 
-```
+```text
 ✗ Service metadata endpoint not available
   Hint: Ensure service is running in Development mode
 ```
@@ -225,7 +225,7 @@ spas-service pull order-service 1.0.0 --repo http://repo.example.com
 
 ### Metadata Endpoint Disabled
 
-```
+```text
 ✗ Metadata endpoint disabled
   Hint: Set ASPNETCORE_ENVIRONMENT=Development
 ```
@@ -234,7 +234,7 @@ spas-service pull order-service 1.0.0 --repo http://repo.example.com
 
 ### Repository Validation Error
 
-```
+```text
 ✗ Repository validation failed
   Details: Missing required field 'boundedContext' in spas.json
 ```
@@ -243,7 +243,7 @@ spas-service pull order-service 1.0.0 --repo http://repo.example.com
 
 ### Version Conflict
 
-```
+```text
 ✗ Version already published
   Hint: Increment version or unpublish existing version
 ```

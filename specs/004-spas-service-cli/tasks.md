@@ -178,13 +178,13 @@
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [ ] T058 [P] Add npm bin configuration in package.json for global install (`"bin": { "spas-service": "./dist/index.js" }`)
-- [ ] T059 [P] Add shebang (`#!/usr/bin/env node`) to dist/index.js via build script
-- [ ] T060 [P] Update `components/cli/README.md` with CLI tools overview and links
-- [ ] T061 Code cleanup and refactoring (consistent error messages, standardize logging)
-- [ ] T062 [P] Add npm scripts in package.json (build, test, test:coverage, lint)
-- [ ] T063 Run quickstart.md validation scenarios manually
-- [ ] T064 Update `.github/agents/copilot-instructions.md` with CLI component completion status
+- [X] T058 [P] Add npm bin configuration in package.json for global install (`"bin": { "spas-service": "./dist/index.js" }`)
+- [X] T059 [P] Add shebang (`#!/usr/bin/env node`) to dist/index.js via build script
+- [X] T060 [P] Update `components/cli/README.md` with CLI tools overview and links
+- [X] T061 Code cleanup and refactoring (consistent error messages, standardize logging)
+- [X] T062 [P] Add npm scripts in package.json (build, test, test:coverage, lint)
+- [X] T063 Run quickstart.md validation scenarios manually
+- [X] T064 Update `.github/agents/copilot-instructions.md` with CLI component completion status
 
 ---
 

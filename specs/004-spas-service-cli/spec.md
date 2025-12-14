@@ -2,7 +2,8 @@
 
 **Feature Branch**: `004-spas-service-cli`  
 **Created**: 2025-12-14  
-**Status**: Draft  
+**Completed**: 2025-12-14  
+**Status**: ✅ Complete (PoC)
 **Input**: User description: "Create spas-service CLI tool which assists developer in publishing SPAS service metadata package to SPAS repository. CLI should support workflow: developer runs spas-service publish command with service-host argument, CLI prompts to start service, then downloads metadata ZIP via GET /_spas/metadata endpoint, and publishes via POST /services/{serviceName}:{version}"
 
 ## Overview

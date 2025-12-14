@@ -232,6 +232,8 @@ Auto-generated from all feature plans. Last updated: 2025-12-12
 - N/A (design-time metadata files) (002-metadata-schema-alignment)
 - Node.js 20 LTS + TypeScript 5.x + Commander.js (CLI framework), axios (HTTP client), adm-zip (archive handling), form-data (multipart upload) (004-spas-service-cli)
 - N/A (CLI tool, no persistence) (004-spas-service-cli)
+- Node.js 20 LTS + TypeScript 5.3+ + Commander.js 11.x (CLI), js-yaml 4.x (YAML parsing), jsonata 2.x (transformation validation), axios 1.x (HTTP client), chalk 4.x (terminal output) (005-spas-compose-cli)
+- Local filesystem (domain workspace); SPAS Repository via HTTP (005-spas-compose-cli)
 
 - .NET 10 (target net10.0); Microsoft.Extensions.Logging; System.Text.Json (001-dotnet-spas-sdk)
 

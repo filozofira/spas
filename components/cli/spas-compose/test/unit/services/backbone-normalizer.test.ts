@@ -198,5 +198,51 @@ describe("BackboneNormalizer", () => {
       });
       expect(config.observabilityBackbone.image).toBe("openzipkin/zipkin:2.24");
     });
+
+    it("should detect Jaeger and configure ports", () => {
+      const config = normalizer.buildConfig({
+        observabilityBackbone: "jaegertracing/all-in-one:latest",
+      });
+      expect(config.observabilityBackbone.type).toBe("jaeger");
+      expect(config.observabilityBackbone.ports).toContainEqual({
+        host: 16686,
+        container: 16686,
+      });
+      expect(config.observabilityBackbone.ports).toContainEqual({
+        host: 9411,
+        container: 9411,
+      });
+    });
+
+    it("should expand jaeger shorthand to full image path", () => {
+      const config = normalizer.buildConfig({
+        observabilityBackbone: "jaeger:latest",
+      });
+      expect(config.observabilityBackbone.image).toBe(
+        "jaegertracing/all-in-one:latest",
+      );
+      expect(config.observabilityBackbone.type).toBe("jaeger");
+    });
+  });
+
+  describe("detectObservabilityType", () => {
+    it("should return zipkin for zipkin images", () => {
+      const result = normalizer.detectObservabilityType(
+        "openzipkin/zipkin:latest",
+      );
+      expect(result).toBe("zipkin");
+    });
+
+    it("should return jaeger for jaeger images", () => {
+      const result = normalizer.detectObservabilityType(
+        "jaegertracing/all-in-one:latest",
+      );
+      expect(result).toBe("jaeger");
+    });
+
+    it("should return zipkin by default for unknown images", () => {
+      const result = normalizer.detectObservabilityType("some-other-image");
+      expect(result).toBe("zipkin");
+    });
   });
 });

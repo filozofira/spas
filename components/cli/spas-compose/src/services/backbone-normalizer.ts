@@ -87,9 +87,17 @@ export class BackboneNormalizer {
         : BACKBONE_DEFAULTS.observability.image;
     }
 
-    // Expand zipkin shorthand (zipkin:tag → openzipkin/zipkin:tag)
-    if (type === "observability" && input.startsWith("zipkin:")) {
-      return `openzipkin/${input}`;
+    // Expand observability shorthands
+    if (type === "observability") {
+      // zipkin:tag → openzipkin/zipkin:tag
+      if (input.startsWith("zipkin:")) {
+        return `openzipkin/${input}`;
+      }
+      // jaeger:tag → jaegertracing/all-in-one:tag
+      if (input.startsWith("jaeger:")) {
+        const tag = input.split(":")[1] || "latest";
+        return `jaegertracing/all-in-one:${tag}`;
+      }
     }
 
     return input;
@@ -119,12 +127,18 @@ export class BackboneNormalizer {
       healthcheck: REDIS_HEALTHCHECK,
     };
 
+    const observabilityType = this.detectObservabilityType(observabilityImage);
+    const observabilityPorts =
+      observabilityType === "jaeger"
+        ? JAEGER_PORTS
+        : (BACKBONE_DEFAULTS.observability.ports as unknown as PortMapping[]);
+
     const observabilityBackbone: ObservabilityBackboneConfig = {
       enabled: true,
       image: observabilityImage,
       containerName: BACKBONE_DEFAULTS.observability.containerName,
-      type: this.detectObservabilityType(observabilityImage),
-      ports: BACKBONE_DEFAULTS.observability.ports as unknown as PortMapping[],
+      type: observabilityType,
+      ports: observabilityPorts,
     };
 
     return {
@@ -169,8 +183,11 @@ export class BackboneNormalizer {
    * @param image - Image reference
    * @returns Detected backbone type
    */
-  detectObservabilityType(_image: string): "zipkin" | "jaeger" {
-    // TODO: Implement in T018
+  detectObservabilityType(image: string): "zipkin" | "jaeger" {
+    const lowerImage = image.toLowerCase();
+    if (lowerImage.includes("jaeger")) {
+      return "jaeger";
+    }
     return "zipkin";
   }
 }

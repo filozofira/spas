@@ -74,17 +74,17 @@
 
 ### Tests for User Story 3
 
-- [ ] T016 [P] [US3] Add observability normalization tests (zipkin shorthand) in backbone-normalizer.test.ts
-- [ ] T017 [P] [US3] Add Jaeger detection and normalization tests in backbone-normalizer.test.ts
+- [x] T016 [P] [US3] Add observability normalization tests (zipkin shorthand) in backbone-normalizer.test.ts
+- [x] T017 [P] [US3] Add Jaeger detection and normalization tests in backbone-normalizer.test.ts
 
 ### Implementation for User Story 3
 
-- [ ] T018 [US3] Implement detectObservabilityType() in backbone-normalizer.ts
-- [ ] T019 [US3] Add --observability-backbone option to deploy command in choreography-deploy.ts
-- [ ] T020 [US3] Update generateZipkin() to handle Jaeger ports in docker-generator.ts
-- [ ] T021 [US3] Wire observability-backbone option to DockerGenerator in choreography-deploy.ts
+- [x] T018 [US3] Implement detectObservabilityType() in backbone-normalizer.ts
+- [x] T019 [US3] Add --observability-backbone option to deploy command in choreography-deploy.ts
+- [x] T020 [US3] Update generateZipkin() to handle Jaeger ports in docker-generator.ts
+- [x] T021 [US3] Wire observability-backbone option to DockerGenerator in choreography-deploy.ts
 
-**Checkpoint**: Custom Zipkin/Jaeger images working with correct ports
+**Checkpoint**: Custom Zipkin/Jaeger images working with correct ports ✅
 
 ---
 

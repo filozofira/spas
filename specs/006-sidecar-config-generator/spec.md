@@ -2,8 +2,8 @@
 
 **Feature Branch**: `006-sidecar-config-generator`  
 **Created**: 2025-12-14  
-**Status**: Draft  
-**Input**: User description: "Add SidecarConfigGenerator to spas-compose CLI to generate sidecar configuration files from choreography.yaml alongside docker-compose.yaml"
+**Completed**: 2025-12-14  
+**Status**: ✅ Complete (PoC)**Input**: User description: "Add SidecarConfigGenerator to spas-compose CLI to generate sidecar configuration files from choreography.yaml alongside docker-compose.yaml"
 
 ## Context
 
@@ -18,7 +18,7 @@ However, **these config files are not generated**. When running `docker compose 
 
 This feature adds `SidecarConfigGenerator` to produce these config files automatically during the deploy command, enabling a single-command workflow that produces all artifacts needed to run the composed domain.
 
-## User Scenarios & Testing *(mandatory)*
+## User Scenarios & Testing _(mandatory)_
 
 ### User Story 1 - Generate Sidecar Configs During Deploy (Priority: P1)
 
@@ -31,25 +31,36 @@ As a developer, I want `spas-compose choreography deploy --docker` to generate s
 **Acceptance Scenarios**:
 
 1. **Given** a domain with valid `choreography.yaml` containing flows with order-service and fulfillment-service, **When** I run `spas-compose choreography deploy --docker`, **Then**:
+
    - `docker-compose.yaml` is generated (existing behavior)
    - `config.order-service.json` is generated with correct inbound/outbound entries
    - `config.fulfillment-service.json` is generated with correct inbound/outbound entries
    - Both config files are in the workspace root alongside docker-compose.yaml
 
 2. **Given** a flow where order-service publishes `order-created` event to `orders-requested` topic with transformation, **When** config is generated, **Then** `config.order-service.json` contains:
+
    ```json
    {
      "outbound": [
-       { "topic": "orders-requested", "transform": "transformations/order-service/outbound-order-created.jsonata" }
+       {
+         "topic": "orders-requested",
+         "transform": "transformations/order-service/outbound-order-created.jsonata"
+       }
      ]
    }
    ```
 
 3. **Given** a flow where fulfillment-service subscribes to `orders-requested` topic with transformation and endpoint `/incoming`, **When** config is generated, **Then** `config.fulfillment-service.json` contains:
+
    ```json
    {
      "inbound": [
-       { "kind": "event", "topic": "orders-requested", "transform": "transformations/fulfillment-service/inbound-order-created.jsonata", "invokeEndpoint": "/incoming" }
+       {
+         "kind": "event",
+         "topic": "orders-requested",
+         "transform": "transformations/fulfillment-service/inbound-order-created.jsonata",
+         "invokeEndpoint": "/incoming"
+       }
      ]
    }
    ```
@@ -69,6 +80,7 @@ As a developer, I want `--dry-run` to also validate sidecar config generation so
 **Acceptance Scenarios**:
 
 1. **Given** a valid choreography, **When** I run `spas-compose choreography deploy --docker --dry-run`, **Then** output shows:
+
    - docker-compose.yaml content (existing)
    - List of sidecar config files that would be generated
    - Summary of inbound/outbound entries per service
@@ -119,7 +131,7 @@ As a developer, I want to define event routes without transformations for passth
 - What happens when transformation path format is incorrect? — Validation error with path format guidance.
 - What happens when config file already exists? — Overwritten without prompt (same as docker-compose.yaml behavior).
 
-## Requirements *(mandatory)*
+## Requirements _(mandatory)_
 
 ### Functional Requirements
 
@@ -167,7 +179,7 @@ As a developer, I want to define event routes without transformations for passth
 }
 ```
 
-## Success Criteria *(mandatory)*
+## Success Criteria _(mandatory)_
 
 ### Measurable Outcomes
 
@@ -211,16 +223,16 @@ flows:
 ### Output: Generated Config Files
 
 **config.order-service.json**:
+
 ```json
 {
   "inbound": [],
-  "outbound": [
-    { "topic": "orders-requested" }
-  ]
+  "outbound": [{ "topic": "orders-requested" }]
 }
 ```
 
 **config.fulfillment-service.json**:
+
 ```json
 {
   "inbound": [

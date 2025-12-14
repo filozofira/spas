@@ -80,12 +80,12 @@
 
 ### Implementation for User Story 2
 
-- [ ] T018 [US2] Implement topic routing lookup at `components/sidecar/src/services/topic-router.ts` (resolveTopicFromEventType function)
-- [ ] T019 [US2] Implement event publisher service at `components/sidecar/src/services/event-publisher.ts` (publish function with transform, wrap, XADD)
-- [ ] T020 [US2] Implement publish handler at `components/sidecar/src/handlers/publish.ts` (POST /publish endpoint, header extraction, validation)
-- [ ] T021 [P] [US2] Create unit tests at `components/sidecar/test/unit/services/topic-router.test.ts` (routing lookup, missing route)
-- [ ] T022 [P] [US2] Create unit tests at `components/sidecar/test/unit/services/event-publisher.test.ts` (CloudEvents wrapping, Redis publish)
-- [ ] T023 [P] [US2] Create unit tests at `components/sidecar/test/unit/handlers/publish.test.ts` (header validation, 202/400 responses)
+- [X] T018 [US2] Implement topic routing lookup at `components/sidecar/src/services/topic-router.ts` (resolveTopicFromEventType function)
+- [X] T019 [US2] Implement event publisher service at `components/sidecar/src/services/event-publisher.ts` (publish function with transform, wrap, XADD)
+- [X] T020 [US2] Implement publish handler at `components/sidecar/src/handlers/publish.ts` (POST /publish endpoint, header extraction, validation)
+- [X] T021 [P] [US2] Create unit tests at `components/sidecar/test/unit/services/topic-router.test.ts` (routing lookup, missing route)
+- [X] T022 [P] [US2] Create unit tests at `components/sidecar/test/unit/services/event-publisher.test.ts` (CloudEvents wrapping, Redis publish)
+- [X] T023 [P] [US2] Create unit tests at `components/sidecar/test/unit/handlers/publish.test.ts` (header validation, 202/400 responses)
 
 **Checkpoint**: User Story 2 complete - services can publish events through sidecar
 

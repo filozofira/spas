@@ -266,12 +266,24 @@ export async function handleChoreographyDeploy(
     observabilityBackbone: options.observabilityBackbone,
   });
 
+  // Warn when backbones are disabled (BYO infrastructure)
+  if (!backboneConfig.eventBackbone.enabled) {
+    output.warning(
+      "Event backbone disabled. Sidecars will use ${REDIS_HOST} and ${REDIS_PORT} environment variables.",
+    );
+  }
+  if (!backboneConfig.observabilityBackbone.enabled) {
+    output.warning(
+      "Observability backbone disabled. Services will use ${ZIPKIN_URL} environment variable.",
+    );
+  }
+
   output.verbose(
-    `Event backbone: ${backboneConfig.eventBackbone.image}`,
+    `Event backbone: ${backboneConfig.eventBackbone.enabled ? backboneConfig.eventBackbone.image : "disabled"}`,
     options.verbose,
   );
   output.verbose(
-    `Observability backbone: ${backboneConfig.observabilityBackbone.image}`,
+    `Observability backbone: ${backboneConfig.observabilityBackbone.enabled ? backboneConfig.observabilityBackbone.image : "disabled"}`,
     options.verbose,
   );
 
@@ -372,6 +384,18 @@ export async function handleChoreographyDeploy(
         },
         services: serviceValidation.foundServices,
         transformations: transformations,
+        // Include backbone configuration for dry-run
+        backbone: {
+          event: {
+            enabled: backboneConfig.eventBackbone.enabled,
+            image: backboneConfig.eventBackbone.image,
+          },
+          observability: {
+            enabled: backboneConfig.observabilityBackbone.enabled,
+            image: backboneConfig.observabilityBackbone.image,
+            type: backboneConfig.observabilityBackbone.type,
+          },
+        },
         // Include sidecar config preview for dry-run
         sidecarConfigs: {
           totalConfigs: configResult.summary.totalConfigs,
@@ -393,6 +417,14 @@ export async function handleChoreographyDeploy(
       if (transformations.length > 0) {
         output.info(`Transformations: ${transformations.length} files`);
       }
+      output.info("");
+      output.info("Backbone configuration:");
+      output.info(
+        `  • Event: ${backboneConfig.eventBackbone.enabled ? backboneConfig.eventBackbone.image : "disabled"}`,
+      );
+      output.info(
+        `  • Observability: ${backboneConfig.observabilityBackbone.enabled ? `${backboneConfig.observabilityBackbone.image} (${backboneConfig.observabilityBackbone.type})` : "disabled"}`,
+      );
       // Show sidecar config preview
       output.info("");
       output.info("Would generate:");

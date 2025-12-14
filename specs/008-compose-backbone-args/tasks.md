@@ -114,9 +114,11 @@
 
 **Purpose**: Final integration, documentation, and cleanup
 
-- [ ] T028 Update dry-run output to show backbone configuration in choreography-deploy.ts
-- [ ] T029 [P] Update existing docker-generator tests for new API in docker-generator.test.ts
-- [ ] T030 [P] Update README.md with --event-backbone and --observability-backbone documentation
+- [x] T028 Update dry-run output to show backbone configuration in choreography-deploy.ts
+- [x] T029 [P] Update existing docker-generator tests for new API in docker-generator.test.ts
+- [x] T030 [P] Update README.md with --event-backbone and --observability-backbone documentation
+
+**Checkpoint**: Feature complete with documentation ✅
 
 ---
 

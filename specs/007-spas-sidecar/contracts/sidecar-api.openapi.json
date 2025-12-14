@@ -1,0 +1,256 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "SPAS Sidecar API",
+    "version": "1.0.0",
+    "description": "HTTP API exposed by the SPAS Sidecar for event publishing, command invocation, and health checks."
+  },
+  "servers": [
+    {
+      "url": "http://localhost:7000",
+      "description": "Local sidecar"
+    }
+  ],
+  "paths": {
+    "/publish": {
+      "post": {
+        "operationId": "publishEvent",
+        "summary": "Publish event",
+        "description": "Publishes an event to Redis stream. Target topic is resolved from x-event-type header using outbound routing configuration. Wraps payload in CloudEvents format with trace context.",
+        "tags": ["Events"],
+        "parameters": [
+          {
+            "name": "traceparent",
+            "in": "header",
+            "required": false,
+            "schema": { "type": "string" },
+            "description": "W3C Trace Context header. Generated if not provided."
+          },
+          {
+            "name": "x-service-name",
+            "in": "header",
+            "required": true,
+            "schema": { "type": "string" },
+            "description": "Source service name (maps to CloudEvents source)"
+          },
+          {
+            "name": "x-event-type",
+            "in": "header",
+            "required": true,
+            "schema": { "type": "string" },
+            "description": "Event type (maps to CloudEvents type). Used for topic routing lookup."
+          },
+          {
+            "name": "x-correlation-id",
+            "in": "header",
+            "required": true,
+            "schema": { "type": "string" },
+            "description": "Correlation ID for CloudEvents"
+          },
+          {
+            "name": "x-user-id",
+            "in": "header",
+            "required": false,
+            "schema": { "type": "string" },
+            "description": "User identity (optional)"
+          },
+          {
+            "name": "x-tenant-id",
+            "in": "header",
+            "required": false,
+            "schema": { "type": "string" },
+            "description": "Tenant identity (optional)"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "type": "object" },
+              "example": {
+                "orderId": "12345",
+                "customerId": "C100",
+                "items": [{ "productId": "P1", "quantity": 2 }]
+              }
+            }
+          }
+        },
+        "responses": {
+          "202": {
+            "description": "Event accepted for publishing",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": { "type": "string", "enum": ["accepted"] },
+                    "id": { "type": "string", "format": "uuid" },
+                    "topic": { "type": "string", "description": "Resolved target topic" },
+                    "eventType": { "type": "string", "description": "Event type from header" }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request (missing x-event-type header or no matching route)",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Error" }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal error (Redis unavailable)",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Error" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/invoke/{command}": {
+      "post": {
+        "operationId": "invokeCommand",
+        "summary": "Invoke service command",
+        "description": "Invokes a command on the target service. Transforms request, invokes endpoint, transforms response.",
+        "tags": ["Commands"],
+        "parameters": [
+          {
+            "name": "command",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" },
+            "description": "Command name (must be configured in inbound entries)"
+          },
+          {
+            "name": "traceparent",
+            "in": "header",
+            "required": false,
+            "schema": { "type": "string" },
+            "description": "W3C Trace Context header"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "type": "object" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Command executed successfully",
+            "content": {
+              "application/json": {
+                "schema": { "type": "object" }
+              }
+            }
+          },
+          "404": {
+            "description": "Command not configured",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Error" }
+              }
+            }
+          },
+          "502": {
+            "description": "Service invocation failed",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Error" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/health": {
+      "get": {
+        "operationId": "getHealth",
+        "summary": "Liveness check",
+        "description": "Returns 200 if sidecar process is running.",
+        "tags": ["Health"],
+        "responses": {
+          "200": {
+            "description": "Healthy",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/HealthResponse" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/ready": {
+      "get": {
+        "operationId": "getReady",
+        "summary": "Readiness check",
+        "description": "Returns 200 only if Redis is connected.",
+        "tags": ["Health"],
+        "responses": {
+          "200": {
+            "description": "Ready",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/HealthResponse" }
+              }
+            }
+          },
+          "503": {
+            "description": "Not ready (Redis disconnected)",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/HealthResponse" }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Error": {
+        "type": "object",
+        "properties": {
+          "error": { "type": "string" },
+          "message": { "type": "string" }
+        },
+        "required": ["error", "message"]
+      },
+      "HealthResponse": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": ["ok", "ready", "not ready"]
+          },
+          "reason": { "type": "string" },
+          "timestamp": { "type": "string", "format": "date-time" }
+        },
+        "required": ["status", "timestamp"]
+      },
+      "CloudEvent": {
+        "type": "object",
+        "properties": {
+          "specversion": { "type": "string", "enum": ["1.0"] },
+          "type": { "type": "string" },
+          "source": { "type": "string" },
+          "subject": { "type": "string" },
+          "id": { "type": "string", "format": "uuid" },
+          "time": { "type": "string", "format": "date-time" },
+          "datacontenttype": { "type": "string" },
+          "traceparent": { "type": "string" },
+          "data": { "type": "object" }
+        },
+        "required": ["specversion", "type", "source", "id", "time", "datacontenttype", "data"]
+      }
+    }
+  }
+}

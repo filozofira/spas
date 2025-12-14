@@ -1,0 +1,15 @@
+{
+  "inbound": [
+    {
+      "kind": "event",
+      "topic": "orders-requested",
+      "invokeEndpoint": "/incoming"
+    }
+  ],
+  "outbound": [
+    {
+      "eventType": "com.example.order.created",
+      "topic": "orders-created"
+    }
+  ]
+}

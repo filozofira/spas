@@ -236,6 +236,8 @@ Auto-generated from all feature plans. Last updated: 2025-12-12
 - Local filesystem (domain workspace); SPAS Repository via HTTP (005-spas-compose-cli)
 - TypeScript 5.3 (Node.js 20+) + commander, js-yaml, jsonata (already in spas-compose) (006-sidecar-config-generator)
 - N/A (generates files to filesystem) (006-sidecar-config-generator)
+- Node.js 20+, TypeScript 5.3 + express, redis, node-fetch, uuid, jsonata (from prototype) (007-spas-sidecar)
+- Redis Streams (message broker) (007-spas-sidecar)
 
 - .NET 10 (target net10.0); Microsoft.Extensions.Logging; System.Text.Json (001-dotnet-spas-sdk)
 

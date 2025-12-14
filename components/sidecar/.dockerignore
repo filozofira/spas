@@ -1,0 +1,35 @@
+# Git
+.git/
+.gitignore
+
+# Dependencies
+node_modules/
+
+# Build outputs (we copy from builder stage)
+dist/
+
+# Testing
+test/
+coverage/
+jest.config.cjs
+*.test.ts
+
+# Documentation
+*.md
+docs/
+
+# Development files
+.env*
+!.env.example
+*.log
+.vscode/
+.idea/
+
+# TypeScript source maps
+*.map
+
+# Misc
+*.swp
+*.tmp
+.DS_Store
+Thumbs.db

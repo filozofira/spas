@@ -96,17 +96,17 @@
 
 ### Tests for User Story 4
 
-- [ ] T022 [P] [US4] Add backbone disable tests (none value) in backbone-normalizer.test.ts
-- [ ] T023 [P] [US4] Add sidecar env var substitution tests in docker-generator.test.ts
+- [x] T022 [P] [US4] Add backbone disable tests (none value) in backbone-normalizer.test.ts
+- [x] T023 [P] [US4] Add sidecar env var substitution tests in docker-generator.test.ts
 
 ### Implementation for User Story 4
 
-- [ ] T024 [US4] Handle 'none' value in buildConfig() to set enabled=false in backbone-normalizer.ts
-- [ ] T025 [US4] Update generate() to skip disabled backbones in docker-generator.ts
-- [ ] T026 [US4] Update generateSidecar() to use env var substitution when backbone disabled in docker-generator.ts
-- [ ] T027 [US4] Add warning output when backbone disabled in choreography-deploy.ts
+- [x] T024 [US4] Handle 'none' value in buildConfig() to set enabled=false in backbone-normalizer.ts
+- [x] T025 [US4] Update generate() to skip disabled backbones in docker-generator.ts
+- [x] T026 [US4] Update generateSidecar() to use env var substitution when backbone disabled in docker-generator.ts
+- [x] T027 [US4] Add warning output when backbone disabled in choreography-deploy.ts
 
-**Checkpoint**: BYO infrastructure scenario working
+**Checkpoint**: BYO infrastructure scenario working ✅
 
 ---
 

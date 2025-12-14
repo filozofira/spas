@@ -113,14 +113,19 @@ export class BackboneNormalizer {
     eventBackbone?: string;
     observabilityBackbone?: string;
   }): BackboneConfig {
-    const eventImage = this.normalizeImage(options.eventBackbone, "event");
-    const observabilityImage = this.normalizeImage(
-      options.observabilityBackbone,
-      "observability",
-    );
+    // Check if backbones are disabled
+    const eventDisabled = options.eventBackbone === "none";
+    const observabilityDisabled = options.observabilityBackbone === "none";
+
+    const eventImage = eventDisabled
+      ? BACKBONE_DEFAULTS.event.image
+      : this.normalizeImage(options.eventBackbone, "event");
+    const observabilityImage = observabilityDisabled
+      ? BACKBONE_DEFAULTS.observability.image
+      : this.normalizeImage(options.observabilityBackbone, "observability");
 
     const eventBackbone: EventBackboneConfig = {
-      enabled: true,
+      enabled: !eventDisabled,
       image: eventImage,
       containerName: BACKBONE_DEFAULTS.event.containerName,
       port: BACKBONE_DEFAULTS.event.port,
@@ -134,7 +139,7 @@ export class BackboneNormalizer {
         : (BACKBONE_DEFAULTS.observability.ports as unknown as PortMapping[]);
 
     const observabilityBackbone: ObservabilityBackboneConfig = {
-      enabled: true,
+      enabled: !observabilityDisabled,
       image: observabilityImage,
       containerName: BACKBONE_DEFAULTS.observability.containerName,
       type: observabilityType,

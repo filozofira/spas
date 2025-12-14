@@ -211,8 +211,8 @@ export async function handleChoreographyDeploy(
   output.verbose("Building backbone configuration...", options.verbose);
   const backboneNormalizer = new BackboneNormalizer();
 
-  // Validate event backbone image format if provided
-  if (options.eventBackbone) {
+  // Validate event backbone image format if provided (skip validation for "none")
+  if (options.eventBackbone && options.eventBackbone !== "none") {
     const eventValidation = backboneNormalizer.validateImageFormat(
       options.eventBackbone,
     );
@@ -236,8 +236,8 @@ export async function handleChoreographyDeploy(
     }
   }
 
-  // Validate observability backbone image format if provided
-  if (options.observabilityBackbone) {
+  // Validate observability backbone image format if provided (skip validation for "none")
+  if (options.observabilityBackbone && options.observabilityBackbone !== "none") {
     const obsValidation = backboneNormalizer.validateImageFormat(
       options.observabilityBackbone,
     );

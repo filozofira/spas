@@ -223,8 +223,10 @@ export class DockerGenerator {
     sidecarPort: number,
     observabilityConfig: ObservabilityBackboneConfig,
   ): DockerService {
-    const observabilityServiceName = observabilityConfig.containerName.replace("spas-", "");
-    const observabilityPort = observabilityConfig.ports.find((p) => p.container === 9411)?.container || 9411;
+    // Use env var substitution when observability is disabled
+    const zipkinUrl = observabilityConfig.enabled
+      ? `http://${observabilityConfig.containerName.replace("spas-", "")}:${observabilityConfig.ports.find((p) => p.container === 9411)?.container || 9411}`
+      : "${ZIPKIN_URL}";
 
     return {
       build: `./${serviceName}`,
@@ -234,7 +236,7 @@ export class DockerGenerator {
         `SERVICE_NAME=${serviceName}`,
         `SIDECAR_PORT=${sidecarPort}`,
         `PORT=${servicePort}`,
-        `ZIPKIN_URL=http://${observabilityServiceName}:${observabilityPort}`,
+        `ZIPKIN_URL=${zipkinUrl}`,
       ],
       networks: ["spas-network"],
     };
@@ -263,26 +265,48 @@ export class DockerGenerator {
       );
     }
 
-    const eventServiceName = config.eventBackbone.containerName.replace("spas-", "");
-    const observabilityServiceName = config.observabilityBackbone.containerName.replace("spas-", "");
-    const observabilityPort = config.observabilityBackbone.ports.find((p) => p.container === 9411)?.container || 9411;
+    // Use env var substitution when backbones are disabled
+    const redisHost = config.eventBackbone.enabled
+      ? config.eventBackbone.containerName.replace("spas-", "")
+      : "${REDIS_HOST}";
+    const redisPort = config.eventBackbone.enabled
+      ? config.eventBackbone.port.toString()
+      : "${REDIS_PORT}";
+    const zipkinUrl = config.observabilityBackbone.enabled
+      ? `http://${config.observabilityBackbone.containerName.replace("spas-", "")}:${config.observabilityBackbone.ports.find((p) => p.container === 9411)?.container || 9411}`
+      : "${ZIPKIN_URL}";
 
-    return {
+    // Build depends_on based on enabled backbones
+    const dependsOn: string[] = [];
+    if (config.eventBackbone.enabled) {
+      dependsOn.push(config.eventBackbone.containerName.replace("spas-", ""));
+    }
+    if (config.observabilityBackbone.enabled) {
+      dependsOn.push(config.observabilityBackbone.containerName.replace("spas-", ""));
+    }
+
+    const service: DockerService = {
       build: "./spas-sidecar",
       container_name: `${serviceName}-sidecar`,
       environment: [
         `PORT=${sidecarPort}`,
         `CONFIG_PATH=/app/config.json`,
         `SERVICE_NAME=${serviceName}`,
-        `ZIPKIN_URL=http://${observabilityServiceName}:${observabilityPort}`,
+        `ZIPKIN_URL=${zipkinUrl}`,
         `SERVICE_PORT=${servicePort}`,
-        `REDIS_HOST=${eventServiceName}`,
-        `REDIS_PORT=${config.eventBackbone.port}`,
+        `REDIS_HOST=${redisHost}`,
+        `REDIS_PORT=${redisPort}`,
       ],
       volumes,
-      depends_on: [eventServiceName, observabilityServiceName],
       networks: ["spas-network"],
     };
+
+    // Only add depends_on if there are dependencies
+    if (dependsOn.length > 0) {
+      service.depends_on = dependsOn;
+    }
+
+    return service;
   }
 
   /**

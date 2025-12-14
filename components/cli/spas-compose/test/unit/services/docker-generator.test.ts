@@ -6,6 +6,7 @@ import * as fs from "fs";
 import * as path from "path";
 import * as os from "os";
 import { DockerGenerator } from "../../../src/services/docker-generator.js";
+import { BackboneNormalizer } from "../../../src/services/backbone-normalizer.js";
 import type { Choreography } from "../../../src/types.js";
 
 describe("DockerGenerator", () => {
@@ -177,6 +178,67 @@ describe("DockerGenerator", () => {
       // Assert
       expect(result.isValid).toBe(false);
       expect(result.missingServices).toContain("missing-service");
+    });
+  });
+
+  describe("backbone disable (none value)", () => {
+    it("should not include Redis when event backbone is disabled", () => {
+      // Arrange
+      const generator = new DockerGenerator(workspacePath);
+      const normalizer = new BackboneNormalizer();
+      const config = normalizer.buildConfig({ eventBackbone: "none" });
+
+      // Act
+      const result = generator.generate(sampleChoreography, config);
+
+      // Assert
+      expect(result.success).toBe(true);
+      expect(result.content).not.toContain("redis:");
+      expect(result.content).toContain("zipkin:");
+    });
+
+    it("should not include Zipkin when observability backbone is disabled", () => {
+      // Arrange
+      const generator = new DockerGenerator(workspacePath);
+      const normalizer = new BackboneNormalizer();
+      const config = normalizer.buildConfig({ observabilityBackbone: "none" });
+
+      // Act
+      const result = generator.generate(sampleChoreography, config);
+
+      // Assert
+      expect(result.success).toBe(true);
+      expect(result.content).not.toContain("zipkin:");
+      expect(result.content).toContain("redis:");
+    });
+
+    it("should use env var substitution for sidecar when event backbone disabled", () => {
+      // Arrange
+      const generator = new DockerGenerator(workspacePath);
+      const normalizer = new BackboneNormalizer();
+      const config = normalizer.buildConfig({ eventBackbone: "none" });
+
+      // Act
+      const result = generator.generate(sampleChoreography, config);
+
+      // Assert
+      expect(result.success).toBe(true);
+      expect(result.content).toContain("${REDIS_HOST}");
+      expect(result.content).toContain("${REDIS_PORT}");
+    });
+
+    it("should use env var substitution for sidecar when observability backbone disabled", () => {
+      // Arrange
+      const generator = new DockerGenerator(workspacePath);
+      const normalizer = new BackboneNormalizer();
+      const config = normalizer.buildConfig({ observabilityBackbone: "none" });
+
+      // Act
+      const result = generator.generate(sampleChoreography, config);
+
+      // Assert
+      expect(result.success).toBe(true);
+      expect(result.content).toContain("${ZIPKIN_URL}");
     });
   });
 });

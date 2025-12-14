@@ -245,4 +245,34 @@ describe("BackboneNormalizer", () => {
       expect(result).toBe("zipkin");
     });
   });
+
+  describe("backbone disable (none value)", () => {
+    it("should disable event backbone when set to none", () => {
+      const config = normalizer.buildConfig({ eventBackbone: "none" });
+      expect(config.eventBackbone.enabled).toBe(false);
+    });
+
+    it("should disable observability backbone when set to none", () => {
+      const config = normalizer.buildConfig({ observabilityBackbone: "none" });
+      expect(config.observabilityBackbone.enabled).toBe(false);
+    });
+
+    it("should allow disabling both backbones", () => {
+      const config = normalizer.buildConfig({
+        eventBackbone: "none",
+        observabilityBackbone: "none",
+      });
+      expect(config.eventBackbone.enabled).toBe(false);
+      expect(config.observabilityBackbone.enabled).toBe(false);
+    });
+
+    it("should keep defaults when only one is disabled", () => {
+      const config = normalizer.buildConfig({ eventBackbone: "none" });
+      expect(config.eventBackbone.enabled).toBe(false);
+      expect(config.observabilityBackbone.enabled).toBe(true);
+      expect(config.observabilityBackbone.image).toBe(
+        "openzipkin/zipkin:latest",
+      );
+    });
+  });
 });

@@ -16,8 +16,8 @@
 
 **Purpose**: Add backbone types and prepare infrastructure
 
-- [ ] T001 Add BackboneConfig types in components/cli/spas-compose/src/types.ts
-- [ ] T002 [P] Create BackboneNormalizer service in components/cli/spas-compose/src/services/backbone-normalizer.ts
+- [x] T001 Add BackboneConfig types in components/cli/spas-compose/src/types.ts
+- [x] T002 [P] Create BackboneNormalizer service in components/cli/spas-compose/src/services/backbone-normalizer.ts
 
 ---
 

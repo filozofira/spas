@@ -206,6 +206,10 @@ export interface ChoreographyDeployOptions extends CommonOptions {
   dryRun?: boolean;
   /** Output filename */
   output?: string;
+  /** Event backbone image or "none" to disable */
+  eventBackbone?: string;
+  /** Observability backbone image or "none" to disable */
+  observabilityBackbone?: string;
 }
 
 /**
@@ -321,7 +325,7 @@ export interface ConfigSummary {
   /** Total number of config files generated */
   totalConfigs: number;
   /** Services with their entry counts */
-  services: ServiceSummary[];
+  services: ServiceSummarySidecar[];
 }
 
 /**
@@ -334,4 +338,66 @@ export interface ServiceSummarySidecar {
   inboundCount: number;
   /** Number of outbound entries */
   outboundCount: number;
+}
+
+// =============================================================================
+// Backbone Configuration Types
+// =============================================================================
+
+/**
+ * Port mapping for Docker container
+ */
+export interface PortMapping {
+  host: number;
+  container: number;
+}
+
+/**
+ * Docker health check configuration
+ */
+export interface HealthCheckConfig {
+  test: string[];
+  interval: string;
+  timeout: string;
+  retries: number;
+}
+
+/**
+ * Configuration for the event streaming backbone (Redis)
+ */
+export interface EventBackboneConfig {
+  /** Whether to provision the backbone service */
+  enabled: boolean;
+  /** Docker image reference (e.g., "redis:7-alpine") */
+  image: string;
+  /** Container name */
+  containerName: string;
+  /** Host port binding */
+  port: number;
+  /** Health check configuration */
+  healthcheck?: HealthCheckConfig;
+}
+
+/**
+ * Configuration for the observability backbone (Zipkin/Jaeger)
+ */
+export interface ObservabilityBackboneConfig {
+  /** Whether to provision the backbone service */
+  enabled: boolean;
+  /** Docker image reference (e.g., "openzipkin/zipkin:latest") */
+  image: string;
+  /** Container name */
+  containerName: string;
+  /** Backbone type (affects port configuration) */
+  type: "zipkin" | "jaeger";
+  /** Ports to expose */
+  ports: PortMapping[];
+}
+
+/**
+ * Complete backbone configuration for infrastructure services
+ */
+export interface BackboneConfig {
+  eventBackbone: EventBackboneConfig;
+  observabilityBackbone: ObservabilityBackboneConfig;
 }

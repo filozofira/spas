@@ -159,9 +159,9 @@
 
 ### Implementation for User Story 6
 
-- [ ] T041 [US6] Implement health handler at `components/sidecar/src/handlers/health.ts` (GET /health, GET /ready endpoints)
-- [ ] T042 [US6] Add Redis connectivity check to readiness logic
-- [ ] T043 [P] [US6] Create unit tests at `components/sidecar/test/unit/handlers/health.test.ts` (200/503 responses, Redis states)
+- [X] T041 [US6] Implement health handler at `components/sidecar/src/handlers/health.ts` (GET /health, GET /ready endpoints)
+- [X] T042 [US6] Add Redis connectivity check to readiness logic
+- [X] T043 [P] [US6] Create unit tests at `components/sidecar/test/unit/handlers/health.test.ts` (200/503 responses, Redis states)
 
 **Checkpoint**: User Story 6 complete - orchestrators can manage sidecar lifecycle
 

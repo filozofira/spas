@@ -56,12 +56,12 @@ public class MetadataDiscoveryTests
         var options = new MetadataDiscoveryOptions
         {
             AutoGenerateSchemaReferences = true,
-            SchemaBasePath = "schemas/"
+            SchemaBasePath = "schemas/events/"
         };
 
         // Act & Assert
         Assert.True(options.AutoGenerateSchemaReferences);
-        Assert.Equal("schemas/", options.SchemaBasePath);
+        Assert.Equal("schemas/events/", options.SchemaBasePath);
     }
 
     [Fact]

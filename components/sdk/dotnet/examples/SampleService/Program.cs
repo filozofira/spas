@@ -77,20 +77,14 @@ app.MapPost("/commands/create-order",
 
         return Results.Ok(result);
     })
-    .WithMetadata(new SpasCommandAttribute("CreateOrder", "1.0")
-    {
-        Schema = "schemas/create-order.schema.json"
-    });
+    .WithMetadata(new SpasCommandAttribute("CreateOrder", "1.0"));
 
 app.MapGet("/queries/get-order/{id}",
     (Guid id) =>
     {
-        return Results.Ok(new { orderId = id, status = "completed", total = 99.99 });
+        return Results.Ok(new GetOrderResponse(id, "completed", 99.99m));
     })
-    .WithMetadata(new SpasQueryAttribute("GetOrder", "1.0")
-    {
-        Schema = "schemas/get-order.schema.json"
-    });
+    .WithMetadata(new SpasQueryAttribute("GetOrder", "1.0"));
 
 // Discover contracts from attributes
 var contracts = app.DiscoverSpasMetadata();
@@ -115,43 +109,9 @@ var composer = new SpasComposer();
 var metadataPath = Path.Combine(AppContext.BaseDirectory, "spas.json");
 composer.ComposeToFile(metadataPath, identity, contracts, security, consistency, network, "MIT");
 
-// Map dev-only metadata endpoint (returns ZIP with spas.json + schemas)
+// Map dev-only metadata endpoint (returns ZIP with spas.json + auto-generated schemas)
 app.MapSpasMetadataEndpoint(
-    metadataProvider: () => composer.Compose(identity, contracts, security, consistency, network, "MIT"),
-    schemasProvider: () => new Dictionary<string, object>
-    {
-        ["schemas/create-order.schema.json"] = new
-        {
-            type = "object",
-            properties = new
-            {
-                customerId = new { type = "string" },
-                total = new { type = "number" }
-            },
-            required = new[] { "customerId", "total" }
-        },
-        ["schemas/get-order.schema.json"] = new
-        {
-            type = "object",
-            properties = new
-            {
-                id = new { type = "string", format = "uuid" }
-            },
-            required = new[] { "id" }
-        },
-        ["schemas/order-created.schema.json"] = new
-        {
-            type = "object",
-            properties = new
-            {
-                orderId = new { type = "string", format = "uuid" },
-                customerId = new { type = "string" },
-                total = new { type = "number" },
-                createdAt = new { type = "string", format = "date-time" }
-            },
-            required = new[] { "orderId", "customerId", "total", "createdAt" }
-        }
-    });
+    metadataProvider: () => composer.Compose(identity, contracts, security, consistency, network, "MIT"));
 
 app.MapGet("/", () => "Hello from SPAS Sample Service!");
 
@@ -159,11 +119,13 @@ app.MapGet("/health", () => new { status = "healthy", timestamp = DateTime.UtcNo
 
 app.Run();
 
-// Sample request types
+// Sample request/response types
+[SpasCommand("CreateOrder", "1.0")]
 public record CreateOrderRequest(string CustomerId, decimal Total);
 
+[SpasQuery("GetOrder", "1.0")]
+public record GetOrderResponse(Guid OrderId, string Status, decimal Total);
+
 // Sample event - auto-discovered from assembly scan
-[SpasEvent("OrderCreated", "1.0", 
-    Schema = "schemas/order-created.schema.json",
-    EventType = "com.sample-service.order.created")]
+[SpasEvent("OrderCreated", "1.0", EventType = "com.sample-service.order.created")]
 public record OrderCreatedEvent(Guid OrderId, string CustomerId, decimal Total, DateTime CreatedAt);

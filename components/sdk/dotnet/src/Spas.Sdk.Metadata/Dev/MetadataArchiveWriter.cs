@@ -50,7 +50,9 @@ public class MetadataArchiveWriter
         var entry = archive.CreateEntry(entryPath, CompressionLevel.Optimal);
 
         using var entryStream = entry.Open();
-        var json = JsonSerializer.Serialize(content, JsonOptions);
+        // If content is already a JSON string (from schema generation), write it directly
+        // Otherwise, serialize the object to JSON
+        var json = content is string str ? str : JsonSerializer.Serialize(content, JsonOptions);
         var bytes = Encoding.UTF8.GetBytes(json);
         await entryStream.WriteAsync(bytes);
     }

@@ -2,6 +2,7 @@
   "name": "@spas/cli",
   "version": "0.1.0",
   "description": "SPAS Service CLI - Command-line tool for publishing and managing SPAS service metadata",
+  "type": "module",
   "main": "dist/index.js",
   "bin": {
     "spas-service": "./dist/index.js"

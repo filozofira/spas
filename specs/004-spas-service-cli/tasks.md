@@ -41,23 +41,23 @@
 
 > **BLOCKS ALL CLI WORK**: SDK must produce Repository-compatible archives before CLI can function
 
-- [ ] T009 Update `MetadataArchiveWriter.cs` in `components/sdk/dotnet/src/Spas.Sdk.Metadata/Dev/` to use `id` instead of `serviceId` in spas.json
-- [ ] T010 [P] Update `MetadataArchiveWriter.cs` to use `name` instead of `serviceName` in spas.json
-- [ ] T011 [P] Update schema path structure in `MetadataArchiveWriter.cs` to use categorized paths: `schemas/endpoints/*.schema.json`, `schemas/events/*.schema.json`
-- [ ] T012 [P] Add `schemaVersion: "design-time-metadata-v1"` field to spas.json generation in `MetadataArchiveWriter.cs`
-- [ ] T013 Update SDK tests in `components/sdk/dotnet/test/Spas.Sdk.Metadata.Tests/` for new archive format
-- [ ] T014 Manual integration validation: generate archive from SDK and publish to Repository
+- [X] T009 Update `MetadataArchiveWriter.cs` in `components/sdk/dotnet/src/Spas.Sdk.Metadata/Dev/` to use `id` instead of `serviceId` in spas.json
+- [X] T010 [P] Update `MetadataArchiveWriter.cs` to use `name` instead of `serviceName` in spas.json
+- [X] T011 [P] Update schema path structure in `MetadataArchiveWriter.cs` to use categorized paths: `schemas/endpoints/*.schema.json`, `schemas/events/*.schema.json`
+- [X] T012 [P] Add `schemaVersion: "design-time-metadata-v1"` field to spas.json generation in `MetadataArchiveWriter.cs`
+- [X] T013 Update SDK tests in `components/sdk/dotnet/test/Spas.Sdk.Metadata.Tests/` for new archive format
+- [X] T014 Manual integration validation: generate archive from SDK and publish to Repository
 
 ### CLI Core Infrastructure
 
-- [ ] T015 [P] Define TypeScript interfaces in `components/cli/spas-service/src/types.ts` (PublishOptions, PullOptions, ServiceIdentity, CliConfig, CliError, ErrorCode)
-- [ ] T016 [P] Create config resolver in `components/cli/spas-service/src/utils/config.ts` (resolve repo URL from --repo flag, SPAS_REPOSITORY_URL env, default localhost:3000)
-- [ ] T017 [P] Create retry utility in `components/cli/spas-service/src/utils/retry.ts` (exponential backoff: max 5 retries, 1s initial, 2x multiplier, 16s max delay)
-- [ ] T018 [P] Create output formatter in `components/cli/spas-service/src/utils/output.ts` (success/error messages with chalk coloring, verbose mode support)
-- [ ] T019 [P] Create archive reader service in `components/cli/spas-service/src/services/archive-reader.ts` (extract spas.json from ZIP to get ServiceIdentity)
-- [ ] T020 [P] Create metadata client service in `components/cli/spas-service/src/services/metadata-client.ts` (GET /_spas/metadata endpoint with retry, return Buffer)
-- [ ] T021 [P] Create repository client service in `components/cli/spas-service/src/services/repository-client.ts` (POST /services/{id}:{version} multipart, GET /services/{id}/versions/{version}/download)
-- [ ] T022 Create CLI entry point in `components/cli/spas-service/src/index.ts` (Commander.js setup with version, help, global --repo option)
+- [X] T015 [P] Define TypeScript interfaces in `components/cli/spas-service/src/types.ts` (PublishOptions, PullOptions, ServiceIdentity, CliConfig, CliError, ErrorCode)
+- [X] T016 [P] Create config resolver in `components/cli/spas-service/src/utils/config.ts` (resolve repo URL from --repo flag, SPAS_REPOSITORY_URL env, default localhost:3000)
+- [X] T017 [P] Create retry utility in `components/cli/spas-service/src/utils/retry.ts` (exponential backoff: max 5 retries, 1s initial, 2x multiplier, 16s max delay)
+- [X] T018 [P] Create output formatter in `components/cli/spas-service/src/utils/output.ts` (success/error messages with chalk coloring, verbose mode support)
+- [X] T019 [P] Create archive reader service in `components/cli/spas-service/src/services/archive-reader.ts` (extract spas.json from ZIP to get ServiceIdentity)
+- [X] T020 [P] Create metadata client service in `components/cli/spas-service/src/services/metadata-client.ts` (GET /_spas/metadata endpoint with retry, return Buffer)
+- [X] T021 [P] Create repository client service in `components/cli/spas-service/src/services/repository-client.ts` (POST /services/{id}:{version} multipart, GET /services/{id}/versions/{version}/download)
+- [X] T022 Create CLI entry point in `components/cli/spas-service/src/index.ts` (Commander.js setup with version, help, global --repo option)
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 

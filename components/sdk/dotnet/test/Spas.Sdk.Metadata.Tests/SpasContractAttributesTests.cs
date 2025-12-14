@@ -14,7 +14,7 @@ public class SpasContractAttributesTests
         // Assert
         Assert.Equal("CreateOrder", attribute.Name);
         Assert.Equal("1.0", attribute.Version);
-        Assert.Null(attribute.Schema);
+        Assert.Equal("schemas/endpoints/create-order.schema.json", attribute.Schema);
         Assert.Null(attribute.Path);
     }
 
@@ -53,7 +53,7 @@ public class SpasContractAttributesTests
         // Assert
         Assert.Equal("GetOrder", attribute.Name);
         Assert.Equal("1.0", attribute.Version);
-        Assert.Null(attribute.Schema);
+        Assert.Equal("schemas/endpoints/get-order.schema.json", attribute.Schema);
         Assert.Null(attribute.Path);
     }
 
@@ -79,7 +79,7 @@ public class SpasContractAttributesTests
         // Assert
         Assert.Equal("OrderCreated", attribute.Name);
         Assert.Equal("1.0", attribute.Version);
-        Assert.Null(attribute.Schema);
+        Assert.Equal("schemas/events/order-created.schema.json", attribute.Schema);
     }
 
     [Fact]

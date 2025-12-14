@@ -24,9 +24,9 @@ public class MetadataDiscoveryOptions
 
     /// <summary>
     /// Base path for auto-generated schema references.
-    /// Default: "schemas/".
+    /// Default: "schemas/events/" for event schemas.
     /// </summary>
-    public string SchemaBasePath { get; set; } = "schemas/";
+    public string SchemaBasePath { get; set; } = "schemas/events/";
 }
 
 /// <summary>

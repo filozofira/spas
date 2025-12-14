@@ -1,10 +1,26 @@
 namespace Spas.Sdk.Metadata.Attributes;
 
 /// <summary>
-/// Marks an endpoint as a SPAS command and provides contract metadata.
-/// Apply to minimal API endpoints or controller actions.
+/// Internal helper for attribute classes.
 /// </summary>
-[AttributeUsage(AttributeTargets.Method | AttributeTargets.Delegate, AllowMultiple = false)]
+internal static class AttributeHelpers
+{
+    /// <summary>
+    /// Converts a PascalCase name to kebab-case for file naming.
+    /// </summary>
+    public static string ToKebabCase(string value)
+    {
+        if (string.IsNullOrEmpty(value)) return value;
+        return string.Concat(value.Select((ch, i) =>
+            i > 0 && char.IsUpper(ch) ? "-" + char.ToLowerInvariant(ch) : char.ToLowerInvariant(ch).ToString()));
+    }
+}
+
+/// <summary>
+/// Marks an endpoint as a SPAS command and provides contract metadata.
+/// Apply to minimal API endpoints or controller actions, or to request/response types for auto-schema generation.
+/// </summary>
+[AttributeUsage(AttributeTargets.Method | AttributeTargets.Delegate | AttributeTargets.Class | AttributeTargets.Struct, AllowMultiple = false)]
 public class SpasCommandAttribute : Attribute
 {
     /// <summary>
@@ -32,14 +48,16 @@ public class SpasCommandAttribute : Attribute
     {
         Name = name;
         Version = version;
+        // Auto-generate schema path if not explicitly set
+        Schema ??= $"schemas/endpoints/{AttributeHelpers.ToKebabCase(name)}.schema.json";
     }
 }
 
 /// <summary>
 /// Marks an endpoint as a SPAS query and provides contract metadata.
-/// Apply to minimal API endpoints or controller actions.
+/// Apply to minimal API endpoints or controller actions, or to request/response types for auto-schema generation.
 /// </summary>
-[AttributeUsage(AttributeTargets.Method | AttributeTargets.Delegate, AllowMultiple = false)]
+[AttributeUsage(AttributeTargets.Method | AttributeTargets.Delegate | AttributeTargets.Class | AttributeTargets.Struct, AllowMultiple = false)]
 public class SpasQueryAttribute : Attribute
 {
     /// <summary>
@@ -67,6 +85,8 @@ public class SpasQueryAttribute : Attribute
     {
         Name = name;
         Version = version;
+        // Auto-generate schema path if not explicitly set
+        Schema ??= $"schemas/endpoints/{AttributeHelpers.ToKebabCase(name)}.schema.json";
     }
 }
 
@@ -103,5 +123,7 @@ public class SpasEventAttribute : Attribute
     {
         Name = name;
         Version = version;
+        // Auto-generate schema path if not explicitly set
+        Schema ??= $"schemas/events/{AttributeHelpers.ToKebabCase(name)}.schema.json";
     }
 }

@@ -37,13 +37,13 @@ Target: `components/cli/spas-compose/` (enhancement to existing CLI)
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T004 Implement `getAllParticipants()` method to extract unique service names from choreography in `components/cli/spas-compose/src/services/sidecar-config-generator.ts`
-- [ ] T005 Implement `buildOutboundEntries()` method to extract outbound entries for a service from all flows in `components/cli/spas-compose/src/services/sidecar-config-generator.ts`
-- [ ] T006 Implement `buildInboundEntries()` method to extract inbound entries for a service from all flow targets in `components/cli/spas-compose/src/services/sidecar-config-generator.ts`
-- [ ] T007 Add unit tests for `getAllParticipants()` in `components/cli/spas-compose/test/unit/services/sidecar-config-generator.test.ts`
-- [ ] T008 Add unit tests for `buildOutboundEntries()` and `buildInboundEntries()` in `components/cli/spas-compose/test/unit/services/sidecar-config-generator.test.ts`
+- [x] T004 Implement `getAllParticipants()` method to extract unique service names from choreography in `components/cli/spas-compose/src/services/sidecar-config-generator.ts`
+- [x] T005 Implement `buildOutboundEntries()` method to extract outbound entries for a service from all flows in `components/cli/spas-compose/src/services/sidecar-config-generator.ts`
+- [x] T006 Implement `buildInboundEntries()` method to extract inbound entries for a service from all flow targets in `components/cli/spas-compose/src/services/sidecar-config-generator.ts`
+- [x] T007 Add unit tests for `getAllParticipants()` in `components/cli/spas-compose/test/unit/services/sidecar-config-generator.test.ts`
+- [x] T008 Add unit tests for `buildOutboundEntries()` and `buildInboundEntries()` in `components/cli/spas-compose/test/unit/services/sidecar-config-generator.test.ts`
 
-**Checkpoint**: Foundation ready - core extraction methods tested and working
+**Checkpoint**: Foundation ready - core extraction methods tested and working ✅
 
 ---
 

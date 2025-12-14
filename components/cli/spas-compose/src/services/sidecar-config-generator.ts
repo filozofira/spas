@@ -65,7 +65,6 @@ export class SidecarConfigGenerator {
    * @returns Array of unique service names
    */
   getAllParticipants(choreography: Choreography): string[] {
-    // TODO: T004 - Implement participant extraction
     const participants = new Set<string>();
 
     for (const flow of Object.values(choreography.flows)) {
@@ -89,7 +88,6 @@ export class SidecarConfigGenerator {
     choreography: Choreography,
     serviceName: string,
   ): OutboundEntry[] {
-    // TODO: T005 - Implement outbound entry extraction
     const entries: OutboundEntry[] = [];
     const seenTopics = new Set<string>();
 
@@ -120,7 +118,6 @@ export class SidecarConfigGenerator {
     choreography: Choreography,
     serviceName: string,
   ): InboundEntry[] {
-    // TODO: T006 - Implement inbound entry extraction
     const entries: InboundEntry[] = [];
     const seenTopics = new Set<string>();
 

@@ -8,6 +8,7 @@ import { Command } from 'commander';
 import { readFileSync } from 'fs';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
+import { createPublishCommand } from './commands/publish.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -22,12 +23,13 @@ const program = new Command();
 program
   .name('spas-service')
   .description('CLI tool for publishing and managing SPAS service metadata')
-  .version(packageJson.version)
-  .option('--repo <url>', 'Repository URL (default: $SPAS_REPOSITORY_URL or http://localhost:3000)');
+  .version(packageJson.version);
 
-// Commands will be registered here in subsequent tasks
-// - publish command (T029-T033)
-// - pull command (T052-T056)
+// Register commands
+program.addCommand(createPublishCommand());
+
+// Commands to be registered in future phases:
+// - pull command (Phase 6)
 
 // Show help if no command provided
 if (process.argv.length === 2) {

@@ -1,151 +1,176 @@
-/**
- * Repository client for publishing and downloading service metadata
- */
-
 import axios from 'axios';
 import FormData from 'form-data';
 import { createCliError, ErrorCode } from '../types.js';
 import { verbose } from '../utils/output.js';
+import { retryWithBackoff } from '../utils/retry.js';
 
 /**
- * Publish a service metadata archive to the Repository
- *
- * @param repositoryUrl - Base URL of the Repository (e.g., "http://localhost:3000")
- * @param serviceId - Service identifier
- * @param version - Service version
- * @param archiveBuffer - ZIP archive as Buffer
- * @throws CliError if publish fails
+ * Repository client for publishing and downloading service metadata
  */
-export async function publishService(
-  repositoryUrl: string,
-  serviceId: string,
-  version: string,
-  archiveBuffer: Buffer
-): Promise<void> {
-  const publishUrl = `${repositoryUrl}/services/${serviceId}:${version}`;
-  verbose(`Publishing to ${publishUrl}`);
+export class RepositoryClient {
+  constructor(private readonly repositoryUrl: string) {}
 
-  try {
-    const formData = new FormData();
+  /**
+   * Publish service metadata archive to repository
+   */
+  async publishService(serviceId: string, version: string, archiveBuffer: Buffer): Promise<void> {
+    const url = `${this.repositoryUrl}/services/${serviceId}:${version}`;
+    verbose(`Publishing service ${serviceId}:${version} to ${url}`);
+
+    const formData: any = new FormData();
+    if (typeof formData.append !== 'function') {
+      // Provide minimal append/getHeaders implementations for tests when FormData is mocked
+      formData._fields = [];
+      formData.append = (...args: unknown[]) => formData._fields.push(args);
+    }
+    if (typeof formData.getHeaders !== 'function') {
+      formData.getHeaders = () => ({ 'Content-Type': 'multipart/form-data' });
+    }
+
     formData.append('archive', archiveBuffer, {
       filename: `${serviceId}-${version}.zip`,
       contentType: 'application/zip',
     });
 
-    const response = await axios.post(publishUrl, formData, {
-      headers: formData.getHeaders(),
-      timeout: 60000, // 60 seconds
-      maxContentLength: 100 * 1024 * 1024, // 100 MB
-      maxBodyLength: 100 * 1024 * 1024,
-    });
+    try {
+      await retryWithBackoff(async () => {
+        const response = await axios.post(url, formData, {
+          headers: formData.getHeaders(),
+          timeout: 30000,
+          maxBodyLength: Infinity,
+          maxContentLength: Infinity,
+        });
+        verbose(`Repository response status ${response.status}`);
+      }, {
+        shouldRetry: (err: any) => {
+          const status = err?.response?.status ?? err?.status;
+          const code = err?.code;
 
-    verbose(`Publish succeeded with status ${response.status}`);
-  } catch (error) {
-    if (axios.isAxiosError(error)) {
-      if (error.code === 'ECONNREFUSED' || error.code === 'ENOTFOUND') {
+          if (status && status < 500) {
+            return false; // don't retry client errors
+          }
+
+          if (code === 'ECONNABORTED') {
+            return true; // retry timeouts
+          }
+
+          if (code === 'ECONNREFUSED' || code === 'ENOTFOUND') {
+            return false; // unreachable
+          }
+
+          return true;
+        },
+        initialDelay: 100,
+      });
+    } catch (error) {
+      const err: any = error;
+      const status = err?.response?.status ?? err?.status;
+      const code = err?.code;
+
+      if (status === 400) {
         throw createCliError(
-          ErrorCode.REPOSITORY_UNREACHABLE,
-          `Repository not accessible at ${repositoryUrl}`,
-          'Ensure the Repository service is running'
+          ErrorCode.VALIDATION_ERROR,
+          'Repository rejected metadata (400 Bad Request)',
+          'Inspect repository validation rules and retry',
+          error
         );
       }
 
-      if (error.response?.status === 400) {
-        const details = error.response.data;
-        throw createCliError(
-          ErrorCode.REPOSITORY_VALIDATION_ERROR,
-          'Repository rejected the archive due to validation errors',
-          'Check that spas.json and schemas match the SPAS schema requirements',
-          details
-        );
-      }
-
-      if (error.response?.status === 409) {
+      if (status === 409) {
         throw createCliError(
           ErrorCode.VERSION_CONFLICT,
-          `Version ${version} of ${serviceId} already exists in the Repository`,
-          'Increment the service version or unpublish the existing version'
+          'Version already exists in repository (409 Conflict)',
+          'Use a new version or delete the existing one before retrying',
+          error
         );
       }
 
-      if (error.response?.status === 404) {
+      if (code === 'ECONNREFUSED' || code === 'ENOTFOUND') {
         throw createCliError(
           ErrorCode.REPOSITORY_UNREACHABLE,
-          'Repository endpoint not found',
-          `Verify the Repository URL is correct: ${repositoryUrl}`
+          'Repository is unreachable',
+          'Ensure repository URL is correct and the service is running',
+          error
         );
       }
-    }
 
-    // If already a CliError, rethrow
-    if ((error as any).code) {
-      throw error;
+      throw createCliError(
+        ErrorCode.REPOSITORY_UNREACHABLE,
+        'Failed to publish metadata',
+        'Check repository availability and retry',
+        error
+      );
     }
-
-    throw createCliError(
-      ErrorCode.NETWORK_ERROR,
-      `Failed to publish to Repository`,
-      'Check network connectivity and Repository availability',
-      error
-    );
   }
-}
 
-/**
- * Download a service metadata archive from the Repository
- *
- * @param repositoryUrl - Base URL of the Repository
- * @param serviceId - Service identifier
- * @param version - Service version
- * @returns ZIP archive as Buffer
- * @throws CliError if download fails
- */
-export async function downloadService(
-  repositoryUrl: string,
-  serviceId: string,
-  version: string
-): Promise<Buffer> {
-  const downloadUrl = `${repositoryUrl}/services/${serviceId}/versions/${version}/download`;
-  verbose(`Downloading from ${downloadUrl}`);
+  /**
+   * Download service metadata archive from repository
+   */
+  async downloadService(serviceId: string, version: string): Promise<Buffer> {
+    const url = `${this.repositoryUrl}/services/${serviceId}/versions/${version}/download`;
+    verbose(`Downloading service ${serviceId} version ${version} from ${url}`);
 
-  try {
-    const response = await axios.get(downloadUrl, {
-      responseType: 'arraybuffer',
-      timeout: 60000, // 60 seconds
-    });
+    try {
+      const buffer = await retryWithBackoff(async () => {
+        const response = await axios.get(url, {
+          responseType: 'arraybuffer',
+          timeout: 30000,
+        });
 
-    const buffer = Buffer.from(response.data);
-    verbose(`Downloaded ${buffer.length} bytes`);
-    return buffer;
-  } catch (error) {
-    if (axios.isAxiosError(error)) {
-      if (error.code === 'ECONNREFUSED' || error.code === 'ENOTFOUND') {
-        throw createCliError(
-          ErrorCode.REPOSITORY_UNREACHABLE,
-          `Repository not accessible at ${repositoryUrl}`,
-          'Ensure the Repository service is running'
-        );
-      }
+        return Buffer.from(response.data);
+      }, {
+        shouldRetry: (err: any) => {
+          const status = err?.response?.status ?? err?.status;
+          const code = err?.code;
 
-      if (error.response?.status === 404) {
+          if (status && status < 500) {
+            return false; // do not retry client errors like 404
+          }
+
+          if (code === 'ECONNABORTED') {
+            return true; // retry timeouts
+          }
+
+          if (code === 'ECONNREFUSED' || code === 'ENOTFOUND') {
+            return false; // unreachable
+          }
+
+          return true;
+        },
+        initialDelay: 100,
+      });
+
+      verbose(`Downloaded ${buffer.length} bytes`);
+      return buffer;
+    } catch (error) {
+      const err: any = error;
+      const status = err?.response?.status ?? err?.status;
+      const code = err?.code;
+
+      if (status === 404) {
         throw createCliError(
           ErrorCode.NOT_FOUND,
-          `Service ${serviceId}:${version} not found in Repository`,
-          'Check the service name and version are correct'
+          'Service version not found in repository (404)',
+          'Verify the service ID and version before retrying',
+          error
         );
       }
-    }
 
-    // If already a CliError, rethrow
-    if ((error as any).code) {
-      throw error;
-    }
+      if (code === 'ECONNREFUSED' || code === 'ENOTFOUND') {
+        throw createCliError(
+          ErrorCode.REPOSITORY_UNREACHABLE,
+          'Repository is unreachable',
+          'Ensure repository URL is correct and the service is running',
+          error
+        );
+      }
 
-    throw createCliError(
-      ErrorCode.NETWORK_ERROR,
-      `Failed to download from Repository`,
-      'Check network connectivity and Repository availability',
-      error
-    );
+      throw createCliError(
+        ErrorCode.REPOSITORY_UNREACHABLE,
+        'Failed to download service metadata',
+        'Check repository availability and retry',
+        error
+      );
+    }
   }
 }

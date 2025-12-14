@@ -73,21 +73,21 @@
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [ ] T023 [P] [US1] Unit test for archive-reader.ts in `test/unit/services/archive-reader.test.ts` (valid ZIP with spas.json, missing spas.json, malformed JSON)
-- [ ] T024 [P] [US1] Unit test for metadata-client.ts in `test/unit/services/metadata-client.test.ts` (successful download, 404 error, timeout with retry)
-- [ ] T025 [P] [US1] Unit test for repository-client.ts publish in `test/unit/services/repository-client.test.ts` (201 Created, 400 validation error, 409 conflict)
-- [ ] T026 [P] [US1] Unit test for config.ts in `test/unit/utils/config.test.ts` (flag priority, env var fallback, default)
-- [ ] T027 [P] [US1] Unit test for retry.ts in `test/unit/utils/retry.test.ts` (retry on failure, exponential backoff timing, max retries exceeded)
-- [ ] T028 [P] [US1] Integration test for publish command in `test/integration/publish.test.ts` (end-to-end publish workflow with mocked services)
+- [X] T023 [P] [US1] Unit test for archive-reader.ts in `test/unit/services/archive-reader.test.ts` (valid ZIP with spas.json, missing spas.json, malformed JSON)
+- [X] T024 [P] [US1] Unit test for metadata-client.ts in `test/unit/services/metadata-client.test.ts` (successful download, 404 error, timeout with retry)
+- [X] T025 [P] [US1] Unit test for repository-client.ts publish in `test/unit/services/repository-client.test.ts` (201 Created, 400 validation error, 409 conflict)
+- [X] T026 [P] [US1] Unit test for config.ts in `test/unit/utils/config.test.ts` (flag priority, env var fallback, default)
+- [X] T027 [P] [US1] Unit test for retry.ts in `test/unit/utils/retry.test.ts` (retry on failure, exponential backoff timing, max retries exceeded)
+- [X] T028 [P] [US1] Integration test for publish command in `test/integration/publish.test.ts` (end-to-end publish workflow with mocked services)
 
 ### Implementation for User Story 1
 
-- [ ] T029 [US1] Create PublishService in `components/cli/spas-service/src/services/publish-service.ts` (orchestrate: prompt → download → extract identity → publish)
-- [ ] T030 [US1] Implement publish command in `components/cli/spas-service/src/commands/publish.ts` (Commander action for `publish <service-host>`)
-- [ ] T031 [US1] Add user prompt logic in publish command ("Start your service at {host} and press Enter to continue...")
-- [ ] T032 [US1] Register publish command in `src/index.ts` with options: --repo
-- [ ] T033 [US1] Implement error handling in publish command for all ErrorCode scenarios (SERVICE_UNAVAILABLE, REPOSITORY_UNREACHABLE, VERSION_CONFLICT, etc.)
-- [ ] T034 [US1] Add success output formatting ("✓ Downloaded metadata...", "✓ Published to...")
+- [X] T029 [US1] Create PublishService in `components/cli/spas-service/src/services/publish-service.ts` (orchestrate: prompt → download → extract identity → publish)
+- [X] T030 [US1] Implement publish command in `components/cli/spas-service/src/commands/publish.ts` (Commander action for `publish <service-host>`)
+- [X] T031 [US1] Add user prompt logic in publish command ("Start your service at {host} and press Enter to continue...")
+- [X] T032 [US1] Register publish command in `src/index.ts` with options: --repo
+- [X] T033 [US1] Implement error handling in publish command for all ErrorCode scenarios (SERVICE_UNAVAILABLE, REPOSITORY_UNREACHABLE, VERSION_CONFLICT, etc.)
+- [X] T034 [US1] Add success output formatting ("✓ Downloaded metadata...", "✓ Published to...")
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 

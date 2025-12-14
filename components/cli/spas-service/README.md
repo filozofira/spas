@@ -30,27 +30,31 @@ spas-service --version
 ### Publish a Service
 
 1. **Start your SPAS Repository** (if not already running):
+
    ```bash
    cd components/repository
    npm start
    ```
 
 2. **Run the publish command**:
+
    ```bash
    spas-service publish http://localhost:5000 --repo http://localhost:3000
    ```
 
 3. **When prompted**, start your service and press Enter:
+
    ```
    Start your service at http://localhost:5000 and press Enter to continue...
    ```
 
 4. **Success output**:
+
    ```
    ✓ Downloaded metadata from http://localhost:5000/_spas/metadata
    ✓ Extracted service identity: order-service:1.0.0
    ✓ Published to http://localhost:3000/services/order-service:1.0.0
-   
+
    Service published successfully!
    ```
 
@@ -61,6 +65,7 @@ spas-service publish http://localhost:5000 --dry-run
 ```
 
 Output:
+
 ```
 ✓ Downloaded metadata from http://localhost:5000/_spas/metadata
 ✓ Saved to ./order-service-1.0.0.zip
@@ -69,7 +74,7 @@ Archive contents:
   - spas.json (order-service v1.0.0)
   - schemas/endpoints/create-order.schema.json
   - schemas/events/order-created.schema.json
-  
+
 Dry run complete. No changes published.
 ```
 
@@ -90,6 +95,7 @@ spas-service pull order-service 1.0.0 --repo http://localhost:3000
 ```
 
 Output:
+
 ```
 ✓ Downloaded order-service:1.0.0
 ✓ Saved to ./order-service-1.0.0.zip
@@ -130,6 +136,7 @@ spas-service publish --archive <path> [options]
 ```
 
 **Options:**
+
 - `--repo <url>` - Repository URL (default: `$SPAS_REPOSITORY_URL` or `http://localhost:3000`)
 - `--dry-run` - Download and inspect metadata without publishing
 - `--archive <path>` - Publish a local ZIP file instead of downloading from service
@@ -159,6 +166,7 @@ spas-service pull <name> <version> [options]
 ```
 
 **Options:**
+
 - `--repo <url>` - Repository URL (default: `$SPAS_REPOSITORY_URL` or `http://localhost:3000`)
 - `--output <dir>` - Output directory (default: current directory)
 

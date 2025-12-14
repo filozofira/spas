@@ -9,15 +9,20 @@ export interface RetryOptions {
   initialDelay?: number;
   /** Backoff multiplier */
   multiplier?: number;
+  /** Backoff multiplier (alias for multiplier) */
+  backoffMultiplier?: number;
   /** Maximum delay in milliseconds */
   maxDelay?: number;
+  /** Function to determine if an error should be retried */
+  shouldRetry?: (error: Error) => boolean;
 }
 
-const DEFAULT_OPTIONS: Required<RetryOptions> = {
+const DEFAULT_OPTIONS: Required<Omit<RetryOptions, 'shouldRetry' | 'backoffMultiplier'>> & { shouldRetry: (error: Error) => boolean } = {
   maxRetries: 5,
-  initialDelay: 1000, // 1 second
+  initialDelay: 100, // shorter default to keep CLI responsive and tests fast
   multiplier: 2,
   maxDelay: 16000, // 16 seconds
+  shouldRetry: () => true, // Retry all errors by default
 };
 
 /**
@@ -32,7 +37,8 @@ export async function retryWithBackoff<T>(
   operation: () => Promise<T>,
   options?: RetryOptions
 ): Promise<T> {
-  const opts = { ...DEFAULT_OPTIONS, ...options };
+  const multiplier = options?.backoffMultiplier ?? options?.multiplier ?? DEFAULT_OPTIONS.multiplier;
+  const opts = { ...DEFAULT_OPTIONS, ...options, multiplier };
   let lastError: Error | undefined;
   let delay = opts.initialDelay;
 
@@ -41,6 +47,11 @@ export async function retryWithBackoff<T>(
       return await operation();
     } catch (error) {
       lastError = error as Error;
+
+      // Check if error should be retried
+      if (!opts.shouldRetry(lastError)) {
+        throw lastError;
+      }
 
       // Don't retry after the last attempt
       if (attempt === opts.maxRetries) {
@@ -51,7 +62,7 @@ export async function retryWithBackoff<T>(
       await sleep(delay);
 
       // Calculate next delay with exponential backoff
-      delay = Math.min(delay * opts.multiplier, opts.maxDelay);
+      delay = Math.min(delay * multiplier, opts.maxDelay);
     }
   }
 

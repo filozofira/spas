@@ -37,7 +37,7 @@ export interface ServiceIdentity {
   /** Service ID (e.g., "order-service") */
   id: string;
   /** Human-readable name */
-  name: string;
+  name?: string;
   /** Semver version (e.g., "1.0.0") */
   version: string;
   /** Schema version */
@@ -77,6 +77,7 @@ export enum ErrorCode {
   ARCHIVE_INVALID = 'ARCHIVE_INVALID',
   REPOSITORY_UNREACHABLE = 'REPOSITORY_UNREACHABLE',
   REPOSITORY_VALIDATION_ERROR = 'REPOSITORY_VALIDATION_ERROR',
+  VALIDATION_ERROR = 'VALIDATION_ERROR', // Alias for consistency
   VERSION_CONFLICT = 'VERSION_CONFLICT',
   NOT_FOUND = 'NOT_FOUND',
   NETWORK_ERROR = 'NETWORK_ERROR',

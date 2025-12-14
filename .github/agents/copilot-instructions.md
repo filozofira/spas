@@ -238,6 +238,8 @@ Auto-generated from all feature plans. Last updated: 2025-12-12
 - N/A (generates files to filesystem) (006-sidecar-config-generator)
 - Node.js 20+, TypeScript 5.3 + express, redis, node-fetch, uuid, jsonata (from prototype) (007-spas-sidecar)
 - Redis Streams (message broker) (007-spas-sidecar)
+- TypeScript 5.3, Node.js 20+ + Commander.js (CLI), js-yaml (YAML generation) (008-compose-backbone-args)
+- N/A (generates files) (008-compose-backbone-args)
 
 - .NET 10 (target net10.0); Microsoft.Extensions.Logging; System.Text.Json (001-dotnet-spas-sdk)
 

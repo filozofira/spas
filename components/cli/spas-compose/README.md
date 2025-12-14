@@ -126,8 +126,30 @@ Generate deployment configuration from choreography.yaml.
 - `--docker` - Generate docker-compose.yaml and sidecar config files (required)
 - `--dry-run` - Validate and preview without generating files
 - `--output <file>` - Output filename (default: docker-compose.yaml)
+- `--event-backbone <image>` - Event backbone Docker image (default: redis:7-alpine)
+- `--observability-backbone <image>` - Observability backbone Docker image (default: openzipkin/zipkin:latest)
 - `--json` - Output result as JSON
 - `--verbose` - Show detailed progress
+
+**Backbone Configuration:**
+
+The deploy command includes Redis and Zipkin backbone services by default. You can customize these:
+
+```bash
+# Use custom Redis version
+spas-compose choreography deploy --docker --event-backbone redis:6.2-alpine
+
+# Use Jaeger instead of Zipkin (auto-configures ports 16686 and 9411)
+spas-compose choreography deploy --docker --observability-backbone jaegertracing/all-in-one:latest
+
+# Use shorthand notation for common images
+spas-compose choreography deploy --docker --observability-backbone jaeger:latest
+
+# Disable backbones for BYO infrastructure (uses env var substitution)
+spas-compose choreography deploy --docker --event-backbone none --observability-backbone none
+```
+
+When using `none`, sidecars will be configured with environment variable placeholders (`${REDIS_HOST}`, `${REDIS_PORT}`, `${ZIPKIN_URL}`) that you must provide at runtime.
 
 **Example:**
 

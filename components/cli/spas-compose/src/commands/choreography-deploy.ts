@@ -13,6 +13,7 @@ import { JsonataValidator } from "../services/jsonata-validator.js";
 import { DockerGenerator } from "../services/docker-generator.js";
 import { SidecarConfigGenerator } from "../services/sidecar-config-generator.js";
 import { WorkspaceService } from "../services/workspace-service.js";
+import { BackboneNormalizer } from "../services/backbone-normalizer.js";
 import * as output from "../utils/output.js";
 
 /**
@@ -206,6 +207,86 @@ export async function handleChoreographyDeploy(
     options.verbose,
   );
 
+  // Validate and build backbone configuration
+  output.verbose("Building backbone configuration...", options.verbose);
+  const backboneNormalizer = new BackboneNormalizer();
+
+  // Validate event backbone image format if provided (skip validation for "none")
+  if (options.eventBackbone && options.eventBackbone !== "none") {
+    const eventValidation = backboneNormalizer.validateImageFormat(
+      options.eventBackbone,
+    );
+    if (!eventValidation.valid) {
+      const result = {
+        success: false,
+        error: {
+          code: "INVALID_IMAGE_FORMAT",
+          details: eventValidation.error || "Invalid event backbone image",
+        },
+        message: `Invalid --event-backbone format: ${options.eventBackbone}`,
+      };
+
+      if (options.json) {
+        output.json(result);
+      } else {
+        output.error(result.message);
+        output.info("Hint: Use format 'image:tag' or 'org/image:tag'");
+      }
+      process.exit(1);
+    }
+  }
+
+  // Validate observability backbone image format if provided (skip validation for "none")
+  if (options.observabilityBackbone && options.observabilityBackbone !== "none") {
+    const obsValidation = backboneNormalizer.validateImageFormat(
+      options.observabilityBackbone,
+    );
+    if (!obsValidation.valid) {
+      const result = {
+        success: false,
+        error: {
+          code: "INVALID_IMAGE_FORMAT",
+          details: obsValidation.error || "Invalid observability backbone image",
+        },
+        message: `Invalid --observability-backbone format: ${options.observabilityBackbone}`,
+      };
+
+      if (options.json) {
+        output.json(result);
+      } else {
+        output.error(result.message);
+        output.info("Hint: Use format 'image:tag' or 'org/image:tag'");
+      }
+      process.exit(1);
+    }
+  }
+
+  const backboneConfig = backboneNormalizer.buildConfig({
+    eventBackbone: options.eventBackbone,
+    observabilityBackbone: options.observabilityBackbone,
+  });
+
+  // Warn when backbones are disabled (BYO infrastructure)
+  if (!backboneConfig.eventBackbone.enabled) {
+    output.warning(
+      "Event backbone disabled. Sidecars will use ${REDIS_HOST} and ${REDIS_PORT} environment variables.",
+    );
+  }
+  if (!backboneConfig.observabilityBackbone.enabled) {
+    output.warning(
+      "Observability backbone disabled. Services will use ${ZIPKIN_URL} environment variable.",
+    );
+  }
+
+  output.verbose(
+    `Event backbone: ${backboneConfig.eventBackbone.enabled ? backboneConfig.eventBackbone.image : "disabled"}`,
+    options.verbose,
+  );
+  output.verbose(
+    `Observability backbone: ${backboneConfig.observabilityBackbone.enabled ? backboneConfig.observabilityBackbone.image : "disabled"}`,
+    options.verbose,
+  );
+
   // Validate transformation files
   output.verbose("Validating transformation files...", options.verbose);
   const transformations = loader.getAllTransformations(choreography);
@@ -303,6 +384,18 @@ export async function handleChoreographyDeploy(
         },
         services: serviceValidation.foundServices,
         transformations: transformations,
+        // Include backbone configuration for dry-run
+        backbone: {
+          event: {
+            enabled: backboneConfig.eventBackbone.enabled,
+            image: backboneConfig.eventBackbone.image,
+          },
+          observability: {
+            enabled: backboneConfig.observabilityBackbone.enabled,
+            image: backboneConfig.observabilityBackbone.image,
+            type: backboneConfig.observabilityBackbone.type,
+          },
+        },
         // Include sidecar config preview for dry-run
         sidecarConfigs: {
           totalConfigs: configResult.summary.totalConfigs,
@@ -324,6 +417,14 @@ export async function handleChoreographyDeploy(
       if (transformations.length > 0) {
         output.info(`Transformations: ${transformations.length} files`);
       }
+      output.info("");
+      output.info("Backbone configuration:");
+      output.info(
+        `  • Event: ${backboneConfig.eventBackbone.enabled ? backboneConfig.eventBackbone.image : "disabled"}`,
+      );
+      output.info(
+        `  • Observability: ${backboneConfig.observabilityBackbone.enabled ? `${backboneConfig.observabilityBackbone.image} (${backboneConfig.observabilityBackbone.type})` : "disabled"}`,
+      );
       // Show sidecar config preview
       output.info("");
       output.info("Would generate:");
@@ -341,7 +442,7 @@ export async function handleChoreographyDeploy(
 
   // Generate docker-compose.yaml
   output.verbose("Generating docker-compose.yaml...", options.verbose);
-  const generateResult = generator.generate(choreography);
+  const generateResult = generator.generate(choreography, backboneConfig);
 
   if (!generateResult.success) {
     const result = {
@@ -448,6 +549,14 @@ export function createChoreographyCommand(): Command {
     .option("--output <file>", "Output filename", "docker-compose.yaml")
     .option("--json", "Output results as JSON", false)
     .option("--verbose", "Enable verbose output", false)
+    .option(
+      "--event-backbone <image>",
+      "Event backbone image (default: redis:7-alpine, use 'none' to disable)",
+    )
+    .option(
+      "--observability-backbone <image>",
+      "Observability backbone image (default: openzipkin/zipkin:latest, use 'none' to disable)",
+    )
     .action(async (options: ChoreographyDeployOptions) => {
       await handleChoreographyDeploy(options);
     });

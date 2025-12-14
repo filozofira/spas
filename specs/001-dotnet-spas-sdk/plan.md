@@ -163,7 +163,7 @@ The sidecar uses these headers to:
 **HTTP Request Format:**
 
 ```http
-POST /publish/{topic} HTTP/1.1
+POST /publish HTTP/1.1
 Host: localhost:3001
 Content-Type: application/json
 traceparent: 00-4bf92f3577b34da6a3ce929d0e0e4736-00f067aa0ba902b7-01
@@ -178,6 +178,8 @@ x-tenant-id: tenant-456
   "amount": 100.50
 }
 ```
+
+Note: Sidecar resolves target topic from `x-event-type` header using outbound routing configuration.
 
 **Sidecar Responsibilities:**
 

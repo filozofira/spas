@@ -44,11 +44,11 @@ As a service developer, I want my service to publish events through the sidecar 
 
 **Prerequisite**: US1 (Configuration Loading) - requires `outbound` configuration.
 
-**Independent Test**: Service POSTs to sidecar `/publish/{topic}` endpoint with payload and headers; verify message appears in Redis stream with CloudEvents wrapper and correct trace context.
+**Independent Test**: Service POSTs to sidecar `POST /publish` endpoint with payload and required headers (`x-event-type`, `x-service-name`, `x-correlation-id`); verify sidecar resolves topic from routing config and message appears in Redis stream with CloudEvents wrapper and correct trace context.
 
 **Acceptance Scenarios**:
 
-1. **Given** a service with sidecar configured for outbound topic `orders-requested`, **When** service POSTs to `/publish/orders-requested` with JSON payload and `traceparent` header, **Then** sidecar publishes CloudEvents-wrapped message to Redis stream `orders-requested` with trace context preserved
+1. **Given** a service with sidecar configured with outbound routing `com.example.order.created` → `orders-requested`, **When** service POSTs to `/publish` with JSON payload, `x-event-type: com.example.order.created`, and `traceparent` header, **Then** sidecar resolves topic from routing config and publishes CloudEvents-wrapped message to Redis stream `orders-requested` with trace context preserved
 2. **Given** a service with outbound transformation configured, **When** service publishes event, **Then** sidecar applies JSONata transformation before publishing
 3. **Given** a service publishes without `traceparent` header, **When** sidecar receives request, **Then** sidecar generates new W3C trace context and includes in CloudEvents envelope
 
@@ -139,15 +139,22 @@ As an operator, I want the sidecar to expose health and readiness endpoints so t
 - **FR-001**: Sidecar MUST load configuration from file path specified by `CONFIG_PATH` environment variable
 - **FR-002**: Sidecar MUST validate configuration on startup and fail fast with clear errors
 - **FR-003**: Sidecar MUST support `inbound` array with entries containing: `kind` (command|event), `topic`/`command`, `transform`, `invokeEndpoint`
-- **FR-004**: Sidecar MUST support `outbound` array with entries containing: `topic`, `transform` (optional)
+- **FR-004**: Sidecar MUST support `outbound` array with entries containing: `eventType` (for routing lookup), `topic` (target Redis stream), `transform` (optional)
 
 #### Event Publishing (US2)
 
-- **FR-005**: Sidecar MUST expose `POST /publish/{topic}` endpoint for event publishing
+- **FR-005**: Sidecar MUST expose `POST /publish` endpoint for event publishing (topic resolved from `x-event-type` header via routing config)
 - **FR-006**: Sidecar MUST wrap payloads in CloudEvents 1.0 format with required fields (specversion, type, source, id, time, datacontenttype, data)
+- **FR-006a**: Sidecar MUST map `x-service-name` header to CloudEvents `source` field
+- **FR-006b**: Sidecar MUST map `x-event-type` header to CloudEvents `type` field
+- **FR-006c**: Sidecar MUST map `x-correlation-id` header to CloudEvents `correlationid` extension
+- **FR-006d**: Sidecar MUST include `x-user-id` and `x-tenant-id` in CloudEvents extensions when headers are present
 - **FR-007**: Sidecar MUST include `traceparent` extension in CloudEvents envelope from request header or generate new trace context
 - **FR-008**: Sidecar MUST apply configured outbound JSONata transformation before publishing (when transform specified)
 - **FR-009**: Sidecar MUST publish to Redis Streams using XADD command
+- **FR-009a**: Sidecar MUST resolve target topic from `x-event-type` header using outbound routing configuration
+- **FR-009b**: Sidecar MUST return 400 Bad Request if `x-event-type` or `x-service-name` header is missing
+- **FR-009c**: Sidecar MUST return 400 Bad Request if no matching route exists for `x-event-type`
 
 #### Event Subscription (US3)
 
@@ -155,7 +162,7 @@ As an operator, I want the sidecar to expose health and readiness endpoints so t
 - **FR-011**: Sidecar MUST read from Redis Streams using XREAD with blocking
 - **FR-012**: Sidecar MUST extract CloudEvents envelope and apply inbound transformation
 - **FR-013**: Sidecar MUST invoke configured service endpoint with transformed payload
-- **FR-014**: Sidecar MUST propagate `traceparent`, `x-event-type`, `x-correlation-id` headers to service
+- **FR-014**: Sidecar MUST propagate `traceparent`, `x-event-type`, `x-correlation-id`, `x-user-id` (if present), `x-tenant-id` (if present) headers to service
 
 #### Command Invocation (US4)
 

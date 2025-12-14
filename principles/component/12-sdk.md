@@ -16,7 +16,8 @@ Events Boundary
 
 Event Publishing Contract (SDK → Sidecar)
 
-- **Transport**: HTTP POST to sidecar endpoint `/publish/{topic}`
+- **Transport**: HTTP POST to sidecar endpoint `/publish`
+- **Topic Resolution**: Sidecar uses `x-event-type` header to lookup target topic from routing configuration
 - **Payload**: Raw JSON domain data in HTTP body (NOT wrapped in CloudEvents)
 - **Metadata Propagation**: HTTP headers carry CloudEvents metadata for sidecar envelope construction
 

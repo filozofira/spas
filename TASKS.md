@@ -67,7 +67,7 @@ This section documents the latest actions, any issues encountered, and the exact
 | # | Story | Priority | Description |
 |---|-------|----------|-------------|
 | 1 | Dynamic JSONata Transformation Loading | P1 | Load `.jsonata` files from mounted volumes — **foundational** |
-| 2 | Event Publishing via Sidecar | P1 | `/publish/{topic}` with CloudEvents + tracing |
+| 2 | Event Publishing via Sidecar | P1 | `POST /publish` with topic routing from `x-event-type` |
 | 3 | Event Consumption via Sidecar | P1 | Redis subscription → service HTTP delivery |
 | 4 | Command Invocation via Sidecar | P1 | `/invoke/{command}` request-response pattern |
 | 5 | Health and Readiness Endpoints | P2 | `/health` and `/ready` for orchestration |
@@ -157,7 +157,7 @@ Once read, answer: "What is the immediate next task and what implementation arti
 
 1. **006-spas-sidecar** — Sidecar runtime implementation:
    - Dynamic JSONata transformation loading (foundational)
-   - Event publishing via `/publish/{topic}`
+   - Event publishing via `POST /publish` (topic resolved from `x-event-type`)
    - Event consumption via Redis subscription
    - Command invocation via `/invoke/{command}`
    - Health/readiness endpoints

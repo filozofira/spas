@@ -1,4 +1,4 @@
-﻿# SPAS Copilot Instructions
+# SPAS Copilot Instructions
 
 Last updated: 2025-12-12
 
@@ -234,6 +234,8 @@ Auto-generated from all feature plans. Last updated: 2025-12-12
 - N/A (CLI tool, no persistence) (004-spas-service-cli)
 - Node.js 20 LTS + TypeScript 5.3+ + Commander.js 11.x (CLI), js-yaml 4.x (YAML parsing), jsonata 2.x (transformation validation), axios 1.x (HTTP client), chalk 4.x (terminal output) (005-spas-compose-cli)
 - Local filesystem (domain workspace); SPAS Repository via HTTP (005-spas-compose-cli)
+- TypeScript 5.3 (Node.js 20+) + commander, js-yaml, jsonata (already in spas-compose) (006-sidecar-config-generator)
+- N/A (generates files to filesystem) (006-sidecar-config-generator)
 
 - .NET 10 (target net10.0); Microsoft.Extensions.Logging; System.Text.Json (001-dotnet-spas-sdk)
 

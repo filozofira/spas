@@ -58,6 +58,15 @@ SPAS specifies:
   - Schema location: `components/sdk/schemas/design-time-metadata-v1.schema.json`
   - See: `components/sdk/dotnet/README.md` and `specs/002-metadata-schema-alignment/COMPLETION.md`
 
+- ✅ **spas-compose CLI**: Domain composition tooling complete (2025-12-14)
+  - Workspace scaffolding with `init` command
+  - Service metadata pull from Repository with `services pull` command
+  - Docker Compose deployment generation with `choreography deploy --docker`
+  - Sidecar config file generation (`config.{service}.json`) for runnable deployments
+  - AI-in-the-loop composition via `/spas.compose` agent prompt
+  - 95 unit tests passing
+  - See: `components/cli/spas-compose/README.md` and `specs/005-spas-compose-cli/COMPLETION.md`
+
 ## Out of Scope (v1.0)
 
 - Central orchestration (choreography-only)

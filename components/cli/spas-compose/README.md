@@ -123,8 +123,8 @@ services/
 Generate deployment configuration from choreography.yaml.
 
 **Options:**
-- `--docker` - Generate docker-compose.yaml (required)
-- `--dry-run` - Validate without generating files
+- `--docker` - Generate docker-compose.yaml and sidecar config files (required)
+- `--dry-run` - Validate and preview without generating files
 - `--output <file>` - Output filename (default: docker-compose.yaml)
 - `--json` - Output result as JSON
 - `--verbose` - Show detailed progress
@@ -143,6 +143,28 @@ spas-compose choreography deploy --docker --output deployment.yaml
 ✓ Validated choreography.yaml
 ✓ Validated transformation files
 ✓ Generated docker-compose.yaml
+✓ Generated config.order-service.json (0 inbound, 1 outbound)
+✓ Generated config.fulfillment-service.json (1 inbound, 0 outbound)
+
+Next steps:
+  • Copy service source to workspace
+  • Run: docker compose up
+```
+
+**Generated Files:**
+- `docker-compose.yaml` - Docker Compose deployment configuration
+- `config.{service}.json` - Sidecar configuration for each participating service
+
+**Sidecar Config Schema:**
+```json
+{
+  "inbound": [
+    { "kind": "event", "topic": "orders-requested", "transform": "transformations/inbound.jsonata", "invokeEndpoint": "/incoming" }
+  ],
+  "outbound": [
+    { "topic": "orders-fulfilled" }
+  ]
+}
 ```
 
 **Exit Codes:**

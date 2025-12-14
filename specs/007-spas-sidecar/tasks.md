@@ -60,11 +60,11 @@
 
 ### Implementation for User Story 1
 
-- [ ] T013 [US1] Implement config schema validation at `components/sidecar/src/config/schema.ts` with Zod or manual validation
-- [ ] T014 [US1] Implement config loader at `components/sidecar/src/config/loader.ts` (loadConfig, validateConfig functions)
-- [ ] T015 [US1] Add legacy config migration support in `components/sidecar/src/config/loader.ts` (subscriptions→inbound, publications→outbound)
-- [ ] T016 [P] [US1] Create unit tests at `components/sidecar/test/unit/config/loader.test.ts` (valid config, invalid config, legacy migration)
-- [ ] T017 [P] [US1] Create unit tests at `components/sidecar/test/unit/config/schema.test.ts` (validation rules)
+- [X] T013 [US1] Implement config schema validation at `components/sidecar/src/config/schema.ts` with Zod or manual validation
+- [X] T014 [US1] Implement config loader at `components/sidecar/src/config/loader.ts` (loadConfig, validateConfig functions)
+- [X] T015 [US1] Add legacy config migration support in `components/sidecar/src/config/loader.ts` (subscriptions→inbound, publications→outbound)
+- [X] T016 [P] [US1] Create unit tests at `components/sidecar/test/unit/config/loader.test.ts` (valid config, invalid config, legacy migration)
+- [X] T017 [P] [US1] Create unit tests at `components/sidecar/test/unit/config/schema.test.ts` (validation rules)
 
 **Checkpoint**: User Story 1 complete - sidecar can load and validate configuration
 

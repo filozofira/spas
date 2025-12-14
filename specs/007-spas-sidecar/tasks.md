@@ -41,12 +41,12 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T007 Create TypeScript interfaces at `components/sidecar/src/types.ts` (SidecarConfig, InboundEntry, OutboundEntry, CloudEvent, ZipkinSpan, HealthResponse)
-- [ ] T008 [P] Implement Redis client wrapper at `components/sidecar/src/transport/redis.ts` with connect, disconnect, XADD, XREAD
-- [ ] T009 [P] Implement HTTP client wrapper at `components/sidecar/src/transport/http.ts` for service invocation
-- [ ] T010 [P] Implement CloudEvents wrapper at `components/sidecar/src/cloudevents/wrapper.ts` (wrapCloudEvent function)
-- [ ] T011 Implement W3C traceparent parsing utility at `components/sidecar/src/utils/traceparent.ts`
-- [ ] T012 Create Express app bootstrap at `components/sidecar/src/index.ts` with route registration
+- [X] T007 Create TypeScript interfaces at `components/sidecar/src/types.ts` (SidecarConfig, InboundEntry, OutboundEntry, CloudEvent, ZipkinSpan, HealthResponse)
+- [X] T008 [P] Implement Redis client wrapper at `components/sidecar/src/transport/redis.ts` with connect, disconnect, XADD, XREAD
+- [X] T009 [P] Implement HTTP client wrapper at `components/sidecar/src/transport/http.ts` for service invocation
+- [X] T010 [P] Implement CloudEvents wrapper at `components/sidecar/src/cloudevents/wrapper.ts` (wrapCloudEvent function)
+- [X] T011 Implement W3C traceparent parsing utility at `components/sidecar/src/utils/traceparent.ts`
+- [X] T012 Create Express app bootstrap at `components/sidecar/src/index.ts` with route registration
 
 **Checkpoint**: Foundation ready - user story implementation can now begin
 

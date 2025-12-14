@@ -52,17 +52,17 @@
 
 ### Tests for User Story 2
 
-- [ ] T010 [P] [US2] Add event backbone normalization tests in backbone-normalizer.test.ts
-- [ ] T011 [P] [US2] Add image validation tests in backbone-normalizer.test.ts
+- [x] T010 [P] [US2] Add event backbone normalization tests in backbone-normalizer.test.ts
+- [x] T011 [P] [US2] Add image validation tests in backbone-normalizer.test.ts
 
 ### Implementation for User Story 2
 
-- [ ] T012 [US2] Implement validateImageFormat() in backbone-normalizer.ts
-- [ ] T013 [US2] Add --event-backbone option to deploy command in choreography-deploy.ts
-- [ ] T014 [US2] Wire event-backbone option to DockerGenerator in choreography-deploy.ts
-- [ ] T015 [US2] Add validation error handling for invalid image format in choreography-deploy.ts
+- [x] T012 [US2] Implement validateImageFormat() in backbone-normalizer.ts
+- [x] T013 [US2] Add --event-backbone option to deploy command in choreography-deploy.ts
+- [x] T014 [US2] Wire event-backbone option to DockerGenerator in choreography-deploy.ts
+- [x] T015 [US2] Add validation error handling for invalid image format in choreography-deploy.ts
 
-**Checkpoint**: Custom Redis images working
+**Checkpoint**: Custom Redis images working ✅
 
 ---
 

@@ -60,6 +60,12 @@ export const REDIS_HEALTHCHECK: HealthCheckConfig = {
 };
 
 /**
+ * Docker image reference pattern
+ * Matches: image, image:tag, org/image, org/image:tag, registry/org/image:tag
+ */
+const IMAGE_PATTERN = /^[a-zA-Z0-9][\w.-]*(\/[\w.-]+)*(:[a-zA-Z0-9][\w.-]*)?$/;
+
+/**
  * Service for normalizing image references and building backbone configurations
  */
 export class BackboneNormalizer {
@@ -74,12 +80,18 @@ export class BackboneNormalizer {
     input: string | undefined,
     type: "event" | "observability",
   ): string {
-    // TODO: Implement in T004
+    // Return defaults for empty input
     if (!input) {
       return type === "event"
         ? BACKBONE_DEFAULTS.event.image
         : BACKBONE_DEFAULTS.observability.image;
     }
+
+    // Expand zipkin shorthand (zipkin:tag → openzipkin/zipkin:tag)
+    if (type === "observability" && input.startsWith("zipkin:")) {
+      return `openzipkin/${input}`;
+    }
+
     return input;
   }
 
@@ -89,14 +101,19 @@ export class BackboneNormalizer {
    * @param options - CLI options with eventBackbone and observabilityBackbone
    * @returns Complete backbone configuration
    */
-  buildConfig(_options: {
+  buildConfig(options: {
     eventBackbone?: string;
     observabilityBackbone?: string;
   }): BackboneConfig {
-    // TODO: Implement in T005
+    const eventImage = this.normalizeImage(options.eventBackbone, "event");
+    const observabilityImage = this.normalizeImage(
+      options.observabilityBackbone,
+      "observability",
+    );
+
     const eventBackbone: EventBackboneConfig = {
       enabled: true,
-      image: BACKBONE_DEFAULTS.event.image,
+      image: eventImage,
       containerName: BACKBONE_DEFAULTS.event.containerName,
       port: BACKBONE_DEFAULTS.event.port,
       healthcheck: REDIS_HEALTHCHECK,
@@ -104,9 +121,9 @@ export class BackboneNormalizer {
 
     const observabilityBackbone: ObservabilityBackboneConfig = {
       enabled: true,
-      image: BACKBONE_DEFAULTS.observability.image,
+      image: observabilityImage,
       containerName: BACKBONE_DEFAULTS.observability.containerName,
-      type: BACKBONE_DEFAULTS.observability.type,
+      type: this.detectObservabilityType(observabilityImage),
       ports: BACKBONE_DEFAULTS.observability.ports as unknown as PortMapping[],
     };
 
@@ -122,8 +139,27 @@ export class BackboneNormalizer {
    * @param image - Image reference to validate
    * @returns Validation result
    */
-  validateImageFormat(_image: string): ValidationResult {
-    // TODO: Implement in T012
+  validateImageFormat(image: string): ValidationResult {
+    // Empty string is invalid
+    if (!image) {
+      return { valid: false, error: "Image reference cannot be empty" };
+    }
+
+    // "none" is a valid special value
+    if (image === "none") {
+      return { valid: true };
+    }
+
+    // Check for spaces (common error)
+    if (image.includes(" ")) {
+      return { valid: false, error: "Invalid image format: contains spaces" };
+    }
+
+    // Validate against pattern
+    if (!IMAGE_PATTERN.test(image)) {
+      return { valid: false, error: `Invalid image format: ${image}` };
+    }
+
     return { valid: true };
   }
 

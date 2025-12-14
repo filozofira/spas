@@ -36,6 +36,14 @@ describe("BackboneNormalizer", () => {
         const result = normalizer.normalizeImage("bitnami/redis:7.0", "event");
         expect(result).toBe("bitnami/redis:7.0");
       });
+
+      it("should handle registry prefixed images", () => {
+        const result = normalizer.normalizeImage(
+          "gcr.io/project/redis:latest",
+          "event",
+        );
+        expect(result).toBe("gcr.io/project/redis:latest");
+      });
     });
 
     describe("observability backbone", () => {
@@ -56,6 +64,56 @@ describe("BackboneNormalizer", () => {
         );
         expect(result).toBe("openzipkin/zipkin:2.24");
       });
+
+      it("should expand zipkin shorthand to full image path", () => {
+        const result = normalizer.normalizeImage("zipkin:2.24", "observability");
+        expect(result).toBe("openzipkin/zipkin:2.24");
+      });
+
+      it("should expand zipkin latest shorthand", () => {
+        const result = normalizer.normalizeImage("zipkin:latest", "observability");
+        expect(result).toBe("openzipkin/zipkin:latest");
+      });
+    });
+  });
+
+  describe("validateImageFormat", () => {
+    it("should accept valid image:tag format", () => {
+      const result = normalizer.validateImageFormat("redis:7-alpine");
+      expect(result.valid).toBe(true);
+    });
+
+    it("should accept image without tag", () => {
+      const result = normalizer.validateImageFormat("redis");
+      expect(result.valid).toBe(true);
+    });
+
+    it("should accept org/image:tag format", () => {
+      const result = normalizer.validateImageFormat("openzipkin/zipkin:latest");
+      expect(result.valid).toBe(true);
+    });
+
+    it("should accept registry/org/image:tag format", () => {
+      const result = normalizer.validateImageFormat(
+        "gcr.io/project/redis:latest",
+      );
+      expect(result.valid).toBe(true);
+    });
+
+    it("should reject image with spaces", () => {
+      const result = normalizer.validateImageFormat("redis :latest");
+      expect(result.valid).toBe(false);
+      expect(result.error).toContain("Invalid image format");
+    });
+
+    it("should reject empty string", () => {
+      const result = normalizer.validateImageFormat("");
+      expect(result.valid).toBe(false);
+    });
+
+    it("should accept none as special value", () => {
+      const result = normalizer.validateImageFormat("none");
+      expect(result.valid).toBe(true);
     });
   });
 
@@ -118,6 +176,27 @@ describe("BackboneNormalizer", () => {
         host: 9411,
         container: 9411,
       });
+    });
+
+    it("should use custom event backbone image when provided", () => {
+      const config = normalizer.buildConfig({ eventBackbone: "redis:6.2" });
+      expect(config.eventBackbone.image).toBe("redis:6.2");
+      expect(config.eventBackbone.enabled).toBe(true);
+    });
+
+    it("should use custom observability backbone image when provided", () => {
+      const config = normalizer.buildConfig({
+        observabilityBackbone: "openzipkin/zipkin:2.24",
+      });
+      expect(config.observabilityBackbone.image).toBe("openzipkin/zipkin:2.24");
+      expect(config.observabilityBackbone.enabled).toBe(true);
+    });
+
+    it("should expand zipkin shorthand in options", () => {
+      const config = normalizer.buildConfig({
+        observabilityBackbone: "zipkin:2.24",
+      });
+      expect(config.observabilityBackbone.image).toBe("openzipkin/zipkin:2.24");
     });
   });
 });

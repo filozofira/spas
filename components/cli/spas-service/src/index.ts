@@ -9,6 +9,7 @@ import { readFileSync } from 'fs';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
 import { createPublishCommand } from './commands/publish.js';
+import { createPullCommand } from './commands/pull.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -27,9 +28,7 @@ program
 
 // Register commands
 program.addCommand(createPublishCommand());
-
-// Commands to be registered in future phases:
-// - pull command (Phase 6)
+program.addCommand(createPullCommand());
 
 // Show help if no command provided
 if (process.argv.length === 2) {

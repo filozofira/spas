@@ -156,19 +156,19 @@
 
 ### Tests for User Story 4
 
-- [ ] T048 [P] [US4] Unit test for repository-client.ts download in `test/unit/services/repository-client.test.ts` (successful download, 404 not found)
-- [ ] T049 [P] [US4] Unit test for pull-service.ts in `test/unit/services/pull-service.test.ts` (download and save, custom output directory)
-- [ ] T050 [P] [US4] Integration test for pull command in `test/integration/pull.test.ts` (end-to-end download workflow)
+- [X] T048 [P] [US4] Unit test for repository-client.ts download in `test/unit/services/repository-client.test.ts` (successful download, 404 not found)
+- [X] T049 [P] [US4] Unit test for pull-service.ts in `test/unit/services/pull-service.test.ts` (download and save, custom output directory)
+- [X] T050 [P] [US4] Integration test for pull command in `test/integration/pull.test.ts` (end-to-end download workflow)
 
 ### Implementation for User Story 4
 
-- [ ] T051 [P] [US4] Create PullService in `components/cli/spas-service/src/services/pull-service.ts` (download from Repository, save to file)
-- [ ] T052 [US4] Implement pull command in `components/cli/spas-service/src/commands/pull.ts` (Commander action for `pull <name> <version>`)
-- [ ] T053 [US4] Add --output <dir> flag to pull command for custom download directory
-- [ ] T054 [US4] Add --repo flag support to pull command
-- [ ] T055 [US4] Register pull command in `src/index.ts`
-- [ ] T056 [US4] Implement error handling for NOT_FOUND (service/version doesn't exist)
-- [ ] T057 [US4] Add success output formatting ("✓ Downloaded {name}:{version}", "✓ Saved to ./{name}-{version}.zip")
+- [X] T051 [P] [US4] Create PullService in `components/cli/spas-service/src/services/pull-service.ts` (download from Repository, save to file)
+- [X] T052 [US4] Implement pull command in `components/cli/spas-service/src/commands/pull.ts` (Commander action for `pull <name> <version>`)
+- [X] T053 [US4] Add --output <dir> flag to pull command for custom download directory
+- [X] T054 [US4] Add --repo flag support to pull command
+- [X] T055 [US4] Register pull command in `src/index.ts`
+- [X] T056 [US4] Implement error handling for NOT_FOUND (service/version doesn't exist)
+- [X] T057 [US4] Add success output formatting ("✓ Downloaded {name}:{version}", "✓ Saved to ./{name}-{version}.zip")
 
 **Checkpoint**: All user stories should now be independently functional
 

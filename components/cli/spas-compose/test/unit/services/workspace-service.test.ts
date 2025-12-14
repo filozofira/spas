@@ -179,6 +179,29 @@ describe("WorkspaceService", () => {
       const content = fs.readFileSync(promptPath, "utf-8");
       expect(content).toContain("agent: spas-compose");
     });
+
+    it("should create sidecar config schema at .spas/schemas/", async () => {
+      // Arrange
+      const service = new WorkspaceService();
+
+      // Act
+      await service.create(testWorkspacePath, testWorkspaceName);
+
+      // Assert
+      const schemaPath = path.join(
+        testWorkspacePath,
+        ".spas",
+        "schemas",
+        "sidecar-config-v1.schema.json",
+      );
+      expect(fs.existsSync(schemaPath)).toBe(true);
+      const content = fs.readFileSync(schemaPath, "utf-8");
+      const schema = JSON.parse(content);
+      expect(schema.$schema).toBe("http://json-schema.org/draft-07/schema#");
+      expect(schema.title).toBe("SPAS Sidecar Configuration");
+      expect(schema.properties).toHaveProperty("inbound");
+      expect(schema.properties).toHaveProperty("outbound");
+    });
   });
 
   describe("exists()", () => {

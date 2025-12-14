@@ -19,11 +19,11 @@
 
 **Purpose**: Project initialization and shared infrastructure
 
-- [ ] T001 Create project structure at components/cli/spas-compose/ per plan.md
-- [ ] T002 Initialize package.json with dependencies: commander@11, js-yaml@4, jsonata@2, axios@1, chalk@4
-- [ ] T003 [P] Configure tsconfig.json matching spas-service CLI patterns
-- [ ] T004 [P] Configure jest.config.cjs for TypeScript testing
-- [ ] T005 [P] Create README.md with installation and usage instructions
+- [X] T001 Create project structure at components/cli/spas-compose/ per plan.md
+- [X] T002 Initialize package.json with dependencies: commander@11, js-yaml@4, jsonata@2, axios@1, chalk@4
+- [X] T003 [P] Configure tsconfig.json matching spas-service CLI patterns
+- [X] T004 [P] Configure jest.config.cjs for TypeScript testing
+- [X] T005 [P] Create README.md with installation and usage instructions
 
 ---
 

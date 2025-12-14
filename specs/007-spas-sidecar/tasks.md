@@ -123,10 +123,10 @@
 
 ### Implementation for User Story 4
 
-- [ ] T031 [US4] Implement command invoker service at `components/sidecar/src/services/command-invoker.ts` (lookup command config, transform, invoke, transform response)
-- [ ] T032 [US4] Implement invoke handler at `components/sidecar/src/handlers/invoke.ts` (POST /invoke/:command endpoint)
-- [ ] T033 [P] [US4] Create unit tests at `components/sidecar/test/unit/services/command-invoker.test.ts` (lookup, transform, invoke flow)
-- [ ] T034 [P] [US4] Create unit tests at `components/sidecar/test/unit/handlers/invoke.test.ts` (200/404/502 responses)
+- [X] T031 [US4] Implement command invoker service at `components/sidecar/src/services/command-invoker.ts` (lookup command config, transform, invoke, transform response)
+- [X] T032 [US4] Implement invoke handler at `components/sidecar/src/handlers/invoke.ts` (POST /invoke/:command endpoint)
+- [X] T033 [P] [US4] Create unit tests at `components/sidecar/test/unit/services/command-invoker.test.ts` (lookup, transform, invoke flow)
+- [X] T034 [P] [US4] Create unit tests at `components/sidecar/test/unit/handlers/invoke.test.ts` (200/404/502 responses)
 
 **Checkpoint**: User Story 4 complete - clients can invoke service commands through sidecar
 

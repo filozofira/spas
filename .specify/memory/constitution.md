@@ -1,18 +1,23 @@
 <!--
-Sync Impact Report (v1.0.3)
+Sync Impact Report (v1.0.4)
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-Version Change: 1.0.2 → 1.0.3 (PATCH)
-Amended: 2025-12-12 (PoC Phase)
+Version Change: 1.0.3 → 1.0.4 (PATCH)
+Amended: 2025-12-14 (PoC Phase)
 
 Changes:
+  • Updated spas-compose CLI commands: init, services pull, choreography deploy (replaces context init, choreography init, choreography generate)
+  • Added AI-in-the-loop composition approach (/spas.compose agent prompt)
+  • Aligned with ADR-036 (JSONata), ADR-037 (AI composition), ADR-038 (sidecar language flexibility)
+
+Impact:
+  • spas-compose spec (005) should use simplified command structure
+  • Transformation files use .jsonata format for sidecar language flexibility
+  • Agent prompt at .github/agents/spas-compose.md drives choreography composition
+
+Previous (v1.0.3):
   • Clarified Events boundary (SDK prepares payload/context; Sidecar wraps CloudEvents)
   • Softened inbound path convention from mandatory to recommended (route-agnostic SDK)
   • Clarified SpecKit testing defaults for PoC task generation: unit tests are mandatory; integration test tasks may be omitted unless explicitly requested. Independent test criteria remain mandatory. Does not relax SDK quality gates for non‑PoC releases.
-
-Impact:
-  • Update SDK specs and plans to avoid enforcing a specific inbound path
-  • Samples may continue to use `/incoming` as a recommended default
-  • SpecKit-generated tasks must include unit test tasks at minimum. Integration test tasks may be omitted when not requested by the feature spec during PoC. Maintainers must still satisfy SDK Quality Gates before non‑PoC releases
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 -->
 
@@ -256,8 +261,10 @@ Unit tests are non‑negotiable in both PoC and Production phases. During PoC, i
 
 **Mandatory Commands** (PoC):
 
-- Service: `init`, `metadata get`, `pack`, `publish`, `pull`
-- Compose: `context init`, `services pull`, `choreography init`, `choreography generate`
+- Service: `init`, `publish` (with `--dry-run`, `--archive` flags), `pull`
+- Compose: `init`, `services pull`, `choreography deploy` (with `--docker`, `--dry-run` flags)
+
+> **AI-in-the-Loop**: Choreography composition uses `/spas.compose` agent prompt for iterative contract analysis and transformation generation. CLI provides scaffolding and deployment; AI assists with semantic composition.
 
 **Design Constraints**:
 
@@ -416,4 +423,4 @@ All constitution changes MUST:
 - Prepend Sync Impact Report (HTML comment at top of file)
 - Update dependent templates/docs within same PR
 
-**Version**: 1.0.3 | **Ratified**: 2025-12-12 | **Last Amended**: 2025-12-12
+**Version**: 1.0.4 | **Ratified**: 2025-12-12 | **Last Amended**: 2025-12-14

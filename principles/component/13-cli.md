@@ -14,10 +14,11 @@ Defines the command-line tools that power the SPAS developer workflow.
 
 ### PoC Core (spas-compose)
 
-- `spas-compose context init <domain-name>` — Create domain folder with docker-compose.yaml scaffold
-- `spas-compose services pull <name> <version> [--repo <url>]` — Download services, decompose to /services folder
-- `spas-compose choreography init <flow-name>` — Create choreography.yaml template
-- `spas-compose choreography generate` — Generate SPAS sidecar configurations, transformations, update docker-compose
+- `spas-compose init <domain-name>` — Create domain folder with scaffolded structure, empty `choreography.yaml`, README with workflow instructions, and agent prompt reference
+- `spas-compose services pull <name> <version> [--repo <url>]` — Download service metadata and schemas to `services/<name>/` folder
+- `spas-compose choreography deploy --docker [--dry-run]` — Validate choreography and generate `docker-compose.yaml` with sidecar configurations. `--dry-run` validates without generating.
+
+> **AI-in-the-Loop Composition**: After pulling services, developers use the `/spas.compose` agent prompt to analyze contracts and propose choreography. The agent iteratively updates `choreography.yaml` and generates `.jsonata` transformation files based on developer feedback. See `.github/agents/spas-compose.md`.
 
 ### Deferred (PoC)
 

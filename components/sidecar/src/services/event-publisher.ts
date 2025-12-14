@@ -5,10 +5,11 @@
  * Handles transformation and tracing.
  */
 
-import type { SidecarConfig, PublishHeaders, PublishResult } from '../types.js';
+import type { SidecarConfig, PublishHeaders, PublishResult, SpanTags } from '../types.js';
 import { RedisClient } from '../transport/redis.js';
 import { wrapCloudEvent, serializeCloudEvent } from '../cloudevents/wrapper.js';
 import { resolveTopicFromEventType } from './topic-router.js';
+import { getTracer } from './tracer.js';
 
 /**
  * Event publisher that wraps payloads in CloudEvents and sends to Redis.
@@ -52,18 +53,41 @@ export class EventPublisher {
     // 3. Wrap in CloudEvents envelope
     const cloudEvent = wrapCloudEvent(transformedPayload, route.topic, headers);
 
-    // 4. Serialize and publish to Redis stream
-    const serialized = serializeCloudEvent(cloudEvent);
-    await this.redis.xadd(route.topic, {
-      data: serialized,
-    });
+    // Start tracing span
+    const tracer = getTracer();
+    const span = tracer?.startSpan('publish', headers.traceparent, {
+      kind: 'event',
+      transport: 'redis',
+      'event.topic': route.topic,
+    } as Partial<SpanTags>);
 
-    return {
-      status: 'accepted',
-      id: cloudEvent.id,
-      topic: route.topic,
-      eventType: headers.eventType,
-    };
+    try {
+      // 4. Serialize and publish to Redis stream
+      const serialized = serializeCloudEvent(cloudEvent);
+      await this.redis.xadd(route.topic, {
+        data: serialized,
+      });
+
+      // Finish span on success
+      if (span) {
+        tracer?.finishSpan(span);
+      }
+
+      return {
+        status: 'accepted',
+        id: cloudEvent.id,
+        topic: route.topic,
+        eventType: headers.eventType,
+      };
+    } catch (err) {
+      // Tag error and finish span
+      if (span) {
+        const message = err instanceof Error ? err.message : 'Unknown error';
+        tracer?.tagError(span, message);
+        tracer?.finishSpan(span);
+      }
+      throw err;
+    }
   }
 
   /**

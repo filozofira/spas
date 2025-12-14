@@ -127,7 +127,7 @@ export function createZipkinSpan(
     localEndpoint: {
       serviceName,
     },
-    tags: tags as Record<string, string>,
+    tags: tags as unknown as Record<string, string>,
   };
 }
 
@@ -158,7 +158,7 @@ export function createChildZipkinSpan(
     localEndpoint: {
       serviceName,
     },
-    tags: tags as Record<string, string>,
+    tags: tags as unknown as Record<string, string>,
   };
 }
 

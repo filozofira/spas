@@ -140,12 +140,12 @@
 
 ### Implementation for User Story 5
 
-- [ ] T035 [US5] Implement tracer service at `components/sidecar/src/services/tracer.ts` (createSpan, emitSpan, parseTraceparent, generateSpanId)
-- [ ] T036 [US5] Integrate tracer into event-publisher.ts (emit span on publish)
-- [ ] T037 [US5] Integrate tracer into event-subscriber.ts (emit parent-child spans: receive → transform → invoke)
-- [ ] T038 [US5] Integrate tracer into command-invoker.ts (emit span on command invocation)
-- [ ] T039 [US5] Add graceful degradation when ZIPKIN_URL not configured
-- [ ] T040 [P] [US5] Create unit tests at `components/sidecar/test/unit/services/tracer.test.ts` (span creation, parent-child, tags)
+- [X] T035 [US5] Implement tracer service at `components/sidecar/src/services/tracer.ts` (createSpan, emitSpan, parseTraceparent, generateSpanId)
+- [X] T036 [US5] Integrate tracer into event-publisher.ts (emit span on publish)
+- [X] T037 [US5] Integrate tracer into event-subscriber.ts (emit parent-child spans: receive → transform → invoke)
+- [X] T038 [US5] Integrate tracer into command-invoker.ts (emit span on command invocation)
+- [X] T039 [US5] Add graceful degradation when ZIPKIN_URL not configured
+- [X] T040 [P] [US5] Create unit tests at `components/sidecar/test/unit/services/tracer.test.ts` (span creation, parent-child, tags)
 
 **Checkpoint**: User Story 5 complete - all operations emit trace spans
 

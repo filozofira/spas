@@ -5,9 +5,10 @@
  * Looks up command configuration, transforms request, invokes service, transforms response.
  */
 
-import type { SidecarConfig, InboundEntry } from '../types.js';
+import type { SidecarConfig, InboundEntry, SpanTags } from '../types.js';
 import { ServiceInvoker } from './service-invoker.js';
 import { applyTransform } from './transformer.js';
+import { getTracer } from './tracer.js';
 
 /**
  * Command lookup result.
@@ -88,6 +89,16 @@ export class CommandInvoker {
     const entry = lookup.entry;
     console.log(`[command] Invoking ${commandName} → ${entry.invokeEndpoint}`);
 
+    // Start tracing span
+    const tracer = getTracer();
+    const traceparent = headers['traceparent'];
+    const span = tracer?.startSpan(`command:${commandName}`, traceparent, {
+      kind: 'command',
+      transport: 'http',
+      'http.url': entry.invokeEndpoint,
+      'http.method': 'POST',
+    } as Partial<SpanTags>);
+
     try {
       // 2. Apply request transform
       let transformedPayload = payload;
@@ -102,14 +113,28 @@ export class CommandInvoker {
         headers
       );
 
+      // Tag HTTP status
+      if (span) {
+        tracer?.tagHttpStatus(span, result.status);
+      }
+
       // 4. Check for service error
       if (result.status >= 500) {
         console.warn(`[command] Service error: ${result.status}`);
+        if (span) {
+          tracer?.tagError(span, `Service error: ${result.status}`);
+          tracer?.finishSpan(span);
+        }
         return {
           status: 502, // Bad Gateway - upstream service error
           data: { error: 'Service error', upstream_status: result.status, details: result.data },
           headers: result.headers,
         };
+      }
+
+      // Finish span on success
+      if (span) {
+        tracer?.finishSpan(span);
       }
 
       // 5. Return result (response transform not implemented - would need responseTransform config)
@@ -121,6 +146,13 @@ export class CommandInvoker {
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Unknown error';
       console.error(`[command] Invocation failed: ${message}`);
+
+      // Tag error and finish span
+      if (span) {
+        tracer?.tagError(span, message);
+        tracer?.finishSpan(span);
+      }
+
       return {
         status: 502,
         data: { error: 'Command invocation failed', message },

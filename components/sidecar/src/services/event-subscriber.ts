@@ -5,11 +5,12 @@
  * Consumes CloudEvents, applies transforms, and invokes service endpoints.
  */
 
-import type { SidecarConfig, InboundEntry } from '../types.js';
+import type { SidecarConfig, InboundEntry, SpanTags } from '../types.js';
 import { RedisClient } from '../transport/redis.js';
 import { parseCloudEvent } from '../cloudevents/wrapper.js';
 import { ServiceInvoker } from './service-invoker.js';
 import { applyTransform } from './transformer.js';
+import { getTracer } from './tracer.js';
 
 /**
  * Event subscriber that listens to Redis streams and invokes services.
@@ -136,14 +137,55 @@ export class EventSubscriber {
     const event = parseCloudEvent(data);
     console.log(`[subscriber] Processing event ${event.id} (${event.type})`);
 
-    // Apply inbound transform
-    let payload = event.data;
-    if (subscription.transform) {
-      payload = await applyTransform(payload, subscription.transform);
-    }
+    // Start parent span for event processing
+    const tracer = getTracer();
+    const parentSpan = tracer?.startSpan('receive', event.traceparent, {
+      kind: 'event',
+      transport: 'redis',
+      'event.topic': subscription.topic,
+    } as Partial<SpanTags>);
 
-    // Invoke service endpoint
-    await this.invoker.invoke(subscription.invokeEndpoint, payload, event);
+    try {
+      // Apply inbound transform with child span
+      let payload = event.data;
+      if (subscription.transform) {
+        const transformSpan = parentSpan ? tracer?.startChildSpan(parentSpan, 'transform', {
+          'transform.function': subscription.transform,
+        } as Partial<SpanTags>) : undefined;
+
+        payload = await applyTransform(payload, subscription.transform);
+
+        if (transformSpan) {
+          tracer?.finishSpan(transformSpan, parentSpan?.context.spanId);
+        }
+      }
+
+      // Invoke service endpoint with child span
+      const invokeSpan = parentSpan ? tracer?.startChildSpan(parentSpan, 'invoke', {
+        'http.url': subscription.invokeEndpoint,
+        'http.method': 'POST',
+      } as Partial<SpanTags>) : undefined;
+
+      const result = await this.invoker.invoke(subscription.invokeEndpoint, payload, event);
+
+      if (invokeSpan) {
+        tracer?.tagHttpStatus(invokeSpan, result.status);
+        tracer?.finishSpan(invokeSpan, parentSpan?.context.spanId);
+      }
+
+      // Finish parent span
+      if (parentSpan) {
+        tracer?.finishSpan(parentSpan);
+      }
+    } catch (err) {
+      // Tag error and finish span
+      if (parentSpan) {
+        const errMsg = err instanceof Error ? err.message : 'Unknown error';
+        tracer?.tagError(parentSpan, errMsg);
+        tracer?.finishSpan(parentSpan);
+      }
+      throw err;
+    }
   }
 
   /**

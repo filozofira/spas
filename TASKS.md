@@ -8,95 +8,50 @@
 
 This section documents the latest actions, any issues encountered, and the exact next steps so another agent can resume seamlessly.
 
-### What Was Done (spas-compose CLI Implementation, All Phases Complete)
+### What Was Done (Phase 3 CLI Tools Complete, Planning Phase 4 Sidecar)
 
-- **Feature [005-spas-compose-cli](./specs/005-spas-compose-cli/)** — ✅ All Phases Complete
-- **Branch**: `005-spas-compose-cli`
-- **Status**: Implementation complete, E2E testing pending
+- **All CLI Features Complete** — Both `spas-service` and `spas-compose` CLIs implemented
+- **Branch**: `main` (all feature branches merged)
+- **Status**: CLI phase complete, sidecar development next
 
-**Implementation Progress**:
+**Session Actions**:
 
-| Phase   | Status      | Description                                             |
-| ------- | ----------- | ------------------------------------------------------- |
-| Phase 1 | ✅ Complete | Project setup (T001-T005)                               |
-| Phase 2 | ✅ Complete | Foundational infrastructure (T006-T011)                 |
-| Phase 3 | ✅ Complete | US1 - Init Domain Workspace (T012-T018)                 |
-| Phase 4 | ✅ Complete | US2 - Pull Service Metadata (T019-T026)                 |
-| Phase 5 | ✅ Complete | US3 - Deploy Choreography to Docker Compose (T027-T040) |
-| Phase 6 | ✅ Complete | US4 - AI-Assisted Choreography Composition (T041-T047)  |
-| Phase 7 | ✅ Complete | Polish & Cross-Cutting Concerns (T048-T053)             |
-
-**Test Status**: 67 tests passing
-
-**Available Commands**:
-
-- `spas-compose init <name>` - Create domain workspace with agent prompt
-- `spas-compose services pull <name> <version>` - Pull service metadata from Repository
-- `spas-compose choreography deploy --docker` - Generate Docker Compose deployment
-
-**Key Implementation Notes**:
-
-- Agent prompt (`.github/agents/spas-compose.agent.md` + `.github/prompts/spas-compose.prompt.md`) created dynamically by `init` command
-- Schema archive structure preserved: `schemas/endpoints/` and `schemas/events/` subdirectories
-- JSONata validation using `jsonata` package for transformation syntax checking
-
-> **E2E Verification Note**: Full end-to-end testing of `services pull` and AI composition
-> requires SPAS Repository running with registered services. Unit tests pass but
-> integration with live Repository deferred until Repository service is operational.
-
-**Planning Artifacts Created**:
-
-| Document                                                                                              | Purpose                                                                     |
-| ----------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------- |
-| [plan.md](./specs/005-spas-compose-cli/plan.md)                                                       | Tech stack (Node.js 20 + TypeScript), constitution check, project structure |
-| [data-model.md](./specs/005-spas-compose-cli/data-model.md)                                           | Domain Workspace, Choreography, Transformation, Pulled Service entities     |
-| [contracts/cli-commands.md](./specs/005-spas-compose-cli/contracts/cli-commands.md)                   | Full CLI interface with arguments, options, exit codes, output formats      |
-| [contracts/choreography-schema.yaml](./specs/005-spas-compose-cli/contracts/choreography-schema.yaml) | JSON Schema for choreography.yaml validation                                |
-| [contracts/agent-prompt.md](./specs/005-spas-compose-cli/contracts/agent-prompt.md)                   | /spas.compose agent prompt responsibilities and workflow                    |
-| [quickstart.md](./specs/005-spas-compose-cli/quickstart.md)                                           | Developer workflow: init → pull → compose → deploy                          |
-| [tasks.md](./specs/005-spas-compose-cli/tasks.md)                                                     | 53 implementation tasks organized by user story                             |
-
-**Key Design Decisions (ADRs 036-038)**:
-
-- JSONata for transformation files (language-agnostic for future sidecar migration)
-- AI-in-the-loop composition via `/spas.compose` agent prompt
-- Single `choreography.yaml` with named flows
-
-**Task Summary**:
-
-- Total: 53 tasks, 17 parallel opportunities
-- User Stories: US1 (init), US2 (pull), US3 (deploy), US4 (AI composition)
-- Estimated effort: ~10 hours
-
-**Code Reuse Decision**: Copy spas-service CLI's repository-client.ts pattern with `// TODO: Extract to @spas/cli-common post-PoC` comment (documented in T011).
+1. Analyzed dependency chain for E-Commerce PoC
+2. Identified critical gap: `spas-compose choreography deploy` generates docker-compose.yaml referencing sidecar, but:
+   - No `SidecarConfigGenerator` exists to translate `choreography.yaml` → sidecar `config.<service>.json`
+   - Prototype sidecar uses hardcoded transforms (`transform.js`) instead of dynamic JSONata loading
+3. Decision: **Sidecar must be production-ready before E-Commerce PoC**
+4. Updated roadmap: Phase 4 = Sidecar, Phase 5 = E-Commerce PoC
 
 ### What Failed or Required Adjustment
 
 - Nothing failed in this session
 - SDK SampleService `dotnet run` still exits with code 1 (pre-existing issue, not addressed)
-- Archive structure alignment: Updated `pull-service.ts` to preserve `schemas/endpoints/` and `schemas/events/` subdirectories
+- Identified gap: prototype sidecar incompatible with CLI-generated choreography artifacts
 
 ### Precise Next Steps (Pick and execute)
 
-1. **E2E Integration Testing** (requires Repository):
+1. **Create Sidecar Specification** (`specs/006-spas-sidecar/`):
+   - Technology decision: Go vs Node.js (evaluate performance, Docker image size, ecosystem)
+   - Define sidecar config schema compatible with CLI output
+   - Plan JSONata runtime integration for dynamic transformation loading
+   - Design CLI integration: add `SidecarConfigGenerator` to `spas-compose`
 
-   - Start Repository: `cd components/repository && docker compose up`
-   - Register test services via spas-service CLI
-   - Test full workflow: `spas-compose init` → `services pull` → `choreography deploy`
-
-2. **AI Composition Testing** (requires services):
-   - Pull real services into domain workspace
-   - Test `/spas.compose` agent prompt with VS Code Copilot
+2. **Alternative: Minimal Enhancement Path** (if faster PoC needed):
+   - Add `SidecarConfigGenerator` to spas-compose CLI
+   - Update prototype sidecar to load `.jsonata` files dynamically
+   - Keep Node.js, defer language migration post-PoC
 
 ### Completed Features Summary
 
-| Feature            | Spec                                                                    | Status               | Tests |
-| ------------------ | ----------------------------------------------------------------------- | -------------------- | ----- |
-| .NET SDK           | [001-dotnet-spas-sdk](./specs/001-dotnet-spas-sdk/)                     | ✅ Complete          | 88/88 |
-| Schema Alignment   | [002-metadata-schema-alignment](./specs/002-metadata-schema-alignment/) | ✅ Complete          | —     |
-| Repository Service | [003-repository-service](./specs/003-repository-service/)               | ✅ Complete          | 35/35 |
-| spas-service CLI   | [004-spas-service-cli](./specs/004-spas-service-cli/)                   | ✅ Complete          | 48/48 |
-| spas-compose CLI   | [005-spas-compose-cli](./specs/005-spas-compose-cli/)                   | ✅ Complete          | 67/67 |
+| Feature            | Spec                                                                    | Status      | Tests |
+| ------------------ | ----------------------------------------------------------------------- | ----------- | ----- |
+| .NET SDK           | [001-dotnet-spas-sdk](./specs/001-dotnet-spas-sdk/)                     | ✅ Complete | 88/88 |
+| Schema Alignment   | [002-metadata-schema-alignment](./specs/002-metadata-schema-alignment/) | ✅ Complete | —     |
+| Repository Service | [003-repository-service](./specs/003-repository-service/)               | ✅ Complete | 35/35 |
+| spas-service CLI   | [004-spas-service-cli](./specs/004-spas-service-cli/)                   | ✅ Complete | 48/48 |
+| spas-compose CLI   | [005-spas-compose-cli](./specs/005-spas-compose-cli/)                   | ✅ Complete | 67/67 |
+| SPAS Sidecar       | [006-spas-sidecar](./specs/006-spas-sidecar/) *(to create)*             | 🔜 Next     | —     |
 
 ## 📋 Key Rules for Multi-Machine Continuity
 
@@ -129,34 +84,58 @@ Once read, answer: "What is the immediate next task and what implementation arti
 
 ## Remaining Phases
 
-### Phase 3: CLI Tool
+### ~~Phase 3: CLI Tool~~ ✅ COMPLETE
 
-**Goal:** Enable service packaging and composition workflow.
+**Status:** Both `spas-service` and `spas-compose` CLIs implemented and tested.
 
-**Spec Cross-Reference:** `principles/component/13-cli.md` (source-of-truth)
+**Deliverables:**
 
-**Implementation Plan:** To be determined during this phase.
-
-- Define command structure and argument patterns (service vs. compose commands)
-- Plan SDK integration points (metadata authoring, validation)
-- Design workflow sequence (init → pack → publish → pull → generate)
-- Plan integration with Repository Service API
-- Plan integration with Sidecar configuration generation
-
-**Prioritized Commands for Phase 3:**
-
-- Service management: init, metadata get, pack, publish, pull
-- Composition: init, services pull, choreography deploy (AI-assisted via `/spas.compose` prompt)
-
-**Outputs:**
-
-- `src/cli/` tool (ready to ship as NuGet package or standalone)
-- Integration tests showing full workflow (init → pack → publish → pull → generate)
-- CLI usage guide and examples
+- `spas-service`: init, metadata get, pack, publish, pull (48 tests)
+- `spas-compose`: init, services pull, choreography deploy (67 tests)
+- AI-assisted composition via `/spas.compose` agent prompt
 
 ---
 
-### Phase 4: E-Commerce End-to-End PoC
+### Phase 4: SPAS Sidecar Development
+
+**Goal:** Promote prototype sidecar to production-quality component with CLI integration.
+
+**Spec Cross-Reference:** `principles/component/10-sidecar-contract.md` (source-of-truth)
+
+**Why This Phase is Required:**
+
+The `spas-compose choreography deploy` command generates `docker-compose.yaml` that references sidecars, but:
+
+1. **Missing `SidecarConfigGenerator`**: No tool translates `choreography.yaml` → sidecar `config.<service>.json`
+2. **Hardcoded Transforms**: Prototype uses `transform.js` with hardcoded functions, not dynamic JSONata loading
+3. **No CLI Integration**: Sidecar configs must be manually created
+
+**Technology Decision Required:**
+
+| Option    | Pros                                            | Cons                                        |
+| --------- | ----------------------------------------------- | ------------------------------------------- |
+| **Go**    | Tiny Docker images (~10MB), fast startup, typed | New language for team, JSONata lib maturity |
+| **Node.js** | Existing prototype, JSONata native, rapid dev  | Larger images (~150MB), slower cold start   |
+
+**Implementation Plan:**
+
+- Technology decision (Go vs Node.js) with ADR
+- Define sidecar config JSON schema (aligned with CLI output)
+- Implement dynamic JSONata file loading
+- Add `SidecarConfigGenerator` to `spas-compose` CLI
+- Unit tests for transformation engine
+- Docker image build and optimization
+- Integration tests with choreography deploy workflow
+
+**Outputs:**
+
+- `components/sidecar/` — Production-quality sidecar component
+- CLI enhancement: `spas-compose` generates sidecar configs automatically
+- Docker image ready for E-Commerce PoC
+
+---
+
+### Phase 5: E-Commerce End-to-End PoC
 
 **Goal:** Demonstrate full SPAS framework in realistic multi-service scenario.
 
@@ -166,7 +145,9 @@ Once read, answer: "What is the immediate next task and what implementation arti
 - `principles/service/04-service-contract.md` (service contracts)
 - `principles/component/14-domain-choreography.md` (adaptation rules)
 
-**Implementation Plan:** To be determined during this phase.
+**Prerequisites:** Phase 4 (Sidecar) must be complete.
+
+**Implementation Plan:**
 
 - Define service portfolio (order, fulfillment, shipping, notification, etc.)
 - Plan domain composition and choreography (event flows, topic mappings)
@@ -175,7 +156,7 @@ Once read, answer: "What is the immediate next task and what implementation arti
 - Plan testing strategy (contract tests, integration scenarios)
 - Plan documentation and walkthrough guides
 
-**Scope:** Integrate all Phase 1-3 components into realistic multi-service domain.
+**Scope:** Integrate all Phase 1-4 components into realistic multi-service domain.
 
 **Outputs:**
 
@@ -309,8 +290,8 @@ spas/                                  # Root repository
 │       ├── fulfillment-service/
 │       └── [Order/Fulfillment clients]
 │
-├── components/                        # 🔨 TO BUILD - PoC framework components (to evolve to production-ready in future)
-│   ├── sdk/                           # SDKs for multiple languages
+├── components/                        # PoC framework components
+│   ├── sdk/                           # ✅ COMPLETE - SDKs for multiple languages
 │   │   ├── dotnet/                    # .NET SDK for SPAS service development
 │   │   │   ├── src/                   # Contains source code for .NET SDKs
 │   │   │   ├── test/                  # Unit test code for .NET SDKs
@@ -320,28 +301,28 @@ spas/                                  # Root repository
 │   │   ├── java/                      # Java SDK (future)
 │   │   └── README.md                  # Multi-language SDK guide
 │   │
-│   ├── cli/                           # CLI Tool for service packaging & composition
-│   │   ├── spas-service/              # spas-service root
+│   ├── cli/                           # ✅ COMPLETE - CLI Tools for service packaging & composition
+│   │   ├── spas-service/              # spas-service CLI (48 tests)
 │   │   │   ├── src/                   # source for spas-service cli
 │   │   │   ├── test/                  # test for spas-service
-│   │   ├── spas-compose/              # spas-compose root
+│   │   ├── spas-compose/              # spas-compose CLI (67 tests)
 │   │   │   ├── src/                   # source for spas-compose cli
 │   │   │   ├── test/                  # test for spas-compose
 │   │   └── README.md                  # CLI documentation (keyed to principles/13-cli.md)
 │   │
-│   ├── repository/                    # SPAS Repository Service (metadata + schema storage)
+│   ├── repository/                    # ✅ COMPLETE - SPAS Repository Service (35 tests)
 │   │   ├── src/                       # SPAS Repository service source code
 │   │   ├── test/                      # SPAS Repository test
 │   │   └── README.md                  # Repository API docs (keyed to principles/11-repository.md)
 │   │
-│   └── sidecar/                       # SPAS Sidecar (from prototype to Poc and to evolve to production-ready in future)
-│       ├── src/                       # JavaScript/Node.js (or migrate to .NET if needed)
+│   └── sidecar/                       # 🔨 PHASE 4 - SPAS Sidecar (Go or Node.js TBD)
+│       ├── src/                       # Sidecar source code
 │       ├── config/
 │       │   ├── default.config.json    # Default configuration template
 │       └── Dockerfile
-│       ├── README.md                  # Integration guide
+│       ├── README.md                  # Integration guide (keyed to principles/10-sidecar-contract.md)
 │
-├── examples/                          # 🔨 TO BUILD - End-to-end PoC demonstrations
+├── examples/                          # 🔨 PHASE 5 - End-to-end PoC demonstrations
 │   ├── e-commerce/                    # E-commerce domain PoC
 │   │   ├── README.md                  # Domain walkthrough
 │   │   ├── docker-compose.yml         # Local deployment

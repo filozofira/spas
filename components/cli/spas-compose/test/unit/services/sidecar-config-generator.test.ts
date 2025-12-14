@@ -429,5 +429,26 @@ describe("SidecarConfigGenerator", () => {
         outboundCount: 0,
       });
     });
+
+    // T017: Test dry-run mode includes config summary in result
+    it("should include summary suitable for dry-run output", () => {
+      // Arrange
+      const generator = new SidecarConfigGenerator(workspacePath);
+
+      // Act
+      const result = generator.generate(sampleChoreography);
+
+      // Assert - Summary has all info needed for dry-run display
+      expect(result.summary).toBeDefined();
+      expect(result.summary.totalConfigs).toBeGreaterThan(0);
+      expect(result.summary.services).toBeInstanceOf(Array);
+
+      // Each service summary has name, inboundCount, outboundCount
+      for (const serviceSummary of result.summary.services) {
+        expect(serviceSummary).toHaveProperty("name");
+        expect(serviceSummary).toHaveProperty("inboundCount");
+        expect(serviceSummary).toHaveProperty("outboundCount");
+      }
+    });
   });
 });

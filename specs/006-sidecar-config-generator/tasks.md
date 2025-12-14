@@ -79,15 +79,15 @@ Target: `components/cli/spas-compose/` (enhancement to existing CLI)
 
 ### Tests for User Story 2
 
-- [ ] T017 [P] [US2] Test dry-run mode includes config summary in result in `components/cli/spas-compose/test/unit/services/sidecar-config-generator.test.ts`
+- [x] T017 [P] [US2] Test dry-run mode includes config summary in result in `components/cli/spas-compose/test/unit/services/sidecar-config-generator.test.ts`
 
 ### Implementation for User Story 2
 
-- [ ] T018 [US2] Add dry-run output for sidecar configs showing service names and entry counts in `components/cli/spas-compose/src/commands/choreography-deploy.ts`
-- [ ] T019 [US2] Add JSON mode output for sidecar configs in `--dry-run --json` mode in `components/cli/spas-compose/src/commands/choreography-deploy.ts`
-- [ ] T020 [US2] Ensure no config files are written when `--dry-run` is specified in `components/cli/spas-compose/src/commands/choreography-deploy.ts`
+- [x] T018 [US2] Add dry-run output for sidecar configs showing service names and entry counts in `components/cli/spas-compose/src/commands/choreography-deploy.ts`
+- [x] T019 [US2] Add JSON mode output for sidecar configs in `--dry-run --json` mode in `components/cli/spas-compose/src/commands/choreography-deploy.ts`
+- [x] T020 [US2] Ensure no config files are written when `--dry-run` is specified in `components/cli/spas-compose/src/commands/choreography-deploy.ts`
 
-**Checkpoint**: User Story 2 complete - dry run shows complete output preview
+**Checkpoint**: User Story 2 complete - dry run shows complete output preview ✅
 
 ---
 

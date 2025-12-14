@@ -287,8 +287,12 @@ export async function handleChoreographyDeploy(
     }
   }
 
-  // Dry run - just validate
+  // Dry run - validate and preview without writing files
   if (options.dryRun) {
+    // Generate sidecar configs for preview (T018-T020)
+    const sidecarGenerator = new SidecarConfigGenerator(workspaceRoot);
+    const configResult = sidecarGenerator.generate(choreography);
+
     const result = {
       success: true,
       message: "Validation passed",
@@ -299,6 +303,14 @@ export async function handleChoreographyDeploy(
         },
         services: serviceValidation.foundServices,
         transformations: transformations,
+        // Include sidecar config preview for dry-run
+        sidecarConfigs: {
+          totalConfigs: configResult.summary.totalConfigs,
+          wouldGenerate: Object.keys(configResult.configs).map(
+            (name) => `config.${name}.json`,
+          ),
+          summary: configResult.summary.services,
+        },
       },
     };
 
@@ -312,6 +324,17 @@ export async function handleChoreographyDeploy(
       if (transformations.length > 0) {
         output.info(`Transformations: ${transformations.length} files`);
       }
+      // Show sidecar config preview
+      output.info("");
+      output.info("Would generate:");
+      output.info(`  • docker-compose.yaml`);
+      for (const serviceSummary of configResult.summary.services) {
+        output.info(
+          `  • config.${serviceSummary.name}.json (${serviceSummary.inboundCount} inbound, ${serviceSummary.outboundCount} outbound)`,
+        );
+      }
+      output.info("");
+      output.info("No files written (dry run)");
     }
     process.exit(ChoreographyDeployExitCode.SUCCESS);
   }

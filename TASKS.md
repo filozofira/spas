@@ -8,81 +8,55 @@
 
 This section documents the latest actions, any issues encountered, and the exact next steps so another agent can resume seamlessly.
 
-### What Was Done (Sidecar Specification Drafted)
+### What Was Done (006-sidecar-config-generator Spec Created)
 
 - **All CLI Features Complete** — Both `spas-service` and `spas-compose` CLIs implemented
-- **Branch**: `main` (all feature branches merged)
-- **Status**: Sidecar spec drafted, ready for `/speckit.specify`
+- **Branch**: `006-sidecar-config-generator` (active)
+- **Status**: Config generator spec created, ready for `/speckit.tasks`
 
 **Session Actions**:
 
-1. Drafted complete sidecar specification (see below)
-2. **Technology Decision**: Node.js for PoC (leverage prototype), Go migration path for Production
-3. Identified two work items:
-   - **006-spas-sidecar**: Sidecar runtime with dynamic JSONata loading
-   - **005-spas-compose enhancement**: Add `SidecarConfigGenerator` to generate `config.{service}.json`
+1. Created `specs/006-sidecar-config-generator/spec.md` — Enhancement to spas-compose CLI
+2. Created `specs/006-sidecar-config-generator/checklists/requirements.md` — Quality checklist (all items pass)
+3. **Technology Decision**: Node.js for PoC (leverage prototype), Go migration path for Production
 4. Clarified separation of concerns:
    - AI agent creates `.jsonata` transformation files (already works)
-   - `spas-compose choreography deploy` generates sidecar configs (TO BE ADDED)
-   - Sidecar loads configs + transformations at runtime (TO BE IMPLEMENTED)
+   - `spas-compose choreography deploy` generates sidecar configs (THIS FEATURE)
+   - Sidecar loads configs + transformations at runtime (NEXT: 007-spas-sidecar)
 
 ### What Failed or Required Adjustment
 
 - Nothing failed in this session
 - SDK SampleService `dotnet run` still exits with code 1 (pre-existing issue, not addressed)
-- Clarified: User Story for CLI config generation belongs in spas-compose, not sidecar spec
+- Renumbered: Config generator is 006, Sidecar runtime will be 007
 
 ### Precise Next Steps (Pick and execute IN ORDER)
 
-1. **Enhance spas-compose CLI** (005-spas-compose-cli patch) — Add `SidecarConfigGenerator` to `spas-compose choreography deploy`:
-   - Parse `choreography.yaml` flows and topic mappings
-   - Generate `config.{service}.json` for each participating service
-   - Output alongside `docker-compose.yaml` (single command produces all artifacts)
-   - Update existing tests to verify config generation
+1. **Implement Config Generator** — Run `/speckit.tasks` for 006-sidecar-config-generator, then implement:
+   - `SidecarConfigGenerator` class in `components/cli/spas-compose/src/services/`
+   - Integration with `choreography-deploy.ts`
+   - Unit tests (target: 10+ tests)
 
-2. **Create Sidecar Specification** — Run `/speckit.specify` with spec text below to create `specs/006-spas-sidecar/`
+2. **Create Sidecar Specification** — Run `/speckit.specify` with sidecar spec text to create `specs/007-spas-sidecar/`
 
-3. **Implement Sidecar** — Run `/speckit.tasks` then `/speckit.implement` for 006-spas-sidecar
+3. **Implement Sidecar** — Run `/speckit.tasks` then `/speckit.implement` for 007-spas-sidecar
 
-### spas-compose Enhancement Details (Step 1)
+### 006-sidecar-config-generator Summary
 
-**What to add**: `SidecarConfigGenerator` class in `components/cli/spas-compose/src/services/`
+**Scope**: Add `SidecarConfigGenerator` to `spas-compose choreography deploy --docker`
 
-**Input**: `choreography.yaml` with structure:
-```yaml
-flows:
-  order-to-fulfillment:
-    participants: [order-service, fulfillment-service]
-    steps:
-      - from: order-service
-        publish: orders-requested
-        transform: transformations/order-service/outbound-order.jsonata
-      - subscribe: orders-requested
-        to: fulfillment-service
-        transform: transformations/fulfillment-service/inbound-order.jsonata
-        endpoint: /incoming
-```
+**User Stories**:
+| # | Story | Priority |
+|---|-------|----------|
+| 1 | Generate Sidecar Configs During Deploy | P1 |
+| 2 | Validate Config Generation in Dry Run | P1 |
+| 3 | Handle Missing Transformation References | P2 |
+| 4 | Support Optional Transformations | P2 |
 
-**Output**: Per-service config files:
-```json
-// config.order-service.json
-{
-  "inbound": [],
-  "outbound": [
-    { "topic": "orders-requested", "transform": "transformations/outbound-order.jsonata" }
-  ]
-}
-
-// config.fulfillment-service.json
-{
-  "inbound": [
-    { "kind": "event", "topic": "orders-requested", "transform": "transformations/inbound-order.jsonata", "invokeEndpoint": "/incoming" }
-  ],
-  "outbound": []
-}
-```
-
-**Integration**: Call from `choreography-deploy.ts` after generating docker-compose.yaml
+**Key Deliverables**:
+- `config.{service}.json` files generated alongside `docker-compose.yaml`
+- Single command produces all artifacts needed to run `docker compose up`
+- 10+ new tests added to existing spas-compose test suite
 
 ### Sidecar Spec Summary (for `/speckit.specify` - Step 2)
 
@@ -107,19 +81,20 @@ flows:
 - Target: 30+ unit tests
 
 **Dependencies**:
-- Requires spas-compose enhancement (SidecarConfigGenerator) for integration testing
+- Requires 006-sidecar-config-generator for integration testing
 - Sidecar runtime can be developed in parallel with config generator
 
 ### Completed Features Summary
 
-| Feature            | Spec                                                                    | Status      | Tests |
-| ------------------ | ----------------------------------------------------------------------- | ----------- | ----- |
-| .NET SDK           | [001-dotnet-spas-sdk](./specs/001-dotnet-spas-sdk/)                     | ✅ Complete | 88/88 |
-| Schema Alignment   | [002-metadata-schema-alignment](./specs/002-metadata-schema-alignment/) | ✅ Complete | —     |
-| Repository Service | [003-repository-service](./specs/003-repository-service/)               | ✅ Complete | 35/35 |
-| spas-service CLI   | [004-spas-service-cli](./specs/004-spas-service-cli/)                   | ✅ Complete | 48/48 |
-| spas-compose CLI   | [005-spas-compose-cli](./specs/005-spas-compose-cli/)                   | ✅ Complete | 67/67 |
-| SPAS Sidecar       | [006-spas-sidecar](./specs/006-spas-sidecar/) *(to create)*             | 🔜 Next     | —     |
+| Feature               | Spec                                                                          | Status      | Tests |
+| --------------------- | ----------------------------------------------------------------------------- | ----------- | ----- |
+| .NET SDK              | [001-dotnet-spas-sdk](./specs/001-dotnet-spas-sdk/)                           | ✅ Complete | 88/88 |
+| Schema Alignment      | [002-metadata-schema-alignment](./specs/002-metadata-schema-alignment/)       | ✅ Complete | —     |
+| Repository Service    | [003-repository-service](./specs/003-repository-service/)                     | ✅ Complete | 35/35 |
+| spas-service CLI      | [004-spas-service-cli](./specs/004-spas-service-cli/)                         | ✅ Complete | 48/48 |
+| spas-compose CLI      | [005-spas-compose-cli](./specs/005-spas-compose-cli/)                         | ✅ Complete | 67/67 |
+| Sidecar Config Gen    | [006-sidecar-config-generator](./specs/006-sidecar-config-generator/)         | 🔨 Active   | —     |
+| SPAS Sidecar          | [007-spas-sidecar](./specs/007-spas-sidecar/) *(to create)*                   | 🔜 Next     | —     |
 
 ## 📋 Key Rules for Multi-Machine Continuity
 

@@ -33,7 +33,6 @@ export class SidecarConfigGenerator {
    * @returns ConfigGeneratorResult with configs or errors
    */
   generate(choreography: Choreography): ConfigGeneratorResult {
-    // TODO: T012 - Implement main generate method
     const configs: Record<string, SidecarConfig> = {};
     const errors: ConfigError[] = [];
 
@@ -187,7 +186,6 @@ export class SidecarConfigGenerator {
    * @returns ConfigSummary
    */
   buildSummary(configs: Record<string, SidecarConfig>): ConfigSummary {
-    // TODO: T013 - Implement summary builder
     const services: ServiceSummarySidecar[] = Object.entries(configs).map(
       ([name, config]) => ({
         name,

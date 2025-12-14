@@ -55,19 +55,19 @@ Target: `components/cli/spas-compose/` (enhancement to existing CLI)
 
 ### Tests for User Story 1
 
-- [ ] T009 [P] [US1] Test `generate()` returns correct SidecarConfig structure per service in `components/cli/spas-compose/test/unit/services/sidecar-config-generator.test.ts`
-- [ ] T010 [P] [US1] Test config aggregation from multiple flows where service participates in `components/cli/spas-compose/test/unit/services/sidecar-config-generator.test.ts`
-- [ ] T011 [P] [US1] Test empty inbound/outbound arrays for services with no entries in `components/cli/spas-compose/test/unit/services/sidecar-config-generator.test.ts`
+- [x] T009 [P] [US1] Test `generate()` returns correct SidecarConfig structure per service in `components/cli/spas-compose/test/unit/services/sidecar-config-generator.test.ts`
+- [x] T010 [P] [US1] Test config aggregation from multiple flows where service participates in `components/cli/spas-compose/test/unit/services/sidecar-config-generator.test.ts`
+- [x] T011 [P] [US1] Test empty inbound/outbound arrays for services with no entries in `components/cli/spas-compose/test/unit/services/sidecar-config-generator.test.ts`
 
 ### Implementation for User Story 1
 
-- [ ] T012 [US1] Implement main `generate(choreography: Choreography)` method that returns `ConfigGeneratorResult` in `components/cli/spas-compose/src/services/sidecar-config-generator.ts`
-- [ ] T013 [US1] Implement `buildSummary()` method to create `ConfigSummary` for CLI output in `components/cli/spas-compose/src/services/sidecar-config-generator.ts`
-- [ ] T014 [US1] Integrate `SidecarConfigGenerator` into `choreography-deploy.ts` after docker-compose generation in `components/cli/spas-compose/src/commands/choreography-deploy.ts`
-- [ ] T015 [US1] Add file writing logic for config files to workspace root in `components/cli/spas-compose/src/commands/choreography-deploy.ts`
-- [ ] T016 [US1] Add human-readable success messages for config generation in `components/cli/spas-compose/src/commands/choreography-deploy.ts`
+- [x] T012 [US1] Implement main `generate(choreography: Choreography)` method that returns `ConfigGeneratorResult` in `components/cli/spas-compose/src/services/sidecar-config-generator.ts`
+- [x] T013 [US1] Implement `buildSummary()` method to create `ConfigSummary` for CLI output in `components/cli/spas-compose/src/services/sidecar-config-generator.ts`
+- [x] T014 [US1] Integrate `SidecarConfigGenerator` into `choreography-deploy.ts` after docker-compose generation in `components/cli/spas-compose/src/commands/choreography-deploy.ts`
+- [x] T015 [US1] Add file writing logic for config files to workspace root in `components/cli/spas-compose/src/commands/choreography-deploy.ts`
+- [x] T016 [US1] Add human-readable success messages for config generation in `components/cli/spas-compose/src/commands/choreography-deploy.ts`
 
-**Checkpoint**: User Story 1 complete - config files generated alongside docker-compose.yaml
+**Checkpoint**: User Story 1 complete - config files generated alongside docker-compose.yaml ✅
 
 ---
 

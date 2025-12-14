@@ -269,11 +269,165 @@ describe("SidecarConfigGenerator", () => {
   });
 
   // ==========================================================================
-  // Placeholder tests for future phases
+  // T009-T011: Tests for generate() (Phase 3: User Story 1)
   // ==========================================================================
 
-  // T009-T011: generate() tests (Phase 3: User Story 1)
-  // T017: dry-run tests (Phase 4: User Story 2)
-  // T021-T022: missing transform tests (Phase 5: User Story 3)
-  // T026-T027: optional transform tests (Phase 6: User Story 4)
+  describe("generate()", () => {
+    // T009: Test generate() returns correct SidecarConfig structure per service
+    it("should return correct SidecarConfig structure for each service", () => {
+      // Arrange
+      const generator = new SidecarConfigGenerator(workspacePath);
+
+      // Act
+      const result = generator.generate(sampleChoreography);
+
+      // Assert
+      expect(result.success).toBe(true);
+      expect(result.configs).toHaveProperty("order-service");
+      expect(result.configs).toHaveProperty("fulfillment-service");
+
+      // order-service: publishes, doesn't subscribe
+      expect(result.configs["order-service"].outbound).toHaveLength(1);
+      expect(result.configs["order-service"].inbound).toHaveLength(0);
+
+      // fulfillment-service: subscribes, doesn't publish
+      expect(result.configs["fulfillment-service"].inbound).toHaveLength(1);
+      expect(result.configs["fulfillment-service"].outbound).toHaveLength(0);
+    });
+
+    it("should return ConfigGeneratorResult with summary", () => {
+      // Arrange
+      const generator = new SidecarConfigGenerator(workspacePath);
+
+      // Act
+      const result = generator.generate(sampleChoreography);
+
+      // Assert
+      expect(result.summary).toBeDefined();
+      expect(result.summary.totalConfigs).toBe(2);
+      expect(result.summary.services).toHaveLength(2);
+    });
+
+    // T010: Test config aggregation from multiple flows
+    it("should aggregate entries from multiple flows where service participates", () => {
+      // Arrange
+      const generator = new SidecarConfigGenerator(workspacePath);
+      const multiFlowChoreography: Choreography = {
+        version: "1.0",
+        domain: "e-commerce",
+        flows: {
+          "flow-1": {
+            participants: ["order-service", "fulfillment-service"],
+            events: [
+              {
+                source: "order-service",
+                event: "order-created",
+                topic: "orders-requested",
+                targets: [{ service: "fulfillment-service" }],
+              },
+            ],
+          },
+          "flow-2": {
+            participants: ["order-service", "payment-service"],
+            events: [
+              {
+                source: "order-service",
+                event: "order-created",
+                topic: "payments-requested",
+                targets: [{ service: "payment-service" }],
+              },
+            ],
+          },
+        },
+      };
+
+      // Act
+      const result = generator.generate(multiFlowChoreography);
+
+      // Assert
+      // order-service publishes to both topics
+      expect(result.configs["order-service"].outbound).toHaveLength(2);
+      expect(result.configs["order-service"].outbound.map((e) => e.topic)).toContain("orders-requested");
+      expect(result.configs["order-service"].outbound.map((e) => e.topic)).toContain("payments-requested");
+    });
+
+    // T011: Test empty inbound/outbound arrays for services with no entries
+    it("should generate empty arrays for services with no event participation", () => {
+      // Arrange
+      const generator = new SidecarConfigGenerator(workspacePath);
+      const participantOnlyChoreography: Choreography = {
+        version: "1.0",
+        domain: "test",
+        flows: {
+          "flow-1": {
+            participants: ["service-a", "service-b", "observer-service"],
+            events: [
+              {
+                source: "service-a",
+                event: "event",
+                topic: "topic",
+                targets: [{ service: "service-b" }],
+              },
+            ],
+          },
+        },
+      };
+
+      // Act
+      const result = generator.generate(participantOnlyChoreography);
+
+      // Assert
+      // observer-service is a participant but not in any event routes
+      expect(result.configs["observer-service"]).toBeDefined();
+      expect(result.configs["observer-service"].inbound).toEqual([]);
+      expect(result.configs["observer-service"].outbound).toEqual([]);
+    });
+
+    it("should return empty configs for choreography with no flows", () => {
+      // Arrange
+      const generator = new SidecarConfigGenerator(workspacePath);
+      const emptyChoreography: Choreography = {
+        version: "1.0",
+        domain: "empty",
+        flows: {},
+      };
+
+      // Act
+      const result = generator.generate(emptyChoreography);
+
+      // Assert
+      expect(result.success).toBe(true);
+      expect(result.configs).toEqual({});
+      expect(result.summary.totalConfigs).toBe(0);
+    });
+  });
+
+  // ==========================================================================
+  // T013: Tests for buildSummary()
+  // ==========================================================================
+
+  describe("buildSummary()", () => {
+    it("should create correct summary with service entry counts", () => {
+      // Arrange
+      const generator = new SidecarConfigGenerator(workspacePath);
+
+      // Act
+      const result = generator.generate(sampleChoreography);
+
+      // Assert
+      const orderSummary = result.summary.services.find((s) => s.name === "order-service");
+      const fulfillmentSummary = result.summary.services.find((s) => s.name === "fulfillment-service");
+
+      expect(orderSummary).toEqual({
+        name: "order-service",
+        inboundCount: 0,
+        outboundCount: 1,
+      });
+      expect(fulfillmentSummary).toEqual({
+        name: "fulfillment-service",
+        inboundCount: 1,
+        outboundCount: 0,
+      });
+    });
+  });
 });

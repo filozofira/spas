@@ -11,6 +11,7 @@ import type { ChoreographyDeployOptions } from "../types.js";
 import { ChoreographyLoader } from "../services/choreography-loader.js";
 import { JsonataValidator } from "../services/jsonata-validator.js";
 import { DockerGenerator } from "../services/docker-generator.js";
+import { SidecarConfigGenerator } from "../services/sidecar-config-generator.js";
 import { WorkspaceService } from "../services/workspace-service.js";
 import * as output from "../utils/output.js";
 
@@ -346,13 +347,28 @@ export async function handleChoreographyDeploy(
   try {
     fs.writeFileSync(outputPath, generateResult.content!, "utf-8");
 
+    // Generate sidecar config files (T014-T016)
+    const sidecarGenerator = new SidecarConfigGenerator(workspaceRoot);
+    const configResult = sidecarGenerator.generate(choreography);
+
+    // Write sidecar config files
+    const configFiles: string[] = [];
+    for (const [serviceName, config] of Object.entries(configResult.configs)) {
+      const configFileName = `config.${serviceName}.json`;
+      const configPath = path.join(workspaceRoot, configFileName);
+      fs.writeFileSync(configPath, JSON.stringify(config, null, 2), "utf-8");
+      configFiles.push(configFileName);
+    }
+
     const result = {
       success: true,
-      message: `Generated ${outputFile}`,
+      message: `Generated ${outputFile} and ${configFiles.length} sidecar config(s)`,
       data: {
         output: outputFile,
         path: outputPath,
         services: serviceValidation.foundServices.length * 2 + 2, // services + sidecars + redis + zipkin
+        configs: configFiles,
+        configSummary: configResult.summary,
       },
     };
 
@@ -360,6 +376,12 @@ export async function handleChoreographyDeploy(
       output.json(result);
     } else {
       output.success(`Generated ${outputFile}`);
+      // Show sidecar config generation results
+      for (const serviceSummary of configResult.summary.services) {
+        output.success(
+          `Generated config.${serviceSummary.name}.json (${serviceSummary.inboundCount} inbound, ${serviceSummary.outboundCount} outbound)`,
+        );
+      }
       output.info("");
       output.info("Next steps:");
       output.info("  • Copy service source to workspace");

@@ -13,7 +13,7 @@ The SPAS Framework is composed of modular, independently deployable components t
 ## CLI Tools
 
 - [spas-service](./cli/spas-service/README.md) — Publish and pull service metadata to/from the Repository
-- [spas-compose](./cli/spas-compose/README.md) — Orchestrate multi-service deployments *(planned)*
+- [spas-compose](./cli/spas-compose/README.md) — Orchestrate multi-service deployments with AI-assisted composition
 
 ## SDKs
 

@@ -72,9 +72,7 @@ SPAS specifies:
 ## Related Documents
 
 - [Principles](./principles/README.md) - SPAS Framework guiding principles
+- [Specs](./specs/README.md) - GitHub SpecKit files
+- [Components](./components/README.md) - SPAS Framework component development
 - Prototypes
   - [spas-sidecar](./prototypes/spas-sidecar-prototype/README.md) - SPAS Sidecar prototype
-- [Specs](./specs/README.md) - GitHub SpecKit files
-- Components
-  - [.Net SDK](./components/sdk/dotnet/README.md) - SPAS .Net SDK
-  - [SPAS Repository](./components/repository/README.md) - SPAS Repository for storing the SPAS service metadata

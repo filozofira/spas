@@ -172,6 +172,10 @@ Validate: Examples from principles/appendix/26-reference-examples.md
 
 Update [README.md](./specs/README.md) Specs section by adding your feature at the end of list.
 
+## How to Cross-Reference Components During Implementation
+
+Update [README.md](./components/README.md) Components section by adding your feature at the end of list.
+
 ## Key Specification Touchstones
 
 | Component              | Spec Reference                                                              | Purpose                                  |

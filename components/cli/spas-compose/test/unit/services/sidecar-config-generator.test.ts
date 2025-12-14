@@ -266,6 +266,61 @@ describe("SidecarConfigGenerator", () => {
         "transformations/inbound-order-created.jsonata",
       );
     });
+
+    // T026: Test inbound entry omits transform when not specified in choreography
+    it("should omit transform property when not specified in choreography", () => {
+      // Arrange
+      const generator = new SidecarConfigGenerator(workspacePath);
+      const choreographyWithoutTransform: Choreography = {
+        version: "1.0",
+        domain: "test",
+        flows: {
+          "flow-1": {
+            participants: ["service-a", "service-b"],
+            events: [
+              {
+                source: "service-a",
+                event: "event",
+                topic: "topic",
+                targets: [{ service: "service-b" }], // No transform field
+              },
+            ],
+          },
+        },
+      };
+
+      // Act
+      const entries = generator.buildInboundEntries(
+        choreographyWithoutTransform,
+        "service-b",
+      );
+
+      // Assert
+      expect(entries).toHaveLength(1);
+      expect(entries[0]).not.toHaveProperty("transform");
+      expect(entries[0].kind).toBe("event");
+      expect(entries[0].topic).toBe("topic");
+      expect(entries[0].invokeEndpoint).toBe("/incoming");
+    });
+  });
+
+  // T027: Test outbound entry omits transform when not specified in choreography
+  describe("buildOutboundEntries() - optional transforms", () => {
+    it("should omit transform property for outbound entries (current behavior)", () => {
+      // Arrange
+      const generator = new SidecarConfigGenerator(workspacePath);
+
+      // Act - Current implementation doesn't support outbound transforms yet
+      const entries = generator.buildOutboundEntries(
+        sampleChoreography,
+        "order-service",
+      );
+
+      // Assert - outbound entries currently don't include transform
+      expect(entries).toHaveLength(1);
+      expect(entries[0]).not.toHaveProperty("transform");
+      expect(entries[0].topic).toBe("orders-requested");
+    });
   });
 
   // ==========================================================================

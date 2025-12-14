@@ -122,15 +122,15 @@ Target: `components/cli/spas-compose/` (enhancement to existing CLI)
 
 ### Tests for User Story 4
 
-- [ ] T026 [P] [US4] Test inbound entry omits transform when not specified in choreography in `components/cli/spas-compose/test/unit/services/sidecar-config-generator.test.ts`
-- [ ] T027 [P] [US4] Test outbound entry omits transform when not specified in choreography in `components/cli/spas-compose/test/unit/services/sidecar-config-generator.test.ts`
+- [x] T026 [P] [US4] Test inbound entry omits transform when not specified in choreography in `components/cli/spas-compose/test/unit/services/sidecar-config-generator.test.ts`
+- [x] T027 [P] [US4] Test outbound entry omits transform when not specified in choreography in `components/cli/spas-compose/test/unit/services/sidecar-config-generator.test.ts`
 
 ### Implementation for User Story 4
 
-- [ ] T028 [US4] Ensure `buildInboundEntries()` conditionally adds transform only when present in target in `components/cli/spas-compose/src/services/sidecar-config-generator.ts`
-- [ ] T029 [US4] Ensure `buildOutboundEntries()` conditionally adds transform only when present (future support) in `components/cli/spas-compose/src/services/sidecar-config-generator.ts`
+- [x] T028 [US4] Ensure `buildInboundEntries()` conditionally adds transform only when present in target in `components/cli/spas-compose/src/services/sidecar-config-generator.ts`
+- [x] T029 [US4] Ensure `buildOutboundEntries()` conditionally adds transform only when present (future support) in `components/cli/spas-compose/src/services/sidecar-config-generator.ts`
 
-**Checkpoint**: User Story 4 complete - optional transformations handled correctly
+**Checkpoint**: User Story 4 complete - optional transformations handled correctly ✅
 
 ---
 

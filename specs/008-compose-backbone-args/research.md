@@ -38,11 +38,13 @@ private generateZipkin(): DockerService {
 ### 2. How should image names be normalized?
 
 **Finding**: Docker image references follow standard format:
+
 - `redis:7-alpine` → Uses Docker Hub library
 - `openzipkin/zipkin:2.24` → Uses Docker Hub organization
 - `ghcr.io/org/image:tag` → Full registry path
 
 **Decision**: Implement shorthand normalization:
+
 - `redis:*` → `redis:*` (Docker Hub library, keep as-is)
 - `zipkin:*` → `openzipkin/zipkin:*`
 - `jaeger:*` → `jaegertracing/all-in-one:*`
@@ -55,12 +57,14 @@ private generateZipkin(): DockerService {
 ### 3. What ports does Jaeger expose?
 
 **Finding**: Jaeger all-in-one image exposes:
+
 - Port 16686: Jaeger UI (Query service)
 - Port 9411: Zipkin-compatible collector (accepts Zipkin spans)
 - Port 14250: gRPC collector
 - Port 14268: HTTP collector (Thrift)
 
 **Decision**: For spas-compose, expose:
+
 - Port 16686: Jaeger UI
 - Port 9411: Zipkin-compatible endpoint (sidecar uses this)
 
@@ -73,6 +77,7 @@ private generateZipkin(): DockerService {
 **Finding**: Current implementation lacks Redis health checks.
 
 **Decision**: Add health checks:
+
 - Redis: `redis-cli ping` with 5s interval, 3s timeout, 3 retries
 - Zipkin: No health check (stateless, starts fast)
 - Jaeger: No health check (starts fast)
@@ -85,7 +90,8 @@ private generateZipkin(): DockerService {
 
 **Finding**: When backbone is disabled, sidecars still need environment variables.
 
-**Decision**: 
+**Decision**:
+
 - `--event-backbone none`: No Redis service; sidecar uses `${REDIS_HOST:-localhost}:${REDIS_PORT:-6379}`
 - `--observability-backbone none`: No Zipkin service; sidecar uses `${ZIPKIN_URL:-}` (empty = disabled)
 
@@ -98,6 +104,7 @@ private generateZipkin(): DockerService {
 **Finding**: Need to configure different ports based on image.
 
 **Decision**: Detect by image name pattern:
+
 - Contains `jaeger` → Jaeger mode (ports 16686, 9411)
 - Otherwise → Zipkin mode (port 9411 only)
 
@@ -123,10 +130,10 @@ private generateZipkin(): DockerService {
 
 ## Dependencies
 
-| Dependency | Status | Notes |
-|------------|--------|-------|
-| Commander.js | ✅ Existing | CLI argument parsing |
-| js-yaml | ✅ Existing | YAML generation |
+| Dependency       | Status       | Notes                              |
+| ---------------- | ------------ | ---------------------------------- |
+| Commander.js     | ✅ Existing  | CLI argument parsing               |
+| js-yaml          | ✅ Existing  | YAML generation                    |
 | Sidecar env vars | ✅ Confirmed | REDIS_HOST, REDIS_PORT, ZIPKIN_URL |
 
 ---

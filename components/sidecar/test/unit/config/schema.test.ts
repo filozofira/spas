@@ -141,14 +141,22 @@ describe('Config Schema Validation', () => {
       });
     });
 
-    it('should require transform', () => {
+    it('should accept missing transform (passthrough)', () => {
       const entry = { kind: 'event', topic: 'test', invokeEndpoint: '/e' };
+
+      const errors = validateInboundEntry(entry, 'inbound[0]');
+
+      expect(errors).toHaveLength(0);
+    });
+
+    it('should reject non-string transform', () => {
+      const entry = { kind: 'event', topic: 'test', invokeEndpoint: '/e', transform: 123 };
 
       const errors = validateInboundEntry(entry, 'inbound[0]');
 
       expect(errors).toContainEqual({
         path: 'inbound[0].transform',
-        message: 'transform is required',
+        message: 'transform must be a string when provided',
       });
     });
 

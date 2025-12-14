@@ -1,0 +1,46 @@
+version: '3.8'
+
+services:
+  sidecar:
+    build: .
+    ports:
+      - "7000:7000"
+    environment:
+      - CONFIG_PATH=/app/config.json
+      - SERVICE_NAME=order-service
+      - SERVICE_PORT=5001
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - ZIPKIN_URL=http://zipkin:9411
+      - LOG_LEVEL=debug
+      - LOG_FORMAT=text
+    volumes:
+      - ./config.json:/app/config.json:ro
+    depends_on:
+      - redis
+      - zipkin
+    networks:
+      - spas-network
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    networks:
+      - spas-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 3
+
+  zipkin:
+    image: openzipkin/zipkin:latest
+    ports:
+      - "9411:9411"
+    networks:
+      - spas-network
+
+networks:
+  spas-network:
+    driver: bridge

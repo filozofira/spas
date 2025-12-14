@@ -27,8 +27,8 @@ export interface InboundEntry {
   command?: string;
   /** Topic to subscribe to - required when kind='event' */
   topic?: string;
-  /** Transform function name or file path */
-  transform: string;
+  /** Optional transform function - when omitted, passthrough (no transformation) */
+  transform?: string;
   /** Service endpoint to invoke with transformed payload */
   invokeEndpoint: string;
 }

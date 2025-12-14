@@ -25,9 +25,8 @@ docs/
 .vscode/
 .idea/
 
-# TypeScript source (compiled in builder stage)
-src/
-tsconfig.json
+# TypeScript source maps
+*.map
 
 # Misc
 *.swp

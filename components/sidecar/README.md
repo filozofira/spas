@@ -68,15 +68,17 @@ npm run build    # Build TypeScript
 
 ## 📝 Environment Variables
 
-| Variable | Required | Default | Description |
-|----------|----------|---------|-------------|
-| `CONFIG_PATH` | Yes | `./config.json` | Path to sidecar configuration file |
-| `SERVICE_NAME` | Yes | - | Target service hostname |
-| `SERVICE_PORT` | Yes | - | Target service port |
-| `REDIS_HOST` | Yes | `localhost` | Redis hostname |
-| `REDIS_PORT` | No | `6379` | Redis port |
-| `SIDECAR_PORT` | No | `7000` | Sidecar listening port |
-| `ZIPKIN_URL` | No | - | Zipkin endpoint (enables tracing) |
+| Variable       | Required | Default         | Description                         |
+| -------------- | -------- | --------------- | ----------------------------------- |
+| `CONFIG_PATH`  | Yes      | `./config.json` | Path to sidecar configuration file  |
+| `SERVICE_NAME` | Yes      | -               | Target service hostname             |
+| `SERVICE_PORT` | Yes      | -               | Target service port                 |
+| `REDIS_HOST`   | Yes      | `localhost`     | Redis hostname                      |
+| `REDIS_PORT`   | No       | `6379`          | Redis port                          |
+| `SIDECAR_PORT` | No       | `7000`          | Sidecar listening port              |
+| `ZIPKIN_URL`   | No       | -               | Zipkin endpoint (enables tracing)   |
+| `LOG_LEVEL`    | No       | `info`          | Log level: debug, info, warn, error |
+| `LOG_FORMAT`   | No       | `text`          | Log format: text or json            |
 
 ## 📄 Configuration
 
@@ -161,14 +163,59 @@ docker build -t spas-sidecar:latest .
 ### Run
 
 ```bash
+# First, create a config.json file (or use the example)
+cp config.example.json config.json
+
+# Linux/macOS
 docker run -d \
   -e CONFIG_PATH=/app/config.json \
   -e SERVICE_NAME=order-service \
   -e SERVICE_PORT=5001 \
-  -e REDIS_HOST=redis \
-  -v ./config.json:/app/config.json \
+  -e REDIS_HOST=host.docker.internal \
+  -v $(pwd)/config.json:/app/config.json \
   -p 7000:7000 \
   spas-sidecar:latest
+```
+
+```powershell
+# Windows PowerShell
+Copy-Item config.example.json config.json
+
+docker run -d `
+  -e CONFIG_PATH=/app/config.json `
+  -e SERVICE_NAME=order-service `
+  -e SERVICE_PORT=5001 `
+  -e REDIS_HOST=host.docker.internal `
+  -v ${PWD}/config.json:/app/config.json `
+  -p 7000:7000 `
+  spas-sidecar:latest
+```
+
+### Docker Compose
+
+The easiest way to run the sidecar with all dependencies (Redis + Zipkin):
+
+```bash
+# Create config file
+cp config.example.json config.json
+
+# Start all services
+docker-compose up --build
+
+# Or run in background
+docker-compose up -d --build
+```
+
+This starts:
+
+- **sidecar** on port 7000
+- **redis** on port 6379
+- **zipkin** on port 9411 (view traces at http://localhost:9411)
+
+To stop all services:
+
+```bash
+docker-compose down
 ```
 
 ## 📚 Related Documentation

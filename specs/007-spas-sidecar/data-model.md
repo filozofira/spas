@@ -30,7 +30,7 @@ interface InboundEntry {
   kind: 'command' | 'event';
   command?: string;        // Required when kind='command'
   topic?: string;          // Required when kind='event'
-  transform: string;       // Function name or file path
+  transform?: string;      // Optional - passthrough when omitted
   invokeEndpoint: string;  // Service endpoint to invoke
 }
 ```
@@ -39,7 +39,7 @@ interface InboundEntry {
 - `kind` is required, must be "command" or "event"
 - `command` required when `kind='command'`
 - `topic` required when `kind='event'`
-- `transform` always required
+- `transform` is optional (passthrough when omitted)
 - `invokeEndpoint` required for commands, optional for events (but typically present)
 
 ---

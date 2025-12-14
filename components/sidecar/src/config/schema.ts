@@ -94,9 +94,9 @@ export function validateInboundEntry(entry: unknown, path: string): ValidationEr
     }
   }
 
-  // transform is always required
-  if (!e.transform || typeof e.transform !== 'string') {
-    errors.push({ path: `${path}.transform`, message: 'transform is required' });
+  // transform is optional (passthrough when omitted)
+  if (e.transform !== undefined && typeof e.transform !== 'string') {
+    errors.push({ path: `${path}.transform`, message: 'transform must be a string when provided' });
   }
 
   // invokeEndpoint is always required

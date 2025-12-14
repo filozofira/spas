@@ -33,12 +33,12 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T006 Create CLI entry point in src/index.ts with Commander.js setup
-- [ ] T007 [P] Create TypeScript interfaces in src/types.ts for DomainWorkspace, Choreography, PulledService
-- [ ] T008 [P] Create output utilities in src/utils/output.ts (success, error, info, verbose using chalk)
-- [ ] T009 [P] Create config utilities in src/utils/config.ts (resolveRepositoryUrl, resolveWorkspacePath)
-- [ ] T010 [P] Create template utilities in src/utils/templates.ts (README.md content, choreography.yaml scaffold, agent prompt)
-- [ ] T011 Create RepositoryClient in src/services/repository-client.ts (HTTP client for SPAS Repository)
+- [X] T006 Create CLI entry point in src/index.ts with Commander.js setup
+- [X] T007 [P] Create TypeScript interfaces in src/types.ts for DomainWorkspace, Choreography, PulledService
+- [X] T008 [P] Create output utilities in src/utils/output.ts (success, error, info, verbose using chalk)
+- [X] T009 [P] Create config utilities in src/utils/config.ts (resolveRepositoryUrl, resolveWorkspacePath)
+- [X] T010 [P] Create template utilities in src/utils/templates.ts (README.md content, choreography.yaml scaffold, agent prompt)
+- [X] T011 Create RepositoryClient in src/services/repository-client.ts (HTTP client for SPAS Repository)
   > **Note**: Copy pattern from spas-service CLI's repository-client.ts. Add `// TODO: Extract to @spas/cli-common post-PoC` comment.
 
 **Checkpoint**: Foundation ready — user story implementation can now begin

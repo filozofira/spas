@@ -8,39 +8,107 @@
 
 This section documents the latest actions, any issues encountered, and the exact next steps so another agent can resume seamlessly.
 
-### What Was Done (Phase 3 CLI Tools Complete, Planning Phase 4 Sidecar)
+### What Was Done (Sidecar Specification Drafted)
 
 - **All CLI Features Complete** — Both `spas-service` and `spas-compose` CLIs implemented
 - **Branch**: `main` (all feature branches merged)
-- **Status**: CLI phase complete, sidecar development next
+- **Status**: Sidecar spec drafted, ready for `/speckit.specify`
 
 **Session Actions**:
 
-1. Analyzed dependency chain for E-Commerce PoC
-2. Identified critical gap: `spas-compose choreography deploy` generates docker-compose.yaml referencing sidecar, but:
-   - No `SidecarConfigGenerator` exists to translate `choreography.yaml` → sidecar `config.<service>.json`
-   - Prototype sidecar uses hardcoded transforms (`transform.js`) instead of dynamic JSONata loading
-3. Decision: **Sidecar must be production-ready before E-Commerce PoC**
-4. Updated roadmap: Phase 4 = Sidecar, Phase 5 = E-Commerce PoC
+1. Drafted complete sidecar specification (see below)
+2. **Technology Decision**: Node.js for PoC (leverage prototype), Go migration path for Production
+3. Identified two work items:
+   - **006-spas-sidecar**: Sidecar runtime with dynamic JSONata loading
+   - **005-spas-compose enhancement**: Add `SidecarConfigGenerator` to generate `config.{service}.json`
+4. Clarified separation of concerns:
+   - AI agent creates `.jsonata` transformation files (already works)
+   - `spas-compose choreography deploy` generates sidecar configs (TO BE ADDED)
+   - Sidecar loads configs + transformations at runtime (TO BE IMPLEMENTED)
 
 ### What Failed or Required Adjustment
 
 - Nothing failed in this session
 - SDK SampleService `dotnet run` still exits with code 1 (pre-existing issue, not addressed)
-- Identified gap: prototype sidecar incompatible with CLI-generated choreography artifacts
+- Clarified: User Story for CLI config generation belongs in spas-compose, not sidecar spec
 
-### Precise Next Steps (Pick and execute)
+### Precise Next Steps (Pick and execute IN ORDER)
 
-1. **Create Sidecar Specification** (`specs/006-spas-sidecar/`):
-   - Technology decision: Go vs Node.js (evaluate performance, Docker image size, ecosystem)
-   - Define sidecar config schema compatible with CLI output
-   - Plan JSONata runtime integration for dynamic transformation loading
-   - Design CLI integration: add `SidecarConfigGenerator` to `spas-compose`
+1. **Enhance spas-compose CLI** (005-spas-compose-cli patch) — Add `SidecarConfigGenerator` to `spas-compose choreography deploy`:
+   - Parse `choreography.yaml` flows and topic mappings
+   - Generate `config.{service}.json` for each participating service
+   - Output alongside `docker-compose.yaml` (single command produces all artifacts)
+   - Update existing tests to verify config generation
 
-2. **Alternative: Minimal Enhancement Path** (if faster PoC needed):
-   - Add `SidecarConfigGenerator` to spas-compose CLI
-   - Update prototype sidecar to load `.jsonata` files dynamically
-   - Keep Node.js, defer language migration post-PoC
+2. **Create Sidecar Specification** — Run `/speckit.specify` with spec text below to create `specs/006-spas-sidecar/`
+
+3. **Implement Sidecar** — Run `/speckit.tasks` then `/speckit.implement` for 006-spas-sidecar
+
+### spas-compose Enhancement Details (Step 1)
+
+**What to add**: `SidecarConfigGenerator` class in `components/cli/spas-compose/src/services/`
+
+**Input**: `choreography.yaml` with structure:
+```yaml
+flows:
+  order-to-fulfillment:
+    participants: [order-service, fulfillment-service]
+    steps:
+      - from: order-service
+        publish: orders-requested
+        transform: transformations/order-service/outbound-order.jsonata
+      - subscribe: orders-requested
+        to: fulfillment-service
+        transform: transformations/fulfillment-service/inbound-order.jsonata
+        endpoint: /incoming
+```
+
+**Output**: Per-service config files:
+```json
+// config.order-service.json
+{
+  "inbound": [],
+  "outbound": [
+    { "topic": "orders-requested", "transform": "transformations/outbound-order.jsonata" }
+  ]
+}
+
+// config.fulfillment-service.json
+{
+  "inbound": [
+    { "kind": "event", "topic": "orders-requested", "transform": "transformations/inbound-order.jsonata", "invokeEndpoint": "/incoming" }
+  ],
+  "outbound": []
+}
+```
+
+**Integration**: Call from `choreography-deploy.ts` after generating docker-compose.yaml
+
+### Sidecar Spec Summary (for `/speckit.specify` - Step 2)
+
+**Technology**: Node.js (PoC), Go migration path (Production)
+
+**User Stories (Priority Order)**:
+
+| # | Story | Priority | Description |
+|---|-------|----------|-------------|
+| 1 | Dynamic JSONata Transformation Loading | P1 | Load `.jsonata` files from mounted volumes — **foundational** |
+| 2 | Event Publishing via Sidecar | P1 | `/publish/{topic}` with CloudEvents + tracing |
+| 3 | Event Consumption via Sidecar | P1 | Redis subscription → service HTTP delivery |
+| 4 | Command Invocation via Sidecar | P1 | `/invoke/{command}` request-response pattern |
+| 5 | Health and Readiness Endpoints | P2 | `/health` and `/ready` for orchestration |
+| 6 | Zipkin Distributed Tracing | P2 | Span reporting with parent-child relationships |
+
+**Key Implementation Notes**:
+- Migrate from `prototypes/spas-sidecar-prototype/spas-sidecar/`
+- Replace hardcoded `transform.js` with dynamic JSONata loading
+- Config schema already uses `inbound/outbound` structure
+- Add `/health` and `/ready` endpoints
+- Target: 30+ unit tests
+
+**Dependencies**:
+- Requires spas-compose enhancement (SidecarConfigGenerator) for integration testing
+- Sidecar runtime can be developed in parallel with config generator
 
 ### Completed Features Summary
 
@@ -98,38 +166,36 @@ Once read, answer: "What is the immediate next task and what implementation arti
 
 ### Phase 4: SPAS Sidecar Development
 
-**Goal:** Promote prototype sidecar to production-quality component with CLI integration.
+**Goal:** Promote prototype sidecar to production-quality component with dynamic JSONata loading.
 
 **Spec Cross-Reference:** `principles/component/10-sidecar-contract.md` (source-of-truth)
 
-**Why This Phase is Required:**
+**Technology Decision: Node.js** (PoC) with Go migration path (Production)
 
-The `spas-compose choreography deploy` command generates `docker-compose.yaml` that references sidecars, but:
+| Criterion | Node.js (PoC) | Go (Production) |
+|-----------|---------------|-----------------|
+| JSONata Support | Native (`jsonata` npm) | Limited (port required) |
+| Docker Image Size | ~150MB | ~10MB |
+| Existing Prototype | ✅ Full working code | 🔨 New implementation |
 
-1. **Missing `SidecarConfigGenerator`**: No tool translates `choreography.yaml` → sidecar `config.<service>.json`
-2. **Hardcoded Transforms**: Prototype uses `transform.js` with hardcoded functions, not dynamic JSONata loading
-3. **No CLI Integration**: Sidecar configs must be manually created
+**Two Work Items:**
 
-**Technology Decision Required:**
+1. **006-spas-sidecar** — Sidecar runtime implementation:
+   - Dynamic JSONata transformation loading (foundational)
+   - Event publishing via `/publish/{topic}`
+   - Event consumption via Redis subscription
+   - Command invocation via `/invoke/{command}`
+   - Health/readiness endpoints
+   - Zipkin distributed tracing
 
-| Option    | Pros                                            | Cons                                        |
-| --------- | ----------------------------------------------- | ------------------------------------------- |
-| **Go**    | Tiny Docker images (~10MB), fast startup, typed | New language for team, JSONata lib maturity |
-| **Node.js** | Existing prototype, JSONata native, rapid dev  | Larger images (~150MB), slower cold start   |
-
-**Implementation Plan:**
-
-- Technology decision (Go vs Node.js) with ADR
-- Define sidecar config JSON schema (aligned with CLI output)
-- Implement dynamic JSONata file loading
-- Add `SidecarConfigGenerator` to `spas-compose` CLI
-- Unit tests for transformation engine
-- Docker image build and optimization
-- Integration tests with choreography deploy workflow
+2. **005-spas-compose enhancement** — Add `SidecarConfigGenerator`:
+   - Parse `choreography.yaml` flows and topic mappings
+   - Generate `config.{service}.json` for each service
+   - Output alongside `docker-compose.yaml`
 
 **Outputs:**
 
-- `components/sidecar/` — Production-quality sidecar component
+- `components/sidecar/` — Production-quality sidecar component (30+ tests)
 - CLI enhancement: `spas-compose` generates sidecar configs automatically
 - Docker image ready for E-Commerce PoC
 

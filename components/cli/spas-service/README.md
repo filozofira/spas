@@ -141,6 +141,9 @@ spas-service publish --archive <path> [options]
 - `--dry-run` - Download and inspect metadata without publishing
 - `--output <dir>` - Output directory for dry-run archive (default: current directory)
 - `--archive <path>` - Publish a local ZIP file instead of downloading from service
+- `--image-digest <digest>` - Docker image SHA256 digest (e.g., sha256:abc123...)
+- `--image-repository <repo>` - Docker image repository (e.g., ghcr.io/org/service)
+- `--image-tag <tag>` - Docker image tag (e.g., 1.0.0, latest)
 
 **Examples:**
 
@@ -159,7 +162,29 @@ spas-service publish http://localhost:5000 --dry-run --output ./archives/
 
 # Archive mode
 spas-service publish --archive ./my-service-1.0.0.zip
+
+# Archive mode with runtime metadata (CI/CD)
+spas-service publish --archive ./my-service-1.0.0.zip \
+  --image-repository ghcr.io/myorg/my-service \
+  --image-tag 1.0.0 \
+  --image-digest sha256:abc123def456...
 ```
+
+### Local Development (No Registry Push)
+
+For local development, you can use local Docker images without pushing to a registry:
+
+```bash
+# Build your image locally
+docker build -t my-service:dev .
+
+# Publish with local image reference
+spas-service publish --archive ./my-service-1.0.0.zip \
+  --image-repository my-service \
+  --image-tag dev
+```
+
+The `--image-repository` doesn't require a remote registry URL - it works with any image name accessible to your local Docker daemon.
 
 ### pull
 

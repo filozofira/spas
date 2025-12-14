@@ -1,7 +1,7 @@
 import { MetadataClient } from './metadata-client.js';
 import { ArchiveReader } from './archive-reader.js';
 import { RepositoryClient } from './repository-client.js';
-import { ServiceIdentity } from '../types.js';
+import { ServiceIdentity, RuntimeMetadata } from '../types.js';
 import * as readline from 'readline';
 import * as fs from 'fs';
 import * as path from 'path';
@@ -67,6 +67,30 @@ export class PublishService {
             savedPath,
             schemas,
         };
+    }
+
+    /**
+     * Archive mode: publish from local ZIP file without running service
+     */
+    async publishFromArchive(
+        archivePath: string,
+        runtimeMetadata?: RuntimeMetadata
+    ): Promise<ServiceIdentity> {
+        // Step 1: Read local archive file (no user prompt needed)
+        const archiveBuffer = fs.readFileSync(archivePath);
+
+        // Step 2: Extract service identity from archive (validates spas.json exists)
+        const identity = await this.archiveReader.extractIdentity(archiveBuffer);
+
+        // Step 3: Publish to repository with optional runtime metadata
+        await this.repositoryClient.publishService(
+            identity.id,
+            identity.version,
+            archiveBuffer,
+            runtimeMetadata
+        );
+
+        return identity;
     }
 
     private async promptUser(serviceHost: string): Promise<void> {

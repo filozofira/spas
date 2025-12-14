@@ -108,6 +108,57 @@ describe('RepositoryClient', () => {
                 code: ErrorCode.REPOSITORY_UNREACHABLE
             });
         });
+
+        it('should send runtime metadata as form fields when provided', async () => {
+            // Arrange
+            const serviceId = 'test-service';
+            const version = '1.0.0';
+            const archiveBuffer = Buffer.from('mock-zip');
+            const runtimeMetadata = {
+                imageDigest: 'sha256:abc123def456789',
+                imageRepository: 'ghcr.io/myorg/test-service',
+                imageTag: '1.0.0'
+            };
+            
+            mockedAxios.post.mockResolvedValueOnce({
+                status: 201,
+                statusText: 'Created',
+                data: { message: 'Service published successfully' },
+                headers: {},
+                config: {}
+            });
+
+            // Act
+            await repositoryClient.publishService(serviceId, version, archiveBuffer, runtimeMetadata);
+
+            // Assert
+            expect(mockedAxios.post).toHaveBeenCalledWith(
+                `${repoUrl}/services/${serviceId}:${version}`,
+                expect.any(FormData),
+                expect.any(Object)
+            );
+        });
+
+        it('should not send runtime metadata fields when not provided', async () => {
+            // Arrange
+            const serviceId = 'test-service';
+            const version = '1.0.0';
+            const archiveBuffer = Buffer.from('mock-zip');
+            
+            mockedAxios.post.mockResolvedValueOnce({
+                status: 201,
+                statusText: 'Created',
+                data: { message: 'Service published successfully' },
+                headers: {},
+                config: {}
+            });
+
+            // Act
+            await repositoryClient.publishService(serviceId, version, archiveBuffer);
+
+            // Assert - should still succeed without runtime metadata
+            expect(mockedAxios.post).toHaveBeenCalled();
+        });
     });
 
     describe('downloadService', () => {

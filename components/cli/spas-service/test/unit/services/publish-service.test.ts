@@ -107,4 +107,74 @@ describe('PublishService', () => {
             );
         });
     });
+
+    describe('archive mode', () => {
+        it('should read local ZIP file and publish to repository', async () => {
+            // Arrange
+            const archivePath = './my-service-1.0.0.zip';
+            const archiveBuffer = Buffer.from('mock-zip-content');
+            const identity = { id: 'my-service', version: '1.0.0' };
+
+            (fs.readFileSync as jest.Mock).mockReturnValue(archiveBuffer);
+            mockArchiveReader.extractIdentity.mockResolvedValue(identity);
+            mockRepositoryClient.publishService.mockResolvedValue(undefined);
+
+            // Act
+            const result = await publishService.publishFromArchive(archivePath);
+
+            // Assert
+            expect(fs.readFileSync).toHaveBeenCalledWith(archivePath);
+            expect(mockArchiveReader.extractIdentity).toHaveBeenCalledWith(archiveBuffer);
+            expect(mockRepositoryClient.publishService).toHaveBeenCalledWith(
+                identity.id,
+                identity.version,
+                archiveBuffer,
+                undefined
+            );
+            expect(mockMetadataClient.downloadMetadata).not.toHaveBeenCalled();
+            expect(result).toEqual(identity);
+        });
+
+        it('should validate spas.json exists in archive', async () => {
+            // Arrange
+            const archivePath = './invalid-archive.zip';
+            const archiveBuffer = Buffer.from('invalid-zip-content');
+
+            (fs.readFileSync as jest.Mock).mockReturnValue(archiveBuffer);
+            mockArchiveReader.extractIdentity.mockRejectedValue(
+                new Error('Archive does not contain spas.json')
+            );
+
+            // Act & Assert
+            await expect(publishService.publishFromArchive(archivePath))
+                .rejects.toThrow('Archive does not contain spas.json');
+        });
+
+        it('should pass runtime metadata to repository client when provided', async () => {
+            // Arrange
+            const archivePath = './my-service-1.0.0.zip';
+            const archiveBuffer = Buffer.from('mock-zip-content');
+            const identity = { id: 'my-service', version: '1.0.0' };
+            const runtimeMetadata = {
+                imageDigest: 'sha256:abc123def456',
+                imageRepository: 'ghcr.io/myorg/my-service',
+                imageTag: '1.0.0'
+            };
+
+            (fs.readFileSync as jest.Mock).mockReturnValue(archiveBuffer);
+            mockArchiveReader.extractIdentity.mockResolvedValue(identity);
+            mockRepositoryClient.publishService.mockResolvedValue(undefined);
+
+            // Act
+            const result = await publishService.publishFromArchive(archivePath, runtimeMetadata);
+
+            // Assert
+            expect(mockRepositoryClient.publishService).toHaveBeenCalledWith(
+                identity.id,
+                identity.version,
+                archiveBuffer,
+                runtimeMetadata
+            );
+        });
+    });
 });

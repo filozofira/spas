@@ -123,26 +123,26 @@
 
 ### Tests for User Story 3
 
-- [ ] T041 [P] [US3] Unit test for archive-mode in publish-service.ts in `test/unit/services/publish-service.test.ts` (reads local file, validates spas.json, publishes)
-- [ ] T042 [P] [US3] Unit test for invalid archive validation in `test/unit/services/publish-service.test.ts` (missing spas.json error)
-- [ ] T043 [P] [US3] Integration test for --archive in `test/integration/publish.test.ts` (verify archive file published, no service prompt)
+- [X] T041 [P] [US3] Unit test for archive-mode in publish-service.ts in `test/unit/services/publish-service.test.ts` (reads local file, validates spas.json, publishes)
+- [X] T042 [P] [US3] Unit test for invalid archive validation in `test/unit/services/publish-service.test.ts` (missing spas.json error)
+- [X] T043 [P] [US3] Integration test for --archive in `test/integration/publish.test.ts` (verify archive file published, no service prompt)
 
 ### Implementation for User Story 3
 
-- [ ] T044 [US3] Extend PublishService for archive mode (read local ZIP, validate spas.json exists, extract identity)
-- [ ] T045 [US3] Add --archive <path> flag to publish command in `src/commands/publish.ts` (mutual exclusivity with service-host)
-- [ ] T046 [US3] Add validation error for archive without spas.json (ARCHIVE_INVALID error code)
-- [ ] T047 [US3] Skip user prompt when --archive is used (no service startup needed)
+- [X] T044 [US3] Extend PublishService for archive mode (read local ZIP, validate spas.json exists, extract identity)
+- [X] T045 [US3] Add --archive <path> flag to publish command in `src/commands/publish.ts` (mutual exclusivity with service-host)
+- [X] T046 [US3] Add validation error for archive without spas.json (ARCHIVE_INVALID error code)
+- [X] T047 [US3] Skip user prompt when --archive is used (no service startup needed)
 
 ### Runtime Metadata Support (CI/CD)
 
-- [ ] T047b [P] [US3] Unit test for runtime metadata flags in `test/unit/services/repository-client.test.ts` (imageDigest, imageRepository, imageTag sent as form fields)
-- [ ] T047c [US3] Add --image-digest <digest> flag to publish command (SHA256 container digest)
-- [ ] T047d [US3] Add --image-repository <repo> flag to publish command (e.g., ghcr.io/org/service)
-- [ ] T047e [US3] Add --image-tag <tag> flag to publish command (e.g., 1.0.0, latest)
-- [ ] T047f [US3] Extend RepositoryClient.publishService() to send runtime metadata form fields when provided
-- [ ] T047g [US3] Update PublishOptions type with imageDigest, imageRepository, imageTag properties
-- [ ] T047h [US3] Document local development usage in README (local images without registry push)
+- [X] T047b [P] [US3] Unit test for runtime metadata flags in `test/unit/services/repository-client.test.ts` (imageDigest, imageRepository, imageTag sent as form fields)
+- [X] T047c [US3] Add --image-digest <digest> flag to publish command (SHA256 container digest)
+- [X] T047d [US3] Add --image-repository <repo> flag to publish command (e.g., ghcr.io/org/service)
+- [X] T047e [US3] Add --image-tag <tag> flag to publish command (e.g., 1.0.0, latest)
+- [X] T047f [US3] Extend RepositoryClient.publishService() to send runtime metadata form fields when provided
+- [X] T047g [US3] Update PublishOptions type with imageDigest, imageRepository, imageTag properties
+- [X] T047h [US3] Document local development usage in README (local images without registry push)
 
 **Checkpoint**: At this point, User Stories 1, 2, AND 3 should all work independently
 

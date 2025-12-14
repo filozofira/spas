@@ -1,6 +1,6 @@
 import axios from 'axios';
 import FormData from 'form-data';
-import { createCliError, ErrorCode } from '../types.js';
+import { createCliError, ErrorCode, RuntimeMetadata } from '../types.js';
 import { verbose } from '../utils/output.js';
 import { retryWithBackoff } from '../utils/retry.js';
 
@@ -13,7 +13,12 @@ export class RepositoryClient {
   /**
    * Publish service metadata archive to repository
    */
-  async publishService(serviceId: string, version: string, archiveBuffer: Buffer): Promise<void> {
+  async publishService(
+    serviceId: string,
+    version: string,
+    archiveBuffer: Buffer,
+    runtimeMetadata?: RuntimeMetadata
+  ): Promise<void> {
     const url = `${this.repositoryUrl}/services/${serviceId}:${version}`;
     verbose(`Publishing service ${serviceId}:${version} to ${url}`);
 
@@ -31,6 +36,17 @@ export class RepositoryClient {
       filename: `${serviceId}-${version}.zip`,
       contentType: 'application/zip',
     });
+
+    // Add runtime metadata fields if provided
+    if (runtimeMetadata?.imageDigest) {
+      formData.append('imageDigest', runtimeMetadata.imageDigest);
+    }
+    if (runtimeMetadata?.imageRepository) {
+      formData.append('imageRepository', runtimeMetadata.imageRepository);
+    }
+    if (runtimeMetadata?.imageTag) {
+      formData.append('imageTag', runtimeMetadata.imageTag);
+    }
 
     try {
       await retryWithBackoff(async () => {

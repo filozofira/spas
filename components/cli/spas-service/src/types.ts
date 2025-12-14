@@ -16,6 +16,24 @@ export interface PublishOptions {
   dryRun?: boolean;
   /** Output directory for dry-run archive */
   output?: string;
+  /** Docker image SHA256 digest */
+  imageDigest?: string;
+  /** Docker image repository (e.g., ghcr.io/org/service) */
+  imageRepository?: string;
+  /** Docker image tag (e.g., 1.0.0, latest) */
+  imageTag?: string;
+}
+
+/**
+ * Runtime metadata for container image
+ */
+export interface RuntimeMetadata {
+  /** Docker image SHA256 digest */
+  imageDigest?: string;
+  /** Docker image repository (e.g., ghcr.io/org/service) */
+  imageRepository?: string;
+  /** Docker image tag (e.g., 1.0.0, latest) */
+  imageTag?: string;
 }
 
 /**

@@ -2,10 +2,11 @@
 
 **Feature Branch**: `008-compose-backbone-args`  
 **Created**: 2025-12-14  
-**Status**: Draft  
+**Completed**: 2025-12-15  
+**Status**: ✅ Complete (PoC)  
 **Input**: User description: "Improve spas-compose deploy command with ability to specify optional observability-backbone arg (defaults to zipkin latest) and optional event-backbone arg (defaults to redis latest)."
 
-## User Scenarios & Testing *(mandatory)*
+## User Scenarios & Testing _(mandatory)_
 
 ### User Story 1 - Deploy with Default Backbones (Priority: P1)
 
@@ -18,6 +19,7 @@ As a developer, I want the deploy command to automatically include Redis and Zip
 **Acceptance Scenarios**:
 
 1. **Given** a valid choreography.yaml exists, **When** I run `spas-compose choreography deploy --docker` without backbone arguments, **Then** docker-compose.yaml is generated with:
+
    - Redis service using `redis:7-alpine` image
    - Zipkin service using `openzipkin/zipkin:latest` image
    - Both services on the same network as sidecars
@@ -61,6 +63,7 @@ As a developer, I want to specify a custom Zipkin image or use Jaeger instead so
 1. **Given** a valid choreography.yaml exists, **When** I run `spas-compose choreography deploy --docker --observability-backbone zipkin:2.24`, **Then** docker-compose.yaml uses `openzipkin/zipkin:2.24` image.
 
 2. **Given** a valid choreography.yaml exists, **When** I run `spas-compose choreography deploy --docker --observability-backbone jaegertracing/all-in-one:latest`, **Then** docker-compose.yaml includes Jaeger with:
+
    - Port 16686 exposed for Jaeger UI
    - Port 9411 exposed for Zipkin-compatible endpoint
    - Sidecar `ZIPKIN_URL` set to `http://jaeger:9411` (Zipkin-compatible collector)
@@ -80,10 +83,12 @@ As a developer with existing infrastructure, I want to disable automatic backbon
 **Acceptance Scenarios**:
 
 1. **Given** a valid choreography.yaml exists, **When** I run `spas-compose choreography deploy --docker --event-backbone none`, **Then** docker-compose.yaml:
+
    - Does NOT include a Redis service
    - Sidecar `REDIS_HOST` is set to `${REDIS_HOST:-localhost}` (environment variable with default)
 
 2. **Given** a valid choreography.yaml exists, **When** I run `spas-compose choreography deploy --docker --observability-backbone none`, **Then** docker-compose.yaml:
+
    - Does NOT include a Zipkin/Jaeger service
    - Sidecar `ZIPKIN_URL` is set to `${ZIPKIN_URL:-}` (optional environment variable)
 
@@ -98,7 +103,7 @@ As a developer with existing infrastructure, I want to disable automatic backbon
 - How does system handle unrecognized observability backend? — Uses image as-is, assumes Zipkin-compatible endpoint on port 9411.
 - What happens with `--event-backbone none` but services need Redis? — Command succeeds with warning that REDIS_HOST must be provided at runtime.
 
-## Requirements *(mandatory)*
+## Requirements _(mandatory)_
 
 ### Functional Requirements
 
@@ -119,7 +124,7 @@ As a developer with existing infrastructure, I want to disable automatic backbon
 - **Observability Backbone**: Distributed tracing infrastructure. Default implementation is Zipkin; Jaeger is an alternative with Zipkin-compatible API.
 - **Backbone Configuration**: Image reference and associated settings (ports, health checks, environment variables) for infrastructure services.
 
-## Success Criteria *(mandatory)*
+## Success Criteria _(mandatory)_
 
 ### Measurable Outcomes
 

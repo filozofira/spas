@@ -3,7 +3,8 @@
 **Feature Branch**: `006-sidecar-config-generator`  
 **Created**: 2025-12-14  
 **Completed**: 2025-12-14  
-**Status**: ✅ Complete (PoC)**Input**: User description: "Add SidecarConfigGenerator to spas-compose CLI to generate sidecar configuration files from choreography.yaml alongside docker-compose.yaml"
+**Status**: ✅ Complete (PoC)
+**Input**: User description: "Add SidecarConfigGenerator to spas-compose CLI to generate sidecar configuration files from choreography.yaml alongside docker-compose.yaml"
 
 ## Context
 

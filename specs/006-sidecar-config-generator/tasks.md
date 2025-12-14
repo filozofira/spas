@@ -23,11 +23,11 @@ Target: `components/cli/spas-compose/` (enhancement to existing CLI)
 
 **Purpose**: Add types and prepare project for new service class
 
-- [ ] T001 [P] Add SidecarConfig types to `components/cli/spas-compose/src/types.ts` from contracts/sidecar-config.ts
-- [ ] T002 [P] Create empty `SidecarConfigGenerator` class skeleton in `components/cli/spas-compose/src/services/sidecar-config-generator.ts`
-- [ ] T003 [P] Create test file skeleton in `components/cli/spas-compose/test/unit/services/sidecar-config-generator.test.ts`
+- [x] T001 [P] Add SidecarConfig types to `components/cli/spas-compose/src/types.ts` from contracts/sidecar-config.ts
+- [x] T002 [P] Create empty `SidecarConfigGenerator` class skeleton in `components/cli/spas-compose/src/services/sidecar-config-generator.ts`
+- [x] T003 [P] Create test file skeleton in `components/cli/spas-compose/test/unit/services/sidecar-config-generator.test.ts`
 
-**Checkpoint**: Type definitions and file structure ready for implementation
+**Checkpoint**: Type definitions and file structure ready for implementation ✅
 
 ---
 

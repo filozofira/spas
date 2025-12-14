@@ -101,13 +101,13 @@
 
 ### Implementation for User Story 3
 
-- [ ] T024 [US3] Implement event subscriber service at `components/sidecar/src/services/event-subscriber.ts` (XREAD loop, CloudEvent extraction)
-- [ ] T025 [US3] Implement service invoker at `components/sidecar/src/services/service-invoker.ts` (HTTP POST to invokeEndpoint with headers)
-- [ ] T026 [US3] Implement transformation executor at `components/sidecar/src/services/transformer.ts` (apply inbound/outbound transforms)
-- [ ] T027 [US3] Wire subscriber to startup in `components/sidecar/src/index.ts` (start subscription loop after config load)
-- [ ] T028 [P] [US3] Create unit tests at `components/sidecar/test/unit/services/event-subscriber.test.ts` (CloudEvent parsing, error handling)
-- [ ] T029 [P] [US3] Create unit tests at `components/sidecar/test/unit/services/service-invoker.test.ts` (header propagation, error responses)
-- [ ] T030 [P] [US3] Create unit tests at `components/sidecar/test/unit/services/transformer.test.ts` (transform application)
+- [X] T024 [US3] Implement event subscriber service at `components/sidecar/src/services/event-subscriber.ts` (XREAD loop, CloudEvent extraction)
+- [X] T025 [US3] Implement service invoker at `components/sidecar/src/services/service-invoker.ts` (HTTP POST to invokeEndpoint with headers)
+- [X] T026 [US3] Implement transformation executor at `components/sidecar/src/services/transformer.ts` (apply inbound/outbound transforms)
+- [X] T027 [US3] Wire subscriber to startup in `components/sidecar/src/index.ts` (start subscription loop after config load)
+- [X] T028 [P] [US3] Create unit tests at `components/sidecar/test/unit/services/event-subscriber.test.ts` (CloudEvent parsing, error handling)
+- [X] T029 [P] [US3] Create unit tests at `components/sidecar/test/unit/services/service-invoker.test.ts` (header propagation, error responses)
+- [X] T030 [P] [US3] Create unit tests at `components/sidecar/test/unit/services/transformer.test.ts` (transform application)
 
 **Checkpoint**: User Story 3 complete - sidecar can consume events and invoke services
 

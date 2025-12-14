@@ -6,6 +6,12 @@
 
 import express, { Application, Request, Response, NextFunction } from 'express';
 import type { SidecarConfig, SidecarState, HealthResponse } from './types.js';
+import { loadConfigFromEnv, getConfigSummary } from './config/loader.js';
+import { RedisClient } from './transport/redis.js';
+import { HttpClient } from './transport/http.js';
+import { createPublishRouter } from './handlers/publish.js';
+import { EventSubscriber } from './services/event-subscriber.js';
+import { ServiceInvoker } from './services/service-invoker.js';
 
 // =============================================================================
 // State Management
@@ -52,7 +58,7 @@ export function setConfig(config: SidecarConfig): void {
 /**
  * Create Express application with middleware and routes.
  */
-export function createApp(): Application {
+export function createApp(redis?: RedisClient, config?: SidecarConfig): Application {
   const app = express();
 
   // Request parsing
@@ -68,8 +74,12 @@ export function createApp(): Application {
   app.get('/health', healthHandler);
   app.get('/ready', readinessHandler);
 
-  // Publish endpoint - will be implemented in Phase 4
-  app.post('/publish', publishPlaceholder);
+  // Publish endpoint - use router if redis and config available
+  if (redis && config) {
+    app.use('/publish', createPublishRouter(redis, config));
+  } else {
+    app.post('/publish', publishPlaceholder);
+  }
 
   // Invoke endpoint - will be implemented in Phase 6
   app.post('/invoke/:command', invokePlaceholder);
@@ -136,6 +146,10 @@ function errorHandler(err: Error, _req: Request, res: Response, _next: NextFunct
 // Bootstrap
 // =============================================================================
 
+// Global references for cleanup
+let redis: RedisClient | null = null;
+let subscriber: EventSubscriber | null = null;
+
 /**
  * Start the sidecar application.
  */
@@ -144,12 +158,55 @@ export async function start(): Promise<void> {
 
   setState('STARTING');
 
-  const app = createApp();
+  // Load configuration
+  let config: SidecarConfig;
+  try {
+    config = await loadConfigFromEnv();
+    setConfig(config);
+    console.log(`[sidecar] Configuration loaded: ${getConfigSummary(config)}`);
+  } catch (err) {
+    const message = err instanceof Error ? err.message : 'Unknown error';
+    setState('FAILED', `Configuration error: ${message}`);
+    throw err;
+  }
 
-  // Configuration loading will be added in Phase 3
-  // Redis connection will be added in Phase 3
-  // For now, just start the HTTP server
+  // Connect to Redis
+  setState('CONNECTING', 'Connecting to Redis');
+  redis = new RedisClient(
+    process.env.REDIS_HOST || 'localhost',
+    parseInt(process.env.REDIS_PORT || '6379', 10)
+  );
 
+  try {
+    await redis.connect();
+    console.log('[sidecar] Redis connected');
+  } catch (err) {
+    const message = err instanceof Error ? err.message : 'Unknown error';
+    setState('FAILED', `Redis connection error: ${message}`);
+    throw err;
+  }
+
+  // Create Express app with routes
+  const app = createApp(redis, config);
+
+  // Create service invoker for event subscription
+  const serviceName = process.env.SERVICE_NAME;
+  const servicePort = process.env.SERVICE_PORT;
+
+  if (serviceName && servicePort) {
+    const httpClient = new HttpClient(`http://${serviceName}:${servicePort}`);
+    const invoker = new ServiceInvoker(httpClient);
+    subscriber = new EventSubscriber(redis, config, invoker);
+
+    // Start subscriber in background (don't await)
+    subscriber.start().catch((err) => {
+      console.error('[sidecar] Subscriber error:', err);
+    });
+  } else {
+    console.log('[sidecar] SERVICE_NAME/SERVICE_PORT not set, subscriber disabled');
+  }
+
+  // Start HTTP server
   await new Promise<void>((resolve) => {
     app.listen(port, () => {
       console.log(`[sidecar] Listening on port ${port}`);
@@ -159,11 +216,39 @@ export async function start(): Promise<void> {
   });
 }
 
+/**
+ * Stop the sidecar gracefully.
+ */
+export async function stop(): Promise<void> {
+  console.log('[sidecar] Shutting down...');
+
+  if (subscriber) {
+    subscriber.stop();
+  }
+
+  if (redis) {
+    await redis.disconnect();
+  }
+
+  console.log('[sidecar] Shutdown complete');
+}
+
 // Run if executed directly
 const isMainModule = import.meta.url === `file://${process.argv[1]}`;
 if (isMainModule) {
   start().catch((err) => {
     console.error('[sidecar] Fatal error:', err);
     process.exit(1);
+  });
+
+  // Handle graceful shutdown
+  process.on('SIGTERM', async () => {
+    await stop();
+    process.exit(0);
+  });
+
+  process.on('SIGINT', async () => {
+    await stop();
+    process.exit(0);
   });
 }

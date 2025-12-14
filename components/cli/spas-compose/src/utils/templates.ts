@@ -129,170 +129,182 @@ infrastructure:
 }
 
 /**
- * Generate agent prompt file content
+ * Generate agent file content (.github/agents/spas-compose.agent.md)
  * 
- * Note: This creates/updates .github/agents/spas-compose.md in the REPOSITORY ROOT,
- * not in the domain workspace. The prompt is workspace-aware but stored globally.
+ * Creates the full agent instructions at project root.
+ * Follows SpecKit pattern: .github/agents/*.agent.md
  */
-export function generateAgentPrompt(): string {
-  return `# /spas.compose Agent Prompt
+export function generateAgentFile(workspaceName: string): string {
+  return `---
+description: AI-assisted choreography composition for SPAS domain workspaces
+---
 
-**Purpose**: AI-assisted choreography composition for SPAS domain workspaces
+## User Input
+
+\`\`\`text
+$ARGUMENTS
+\`\`\`
+
+You **MUST** consider the user input before proceeding (if not empty).
+
+## Goal
+
+Analyze pulled service contracts and generate choreography configuration with transformations for the **${workspaceName}** domain workspace.
 
 ## Responsibilities
 
-1. **Contract Analysis**: Parse service metadata from \`services/*/spas.json\`
+1. **Contract Analysis**: Parse service metadata from \`${workspaceName}/services/*/spas.json\`
 2. **Event Matching**: Identify semantic matches between published/subscribed events
 3. **Choreography Generation**: Propose topic mappings and flow definitions
 4. **Transformation Generation**: Create JSONata transformation files
 5. **Iterative Refinement**: Confirm with developer, iterate based on feedback
 
-## Workspace Awareness
+## Workspace Structure
 
-**Workspace Detection**: Agent must verify it's operating in a valid domain workspace:
-- \`choreography.yaml\` exists
-- \`services/\` directory exists with pulled services
-
-**Service Discovery**: Read all \`services/*/spas.json\` files to understand:
-- Service identities (\`id\`, \`version\`, \`boundedContext\`)
-- Published events (\`events.published[]\`)
-- Subscribed events (\`events.subscribed[]\`)
-- Event schemas (from \`schemas/\` folder)
+\`\`\`
+${workspaceName}/
+├── choreography.yaml              # Choreography configuration (you modify this)
+├── services/                      # Pulled service metadata (read-only)
+│   └── <service-name>/
+│       ├── spas.json              # Service contract
+│       └── schemas/               # Event schemas
+└── choreography/
+    └── transformations/           # JSONata files (you create these)
+        └── <service-name>/
+            ├── inbound-<event>.jsonata
+            └── outbound-<event>.jsonata
+\`\`\`
 
 ## Workflow
 
-### Phase 1: Analysis
+### Step 1: Validate Workspace
 
+Before any operation, verify:
+- \`${workspaceName}/choreography.yaml\` exists
+- \`${workspaceName}/services/\` directory exists with at least one service
+
+If invalid:
 \`\`\`
-User: /spas.compose Analyze order-service and fulfillment-service contracts
+Error: Not in a valid domain workspace.
+Run \`spas-compose init ${workspaceName}\` first, then \`spas-compose services pull\`.
 \`\`\`
 
-**Agent Actions**:
-1. Read \`services/order-service/spas.json\`
-2. Read \`services/fulfillment-service/spas.json\`
-3. Identify published events from each service
-4. Identify subscribed events from each service
-5. Present summary to user
+### Step 2: Analyze Services
 
-**Expected Output**:
+When asked to analyze services:
+1. Read \`${workspaceName}/services/<service-name>/spas.json\` for each service
+2. Extract: \`id\`, \`version\`, \`boundedContext\`, \`events.published[]\`, \`events.subscribed[]\`
+3. Read schemas from \`${workspaceName}/services/<service-name>/schemas/\`
+
+**Output Format:**
 \`\`\`
-Found 2 services:
-
-order-service (1.0.0)
-  Published: OrderCreated, OrderUpdated, OrderCancelled
+📦 order-service (1.0.0) - orders bounded context
+  Published: OrderCreated, OrderCancelled
   Subscribed: PaymentReceived
 
-fulfillment-service (1.0.0)
-  Published: FulfillmentCompleted, FulfillmentFailed
-  Subscribed: OrderCreated
-
-Potential matches:
-  ✓ order-service.OrderCreated → fulfillment-service (subscribed)
-
-Confirm to proceed with choreography generation? (yes/no)
+📦 fulfillment-service (1.0.0) - fulfillment bounded context  
+  Published: FulfillmentCompleted
+  Subscribed: OrderCreated ← matches order-service.OrderCreated ✓
 \`\`\`
 
-### Phase 2: Choreography Proposal
+### Step 3: Propose Choreography
 
-**Agent Actions**:
-1. Propose topic names for event routes
-2. Suggest flow names and participants
-3. Generate \`choreography.yaml\` updates
-
-**Expected Output**:
+Generate choreography.yaml following schema:
 \`\`\`yaml
-# Proposed choreography.yaml update
+version: "1.0"
+domain: ${workspaceName}
 
 flows:
-  order-fulfillment:
-    description: "Order to fulfillment processing flow"
+  <flow-name>:
+    description: "<description>"
     participants:
-      - order-service
-      - fulfillment-service
+      - <service-name>
     events:
-      - source: order-service
-        event: OrderCreated
-        topic: orders
+      - source: <publishing-service>
+        event: <EventType>
+        topic: <topic-name>
         targets:
-          - service: fulfillment-service
-            transform: choreography/transformations/fulfillment-service/inbound-order-created.jsonata
-
-Confirm to update choreography.yaml? (yes/no/edit)
+          - service: <subscribing-service>
+            transform: choreography/transformations/<service>/inbound-<event>.jsonata
 \`\`\`
 
-### Phase 3: Transformation Generation
+**Ask:** "Confirm choreography changes? (yes/no/feedback)"
 
-**Agent Actions**:
-1. Analyze event schemas (source and target)
-2. Generate JSONata transformation files
-3. Create transformation file at correct path
+### Step 4: Generate Transformations
 
-**Expected Output**:
+Create JSONata files at \`${workspaceName}/choreography/transformations/<service>/*.jsonata\`:
 \`\`\`jsonata
-/* choreography/transformations/fulfillment-service/inbound-order-created.jsonata */
+/* inbound-order-created.jsonata */
 /* Transforms OrderCreated (order-service) → FulfillmentRequest (fulfillment-service) */
 {
-  "fulfillmentId": $uuid(),
   "orderId": orderId,
-  "items": items.{
-    "sku": productId,
-    "quantity": quantity,
-    "warehouse": "default"
-  },
+  "items": items.{ "sku": productId, "qty": quantity },
   "priority": priority = "express" ? "high" : "normal"
 }
 \`\`\`
 
-**Confirm to create transformation file? (yes/no/edit)**
+**Ask:** "Confirm transformation? (yes/no/feedback)"
 
-### Phase 4: Validation
+### Step 5: Next Steps
 
-**Agent Actions**:
-1. Verify all transformation files exist
-2. Validate JSONata syntax
-3. Confirm choreography.yaml schema compliance
-
-**Expected Output**:
+After completion, suggest:
 \`\`\`
-✓ choreography.yaml is valid
-✓ All transformation files exist
-✓ All participants have pulled services
+✓ Choreography complete
 
-Ready to deploy with: spas-compose choreography deploy --docker
+Next steps:
+  • Validate: spas-compose choreography deploy --dry-run
+  • Deploy: spas-compose choreography deploy --docker  
+  • Run: docker compose up
 \`\`\`
+
+## Constraints
+
+| Constraint | Behavior |
+|------------|----------|
+| **Read-only services/** | NEVER modify files in \`${workspaceName}/services/\` |
+| **Preserve existing flows** | When adding flows, preserve all existing flows |
+| **Valid JSONata** | All .jsonata files must have valid syntax |
+| **Confirm before write** | ALWAYS wait for explicit confirmation |
+| **Kebab-case naming** | Topics and file names use lowercase-hyphenated format |
 
 ## Error Handling
 
-| Error | Agent Response |
-|-------|----------------|
-| Not in workspace | "Error: Not in a valid domain workspace. Run \`spas-compose init\` first." |
+| Error | Response |
+|-------|----------|
+| No choreography.yaml | "Error: Workspace not initialized. Run \`spas-compose init\` first." |
 | No services pulled | "Error: No services found. Run \`spas-compose services pull\` first." |
-| Schema mismatch | "Warning: Cannot auto-generate transformation for <event>. Schemas incompatible. Manual transformation required." |
-| Invalid JSONata | "Error: Generated transformation has syntax error at line X. Regenerating..." |
+| Service not found | "Error: Service '<name>' not found in services/ directory." |
+| Schema mismatch | "Warning: Cannot auto-generate transformation. Manual mapping required." |
 
 ## Example Prompts
 
 \`\`\`
-/spas.compose Analyze all pulled services and propose choreography flows
+/spas.compose Analyze order-service and fulfillment-service
 
-/spas.compose Generate transformation for order-service.OrderCreated to fulfillment-service
+/spas.compose Generate transformation for OrderCreated to fulfillment-service
 
 /spas.compose Review choreography.yaml and identify missing transformations
 
 /spas.compose Add notification-service to order-fulfillment flow
 \`\`\`
 
-## Constraints
-
-- **No File Deletion**: Agent MUST NOT delete existing transformation files without explicit confirmation
-- **Schema Compliance**: All \`choreography.yaml\` updates MUST validate against \`contracts/choreography-schema.yaml\`
-- **Naming Conventions**: Transformation files MUST follow pattern: \`inbound-<event-type-kebab>.jsonata\` or \`outbound-<event-type-kebab>.jsonata\`
-- **Iterative Confirmation**: Agent MUST confirm each change (choreography update, file creation) before proceeding
-
 ## References
 
-- [specs/005-spas-compose-cli/](../../specs/005-spas-compose-cli/)
-- [principles/component/14-domain-choreography.md](../../principles/component/14-domain-choreography.md)
-- [ADR-037: AI-in-the-loop composition](../../principles/appendix/28-decision-log.md)
+- [specs/005-spas-compose-cli/](specs/005-spas-compose-cli/)
+- [principles/component/14-domain-choreography.md](principles/component/14-domain-choreography.md)
+- [ADR-037: AI-in-the-loop composition](principles/appendix/28-decision-log.md)
+`;
+}
+
+/**
+ * Generate prompt file content (.github/prompts/spas-compose.prompt.md)
+ * 
+ * Creates the trigger file that references the agent.
+ * Follows SpecKit pattern: .github/prompts/*.prompt.md
+ */
+export function generatePromptFile(): string {
+  return `---
+agent: spas-compose
+---
 `;
 }

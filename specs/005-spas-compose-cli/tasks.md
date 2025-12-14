@@ -55,16 +55,16 @@
 
 ### Unit Tests for User Story 1
 
-- [ ] T012 [P] [US1] Unit test for WorkspaceService.create() in test/unit/services/workspace-service.test.ts
-- [ ] T013 [P] [US1] Unit test for init command argument validation in test/unit/commands/init.test.ts
+- [X] T012 [P] [US1] Unit test for WorkspaceService.create() in test/unit/services/workspace-service.test.ts
+- [X] T013 [P] [US1] Unit test for init command argument validation in test/unit/commands/init.test.ts
 
 ### Implementation for User Story 1
 
-- [ ] T014 [US1] Create WorkspaceService in src/services/workspace-service.ts with create(), exists(), validate() methods
-- [ ] T015 [US1] Create init command handler in src/commands/init.ts with --force flag support
-- [ ] T016 [US1] Implement agent prompt creation/update in .github/agents/spas-compose.md per contracts/agent-prompt.md
-- [ ] T017 [US1] Wire init command to CLI entry point in src/index.ts
-- [ ] T018 [US1] Add JSON output format support for init command (--json flag)
+- [X] T014 [US1] Create WorkspaceService in src/services/workspace-service.ts with create(), exists(), validate() methods
+- [X] T015 [US1] Create init command handler in src/commands/init.ts with --force flag support
+- [X] T016 [US1] Implement agent prompt creation/update in .github/agents/spas-compose.md per contracts/agent-prompt.md
+- [X] T017 [US1] Wire init command to CLI entry point in src/index.ts
+- [X] T018 [US1] Add JSON output format support for init command (--json flag)
 
 **Checkpoint**: `spas-compose init my-domain` works end-to-end
 
@@ -80,17 +80,17 @@
 
 ### Unit Tests for User Story 2
 
-- [ ] T019 [P] [US2] Unit test for PullService.pull() in test/unit/services/pull-service.test.ts
-- [ ] T020 [P] [US2] Unit test for services-pull command argument/option validation in test/unit/commands/services-pull.test.ts
+- [X] T019 [P] [US2] Unit test for PullService.pull() in test/unit/services/pull-service.test.ts
+- [X] T020 [P] [US2] Unit test for services-pull command argument/option validation in test/unit/commands/services-pull.test.ts
 
 ### Implementation for User Story 2
 
-- [ ] T021 [US2] Create PullService in src/services/pull-service.ts with pull(), extractSchemas() methods
-- [ ] T022 [US2] Create services-pull command handler in src/commands/services-pull.ts
-- [ ] T023 [US2] Implement workspace detection (must be in valid domain workspace)
-- [ ] T024 [US2] Implement repository URL resolution (--repo, SPAS_REPOSITORY_URL, default)
-- [ ] T025 [US2] Wire services pull command to CLI entry point in src/index.ts
-- [ ] T026 [US2] Add JSON output format support and actionable error messages
+- [X] T021 [US2] Create PullService in src/services/pull-service.ts with pull(), extractSchemas() methods
+- [X] T022 [US2] Create services-pull command handler in src/commands/services-pull.ts
+- [X] T023 [US2] Implement workspace detection (must be in valid domain workspace)
+- [X] T024 [US2] Implement repository URL resolution (--repo, SPAS_REPOSITORY_URL, default)
+- [X] T025 [US2] Wire services pull command to CLI entry point in src/index.ts
+- [X] T026 [US2] Add JSON output format support and actionable error messages
 
 **Checkpoint**: `spas-compose services pull order-service 1.0.0` works end-to-end
 

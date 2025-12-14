@@ -4,6 +4,8 @@ import { Command } from 'commander';
 import { readFileSync } from 'fs';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
+import { createInitCommand } from './commands/init.js';
+import { createServicesPullCommand } from './commands/services-pull.js';
 
 // Get package.json for version
 const __filename = fileURLToPath(import.meta.url);
@@ -19,18 +21,16 @@ program
   .description('SPAS Compose CLI - Domain choreography composition tool')
   .version(packageJson.version);
 
-// Commands will be registered here by command modules
-// import { initCommand } from './commands/init.js';
-// import { servicesPullCommand } from './commands/services-pull.js';
-// import { choreographyDeployCommand } from './commands/choreography-deploy.js';
+// Register commands
+program.addCommand(createInitCommand());
+program.addCommand(createServicesPullCommand());
 
-// program.addCommand(initCommand);
-// program.addCommand(servicesPullCommand);
-// program.addCommand(choreographyDeployCommand);
+// Future commands (uncomment when implemented):
+// import { createChoreographyDeployCommand } from './commands/choreography-deploy.js';
+// program.addCommand(createChoreographyDeployCommand());
 
 // Global options
 program.option('--verbose', 'Enable verbose output', false);
-program.option('--json', 'Output results as JSON', false);
 
 // Parse arguments
 program.parse(process.argv);

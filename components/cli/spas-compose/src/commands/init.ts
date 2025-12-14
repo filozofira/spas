@@ -1,0 +1,123 @@
+/**
+ * init command handler
+ *
+ * Creates a new domain workspace with recommended folder structure
+ */
+
+import { Command } from 'commander';
+import type { InitOptions, CommandResult } from '../types.js';
+import { WorkspaceService } from '../services/workspace-service.js';
+import {
+  resolveWorkspacePath,
+  isValidWorkspaceName,
+} from '../utils/config.js';
+import { success, error, info, json, listItem } from '../utils/output.js';
+
+/**
+ * Execute init command
+ */
+async function executeInit(
+  workspaceName: string,
+  options: InitOptions
+): Promise<CommandResult> {
+  const workspaceService = new WorkspaceService();
+
+  // Validate workspace name
+  if (!isValidWorkspaceName(workspaceName)) {
+    return {
+      success: false,
+      message: `Invalid workspace name: ${workspaceName}`,
+      error: {
+        code: 'INVALID_NAME',
+        details:
+          'Workspace name must be lowercase, start with a letter, use hyphens (not underscores), and end with a letter or number',
+      },
+    };
+  }
+
+  // Resolve full path
+  const workspacePath = resolveWorkspacePath(workspaceName);
+
+  // Create workspace
+  const result = await workspaceService.create(
+    workspacePath,
+    workspaceName,
+    options.force ?? false
+  );
+
+  return result;
+}
+
+/**
+ * Display result in human-readable format
+ */
+function displayResult(result: CommandResult): void {
+  if (result.success) {
+    success(result.message);
+    info('');
+    info('Workspace structure:');
+    if (result.data?.files) {
+      for (const file of result.data.files as string[]) {
+        listItem(file);
+      }
+    }
+    info('');
+    info(`Next steps:`);
+    listItem(`cd ${result.data?.name}`);
+    listItem('spas-compose services pull <service-name> <version>');
+    listItem('/spas.compose Analyze services and generate choreography');
+  } else {
+    error(result.message);
+    if (result.error?.details) {
+      info(result.error.details);
+    }
+  }
+}
+
+/**
+ * Create init command
+ */
+export function createInitCommand(): Command {
+  const initCommand = new Command('init');
+
+  initCommand
+    .description('Initialize a new domain workspace')
+    .argument('<workspace-name>', 'Name of the domain workspace (lowercase, hyphen-separated)')
+    .option('-f, --force', 'Overwrite existing workspace', false)
+    .option('--json', 'Output result as JSON', false)
+    .action(async (workspaceName: string, options: InitOptions) => {
+      try {
+        const result = await executeInit(workspaceName, options);
+
+        if (options.json) {
+          json(result);
+        } else {
+          displayResult(result);
+        }
+
+        // Exit with appropriate code
+        process.exit(result.success ? 0 : 1);
+      } catch (err) {
+        const errorResult: CommandResult = {
+          success: false,
+          message: `Unexpected error: ${(err as Error).message}`,
+          error: {
+            code: 'UNEXPECTED_ERROR',
+            details: (err as Error).stack,
+          },
+        };
+
+        if (options.json) {
+          json(errorResult);
+        } else {
+          error(errorResult.message);
+        }
+
+        process.exit(1);
+      }
+    });
+
+  return initCommand;
+}
+
+export { executeInit };

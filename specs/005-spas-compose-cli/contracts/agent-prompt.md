@@ -122,8 +122,25 @@ The agent prompt file SHOULD include these sections:
 
 ---
 
+## Sidecar Configuration Mapping
+
+The agent should understand how choreography maps to sidecar configuration:
+
+| Choreography Element | Sidecar Config Element |
+|---------------------|------------------------|
+| `events[].targets[].service` | Target service receives `inbound[]` entry with `kind: event` |
+| `events[].targets[].transform` | `inbound[].transform` path |
+| `events[].topic` | `inbound[].topic` for subscriber |
+| `events[].source` | Source service receives `outbound[]` entry |
+| Command invocations | `inbound[]` entry with `kind: command` |
+
+**Sidecar Config Schema**: See [sidecar-config-v1.schema.json](../../../components/sidecar/schemas/sidecar-config-v1.schema.json) for the complete schema definition.
+
+---
+
 ## References
 
 - [spec.md User Story 4](../spec.md) — AI-Assisted Choreography Composition
 - [choreography-schema.yaml](./choreography-schema.yaml) — Choreography YAML schema
+- [sidecar-config-v1.schema.json](../../../components/sidecar/schemas/sidecar-config-v1.schema.json) — Sidecar configuration schema
 - [data-model.md](../data-model.md) — Entity definitions

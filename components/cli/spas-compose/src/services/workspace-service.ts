@@ -10,6 +10,7 @@ import {
   generateChoreographyScaffold,
   generateAgentFile,
   generatePromptFile,
+  generateSidecarConfigSchema,
 } from "../utils/templates.js";
 
 /**
@@ -103,6 +104,18 @@ export class WorkspaceService {
         "utf-8",
       );
 
+      // Create sidecar config schema for AI agent reference
+      // Schema is placed in .spas/schemas/ so AI can understand choreography → sidecar config mapping
+      const schemasDir = join(workspacePath, ".spas", "schemas");
+      mkdirSync(schemasDir, { recursive: true });
+
+      const schemaContent = generateSidecarConfigSchema();
+      writeFileSync(
+        join(schemasDir, "sidecar-config-v1.schema.json"),
+        schemaContent,
+        "utf-8",
+      );
+
       return {
         success: true,
         message: `Created domain workspace at ${workspacePath}`,
@@ -114,6 +127,7 @@ export class WorkspaceService {
             "choreography.yaml",
             "services/",
             "transformations/",
+            ".spas/schemas/sidecar-config-v1.schema.json",
             "../.github/agents/spas-compose.agent.md",
             "../.github/prompts/spas-compose.prompt.md",
           ],

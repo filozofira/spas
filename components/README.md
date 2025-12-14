@@ -9,6 +9,7 @@ The SPAS Framework is composed of modular, independently deployable components t
 | **CLI** | Command-line tools for service publishing and orchestration |
 | **SDK** | Language-specific libraries for building SPAS-enabled services |
 | **Repository** | Central registry for service metadata discovery and validation |
+| **Sidecar** | Runtime proxy for event routing, transformation, and observability |
 
 ## CLI Tools
 
@@ -19,6 +20,10 @@ The SPAS Framework is composed of modular, independently deployable components t
 
 - [.NET SDK](./sdk/dotnet/README.md) — Attribute-based metadata discovery for ASP.NET Core services
 - [Schemas](./sdk/schemas/README.md) — Canonical JSON Schema definitions shared across SDK implementations
+
+## Runtime
+
+- [Sidecar](./sidecar/README.md) — Event routing proxy with JSONata transformation and tracing support
 
 ## Infrastructure
 

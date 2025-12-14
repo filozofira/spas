@@ -632,4 +632,116 @@ describe("SidecarConfigGenerator", () => {
       expect(errors).toEqual([]);
     });
   });
+
+  // ==========================================================================
+  // T031: Edge case tests
+  // ==========================================================================
+
+  describe("edge cases", () => {
+    it("should handle empty choreography with no flows", () => {
+      // Arrange
+      const generator = new SidecarConfigGenerator(workspacePath);
+      const emptyChoreography: Choreography = {
+        version: "1.0",
+        domain: "empty",
+        flows: {},
+      };
+
+      // Act
+      const result = generator.generate(emptyChoreography);
+
+      // Assert
+      expect(result.success).toBe(true);
+      expect(Object.keys(result.configs)).toHaveLength(0);
+      expect(result.summary.totalConfigs).toBe(0);
+      expect(result.errors).toHaveLength(0);
+    });
+
+    it("should deduplicate topic entries across multiple flows", () => {
+      // Arrange
+      const generator = new SidecarConfigGenerator(workspacePath);
+      const duplicateTopicsChoreography: Choreography = {
+        version: "1.0",
+        domain: "test",
+        flows: {
+          "flow-1": {
+            participants: ["publisher", "subscriber-a"],
+            events: [
+              {
+                source: "publisher",
+                event: "event-1",
+                topic: "shared-topic",
+                targets: [{ service: "subscriber-a" }],
+              },
+            ],
+          },
+          "flow-2": {
+            participants: ["publisher", "subscriber-a"],
+            events: [
+              {
+                source: "publisher",
+                event: "event-2",
+                topic: "shared-topic", // Same topic in different flow
+                targets: [{ service: "subscriber-a" }],
+              },
+            ],
+          },
+        },
+      };
+
+      // Act
+      const result = generator.generate(duplicateTopicsChoreography);
+
+      // Assert - should deduplicate
+      expect(result.configs["publisher"].outbound).toHaveLength(1);
+      expect(result.configs["subscriber-a"].inbound).toHaveLength(1);
+    });
+
+    it("should handle service that only publishes", () => {
+      // Arrange
+      const generator = new SidecarConfigGenerator(workspacePath);
+
+      // Act
+      const result = generator.generate(sampleChoreography);
+
+      // Assert - order-service only publishes
+      expect(result.configs["order-service"].outbound).toHaveLength(1);
+      expect(result.configs["order-service"].inbound).toHaveLength(0);
+    });
+
+    it("should handle service that only subscribes", () => {
+      // Arrange
+      const generator = new SidecarConfigGenerator(workspacePath);
+
+      // Act
+      const result = generator.generate(sampleChoreography);
+
+      // Assert - fulfillment-service only subscribes
+      expect(result.configs["fulfillment-service"].inbound).toHaveLength(1);
+      expect(result.configs["fulfillment-service"].outbound).toHaveLength(0);
+    });
+
+    it("should handle flow with participants but no events", () => {
+      // Arrange
+      const generator = new SidecarConfigGenerator(workspacePath);
+      const noEventsChoreography: Choreography = {
+        version: "1.0",
+        domain: "test",
+        flows: {
+          "flow-1": {
+            participants: ["service-a", "service-b"],
+            events: [],
+          },
+        },
+      };
+
+      // Act
+      const result = generator.generate(noEventsChoreography);
+
+      // Assert - configs exist but are empty
+      expect(result.configs["service-a"]).toBeDefined();
+      expect(result.configs["service-a"].inbound).toEqual([]);
+      expect(result.configs["service-a"].outbound).toEqual([]);
+    });
+  });
 });

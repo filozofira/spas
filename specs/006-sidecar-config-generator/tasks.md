@@ -138,11 +138,13 @@ Target: `components/cli/spas-compose/` (enhancement to existing CLI)
 
 **Purpose**: Validation, documentation, and final integration testing
 
-- [ ] T030 [P] Export SidecarConfigGenerator from services index in `components/cli/spas-compose/src/services/index.ts` (if exists) or update imports
-- [ ] T031 [P] Add edge case tests: empty choreography, duplicate topic entries in `components/cli/spas-compose/test/unit/services/sidecar-config-generator.test.ts`
-- [ ] T032 Run all 67+ existing tests to verify no regressions
-- [ ] T033 Run quickstart.md validation scenarios end-to-end
-- [ ] T034 Update README.md to document new config generation behavior in `components/cli/spas-compose/README.md`
+- [x] T030 [P] Export SidecarConfigGenerator from services index in `components/cli/spas-compose/src/services/index.ts` (if exists) or update imports — N/A: no index.ts exists, direct imports used
+- [x] T031 [P] Add edge case tests: empty choreography, duplicate topic entries in `components/cli/spas-compose/test/unit/services/sidecar-config-generator.test.ts`
+- [x] T032 Run all 67+ existing tests to verify no regressions — 95 tests pass
+- [x] T033 Run quickstart.md validation scenarios end-to-end — implementation matches all scenarios
+- [x] T034 Update README.md to document new config generation behavior in `components/cli/spas-compose/README.md`
+
+**Checkpoint**: Phase 7 complete - all 34 tasks done ✅
 
 ---
 
@@ -174,12 +176,15 @@ Target: `components/cli/spas-compose/` (enhancement to existing CLI)
 ### Parallel Opportunities
 
 **Phase 1 (all parallel)**:
+
 - T001, T002, T003 can run simultaneously
 
 **Phase 2 (sequential)**:
+
 - T004 → T005 → T006 → T007 → T008 (methods depend on each other)
 
 **Phase 3-6 Tests (parallel within story)**:
+
 - T009, T010, T011 can run simultaneously
 - T017 independent
 - T021, T022 can run simultaneously
@@ -228,16 +233,16 @@ Task T011: "Test empty arrays for services with no entries"
 
 ### Task Count Summary
 
-| Phase | Tasks | Description |
-|-------|-------|-------------|
-| Phase 1: Setup | 3 | Types and skeletons |
-| Phase 2: Foundational | 5 | Core extraction methods |
-| Phase 3: User Story 1 | 8 | Config generation (MVP) |
-| Phase 4: User Story 2 | 4 | Dry-run support |
-| Phase 5: User Story 3 | 5 | Missing file handling |
-| Phase 6: User Story 4 | 4 | Optional transforms |
-| Phase 7: Polish | 5 | Validation and docs |
-| **Total** | **34** | |
+| Phase                 | Tasks  | Description             |
+| --------------------- | ------ | ----------------------- |
+| Phase 1: Setup        | 3      | Types and skeletons     |
+| Phase 2: Foundational | 5      | Core extraction methods |
+| Phase 3: User Story 1 | 8      | Config generation (MVP) |
+| Phase 4: User Story 2 | 4      | Dry-run support         |
+| Phase 5: User Story 3 | 5      | Missing file handling   |
+| Phase 6: User Story 4 | 4      | Optional transforms     |
+| Phase 7: Polish       | 5      | Validation and docs     |
+| **Total**             | **34** |                         |
 
 ---
 

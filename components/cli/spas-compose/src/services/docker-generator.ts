@@ -5,7 +5,14 @@
 import * as fs from "fs";
 import * as path from "path";
 import yaml from "js-yaml";
-import type { Choreography, ServiceMetadata } from "../types.js";
+import type {
+  Choreography,
+  ServiceMetadata,
+  BackboneConfig,
+  EventBackboneConfig,
+  ObservabilityBackboneConfig,
+} from "../types.js";
+import { BackboneNormalizer } from "./backbone-normalizer.js";
 
 /**
  * Result from Docker Compose generation
@@ -40,6 +47,12 @@ interface DockerService {
   volumes?: string[];
   depends_on?: string[];
   networks?: string[];
+  healthcheck?: {
+    test: string[];
+    interval: string;
+    timeout: string;
+    retries: number;
+  };
 }
 
 /**
@@ -57,17 +70,22 @@ interface DockerCompose {
 export class DockerGenerator {
   private readonly servicesPath: string;
   private readonly workspaceName: string;
+  private readonly backboneNormalizer: BackboneNormalizer;
 
   constructor(private readonly workspacePath: string) {
     this.servicesPath = path.join(workspacePath, "services");
     this.workspaceName = path.basename(workspacePath);
+    this.backboneNormalizer = new BackboneNormalizer();
   }
 
   /**
    * Generate docker-compose.yaml content from choreography
    */
-  generate(choreography: Choreography): GenerateResult {
+  generate(choreography: Choreography, backboneConfig?: BackboneConfig): GenerateResult {
     try {
+      // Use provided config or build defaults
+      const config = backboneConfig || this.backboneNormalizer.buildConfig({});
+
       const compose: DockerCompose = {
         services: {},
         networks: {
@@ -77,13 +95,15 @@ export class DockerGenerator {
         },
       };
 
-      // Add infrastructure services
-      if (choreography.infrastructure?.redis?.enabled !== false) {
-        compose.services["redis"] = this.generateRedis();
+      // Add infrastructure services using backbone config
+      if (config.eventBackbone.enabled) {
+        compose.services[config.eventBackbone.containerName.replace("spas-", "")] =
+          this.generateRedis(config.eventBackbone);
       }
 
-      if (choreography.infrastructure?.zipkin?.enabled !== false) {
-        compose.services["zipkin"] = this.generateZipkin();
+      if (config.observabilityBackbone.enabled) {
+        compose.services[config.observabilityBackbone.containerName.replace("spas-", "")] =
+          this.generateZipkin(config.observabilityBackbone);
       }
 
       // Get all unique participants
@@ -100,6 +120,7 @@ export class DockerGenerator {
           serviceName,
           servicePort,
           sidecarPort,
+          config.observabilityBackbone,
         );
 
         // Generate sidecar service
@@ -107,6 +128,7 @@ export class DockerGenerator {
           serviceName,
           servicePort,
           sidecarPort,
+          config,
         );
 
         portOffset++;
@@ -157,23 +179,37 @@ export class DockerGenerator {
   /**
    * Generate Redis service definition
    */
-  private generateRedis(): DockerService {
-    return {
-      image: "redis:6-alpine",
-      container_name: "spas-redis",
-      ports: ["6379:6379"],
+  private generateRedis(config: EventBackboneConfig): DockerService {
+    const service: DockerService = {
+      image: config.image,
+      container_name: config.containerName,
+      ports: [`${config.port}:${config.port}`],
       networks: ["spas-network"],
     };
+
+    // Add health check if configured
+    if (config.healthcheck) {
+      service.healthcheck = {
+        test: config.healthcheck.test,
+        interval: config.healthcheck.interval,
+        timeout: config.healthcheck.timeout,
+        retries: config.healthcheck.retries,
+      };
+    }
+
+    return service;
   }
 
   /**
-   * Generate Zipkin service definition
+   * Generate Zipkin/Jaeger service definition
    */
-  private generateZipkin(): DockerService {
+  private generateZipkin(config: ObservabilityBackboneConfig): DockerService {
+    const ports = config.ports.map((p) => `${p.host}:${p.container}`);
+
     return {
-      image: "openzipkin/zipkin:latest",
-      container_name: "spas-zipkin",
-      ports: ["9411:9411"],
+      image: config.image,
+      container_name: config.containerName,
+      ports,
       networks: ["spas-network"],
     };
   }
@@ -185,7 +221,11 @@ export class DockerGenerator {
     serviceName: string,
     servicePort: number,
     sidecarPort: number,
+    observabilityConfig: ObservabilityBackboneConfig,
   ): DockerService {
+    const observabilityServiceName = observabilityConfig.containerName.replace("spas-", "");
+    const observabilityPort = observabilityConfig.ports.find((p) => p.container === 9411)?.container || 9411;
+
     return {
       build: `./${serviceName}`,
       container_name: `spas-${serviceName}`,
@@ -194,7 +234,7 @@ export class DockerGenerator {
         `SERVICE_NAME=${serviceName}`,
         `SIDECAR_PORT=${sidecarPort}`,
         `PORT=${servicePort}`,
-        "ZIPKIN_URL=http://zipkin:9411",
+        `ZIPKIN_URL=http://${observabilityServiceName}:${observabilityPort}`,
       ],
       networks: ["spas-network"],
     };
@@ -207,6 +247,7 @@ export class DockerGenerator {
     serviceName: string,
     servicePort: number,
     sidecarPort: number,
+    config: BackboneConfig,
   ): DockerService {
     const volumes = [`./config.${serviceName}.json:/app/config.json`];
 
@@ -222,6 +263,10 @@ export class DockerGenerator {
       );
     }
 
+    const eventServiceName = config.eventBackbone.containerName.replace("spas-", "");
+    const observabilityServiceName = config.observabilityBackbone.containerName.replace("spas-", "");
+    const observabilityPort = config.observabilityBackbone.ports.find((p) => p.container === 9411)?.container || 9411;
+
     return {
       build: "./spas-sidecar",
       container_name: `${serviceName}-sidecar`,
@@ -229,13 +274,13 @@ export class DockerGenerator {
         `PORT=${sidecarPort}`,
         `CONFIG_PATH=/app/config.json`,
         `SERVICE_NAME=${serviceName}`,
-        "ZIPKIN_URL=http://zipkin:9411",
+        `ZIPKIN_URL=http://${observabilityServiceName}:${observabilityPort}`,
         `SERVICE_PORT=${servicePort}`,
-        "REDIS_HOST=redis",
-        "REDIS_PORT=6379",
+        `REDIS_HOST=${eventServiceName}`,
+        `REDIS_PORT=${config.eventBackbone.port}`,
       ],
       volumes,
-      depends_on: ["redis", "zipkin"],
+      depends_on: [eventServiceName, observabilityServiceName],
       networks: ["spas-network"],
     };
   }

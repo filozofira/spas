@@ -103,7 +103,9 @@ describe("DockerGenerator", () => {
 
       // Assert
       expect(result.content).toContain("redis:");
-      expect(result.content).toContain("redis:6-alpine");
+      expect(result.content).toContain("redis:7-alpine");
+      expect(result.content).toContain("healthcheck:");
+      expect(result.content).toContain("redis-cli");
     });
 
     it("should include Zipkin when enabled", () => {

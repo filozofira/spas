@@ -29,18 +29,18 @@
 
 ### Tests for User Story 1
 
-- [ ] T003 [P] [US1] Unit tests for BackboneNormalizer in components/cli/spas-compose/test/unit/services/backbone-normalizer.test.ts
+- [x] T003 [P] [US1] Unit tests for BackboneNormalizer in components/cli/spas-compose/test/unit/services/backbone-normalizer.test.ts
 
 ### Implementation for User Story 1
 
-- [ ] T004 [US1] Implement normalizeImage() for default values in backbone-normalizer.ts
-- [ ] T005 [US1] Implement buildConfig() with defaults in backbone-normalizer.ts
-- [ ] T006 [US1] Update generateRedis() to accept BackboneConfig and add health check in docker-generator.ts
-- [ ] T007 [US1] Update generateZipkin() to accept BackboneConfig in docker-generator.ts
-- [ ] T008 [US1] Update generate() to use BackboneConfig in docker-generator.ts
-- [ ] T009 [US1] Update generateSidecar() to use backbone service names for env vars in docker-generator.ts
+- [x] T004 [US1] Implement normalizeImage() for default values in backbone-normalizer.ts
+- [x] T005 [US1] Implement buildConfig() with defaults in backbone-normalizer.ts
+- [x] T006 [US1] Update generateRedis() to accept BackboneConfig and add health check in docker-generator.ts
+- [x] T007 [US1] Update generateZipkin() to accept BackboneConfig in docker-generator.ts
+- [x] T008 [US1] Update generate() to use BackboneConfig in docker-generator.ts
+- [x] T009 [US1] Update generateSidecar() to use backbone service names for env vars in docker-generator.ts
 
-**Checkpoint**: Default backbones working with health checks
+**Checkpoint**: Default backbones working with health checks ✅
 
 ---
 

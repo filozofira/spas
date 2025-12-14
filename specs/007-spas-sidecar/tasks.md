@@ -26,12 +26,12 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001 Create project directory structure at `components/sidecar/` per plan.md
-- [ ] T002 Initialize Node.js project with package.json at `components/sidecar/package.json`
-- [ ] T003 [P] Configure TypeScript with tsconfig.json at `components/sidecar/tsconfig.json`
-- [ ] T004 [P] Configure Jest with ESM support at `components/sidecar/jest.config.js`
-- [ ] T005 [P] Create Dockerfile at `components/sidecar/Dockerfile`
-- [ ] T006 [P] Create README.md at `components/sidecar/README.md`
+- [X] T001 Create project directory structure at `components/sidecar/` per plan.md
+- [X] T002 Initialize Node.js project with package.json at `components/sidecar/package.json`
+- [X] T003 [P] Configure TypeScript with tsconfig.json at `components/sidecar/tsconfig.json`
+- [X] T004 [P] Configure Jest with ESM support at `components/sidecar/jest.config.cjs`
+- [X] T005 [P] Create Dockerfile at `components/sidecar/Dockerfile`
+- [X] T006 [P] Create README.md at `components/sidecar/README.md`
 
 ---
 

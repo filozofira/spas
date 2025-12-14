@@ -99,16 +99,18 @@ Target: `components/cli/spas-compose/` (enhancement to existing CLI)
 
 ### Tests for User Story 3
 
-- [ ] T021 [P] [US3] Test error returned for missing transformation file in `components/cli/spas-compose/test/unit/services/sidecar-config-generator.test.ts`
-- [ ] T022 [P] [US3] Test all missing files reported (not just first) in `components/cli/spas-compose/test/unit/services/sidecar-config-generator.test.ts`
+- [x] T021 [P] [US3] Test error returned for missing transformation file in `components/cli/spas-compose/test/unit/services/sidecar-config-generator.test.ts`
+- [x] T022 [P] [US3] Test all missing files reported (not just first) in `components/cli/spas-compose/test/unit/services/sidecar-config-generator.test.ts`
 
 ### Implementation for User Story 3
 
-- [ ] T023 [US3] Add `validateTransformationPaths()` method to check existence of all transformation files in `components/cli/spas-compose/src/services/sidecar-config-generator.ts`
-- [ ] T024 [US3] Integrate validation before generation, returning `ConfigError[]` for all missing files in `components/cli/spas-compose/src/services/sidecar-config-generator.ts`
-- [ ] T025 [US3] Add human-readable error output for missing transformation files in `components/cli/spas-compose/src/commands/choreography-deploy.ts`
+- [x] T023 [US3] Add `validateTransformationPaths()` method to check existence of all transformation files in `components/cli/spas-compose/src/services/sidecar-config-generator.ts`
+- [x] T024 [US3] Integrate validation before generation, returning `ConfigError[]` for all missing files in `components/cli/spas-compose/src/services/sidecar-config-generator.ts`
+- [x] T025 [US3] Add human-readable error output for missing transformation files in `components/cli/spas-compose/src/commands/choreography-deploy.ts`
 
-**Checkpoint**: User Story 3 complete - missing transformation files reported clearly
+**Checkpoint**: User Story 3 complete - missing transformation files reported clearly ✅
+
+**Note**: T024-T025 satisfied by existing JsonataValidator integration in choreography-deploy.ts which validates and reports all missing transformation files before any file generation.
 
 ---
 

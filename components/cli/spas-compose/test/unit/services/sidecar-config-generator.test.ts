@@ -451,4 +451,130 @@ describe("SidecarConfigGenerator", () => {
       }
     });
   });
+
+  // ==========================================================================
+  // T021-T022: Tests for validateTransformationPaths() (Phase 5: User Story 3)
+  // ==========================================================================
+
+  describe("validateTransformationPaths()", () => {
+    // T021: Test error returned for missing transformation file
+    it("should return error for missing transformation file", () => {
+      // Arrange
+      const generator = new SidecarConfigGenerator(workspacePath);
+      const choreographyWithMissingTransform: Choreography = {
+        version: "1.0",
+        domain: "test",
+        flows: {
+          "flow-1": {
+            participants: ["service-a", "service-b"],
+            events: [
+              {
+                source: "service-a",
+                event: "event",
+                topic: "topic",
+                targets: [
+                  {
+                    service: "service-b",
+                    transform: "transformations/nonexistent.jsonata",
+                  },
+                ],
+              },
+            ],
+          },
+        },
+      };
+
+      // Act
+      const errors = generator.validateTransformationPaths(choreographyWithMissingTransform);
+
+      // Assert
+      expect(errors).toHaveLength(1);
+      expect(errors[0].type).toBe("MISSING_TRANSFORM");
+      expect(errors[0].service).toBe("service-b");
+      expect(errors[0].message).toContain("nonexistent.jsonata");
+    });
+
+    // T022: Test all missing files reported (not just first)
+    it("should report all missing files, not just the first", () => {
+      // Arrange
+      const generator = new SidecarConfigGenerator(workspacePath);
+      const choreographyWithMultipleMissing: Choreography = {
+        version: "1.0",
+        domain: "test",
+        flows: {
+          "flow-1": {
+            participants: ["service-a", "service-b", "service-c"],
+            events: [
+              {
+                source: "service-a",
+                event: "event",
+                topic: "topic",
+                targets: [
+                  {
+                    service: "service-b",
+                    transform: "transformations/missing1.jsonata",
+                  },
+                  {
+                    service: "service-c",
+                    transform: "transformations/missing2.jsonata",
+                  },
+                ],
+              },
+            ],
+          },
+        },
+      };
+
+      // Act
+      const errors = generator.validateTransformationPaths(choreographyWithMultipleMissing);
+
+      // Assert
+      expect(errors).toHaveLength(2);
+      expect(errors.map((e) => e.message)).toContain(
+        "Missing transformation file: transformations/missing1.jsonata",
+      );
+      expect(errors.map((e) => e.message)).toContain(
+        "Missing transformation file: transformations/missing2.jsonata",
+      );
+    });
+
+    it("should return empty array when all transformation files exist", () => {
+      // Arrange
+      const generator = new SidecarConfigGenerator(workspacePath);
+
+      // Act - sampleChoreography has valid transform path created in beforeEach
+      const errors = generator.validateTransformationPaths(sampleChoreography);
+
+      // Assert
+      expect(errors).toEqual([]);
+    });
+
+    it("should skip validation for targets without transform", () => {
+      // Arrange
+      const generator = new SidecarConfigGenerator(workspacePath);
+      const choreographyWithoutTransform: Choreography = {
+        version: "1.0",
+        domain: "test",
+        flows: {
+          "flow-1": {
+            participants: ["service-a", "service-b"],
+            events: [
+              {
+                source: "service-a",
+                event: "event",
+                topic: "topic",
+                targets: [{ service: "service-b" }], // No transform
+              },
+            ],
+          },
+        },
+      };
+
+      // Act
+      const errors = generator.validateTransformationPaths(choreographyWithoutTransform);
+
+      // Assert
+      expect(errors).toEqual([]);
+    });
+  });
 });

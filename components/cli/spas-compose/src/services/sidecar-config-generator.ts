@@ -207,7 +207,6 @@ export class SidecarConfigGenerator {
    * @returns Array of ConfigError for missing files
    */
   validateTransformationPaths(choreography: Choreography): ConfigError[] {
-    // TODO: T023 - Implement transformation path validation
     const errors: ConfigError[] = [];
 
     for (const flow of Object.values(choreography.flows)) {

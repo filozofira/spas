@@ -19,7 +19,7 @@ The prompt MUST instruct the agent to:
 - Read service metadata from `services/<service-name>/spas.json`
 - Read event schemas from `services/<service-name>/schemas/*.schema.json`
 - Write choreography to `choreography.yaml`
-- Write transformations to `choreography/transformations/<service-name>/*.jsonata`
+- Write transformations to `transformations/<service-name>/*.jsonata`
 
 ### 2. Contract Analysis
 
@@ -88,7 +88,7 @@ The agent prompt file SHOULD include these sections:
 
 ## Context
 - You are helping compose SPAS domain choreography
-- Workspace structure: services/, choreography.yaml, choreography/transformations/
+- Workspace structure: services/, choreography.yaml, transformations/
 
 ## Instructions
 - Read service metadata from services/<name>/spas.json

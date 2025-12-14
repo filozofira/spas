@@ -2,34 +2,34 @@
  * Terminal output utilities using chalk for formatting
  */
 
-import chalk from 'chalk';
+import chalk from "chalk";
 
 /**
  * Success message (green checkmark)
  */
 export function success(message: string): void {
-  console.log(chalk.green('✓'), message);
+  console.log(chalk.green("✓"), message);
 }
 
 /**
  * Error message (red X)
  */
 export function error(message: string): void {
-  console.error(chalk.red('✗'), message);
+  console.error(chalk.red("✗"), message);
 }
 
 /**
  * Info message (blue info icon)
  */
 export function info(message: string): void {
-  console.log(chalk.blue('ℹ'), message);
+  console.log(chalk.blue("ℹ"), message);
 }
 
 /**
  * Warning message (yellow warning icon)
  */
 export function warning(message: string): void {
-  console.log(chalk.yellow('⚠'), message);
+  console.log(chalk.yellow("⚠"), message);
 }
 
 /**
@@ -37,7 +37,7 @@ export function warning(message: string): void {
  */
 export function verbose(message: string, isVerbose: boolean = false): void {
   if (isVerbose) {
-    console.log(chalk.dim('  →'), chalk.dim(message));
+    console.log(chalk.dim("  →"), chalk.dim(message));
   }
 }
 
@@ -61,22 +61,22 @@ export function json(data: Record<string, any>): void {
  * List item (bullet point)
  */
 export function listItem(message: string, indent: number = 0): void {
-  const indentation = '  '.repeat(indent);
-  console.log(`${indentation}${chalk.dim('•')} ${message}`);
+  const indentation = "  ".repeat(indent);
+  console.log(`${indentation}${chalk.dim("•")} ${message}`);
 }
 
 /**
  * Progress indicator (for long-running operations)
  */
 export function progress(message: string): void {
-  process.stdout.write(chalk.cyan('⋯') + ' ' + message + '...\r');
+  process.stdout.write(chalk.cyan("⋯") + " " + message + "...\r");
 }
 
 /**
  * Clear progress indicator
  */
 export function clearProgress(): void {
-  process.stdout.write('\r\x1b[K'); // Clear line
+  process.stdout.write("\r\x1b[K"); // Clear line
 }
 
 /**

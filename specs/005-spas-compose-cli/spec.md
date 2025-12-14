@@ -27,7 +27,7 @@ As a developer, I want to initialize a new domain workspace so that I have a str
    - `README.md` containing workflow instructions and command reference
    - `choreography.yaml` with empty/minimal structure
    - `services/` empty directory for pulled service metadata
-   - `choreography/transformations/` empty directory for JSONata files
+   - `transformations/` empty directory for JSONata files
 
 2. **Given** I run `spas-compose init my-domain`, **When** the command completes, **Then** agent prompt file `.github/agents/spas-compose.md` is created at project root (if not exists) for AI-assisted composition.
 
@@ -99,7 +99,7 @@ As a developer, I want to use an AI agent to analyze pulled service contracts an
 
 2. **Given** AI proposes choreography, **When** developer responds with "confirm", **Then** the agent:
    - Writes the choreography to `choreography.yaml`
-   - Generates `.jsonata` transformation files in `choreography/transformations/<service-name>/`
+   - Generates `.jsonata` transformation files in `transformations/<service-name>/`
    - Prompts developer to confirm transformation files
 
 3. **Given** AI proposes choreography, **When** developer provides feedback like "change topic name to orders-v2", **Then** the agent revises the proposal and prompts for confirmation again (iterative loop).
@@ -137,7 +137,7 @@ As a developer, I want to use an AI agent to analyze pulled service contracts an
 
 - **Domain Workspace**: Folder structure containing choreography configuration, pulled service metadata, and transformation files. Root contains choreography.yaml and README.md.
 - **Choreography**: YAML configuration defining named flows, participating services, topic mappings, and transformation references. Single file supports multiple named flows.
-- **Transformation**: JSONata expression file (`.jsonata`) that transforms event payloads between service internal schemas and domain schemas. Organized per-service in `choreography/transformations/<service-name>/`.
+- **Transformation**: JSONata expression file (`.jsonata`) that transforms event payloads between service internal schemas and domain schemas. Organized per-service in `transformations/<service-name>/`.
 - **Pulled Service**: Local copy of service metadata (`spas.json`) and schemas, stored in `services/<service-name>/`.
 
 ## Success Criteria *(mandatory)*

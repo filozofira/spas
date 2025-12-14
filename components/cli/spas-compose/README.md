@@ -60,8 +60,7 @@ e-commerce-domain/
 ├── README.md                          # Workspace documentation
 ├── choreography.yaml                  # Choreography configuration (scaffold)
 ├── services/                          # Pulled service metadata
-└── choreography/
-    └── transformations/               # JSONata transformation files
+└── transformations/                   # JSONata transformation files
 ```
 
 ---
@@ -96,13 +95,26 @@ services/
 ├── order-service/
 │   ├── spas.json                      # Service metadata
 │   └── schemas/
-│       ├── OrderCreated.schema.json
-│       └── OrderCancelled.schema.json
+│       ├── endpoints/                 # Endpoint schemas
+│       │   └── CreateOrder.schema.json
+│       └── events/                    # Event schemas
+│           ├── OrderCreated.schema.json
+│           └── OrderCancelled.schema.json
 └── fulfillment-service/
     ├── spas.json
     └── schemas/
-        └── OrderFulfilled.schema.json
+        └── events/
+            └── OrderFulfilled.schema.json
 ```
+
+**Exit Codes:**
+| Code | Meaning |
+|------|---------|
+| 0 | Success |
+| 1 | Service or version not found |
+| 2 | Repository unreachable |
+| 3 | Not in a domain workspace |
+| 4 | Filesystem write error |
 
 ---
 
@@ -111,8 +123,9 @@ services/
 Generate deployment configuration from choreography.yaml.
 
 **Options:**
-- `--docker` - Generate docker-compose.yaml
+- `--docker` - Generate docker-compose.yaml (required)
 - `--dry-run` - Validate without generating files
+- `--output <file>` - Output filename (default: docker-compose.yaml)
 - `--json` - Output result as JSON
 - `--verbose` - Show detailed progress
 
@@ -120,7 +133,8 @@ Generate deployment configuration from choreography.yaml.
 
 ```bash
 spas-compose choreography deploy --docker
-spas-compose choreography deploy --dry-run  # Validation only
+spas-compose choreography deploy --docker --dry-run  # Validation only
+spas-compose choreography deploy --docker --output deployment.yaml
 ```
 
 **Output:**
@@ -130,6 +144,16 @@ spas-compose choreography deploy --dry-run  # Validation only
 ✓ Validated transformation files
 ✓ Generated docker-compose.yaml
 ```
+
+**Exit Codes:**
+| Code | Meaning |
+|------|---------|
+| 0 | Success |
+| 1 | Invalid choreography.yaml |
+| 2 | Missing service metadata (not pulled) |
+| 3 | Missing transformation file |
+| 4 | Invalid JSONata syntax |
+| 5 | Not in a domain workspace |
 
 ---
 

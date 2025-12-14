@@ -2,10 +2,10 @@
  * ChoreographyLoader - Loads and validates choreography.yaml files
  */
 
-import * as fs from 'fs';
-import * as path from 'path';
-import yaml from 'js-yaml';
-import type { Choreography, Flow, EventRoute } from '../types.js';
+import * as fs from "fs";
+import * as path from "path";
+import yaml from "js-yaml";
+import type { Choreography, Flow, EventRoute } from "../types.js";
 
 /**
  * Result from loading choreography
@@ -37,7 +37,7 @@ export class ChoreographyLoader {
 
   constructor(workspacePath: string) {
     this.workspacePath = workspacePath;
-    this.choreographyPath = path.join(workspacePath, 'choreography.yaml');
+    this.choreographyPath = path.join(workspacePath, "choreography.yaml");
   }
 
   /**
@@ -48,14 +48,14 @@ export class ChoreographyLoader {
       return {
         success: false,
         error: {
-          code: 'FILE_NOT_FOUND',
+          code: "FILE_NOT_FOUND",
           details: `choreography.yaml not found at ${this.choreographyPath}`,
         },
       };
     }
 
     try {
-      const content = fs.readFileSync(this.choreographyPath, 'utf-8');
+      const content = fs.readFileSync(this.choreographyPath, "utf-8");
       const parsed = yaml.load(content) as Choreography;
 
       return {
@@ -67,8 +67,8 @@ export class ChoreographyLoader {
       return {
         success: false,
         error: {
-          code: 'INVALID_YAML',
-          details: yamlError.message || 'Failed to parse YAML',
+          code: "INVALID_YAML",
+          details: yamlError.message || "Failed to parse YAML",
         },
       };
     }
@@ -83,19 +83,21 @@ export class ChoreographyLoader {
 
     // Required fields
     if (!choreography.version) {
-      errors.push('version is required');
-    } else if (choreography.version !== '1.0') {
-      warnings.push(`Unknown version "${choreography.version}", expected "1.0"`);
+      errors.push("version is required");
+    } else if (choreography.version !== "1.0") {
+      warnings.push(
+        `Unknown version "${choreography.version}", expected "1.0"`,
+      );
     }
 
     if (!choreography.domain) {
-      errors.push('domain is required');
+      errors.push("domain is required");
     } else if (!/^[a-z][a-z0-9-]*[a-z0-9]$/.test(choreography.domain)) {
       errors.push('domain must be lowercase-hyphenated (e.g., "my-domain")');
     }
 
     if (!choreography.flows || Object.keys(choreography.flows).length === 0) {
-      errors.push('flows is required');
+      errors.push("flows is required");
     } else {
       // Validate each flow
       for (const [flowName, flow] of Object.entries(choreography.flows)) {
@@ -117,7 +119,7 @@ export class ChoreographyLoader {
     flowName: string,
     flow: Flow,
     errors: string[],
-    warnings: string[]
+    warnings: string[],
   ): void {
     const prefix = `flows.${flowName}`;
 
@@ -132,7 +134,9 @@ export class ChoreographyLoader {
     } else {
       for (const participant of flow.participants) {
         if (!/^[a-z][a-z0-9-]*[a-z0-9]$/.test(participant)) {
-          errors.push(`${prefix}.participants: "${participant}" must be lowercase-hyphenated`);
+          errors.push(
+            `${prefix}.participants: "${participant}" must be lowercase-hyphenated`,
+          );
         }
       }
     }
@@ -142,7 +146,13 @@ export class ChoreographyLoader {
       errors.push(`${prefix}: must have at least 1 event route`);
     } else {
       for (let i = 0; i < flow.events.length; i++) {
-        this.validateEventRoute(`${prefix}.events[${i}]`, flow.events[i], flow.participants, errors, warnings);
+        this.validateEventRoute(
+          `${prefix}.events[${i}]`,
+          flow.events[i],
+          flow.participants,
+          errors,
+          warnings,
+        );
       }
     }
   }
@@ -155,13 +165,15 @@ export class ChoreographyLoader {
     route: EventRoute,
     participants: string[],
     errors: string[],
-    warnings: string[]
+    warnings: string[],
   ): void {
     // Required fields
     if (!route.source) {
       errors.push(`${prefix}: source is required`);
     } else if (!participants.includes(route.source)) {
-      warnings.push(`${prefix}: source "${route.source}" is not in participants list`);
+      warnings.push(
+        `${prefix}: source "${route.source}" is not in participants list`,
+      );
     }
 
     if (!route.event) {
@@ -173,7 +185,9 @@ export class ChoreographyLoader {
     if (!route.topic) {
       errors.push(`${prefix}: topic is required`);
     } else if (!/^[a-z][a-z0-9-]*[a-z0-9]$/.test(route.topic)) {
-      errors.push(`${prefix}: topic "${route.topic}" must be lowercase-hyphenated`);
+      errors.push(
+        `${prefix}: topic "${route.topic}" must be lowercase-hyphenated`,
+      );
     }
 
     if (!route.targets || route.targets.length === 0) {
@@ -184,11 +198,15 @@ export class ChoreographyLoader {
         if (!target.service) {
           errors.push(`${prefix}.targets[${i}]: service is required`);
         } else if (!participants.includes(target.service)) {
-          warnings.push(`${prefix}.targets[${i}]: service "${target.service}" is not in participants list`);
+          warnings.push(
+            `${prefix}.targets[${i}]: service "${target.service}" is not in participants list`,
+          );
         }
 
         if (target.transform && !/\.jsonata$/.test(target.transform)) {
-          errors.push(`${prefix}.targets[${i}]: transform must be a .jsonata file`);
+          errors.push(
+            `${prefix}.targets[${i}]: transform must be a .jsonata file`,
+          );
         }
       }
     }
@@ -199,7 +217,7 @@ export class ChoreographyLoader {
    */
   getAllParticipants(choreography: Choreography): string[] {
     const participants = new Set<string>();
-    
+
     for (const flow of Object.values(choreography.flows)) {
       for (const participant of flow.participants) {
         participants.add(participant);

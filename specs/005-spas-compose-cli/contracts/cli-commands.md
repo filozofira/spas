@@ -54,7 +54,7 @@ Created domain workspace: e-commerce/
 ├── README.md
 ├── choreography.yaml
 ├── services/
-└── choreography/transformations/
+└── transformations/
 
 Agent prompt available at: .github/agents/spas-compose.md
 Run `/spas.compose` to start AI-assisted composition.
@@ -70,7 +70,7 @@ Run `/spas.compose` to start AI-assisted composition.
     "README.md",
     "choreography.yaml",
     "services/",
-    "choreography/transformations/"
+    "transformations/"
   ],
   "agentPrompt": ".github/agents/spas-compose.md"
 }

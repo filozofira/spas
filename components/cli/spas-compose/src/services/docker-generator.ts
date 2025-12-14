@@ -2,10 +2,10 @@
  * DockerGenerator - Generates docker-compose.yaml from choreography
  */
 
-import * as fs from 'fs';
-import * as path from 'path';
-import yaml from 'js-yaml';
-import type { Choreography, ServiceMetadata } from '../types.js';
+import * as fs from "fs";
+import * as path from "path";
+import yaml from "js-yaml";
+import type { Choreography, ServiceMetadata } from "../types.js";
 
 /**
  * Result from Docker Compose generation
@@ -59,7 +59,7 @@ export class DockerGenerator {
   private readonly workspaceName: string;
 
   constructor(private readonly workspacePath: string) {
-    this.servicesPath = path.join(workspacePath, 'services');
+    this.servicesPath = path.join(workspacePath, "services");
     this.workspaceName = path.basename(workspacePath);
   }
 
@@ -71,19 +71,19 @@ export class DockerGenerator {
       const compose: DockerCompose = {
         services: {},
         networks: {
-          'spas-network': {
-            driver: 'bridge',
+          "spas-network": {
+            driver: "bridge",
           },
         },
       };
 
       // Add infrastructure services
       if (choreography.infrastructure?.redis?.enabled !== false) {
-        compose.services['redis'] = this.generateRedis();
+        compose.services["redis"] = this.generateRedis();
       }
 
       if (choreography.infrastructure?.zipkin?.enabled !== false) {
-        compose.services['zipkin'] = this.generateZipkin();
+        compose.services["zipkin"] = this.generateZipkin();
       }
 
       // Get all unique participants
@@ -99,14 +99,14 @@ export class DockerGenerator {
         compose.services[serviceName] = this.generateService(
           serviceName,
           servicePort,
-          sidecarPort
+          sidecarPort,
         );
 
         // Generate sidecar service
         compose.services[`${serviceName}-sidecar`] = this.generateSidecar(
           serviceName,
           servicePort,
-          sidecarPort
+          sidecarPort,
         );
 
         portOffset++;
@@ -123,7 +123,7 @@ export class DockerGenerator {
       return {
         success: false,
         error: {
-          code: 'GENERATION_ERROR',
+          code: "GENERATION_ERROR",
           details: (error as Error).message,
         },
       };
@@ -159,10 +159,10 @@ export class DockerGenerator {
    */
   private generateRedis(): DockerService {
     return {
-      image: 'redis:6-alpine',
-      container_name: 'spas-redis',
-      ports: ['6379:6379'],
-      networks: ['spas-network'],
+      image: "redis:6-alpine",
+      container_name: "spas-redis",
+      ports: ["6379:6379"],
+      networks: ["spas-network"],
     };
   }
 
@@ -171,10 +171,10 @@ export class DockerGenerator {
    */
   private generateZipkin(): DockerService {
     return {
-      image: 'openzipkin/zipkin:latest',
-      container_name: 'spas-zipkin',
-      ports: ['9411:9411'],
-      networks: ['spas-network'],
+      image: "openzipkin/zipkin:latest",
+      container_name: "spas-zipkin",
+      ports: ["9411:9411"],
+      networks: ["spas-network"],
     };
   }
 
@@ -184,7 +184,7 @@ export class DockerGenerator {
   private generateService(
     serviceName: string,
     servicePort: number,
-    sidecarPort: number
+    sidecarPort: number,
   ): DockerService {
     return {
       build: `./${serviceName}`,
@@ -194,9 +194,9 @@ export class DockerGenerator {
         `SERVICE_NAME=${serviceName}`,
         `SIDECAR_PORT=${sidecarPort}`,
         `PORT=${servicePort}`,
-        'ZIPKIN_URL=http://zipkin:9411',
+        "ZIPKIN_URL=http://zipkin:9411",
       ],
-      networks: ['spas-network'],
+      networks: ["spas-network"],
     };
   }
 
@@ -206,33 +206,37 @@ export class DockerGenerator {
   private generateSidecar(
     serviceName: string,
     servicePort: number,
-    sidecarPort: number
+    sidecarPort: number,
   ): DockerService {
-    const volumes = [
-      `./config.${serviceName}.json:/app/config.json`,
-    ];
+    const volumes = [`./config.${serviceName}.json:/app/config.json`];
 
     // Add transformation volume mounts
-    const transformDir = path.join(this.workspacePath, 'choreography', 'transformations', serviceName);
+    const transformDir = path.join(
+      this.workspacePath,
+      "transformations",
+      serviceName,
+    );
     if (fs.existsSync(transformDir)) {
-      volumes.push(`./choreography/transformations/${serviceName}:/app/transformations`);
+      volumes.push(
+        `./transformations/${serviceName}:/app/transformations`,
+      );
     }
 
     return {
-      build: './spas-sidecar',
+      build: "./spas-sidecar",
       container_name: `${serviceName}-sidecar`,
       environment: [
         `PORT=${sidecarPort}`,
         `CONFIG_PATH=/app/config.json`,
         `SERVICE_NAME=${serviceName}`,
-        'ZIPKIN_URL=http://zipkin:9411',
+        "ZIPKIN_URL=http://zipkin:9411",
         `SERVICE_PORT=${servicePort}`,
-        'REDIS_HOST=redis',
-        'REDIS_PORT=6379',
+        "REDIS_HOST=redis",
+        "REDIS_PORT=6379",
       ],
       volumes,
-      depends_on: ['redis', 'zipkin'],
-      networks: ['spas-network'],
+      depends_on: ["redis", "zipkin"],
+      networks: ["spas-network"],
     };
   }
 
@@ -240,13 +244,13 @@ export class DockerGenerator {
    * Load service metadata from pulled service
    */
   private loadServiceMetadata(serviceName: string): ServiceMetadata | null {
-    const metadataPath = path.join(this.servicesPath, serviceName, 'spas.json');
+    const metadataPath = path.join(this.servicesPath, serviceName, "spas.json");
     if (!fs.existsSync(metadataPath)) {
       return null;
     }
 
     try {
-      return JSON.parse(fs.readFileSync(metadataPath, 'utf-8'));
+      return JSON.parse(fs.readFileSync(metadataPath, "utf-8"));
     } catch {
       return null;
     }

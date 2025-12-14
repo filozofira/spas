@@ -49,7 +49,7 @@
 
 **Goal**: Developer can create a structured domain workspace with single command
 
-**Independent Test**: Run `spas-compose init test-domain` and verify folder structure created with README.md, choreography.yaml, services/, choreography/transformations/
+**Independent Test**: Run `spas-compose init test-domain` and verify folder structure created with README.md, choreography.yaml, services/, transformations/
 
 **FR Mapping**: FR-001, FR-006, FR-012
 
@@ -158,12 +158,12 @@
 
 **Purpose**: Quality improvements across all user stories
 
-- [ ] T048 [P] Update components/cli/spas-compose/README.md with full command reference
-- [ ] T049 [P] Verify quickstart.md workflow end-to-end (init → pull → compose → deploy)
-- [ ] T050 Add --verbose flag support across all commands
-- [ ] T051 Ensure all error messages include actionable remediation hints
-- [ ] T052 Run lint and format checks, fix any issues
-- [ ] T053 Build CLI and test npm link installation
+- [X] T048 [P] Update components/cli/spas-compose/README.md with full command reference
+- [X] T049 [P] Verify quickstart.md workflow end-to-end (init → pull → compose → deploy)
+- [X] T050 Add --verbose flag support across all commands
+- [X] T051 Ensure all error messages include actionable remediation hints
+- [X] T052 Run lint and format checks, fix any issues
+- [X] T053 Build CLI and test npm link installation
 
 ---
 

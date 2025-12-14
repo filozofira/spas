@@ -2,9 +2,9 @@
  * JsonataValidator - Validates JSONata transformation expressions
  */
 
-import * as fs from 'fs';
-import * as path from 'path';
-import jsonata from 'jsonata';
+import * as fs from "fs";
+import * as path from "path";
+import jsonata from "jsonata";
 
 /**
  * Result from syntax validation
@@ -50,7 +50,10 @@ export class JsonataValidator {
   /**
    * Validate a .jsonata file exists and has valid syntax
    */
-  validateFile(workspacePath: string, relativePath: string): FileValidationResult {
+  validateFile(
+    workspacePath: string,
+    relativePath: string,
+  ): FileValidationResult {
     const fullPath = path.join(workspacePath, relativePath);
     const errors: string[] = [];
 
@@ -70,9 +73,9 @@ export class JsonataValidator {
 
     // Read and validate syntax
     try {
-      const content = fs.readFileSync(fullPath, 'utf-8');
+      const content = fs.readFileSync(fullPath, "utf-8");
       const syntaxResult = this.validateSyntax(content);
-      
+
       if (!syntaxResult.isValid) {
         errors.push(...syntaxResult.errors);
       }
@@ -92,7 +95,7 @@ export class JsonataValidator {
    */
   validateFiles(
     workspacePath: string,
-    relativePaths: string[]
+    relativePaths: string[],
   ): { valid: FileValidationResult[]; invalid: FileValidationResult[] } {
     const valid: FileValidationResult[] = [];
     const invalid: FileValidationResult[] = [];
@@ -113,7 +116,7 @@ export class JsonataValidator {
    * Check if filename has valid .jsonata extension
    */
   isValidFilename(filename: string): boolean {
-    return filename.endsWith('.jsonata');
+    return filename.endsWith(".jsonata");
   }
 
   /**
@@ -121,13 +124,12 @@ export class JsonataValidator {
    */
   parseTransformPath(transformPath: string): {
     serviceName: string;
-    direction: 'inbound' | 'outbound';
+    direction: "inbound" | "outbound";
     eventType: string;
   } | null {
-    // Expected format: choreography/transformations/<service>/<direction>-<event>.jsonata
-    // Or: transformations/<service>/<direction>-<event>.jsonata
+    // Expected format: transformations/<service>/<direction>-<event>.jsonata
     const match = transformPath.match(
-      /(?:choreography\/)?transformations\/([a-z0-9-]+)\/(inbound|outbound)-([a-z0-9-]+)\.jsonata$/
+      /transformations\/([a-z0-9-]+)\/(inbound|outbound)-([a-z0-9-]+)\.jsonata$/,
     );
 
     if (!match) {
@@ -136,7 +138,7 @@ export class JsonataValidator {
 
     return {
       serviceName: match[1],
-      direction: match[2] as 'inbound' | 'outbound',
+      direction: match[2] as "inbound" | "outbound",
       eventType: this.kebabToPascal(match[3]),
     };
   }
@@ -146,8 +148,8 @@ export class JsonataValidator {
    */
   private kebabToPascal(kebab: string): string {
     return kebab
-      .split('-')
+      .split("-")
       .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-      .join('');
+      .join("");
   }
 }

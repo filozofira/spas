@@ -1,21 +1,21 @@
 /**
  * Repository HTTP client for SPAS Repository service
- * 
+ *
  * TODO: Extract to @spas/cli-common post-PoC
  * This pattern is copied from spas-service CLI for consistency
  */
 
-import axios, { AxiosError } from 'axios';
-import type { RepositoryServiceResponse } from '../types.js';
+import axios, { AxiosError } from "axios";
+import type { RepositoryServiceResponse } from "../types.js";
 
 /**
  * Error codes for repository operations
  */
 export enum RepositoryErrorCode {
-  NOT_FOUND = 'NOT_FOUND',
-  UNREACHABLE = 'UNREACHABLE',
-  INVALID_RESPONSE = 'INVALID_RESPONSE',
-  NETWORK_ERROR = 'NETWORK_ERROR',
+  NOT_FOUND = "NOT_FOUND",
+  UNREACHABLE = "UNREACHABLE",
+  INVALID_RESPONSE = "INVALID_RESPONSE",
+  NETWORK_ERROR = "NETWORK_ERROR",
 }
 
 /**
@@ -26,10 +26,10 @@ export class RepositoryError extends Error {
     public readonly code: RepositoryErrorCode,
     message: string,
     public readonly remediation?: string,
-    public readonly cause?: Error
+    public readonly cause?: Error,
   ) {
     super(message);
-    this.name = 'RepositoryError';
+    this.name = "RepositoryError";
   }
 }
 
@@ -41,7 +41,7 @@ export class RepositoryClient {
 
   /**
    * Download service metadata and schemas from repository
-   * 
+   *
    * @param serviceId Service identifier (e.g., 'order-service')
    * @param version Semantic version (e.g., '1.0.0')
    * @returns Service metadata and schemas
@@ -49,14 +49,14 @@ export class RepositoryClient {
    */
   async downloadService(
     serviceId: string,
-    version: string
+    version: string,
   ): Promise<RepositoryServiceResponse> {
     const url = `${this.repositoryUrl}/services/${serviceId}/versions/${version}/download`;
 
     try {
       const response = await this.retryWithBackoff(async () => {
         return await axios.get(url, {
-          responseType: 'arraybuffer',
+          responseType: "arraybuffer",
           timeout: 30000,
           validateStatus: (status) => status < 500, // Don't throw on 4xx
         });
@@ -67,7 +67,7 @@ export class RepositoryClient {
         throw new RepositoryError(
           RepositoryErrorCode.NOT_FOUND,
           `Service ${serviceId}:${version} not found in repository`,
-          'Verify the service ID and version are correct'
+          "Verify the service ID and version are correct",
         );
       }
 
@@ -76,7 +76,7 @@ export class RepositoryClient {
         throw new RepositoryError(
           RepositoryErrorCode.INVALID_RESPONSE,
           `Repository returned error ${response.status}`,
-          'Check repository logs for details'
+          "Check repository logs for details",
         );
       }
 
@@ -90,37 +90,41 @@ export class RepositoryClient {
       const axiosError = error as AxiosError;
       const code = axiosError.code;
 
-      if (code === 'ECONNREFUSED' || code === 'ENOTFOUND' || code === 'ETIMEDOUT') {
+      if (
+        code === "ECONNREFUSED" ||
+        code === "ENOTFOUND" ||
+        code === "ETIMEDOUT"
+      ) {
         throw new RepositoryError(
           RepositoryErrorCode.UNREACHABLE,
           `Repository is unreachable at ${this.repositoryUrl}`,
-          'Ensure repository URL is correct and the service is running',
-          axiosError
+          "Ensure repository URL is correct and the service is running",
+          axiosError,
         );
       }
 
       throw new RepositoryError(
         RepositoryErrorCode.NETWORK_ERROR,
-        'Failed to download service from repository',
-        'Check network connectivity and repository availability',
-        axiosError
+        "Failed to download service from repository",
+        "Check network connectivity and repository availability",
+        axiosError,
       );
     }
   }
 
   /**
    * Parse service archive (ZIP) and extract metadata and schemas
-   * 
+   *
    * Note: This is a simplified implementation for PoC.
    * Production should use proper ZIP parsing (adm-zip or unzipper).
    */
   private async parseServiceArchive(
-    buffer: Buffer
+    buffer: Buffer,
   ): Promise<RepositoryServiceResponse> {
     // For PoC, assume repository returns pre-parsed JSON structure
     // Production: Extract spas.json and schemas/*.json from ZIP
     try {
-      const data = JSON.parse(buffer.toString('utf-8'));
+      const data = JSON.parse(buffer.toString("utf-8"));
       return {
         metadata: data.metadata,
         schemas: data.schemas || [],
@@ -128,22 +132,22 @@ export class RepositoryClient {
     } catch (error) {
       throw new RepositoryError(
         RepositoryErrorCode.INVALID_RESPONSE,
-        'Failed to parse service archive',
-        'Repository may have returned invalid data',
-        error as Error
+        "Failed to parse service archive",
+        "Repository may have returned invalid data",
+        error as Error,
       );
     }
   }
 
   /**
    * Retry operation with exponential backoff
-   * 
+   *
    * TODO: Extract to @spas/cli-common post-PoC
    */
   private async retryWithBackoff<T>(
     operation: () => Promise<T>,
     maxRetries: number = 3,
-    initialDelay: number = 100
+    initialDelay: number = 100,
   ): Promise<T> {
     let lastError: Error | undefined;
 
@@ -160,7 +164,10 @@ export class RepositoryClient {
         }
 
         // Don't retry connection refused (likely config issue, not transient)
-        if (axiosError.code === 'ECONNREFUSED' || axiosError.code === 'ENOTFOUND') {
+        if (
+          axiosError.code === "ECONNREFUSED" ||
+          axiosError.code === "ENOTFOUND"
+        ) {
           throw error;
         }
 
@@ -177,7 +184,7 @@ export class RepositoryClient {
 
   /**
    * Check if repository is reachable
-   * 
+   *
    * @returns true if repository health endpoint responds
    */
   async checkHealth(): Promise<boolean> {

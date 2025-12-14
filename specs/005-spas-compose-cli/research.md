@@ -47,7 +47,7 @@ During specification refinement, the following decisions were made:
 
 2. **Transformation files**: 
    - Format: `.jsonata` (not `.js`) for sidecar language flexibility
-   - Location: Per-service folders `choreography/transformations/<service-name>/*.jsonata`
+   - Location: Per-service folders `transformations/<service-name>/*.jsonata`
    - Runtime: Volume-mounted to sidecars in Docker
 
 3. **Multiple choreographies**: Single `choreography.yaml` with named flows (not separate files per flow)

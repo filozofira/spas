@@ -173,7 +173,7 @@ JSONata expression file that transforms event payloads between service internal 
 
 - Must be syntactically valid JSONata
 - File must exist at referenced path
-- Located in `choreography/transformations/<service-name>/`
+- Located in `transformations/<service-name>/`
 
 ---
 

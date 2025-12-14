@@ -2,14 +2,14 @@
  * PullService - Downloads and saves service metadata from SPAS Repository
  */
 
-import * as fs from 'fs';
-import * as path from 'path';
-import type { 
-  CommandResult, 
-  RepositoryServiceResponse, 
+import * as fs from "fs";
+import * as path from "path";
+import type {
+  CommandResult,
+  RepositoryServiceResponse,
   PulledService,
-  ServiceMetadata 
-} from '../types.js';
+  ServiceMetadata,
+} from "../types.js";
 
 /**
  * Result with pull-specific data
@@ -37,18 +37,20 @@ export class PullService {
   private readonly servicesPath: string;
 
   constructor(private readonly workspacePath: string) {
-    this.servicesPath = path.join(workspacePath, 'services');
+    this.servicesPath = path.join(workspacePath, "services");
   }
 
   /**
    * Save downloaded service metadata to the workspace
-   * 
+   *
    * Preserves archive structure:
    * - services/<service-name>/spas.json
    * - services/<service-name>/schemas/endpoints/*.schema.json
    * - services/<service-name>/schemas/events/*.schema.json
    */
-  async saveService(response: RepositoryServiceResponse): Promise<PullServiceResult> {
+  async saveService(
+    response: RepositoryServiceResponse,
+  ): Promise<PullServiceResult> {
     // Validate workspace structure
     const validationError = this.validateWorkspace();
     if (validationError) {
@@ -67,8 +69,12 @@ export class PullService {
       fs.mkdirSync(servicePath, { recursive: true });
 
       // Write spas.json
-      const metadataPath = path.join(servicePath, 'spas.json');
-      fs.writeFileSync(metadataPath, JSON.stringify(metadata, null, 2), 'utf-8');
+      const metadataPath = path.join(servicePath, "spas.json");
+      fs.writeFileSync(
+        metadataPath,
+        JSON.stringify(metadata, null, 2),
+        "utf-8",
+      );
 
       // Write schema files preserving archive structure
       const schemaNames: string[] = [];
@@ -78,17 +84,18 @@ export class PullService {
         // Use path if available, otherwise fall back to name in schemas/
         const relativePath = schema.path || `schemas/${schema.name}`;
         const schemaFilePath = path.join(servicePath, relativePath);
-        
+
         // Create subdirectories if needed (e.g., schemas/events/, schemas/endpoints/)
         const schemaDir = path.dirname(schemaFilePath);
         if (!fs.existsSync(schemaDir)) {
           fs.mkdirSync(schemaDir, { recursive: true });
         }
-        
-        const content = typeof schema.content === 'string' 
-          ? schema.content 
-          : JSON.stringify(schema.content, null, 2);
-        fs.writeFileSync(schemaFilePath, content, 'utf-8');
+
+        const content =
+          typeof schema.content === "string"
+            ? schema.content
+            : JSON.stringify(schema.content, null, 2);
+        fs.writeFileSync(schemaFilePath, content, "utf-8");
         schemaNames.push(relativePath);
         totalBytes += Buffer.byteLength(content);
       }
@@ -104,7 +111,7 @@ export class PullService {
           },
           path: `services/${serviceName}`,
           artifacts: {
-            metadata: 'spas.json',
+            metadata: "spas.json",
             schemas: schemaNames,
           },
           bytes: totalBytes,
@@ -115,7 +122,7 @@ export class PullService {
         success: false,
         message: `Failed to save service ${serviceName}`,
         error: {
-          code: 'FILESYSTEM_ERROR',
+          code: "FILESYSTEM_ERROR",
           details: (error as Error).message,
         },
       };
@@ -125,20 +132,31 @@ export class PullService {
   /**
    * List all pulled services in the workspace
    */
-  listPulledServices(): Array<{ name: string; version: string; pulledAt?: Date }> {
+  listPulledServices(): Array<{
+    name: string;
+    version: string;
+    pulledAt?: Date;
+  }> {
     if (!fs.existsSync(this.servicesPath)) {
       return [];
     }
 
-    const services: Array<{ name: string; version: string; pulledAt?: Date }> = [];
+    const services: Array<{ name: string; version: string; pulledAt?: Date }> =
+      [];
     const entries = fs.readdirSync(this.servicesPath, { withFileTypes: true });
 
     for (const entry of entries) {
       if (entry.isDirectory()) {
-        const metadataPath = path.join(this.servicesPath, entry.name, 'spas.json');
+        const metadataPath = path.join(
+          this.servicesPath,
+          entry.name,
+          "spas.json",
+        );
         if (fs.existsSync(metadataPath)) {
           try {
-            const metadata = JSON.parse(fs.readFileSync(metadataPath, 'utf-8')) as ServiceMetadata;
+            const metadata = JSON.parse(
+              fs.readFileSync(metadataPath, "utf-8"),
+            ) as ServiceMetadata;
             const stats = fs.statSync(metadataPath);
             services.push({
               name: metadata.id,
@@ -160,25 +178,29 @@ export class PullService {
    */
   getService(serviceName: string): PulledService | undefined {
     const servicePath = path.join(this.servicesPath, serviceName);
-    const metadataPath = path.join(servicePath, 'spas.json');
+    const metadataPath = path.join(servicePath, "spas.json");
 
     if (!fs.existsSync(metadataPath)) {
       return undefined;
     }
 
     try {
-      const metadata = JSON.parse(fs.readFileSync(metadataPath, 'utf-8')) as ServiceMetadata;
+      const metadata = JSON.parse(
+        fs.readFileSync(metadataPath, "utf-8"),
+      ) as ServiceMetadata;
       const stats = fs.statSync(metadataPath);
 
       // Load schemas
-      const schemasPath = path.join(servicePath, 'schemas');
+      const schemasPath = path.join(servicePath, "schemas");
       const schemas: Array<{ name: string; content: Record<string, any> }> = [];
-      
+
       if (fs.existsSync(schemasPath)) {
         const schemaFiles = fs.readdirSync(schemasPath);
         for (const file of schemaFiles) {
-          if (file.endsWith('.json')) {
-            const content = JSON.parse(fs.readFileSync(path.join(schemasPath, file), 'utf-8'));
+          if (file.endsWith(".json")) {
+            const content = JSON.parse(
+              fs.readFileSync(path.join(schemasPath, file), "utf-8"),
+            );
             schemas.push({ name: file, content });
           }
         }
@@ -203,9 +225,9 @@ export class PullService {
     if (!fs.existsSync(this.workspacePath)) {
       return {
         success: false,
-        message: 'Workspace does not exist',
+        message: "Workspace does not exist",
         error: {
-          code: 'INVALID_WORKSPACE',
+          code: "INVALID_WORKSPACE",
           details: `Workspace path not found: ${this.workspacePath}`,
         },
       };
@@ -214,10 +236,11 @@ export class PullService {
     if (!fs.existsSync(this.servicesPath)) {
       return {
         success: false,
-        message: 'Not a valid domain workspace',
+        message: "Not a valid domain workspace",
         error: {
-          code: 'INVALID_WORKSPACE',
-          details: 'services/ directory not found. Run "spas-compose init" first.',
+          code: "INVALID_WORKSPACE",
+          details:
+            'services/ directory not found. Run "spas-compose init" first.',
         },
       };
     }

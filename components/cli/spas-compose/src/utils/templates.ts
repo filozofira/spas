@@ -114,7 +114,7 @@ flows: {}
   #       topic: orders
   #       targets:
   #         - service: fulfillment-service
-  #           transform: choreography/transformations/fulfillment-service/inbound-order-created.jsonata
+#           transform: transformations/fulfillment-service/inbound-order-created.jsonata
 
 # Infrastructure components (optional)
 infrastructure:
@@ -130,7 +130,7 @@ infrastructure:
 
 /**
  * Generate agent file content (.github/agents/spas-compose.agent.md)
- * 
+ *
  * Creates the full agent instructions at project root.
  * Follows SpecKit pattern: .github/agents/*.agent.md
  */
@@ -172,11 +172,10 @@ ${workspaceName}/
 │           │   └── <endpoint>.schema.json
 │           └── events/            # Event payload schemas
 │               └── <event-type>.schema.json
-└── choreography/
-    └── transformations/           # JSONata files (you create these)
-        └── <service-name>/
-            ├── inbound-<event>.jsonata
-            └── outbound-<event>.jsonata
+└── transformations/               # JSONata files (you create these)
+    └── <service-name>/
+        ├── inbound-<event>.jsonata
+        └── outbound-<event>.jsonata
 \`\`\`
 
 ## Workflow
@@ -229,14 +228,14 @@ flows:
         topic: <topic-name>
         targets:
           - service: <subscribing-service>
-            transform: choreography/transformations/<service>/inbound-<event>.jsonata
+            transform: transformations/<service>/inbound-<event>.jsonata
 \`\`\`
 
 **Ask:** "Confirm choreography changes? (yes/no/feedback)"
 
 ### Step 4: Generate Transformations
 
-Create JSONata files at \`${workspaceName}/choreography/transformations/<service>/*.jsonata\`:
+Create JSONata files at \`${workspaceName}/transformations/<service>/*.jsonata\`:
 \`\`\`jsonata
 /* inbound-order-created.jsonata */
 /* Transforms OrderCreated (order-service) → FulfillmentRequest (fulfillment-service) */
@@ -302,7 +301,7 @@ Next steps:
 
 /**
  * Generate prompt file content (.github/prompts/spas-compose.prompt.md)
- * 
+ *
  * Creates the trigger file that references the agent.
  * Follows SpecKit pattern: .github/prompts/*.prompt.md
  */

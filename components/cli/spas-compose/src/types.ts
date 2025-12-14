@@ -163,7 +163,7 @@ export interface Transformation {
   /** Target service name */
   serviceName: string;
   /** Transform direction */
-  direction: 'inbound' | 'outbound';
+  direction: "inbound" | "outbound";
   /** Event type being transformed */
   eventType: string;
   /** JSONata expression content */

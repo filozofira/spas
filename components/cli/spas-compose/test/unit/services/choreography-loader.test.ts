@@ -2,18 +2,18 @@
  * Integration tests for ChoreographyLoader
  */
 
-import * as fs from 'fs';
-import * as path from 'path';
-import * as os from 'os';
-import { ChoreographyLoader } from '../../../src/services/choreography-loader.js';
+import * as fs from "fs";
+import * as path from "path";
+import * as os from "os";
+import { ChoreographyLoader } from "../../../src/services/choreography-loader.js";
 
-describe('ChoreographyLoader', () => {
+describe("ChoreographyLoader", () => {
   let tempDir: string;
   let workspacePath: string;
-  const workspaceName = 'test-domain';
+  const workspaceName = "test-domain";
 
   beforeEach(() => {
-    tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'spas-choreography-test-'));
+    tempDir = fs.mkdtempSync(path.join(os.tmpdir(), "spas-choreography-test-"));
     workspacePath = path.join(tempDir, workspaceName);
     fs.mkdirSync(workspacePath, { recursive: true });
   });
@@ -24,8 +24,8 @@ describe('ChoreographyLoader', () => {
     }
   });
 
-  describe('load()', () => {
-    it('should load valid choreography.yaml', () => {
+  describe("load()", () => {
+    it("should load valid choreography.yaml", () => {
       // Arrange
       const validChoreography = `
 version: "1.0"
@@ -43,7 +43,10 @@ flows:
         targets:
           - service: fulfillment-service
 `;
-      fs.writeFileSync(path.join(workspacePath, 'choreography.yaml'), validChoreography);
+      fs.writeFileSync(
+        path.join(workspacePath, "choreography.yaml"),
+        validChoreography,
+      );
       const loader = new ChoreographyLoader(workspacePath);
 
       // Act
@@ -53,10 +56,10 @@ flows:
       expect(result.success).toBe(true);
       expect(result.choreography).toBeDefined();
       expect(result.choreography?.domain).toBe(workspaceName);
-      expect(result.choreography?.flows['order-fulfillment']).toBeDefined();
+      expect(result.choreography?.flows["order-fulfillment"]).toBeDefined();
     });
 
-    it('should fail if choreography.yaml does not exist', () => {
+    it("should fail if choreography.yaml does not exist", () => {
       // Arrange
       const loader = new ChoreographyLoader(workspacePath);
 
@@ -65,12 +68,15 @@ flows:
 
       // Assert
       expect(result.success).toBe(false);
-      expect(result.error?.code).toBe('FILE_NOT_FOUND');
+      expect(result.error?.code).toBe("FILE_NOT_FOUND");
     });
 
-    it('should fail on invalid YAML syntax', () => {
+    it("should fail on invalid YAML syntax", () => {
       // Arrange
-      fs.writeFileSync(path.join(workspacePath, 'choreography.yaml'), 'invalid: yaml: syntax:');
+      fs.writeFileSync(
+        path.join(workspacePath, "choreography.yaml"),
+        "invalid: yaml: syntax:",
+      );
       const loader = new ChoreographyLoader(workspacePath);
 
       // Act
@@ -78,18 +84,21 @@ flows:
 
       // Assert
       expect(result.success).toBe(false);
-      expect(result.error?.code).toBe('INVALID_YAML');
+      expect(result.error?.code).toBe("INVALID_YAML");
     });
   });
 
-  describe('validate()', () => {
-    it('should validate choreography has required fields', () => {
+  describe("validate()", () => {
+    it("should validate choreography has required fields", () => {
       // Arrange
       const missingFlows = `
 version: "1.0"
 domain: "test"
 `;
-      fs.writeFileSync(path.join(workspacePath, 'choreography.yaml'), missingFlows);
+      fs.writeFileSync(
+        path.join(workspacePath, "choreography.yaml"),
+        missingFlows,
+      );
       const loader = new ChoreographyLoader(workspacePath);
       const loadResult = loader.load();
 
@@ -98,10 +107,10 @@ domain: "test"
 
       // Assert
       expect(validateResult.isValid).toBe(false);
-      expect(validateResult.errors).toContain('flows is required');
+      expect(validateResult.errors).toContain("flows is required");
     });
 
-    it('should validate flow has at least 2 participants', () => {
+    it("should validate flow has at least 2 participants", () => {
       // Arrange
       const singleParticipant = `
 version: "1.0"
@@ -117,7 +126,10 @@ flows:
         targets:
           - service: other-service
 `;
-      fs.writeFileSync(path.join(workspacePath, 'choreography.yaml'), singleParticipant);
+      fs.writeFileSync(
+        path.join(workspacePath, "choreography.yaml"),
+        singleParticipant,
+      );
       const loader = new ChoreographyLoader(workspacePath);
       const loadResult = loader.load();
 
@@ -126,10 +138,14 @@ flows:
 
       // Assert
       expect(validateResult.isValid).toBe(false);
-      expect(validateResult.errors.some(e => e.includes('at least 2 participants'))).toBe(true);
+      expect(
+        validateResult.errors.some((e) =>
+          e.includes("at least 2 participants"),
+        ),
+      ).toBe(true);
     });
 
-    it('should pass validation for valid choreography', () => {
+    it("should pass validation for valid choreography", () => {
       // Arrange
       const validChoreography = `
 version: "1.0"
@@ -147,7 +163,10 @@ flows:
         targets:
           - service: fulfillment-service
 `;
-      fs.writeFileSync(path.join(workspacePath, 'choreography.yaml'), validChoreography);
+      fs.writeFileSync(
+        path.join(workspacePath, "choreography.yaml"),
+        validChoreography,
+      );
       const loader = new ChoreographyLoader(workspacePath);
       const loadResult = loader.load();
 

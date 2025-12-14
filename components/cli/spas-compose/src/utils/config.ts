@@ -2,17 +2,17 @@
  * Configuration resolution utilities
  */
 
-import { homedir } from 'os';
-import { resolve, isAbsolute } from 'path';
+import { homedir } from "os";
+import { resolve, isAbsolute } from "path";
 
 /**
  * Default SPAS Repository URL
  */
-const DEFAULT_REPOSITORY_URL = 'http://localhost:3000';
+const DEFAULT_REPOSITORY_URL = "http://localhost:3000";
 
 /**
  * Resolve SPAS Repository URL from options, environment, or default
- * 
+ *
  * Priority:
  * 1. --repo flag
  * 2. SPAS_REPOSITORY_URL environment variable
@@ -32,7 +32,7 @@ export function resolveRepositoryUrl(repoOption?: string): string {
 
 /**
  * Resolve workspace path to absolute path
- * 
+ *
  * Handles:
  * - Relative paths (resolved from cwd)
  * - Absolute paths (used as-is)
@@ -40,7 +40,7 @@ export function resolveRepositoryUrl(repoOption?: string): string {
  */
 export function resolveWorkspacePath(path: string): string {
   // Expand tilde to home directory
-  if (path.startsWith('~/') || path === '~') {
+  if (path.startsWith("~/") || path === "~") {
     return resolve(homedir(), path.slice(2));
   }
 
@@ -62,7 +62,7 @@ export function getCurrentWorkingDirectory(): string {
 
 /**
  * Validate workspace name format
- * 
+ *
  * Rules:
  * - Lowercase letters, numbers, hyphens
  * - Must start with letter

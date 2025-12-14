@@ -2,13 +2,13 @@
  * Unit tests for JsonataValidator
  */
 
-import { JsonataValidator } from '../../../src/services/jsonata-validator.js';
+import { JsonataValidator } from "../../../src/services/jsonata-validator.js";
 
-describe('JsonataValidator', () => {
+describe("JsonataValidator", () => {
   const validator = new JsonataValidator();
 
-  describe('validateSyntax()', () => {
-    it('should validate correct JSONata expression', () => {
+  describe("validateSyntax()", () => {
+    it("should validate correct JSONata expression", () => {
       // Arrange
       const validExpression = `
 {
@@ -25,9 +25,9 @@ describe('JsonataValidator', () => {
       expect(result.errors).toHaveLength(0);
     });
 
-    it('should reject invalid JSONata syntax', () => {
+    it("should reject invalid JSONata syntax", () => {
       // Arrange
-      const invalidExpression = '{ invalid syntax [ unclosed';
+      const invalidExpression = "{ invalid syntax [ unclosed";
 
       // Act
       const result = validator.validateSyntax(invalidExpression);
@@ -37,7 +37,7 @@ describe('JsonataValidator', () => {
       expect(result.errors.length).toBeGreaterThan(0);
     });
 
-    it('should validate complex JSONata with conditionals', () => {
+    it("should validate complex JSONata with conditionals", () => {
       // Arrange
       const complexExpression = `
 {
@@ -53,7 +53,7 @@ describe('JsonataValidator', () => {
       expect(result.isValid).toBe(true);
     });
 
-    it('should validate JSONata with function calls', () => {
+    it("should validate JSONata with function calls", () => {
       // Arrange
       const funcExpression = `
 {
@@ -70,11 +70,12 @@ describe('JsonataValidator', () => {
     });
   });
 
-  describe('validateFile()', () => {
-    it('should validate .jsonata file extension', () => {
+  describe("validateFile()", () => {
+    it("should validate .jsonata file extension", () => {
       // Arrange
-      const validPath = 'transformations/order-service/inbound-order-created.jsonata';
-      const invalidPath = 'transformations/order-service/transform.json';
+      const validPath =
+        "transformations/order-service/inbound-order-created.jsonata";
+      const invalidPath = "transformations/order-service/transform.json";
 
       // Act & Assert
       expect(validator.isValidFilename(validPath)).toBe(true);

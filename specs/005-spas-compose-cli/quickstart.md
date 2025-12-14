@@ -44,7 +44,7 @@ e-commerce/
 ├── README.md                    # Workflow instructions
 ├── choreography.yaml            # Empty choreography config
 ├── services/                    # For pulled service metadata
-└── choreography/transformations/  # For JSONata files
+└── transformations/          # For JSONata files
 ```
 
 An agent prompt file is also created at `.github/agents/spas-compose.md` (at project root).
@@ -72,11 +72,14 @@ e-commerce/
 │   ├── order-service/
 │   │   ├── spas.json
 │   │   └── schemas/
-│   │       ├── OrderCreated.schema.json
-│   │       └── OrderUpdated.schema.json
+│   │       └── events/
+│   │           ├── OrderCreated.schema.json
+│   │           └── OrderUpdated.schema.json
 │   ├── fulfillment-service/
 │   │   ├── spas.json
 │   │   └── schemas/
+│   │       └── events/
+│   │           └── FulfillmentCompleted.schema.json
 │   └── notification-service/
 │       └── ...
 ```
@@ -126,7 +129,7 @@ flows:
 And create transformation files:
 
 ```jsonata
-/* choreography/transformations/fulfillment-service/inbound-order-created.jsonata */
+/* transformations/fulfillment-service/inbound-order-created.jsonata */
 {
   "fulfillmentId": $uuid(),
   "orderId": orderId,

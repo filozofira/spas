@@ -4,23 +4,29 @@
  * Creates a new domain workspace with recommended folder structure
  */
 
-import { Command } from 'commander';
-import type { InitOptions, CommandResult } from '../types.js';
-import { WorkspaceService } from '../services/workspace-service.js';
+import { Command } from "commander";
+import type { InitOptions, CommandResult } from "../types.js";
+import { WorkspaceService } from "../services/workspace-service.js";
+import { resolveWorkspacePath, isValidWorkspaceName } from "../utils/config.js";
 import {
-  resolveWorkspacePath,
-  isValidWorkspaceName,
-} from '../utils/config.js';
-import { success, error, info, json, listItem } from '../utils/output.js';
+  success,
+  error,
+  info,
+  json,
+  listItem,
+  verbose,
+} from "../utils/output.js";
 
 /**
  * Execute init command
  */
 async function executeInit(
   workspaceName: string,
-  options: InitOptions
+  options: InitOptions,
 ): Promise<CommandResult> {
   const workspaceService = new WorkspaceService();
+
+  verbose(`Validating workspace name: ${workspaceName}`, options.verbose);
 
   // Validate workspace name
   if (!isValidWorkspaceName(workspaceName)) {
@@ -28,21 +34,26 @@ async function executeInit(
       success: false,
       message: `Invalid workspace name: ${workspaceName}`,
       error: {
-        code: 'INVALID_NAME',
+        code: "INVALID_NAME",
         details:
-          'Workspace name must be lowercase, start with a letter, use hyphens (not underscores), and end with a letter or number',
+          "Workspace name must be lowercase, start with a letter, use hyphens (not underscores), and end with a letter or number",
       },
     };
   }
 
   // Resolve full path
   const workspacePath = resolveWorkspacePath(workspaceName);
+  verbose(`Resolved workspace path: ${workspacePath}`, options.verbose);
 
   // Create workspace
+  verbose(
+    `Creating workspace with force=${options.force ?? false}`,
+    options.verbose,
+  );
   const result = await workspaceService.create(
     workspacePath,
     workspaceName,
-    options.force ?? false
+    options.force ?? false,
   );
 
   return result;
@@ -54,18 +65,18 @@ async function executeInit(
 function displayResult(result: CommandResult): void {
   if (result.success) {
     success(result.message);
-    info('');
-    info('Workspace structure:');
+    info("");
+    info("Workspace structure:");
     if (result.data?.files) {
       for (const file of result.data.files as string[]) {
         listItem(file);
       }
     }
-    info('');
+    info("");
     info(`Next steps:`);
     listItem(`cd ${result.data?.name}`);
-    listItem('spas-compose services pull <service-name> <version>');
-    listItem('/spas.compose Analyze services and generate choreography');
+    listItem("spas-compose services pull <service-name> <version>");
+    listItem("/spas.compose Analyze services and generate choreography");
   } else {
     error(result.message);
     if (result.error?.details) {
@@ -78,13 +89,17 @@ function displayResult(result: CommandResult): void {
  * Create init command
  */
 export function createInitCommand(): Command {
-  const initCommand = new Command('init');
+  const initCommand = new Command("init");
 
   initCommand
-    .description('Initialize a new domain workspace')
-    .argument('<workspace-name>', 'Name of the domain workspace (lowercase, hyphen-separated)')
-    .option('-f, --force', 'Overwrite existing workspace', false)
-    .option('--json', 'Output result as JSON', false)
+    .description("Initialize a new domain workspace")
+    .argument(
+      "<workspace-name>",
+      "Name of the domain workspace (lowercase, hyphen-separated)",
+    )
+    .option("-f, --force", "Overwrite existing workspace", false)
+    .option("--json", "Output result as JSON", false)
+    .option("--verbose", "Enable verbose output", false)
     .action(async (workspaceName: string, options: InitOptions) => {
       try {
         const result = await executeInit(workspaceName, options);
@@ -102,7 +117,7 @@ export function createInitCommand(): Command {
           success: false,
           message: `Unexpected error: ${(err as Error).message}`,
           error: {
-            code: 'UNEXPECTED_ERROR',
+            code: "UNEXPECTED_ERROR",
             details: (err as Error).stack,
           },
         };

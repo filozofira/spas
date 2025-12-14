@@ -8,62 +8,74 @@
 
 This section documents the latest actions, any issues encountered, and the exact next steps so another agent can resume seamlessly.
 
-### What Was Done (spas-service CLI, Feature Complete)
+### What Was Done (spas-compose CLI Planning, Complete)
 
-- **Feature [004-spas-service-cli](./specs/004-spas-service-cli/)** — ✅ Complete (PoC)
-- **Location**: `components/cli/spas-service/`
-- **Tests**: 48/48 passing
-- **Coverage**: Lines 86.44%, Branches 73.68%, Functions 85.71%
+- **Feature [005-spas-compose-cli](./specs/005-spas-compose-cli/)** — ✅ Planning Complete
+- **Branch**: `005-spas-compose-cli`
+- **Status**: Ready for implementation
 
-**Implemented Commands**:
+**Planning Artifacts Created**:
 
-| Command | Description |
-|---------|-------------|
-| `spas-service publish <host>` | Interactive publish from running service |
-| `spas-service publish --archive <path>` | Publish from pre-built ZIP (CI/CD mode) |
-| `spas-service publish --dry-run` | Preview metadata without publishing |
-| `spas-service pull <name> <version>` | Download published service metadata |
+| Document                                                                                              | Purpose                                                                     |
+| ----------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------- |
+| [plan.md](./specs/005-spas-compose-cli/plan.md)                                                       | Tech stack (Node.js 20 + TypeScript), constitution check, project structure |
+| [data-model.md](./specs/005-spas-compose-cli/data-model.md)                                           | Domain Workspace, Choreography, Transformation, Pulled Service entities     |
+| [contracts/cli-commands.md](./specs/005-spas-compose-cli/contracts/cli-commands.md)                   | Full CLI interface with arguments, options, exit codes, output formats      |
+| [contracts/choreography-schema.yaml](./specs/005-spas-compose-cli/contracts/choreography-schema.yaml) | JSON Schema for choreography.yaml validation                                |
+| [contracts/agent-prompt.md](./specs/005-spas-compose-cli/contracts/agent-prompt.md)                   | /spas.compose agent prompt responsibilities and workflow                    |
+| [quickstart.md](./specs/005-spas-compose-cli/quickstart.md)                                           | Developer workflow: init → pull → compose → deploy                          |
+| [tasks.md](./specs/005-spas-compose-cli/tasks.md)                                                     | 53 implementation tasks organized by user story                             |
 
-**Key Flags**: `--repo`, `--output`, `--image-digest`, `--image-repository`, `--image-tag`
+**Key Design Decisions (ADRs 036-038)**:
 
-**Documentation Updates**:
+- JSONata for transformation files (language-agnostic for future sidecar migration)
+- AI-in-the-loop composition via `/spas.compose` agent prompt
+- Single `choreography.yaml` with named flows
 
-- Updated `components/README.md` with component overview and architecture diagram
-- Updated `components/sdk/schemas/README.md` with schema documentation
-- Updated `.github/agents/copilot-instructions.md` with CLI completion status
-- Created `specs/004-spas-service-cli/COMPLETION.md` with full summary
+**Task Summary**:
 
-**Current Branch**: `feature/doc_references_update` (documentation cleanup in progress)
+- Total: 53 tasks, 17 parallel opportunities
+- User Stories: US1 (init), US2 (pull), US3 (deploy), US4 (AI composition)
+- Estimated effort: ~10 hours
+
+**Code Reuse Decision**: Copy spas-service CLI's repository-client.ts pattern with `// TODO: Extract to @spas/cli-common post-PoC` comment (documented in T011).
 
 ### What Failed or Required Adjustment
 
-- **SDK SampleService**: `dotnet run` exits with code 1 — likely missing dependencies or configuration
-- **TypeScript Editor Errors**: VS Code shows import errors in test files (missing `.js` extensions), but Jest runs fine with `moduleNameMapper` workaround
+- Nothing failed in this session
+- SDK SampleService `dotnet run` still exits with code 1 (pre-existing issue, not addressed)
 
 ### Precise Next Steps (Pick and execute)
 
-1. **Next feature (recommended)**: Begin `spas-compose` CLI tool per `principles/component/13-cli.md`
-   - Commands: `init`, `services pull`, `choreography deploy --docker`
-   - AI-in-the-loop: `/spas.compose` agent prompt for choreography composition
-   - JSONata transformation files (`.jsonata`) for language-agnostic sidecar compatibility
-2. **End-to-end validation**: Run full publish/pull workflow with Repository + SDK + CLI
+1. **Start implementation (recommended)**: Execute tasks.md for spas-compose CLI
+
+   - **MVP Path** (fastest time-to-value):
+     1. Phase 1-2: Setup + Foundational (T001-T011)
+     2. Phase 3: US1 Init command (T012-T018)
+     3. Phase 4: US2 Pull command (T019-T026)
+     4. Phase 6: US4 Agent prompt (T041-T047)
+   - At MVP completion: developers can init workspace, pull services, use AI to compose choreography
+   - Phase 5 (US3 Deploy) automates docker-compose generation
+
+2. **Validate planning artifacts**: Review specs/005-spas-compose-cli/ documents for completeness
+
+3. **End-to-end validation (optional)**: Run full spas-service CLI workflow to verify Repository still working
    - Start Repository: `cd components/repository && docker compose up`
-   - Start SDK sample: `cd components/sdk/dotnet/examples/SampleService && dotnet run`
-   - Publish: `spas-service publish http://localhost:5000 --repo http://localhost:3000`
-   - Pull: `spas-service pull order-service 1.0.0`
+   - Publish/Pull workflow per previous handoff notes
 
 ### Completed Features Summary
 
-| Feature | Spec | Status | Tests |
-|---------|------|--------|-------|
-| .NET SDK | [001-dotnet-spas-sdk](./specs/001-dotnet-spas-sdk/) | ✅ Complete | 88/88 |
-| Schema Alignment | [002-metadata-schema-alignment](./specs/002-metadata-schema-alignment/) | ✅ Complete | — |
-| Repository Service | [003-repository-service](./specs/003-repository-service/) | ✅ Complete | 35/35 |
-| spas-service CLI | [004-spas-service-cli](./specs/004-spas-service-cli/) | ✅ Complete | 48/48 |
+| Feature            | Spec                                                                    | Status               | Tests |
+| ------------------ | ----------------------------------------------------------------------- | -------------------- | ----- |
+| .NET SDK           | [001-dotnet-spas-sdk](./specs/001-dotnet-spas-sdk/)                     | ✅ Complete          | 88/88 |
+| Schema Alignment   | [002-metadata-schema-alignment](./specs/002-metadata-schema-alignment/) | ✅ Complete          | —     |
+| Repository Service | [003-repository-service](./specs/003-repository-service/)               | ✅ Complete          | 35/35 |
+| spas-service CLI   | [004-spas-service-cli](./specs/004-spas-service-cli/)                   | ✅ Complete          | 48/48 |
+| spas-compose CLI   | [005-spas-compose-cli](./specs/005-spas-compose-cli/)                   | 📋 Planning Complete | —     |
 
 ## 📋 Key Rules for Multi-Machine Continuity
 
-1. **Before leaving a machine:** Document exactly what was done, what failed, and precise next steps in this file.
+1. **Before leaving a machine:** Document exactly what was done, what failed, and precise next steps in this file so agents on other machines can pick up from where you stopped.
 2. **On new machine:** Always read this file + principles/appendix/28-decision-log.md first.
 3. **Architecture diagrams:** Mermaid diagrams in principles/ and prototypes/ provide massive context with minimal tokens.
 4. **Specification is source-of-truth:** All implementation drives from principles/, cross-referenced via ./principles/README.md.

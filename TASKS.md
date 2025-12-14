@@ -4,33 +4,61 @@
 
 ---
 
-## Agent Handoff Update (Dec 13, 2025)
+## Agent Handoff Update (Dec 14, 2025)
 
 This section documents the latest actions, any issues encountered, and the exact next steps so another agent can resume seamlessly.
 
-### What Was Done (Repository Service, Phase 8 wrap-up)
+### What Was Done (spas-service CLI, Feature Complete)
 
-- [003-repository-service](./specs/003-repository-service/) feature completed
-- Documented optional, unfinished tasks in `components/repository/README.md` under "Optional Enhancements Not Completed (Phase 8)":
+- **Feature [004-spas-service-cli](./specs/004-spas-service-cli/)** — ✅ Complete (PoC)
+- **Location**: `components/cli/spas-service/`
+- **Tests**: 48/48 passing
+- **Coverage**: Lines 86.44%, Branches 73.68%, Functions 85.71%
+
+**Implemented Commands**:
+
+| Command | Description |
+|---------|-------------|
+| `spas-service publish <host>` | Interactive publish from running service |
+| `spas-service publish --archive <path>` | Publish from pre-built ZIP (CI/CD mode) |
+| `spas-service publish --dry-run` | Preview metadata without publishing |
+| `spas-service pull <name> <version>` | Download published service metadata |
+
+**Key Flags**: `--repo`, `--output`, `--image-digest`, `--image-repository`, `--image-tag`
+
+**Documentation Updates**:
+
+- Updated `components/README.md` with component overview and architecture diagram
+- Updated `components/sdk/schemas/README.md` with schema documentation
+- Updated `.github/agents/copilot-instructions.md` with CLI completion status
+- Created `specs/004-spas-service-cli/COMPLETION.md` with full summary
+
+**Current Branch**: `feature/doc_references_update` (documentation cleanup in progress)
 
 ### What Failed or Required Adjustment
 
-N/A
+- **SDK SampleService**: `dotnet run` exits with code 1 — likely missing dependencies or configuration
+- **TypeScript Editor Errors**: VS Code shows import errors in test files (missing `.js` extensions), but Jest runs fine with `moduleNameMapper` workaround
 
 ### Precise Next Steps (Pick and execute)
 
-- Next feature (recommended): Begin CLI Tool (Phase 3) per `principles/component/13-cli.md`.
-  - Immediate tasks:
-    - Scaffold CLI project structure under `components/cli/` (two tools: spas-service, spas-compose).
-    - Implement `spas-service publish` using Repository API (leverages existing endpoints).
-    - Implement `spas-service metadata get` to pull dev metadata (or build output) from services.
-    - Implement `spas-service pack` to build ZIP (spas.json + schemas) matching `15-package-format.md`.
-    - Add integration tests for publish/pull workflow against local repository (docker-compose).
-- Optional enhancements (deferred unless requested):
-  - OpenTelemetry integration (T066) with Zipkin exporter and basic spans.
-  - Edge case unit tests (T071): concurrent publishes, simulated storage full, corrupted ZIP.
-  - Performance validation (T072): measure publish/retrieve/search timings with ~10MB archives.
-  - Quickstart validation (T074): run curl examples against a running service.
+1. **Next feature (recommended)**: Begin `spas-compose` CLI tool per `principles/component/13-cli.md`
+   - Commands: `context init`, `services pull`, `choreography init`, `choreography generate`
+   - Generates Docker Compose and sidecar configuration from Repository metadata
+2. **End-to-end validation**: Run full publish/pull workflow with Repository + SDK + CLI
+   - Start Repository: `cd components/repository && docker compose up`
+   - Start SDK sample: `cd components/sdk/dotnet/examples/SampleService && dotnet run`
+   - Publish: `spas-service publish http://localhost:5000 --repo http://localhost:3000`
+   - Pull: `spas-service pull order-service 1.0.0`
+
+### Completed Features Summary
+
+| Feature | Spec | Status | Tests |
+|---------|------|--------|-------|
+| .NET SDK | [001-dotnet-spas-sdk](./specs/001-dotnet-spas-sdk/) | ✅ Complete | 88/88 |
+| Schema Alignment | [002-metadata-schema-alignment](./specs/002-metadata-schema-alignment/) | ✅ Complete | — |
+| Repository Service | [003-repository-service](./specs/003-repository-service/) | ✅ Complete | 35/35 |
+| spas-service CLI | [004-spas-service-cli](./specs/004-spas-service-cli/) | ✅ Complete | 48/48 |
 
 ## 📋 Key Rules for Multi-Machine Continuity
 

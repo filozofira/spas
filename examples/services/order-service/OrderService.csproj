@@ -1,0 +1,15 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\components\sdk\dotnet\src\Spas.Sdk.Metadata\Spas.Sdk.Metadata.csproj" />
+    <ProjectReference Include="..\..\..\components\sdk\dotnet\src\Spas.Sdk.Events\Spas.Sdk.Events.csproj" />
+    <ProjectReference Include="..\..\..\components\sdk\dotnet\src\Spas.Sdk.Observability\Spas.Sdk.Observability.csproj" />
+  </ItemGroup>
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+
+</Project>

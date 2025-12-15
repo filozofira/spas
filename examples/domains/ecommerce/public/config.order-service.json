@@ -2,7 +2,7 @@
   "inbound": [],
   "outbound": [
     {
-      "eventType": "OrderCreated",
+      "eventType": "com.ecommerce.order.created",
       "topic": "orders-created"
     }
   ]

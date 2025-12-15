@@ -45,7 +45,7 @@ services:
     image: spas/sidecar:latest
     container_name: inventory-service-sidecar
     environment:
-      - PORT=7001
+      - SIDECAR_PORT=7001
       - CONFIG_PATH=/app/config.json
       - SERVICE_NAME=inventory-service
       - ZIPKIN_URL=http://zipkin:9411
@@ -79,7 +79,7 @@ services:
     image: spas/sidecar:latest
     container_name: order-service-sidecar
     environment:
-      - PORT=7001
+      - SIDECAR_PORT=7001
       - CONFIG_PATH=/app/config.json
       - SERVICE_NAME=order-service
       - ZIPKIN_URL=http://zipkin:9411

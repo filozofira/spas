@@ -118,7 +118,7 @@ Extend spas-compose init to take --output argument indicating where to initiate 
 E.g. if I run `spas-compose public --output ./examples/ecommerce/public` cli would scaffold choreography files and folders in `./examples/ecommerce/public`, while agent prompts would go to `./.github/agents...`.
 
 Agent prompt should not be called `/spas-compose` but `/spas.compose` to follow standard.
- 
+
 It is important that generated agent prompt has correct path references to domain schema files, etc. I.e.
 
 ```markdown
@@ -218,6 +218,84 @@ dotnet run
 - Improves service startup time, since metadata discovery will run only on local machine.
 - Allows easier integration with CI/CD pipelines to build and publish service metadata to SPAS Repository automatically.
 - Would simplify spas-service publishing since there is no need to wait for developer to start service any more.
+
+### FG05: spas-compose should use image references from runtime metadata
+
+Currently `spas-compose choreography build --docker` generates `build: ./service-name` directives expecting local Dockerfiles. When services have `runtime` metadata in spas.json (image, repository, tag, digest), the generated docker-compose should use `image:` instead.
+
+**Current (incorrect):**
+
+```yaml
+order-service:
+  build: ./order-service
+```
+
+**Expected:**
+
+```yaml
+order-service:
+  image: spas-examples/order-service:1.0.0
+```
+
+Similarly, sidecar services should reference a published sidecar image (`spas/sidecar:latest`) rather than expecting a local `./spas-sidecar/` folder.
+
+**Justification:** Domain composers pull service metadata from Repository - they don't have local source code. The generated docker-compose must be runnable using only published images.
+
+### FG06: spas-compose sidecar config generation incomplete
+
+`spas-compose choreography build --docker` generates sidecar config files with missing or incorrect fields:
+
+**Issue 1: Missing eventType in outbound config**
+
+Generated:
+
+```json
+{
+  "outbound": [{ "topic": "orders-created" }]
+}
+```
+
+Expected:
+
+```json
+{
+  "outbound": [{ "eventType": "OrderCreated", "topic": "orders-created" }]
+}
+```
+
+**Issue 2: Incorrect transform path and invokeEndpoint**
+
+Generated:
+
+```json
+{
+  "inbound": [
+    {
+      "invokeEndpoint": "/incoming",
+      "transform": "transformations/inbound-order-created.jsonata"
+    }
+  ]
+}
+```
+
+Expected:
+
+```json
+{
+  "inbound": [
+    {
+      "invokeEndpoint": "/events/order-created",
+      "transform": "transformations/inventory-service/inbound-order-created.jsonata"
+    }
+  ]
+}
+```
+
+**Justification:** Sidecar fails to start with invalid configuration. The generator should:
+
+1. Include `eventType` from choreography event definition
+2. Use correct transform path matching the workspace structure
+3. Generate appropriate `invokeEndpoint` based on event type or service contract
 
 ## Related Documents
 

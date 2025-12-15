@@ -3,8 +3,8 @@
     {
       "kind": "event",
       "topic": "orders-created",
-      "invokeEndpoint": "/incoming",
-      "transform": "transformations/inbound-order-created.jsonata"
+      "invokeEndpoint": "/events/order-created",
+      "transform": "transformations/inventory-service/inbound-order-created.jsonata"
     }
   ],
   "outbound": []

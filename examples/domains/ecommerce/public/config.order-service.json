@@ -2,6 +2,7 @@
   "inbound": [],
   "outbound": [
     {
+      "eventType": "OrderCreated",
       "topic": "orders-created"
     }
   ]

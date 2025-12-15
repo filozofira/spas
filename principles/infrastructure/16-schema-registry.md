@@ -18,6 +18,7 @@ Unified service-centric path structure:
 
 ## Compatibility Checks
 
+- **JSON Schema Draft-07**: All SPAS metadata and contract schemas use JSON Schema draft-07 for consistency across SDK, Repository, and CLI tooling (see ADR-039)
 - Additive-only evolution enforced for JSON Schema (new optional fields only)
 - Future: pluggable validators for Avro/Proto
 - Failure severity: PoC logs warning; Production blocks publish

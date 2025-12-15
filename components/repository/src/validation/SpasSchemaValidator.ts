@@ -7,7 +7,6 @@
 
 import Ajv from 'ajv';
 import addFormats from 'ajv-formats';
-import draft04 from 'ajv-draft-04';
 import type { ServiceMetadata } from '../models/types';
 
 export class SpasSchemaValidator {
@@ -16,9 +15,8 @@ export class SpasSchemaValidator {
   private validateMetadataFn: (data: unknown) => boolean;
 
   constructor(_spasSchemaPath: string) {
-    // Use ajv-draft-04 for compatibility with .NET JSON Schema generation
-    this.ajv = new draft04({
-      strict: false, // Allow draft-04 style schemas
+    this.ajv = new Ajv({
+      strict: false,
       useDefaults: true,
       coerceTypes: true,
     });

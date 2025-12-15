@@ -8,44 +8,48 @@
 
 This section documents the latest actions, any issues encountered, and the exact next steps so another agent can resume seamlessly.
 
-### What Was Done (Rename choreography deploy to build + Schema Standards)
+### What Was Done (Phase 5 Design Complete)
 
-- **Command Renamed** — Changed `spas-compose choreography deploy` to `spas-compose choreography build`
-  - Rationale: "build" more accurately describes generating deployment artifacts; "deploy" implies running containers
-  - File renamed: `choreography-deploy.ts` → `choreography-build.ts`
-  - Types updated: `ChoreographyDeployOptions` → `ChoreographyBuildOptions`
-  - Exit codes updated: `ChoreographyDeployExitCode` → `ChoreographyBuildExitCode`
-  - All specs, docs, and schemas updated (21 files changed)
-  - Tests: All 135 tests passing ✓
-- **Repository Tests Fixed** — Resolved Ajv JSON Schema validation errors; all 106 repository tests passing (7 suites)
-  - Root cause: Integration test fixtures used draft-07 schemas; validator was misconfigured with draft-04 plugin
-  - Solution: Simplified to Ajv default (draft-07); removed draft-04/meta-schema complications
-  - Fixed deprecated ts-jest globals warning in jest.config.js (moved to transform array)
-- **Schema Compliance Verified** — Confirmed SDK, Repository, and CLI all use draft-07 JSON Schema; schemas are structurally compatible
-  - SDK emits `design-time-metadata-v1` (draft-07)
-  - Repository enriches to `runtime-metadata-v1` (draft-07) at publish
-  - CLI references SDK schema; all alignment confirmed
-- **Standards Documented** — Added ADR-039 and updated principles docs to formalize JSON Schema draft-07 as SPAS standard
-  - Updated `principles/service/06-service-metadata.md` with draft-07 reference and rationale
-  - Updated `principles/infrastructure/16-schema-registry.md` with technical specification
-  - Added ADR-039 to `principles/appendix/28-decision-log.md` documenting decision
-- **All Tests Green** — Repository (106/106), Sidecar (passing per terminal), CLI spas-compose (135/135), SDK SampleService (startup success confirmed)
+- **Phase 5 Design Document Created** — Complete design for E-Commerce example in `examples/README.md`
+  - 7 sections finalized: Requirements, Scope, Service Portfolio, Technology, Folder Structure, Phases, Success Criteria
+  - Mermaid sequence diagrams for E-Commerce (sync edge) and B2B (async edge) flows
+  - Service portfolio: order-service, inventory-service, product-service (SPAS) + fulfillment-stub, subscription-stub
+  - Single api-gateway codebase; sync vs async behavior via sidecar config per domain
+  - Nested domain structure: `domains/ecommerce/public/`, `domains/b2b/subscription/`
 
-### What Failed or Required Adjustment
+- **Previous Session (Rename + Schema Standards):**
+  - Command renamed: `spas-compose choreography deploy` → `choreography build`
+  - Repository tests fixed (106/106 passing)
+  - JSON Schema draft-07 standardized across SDK, Repository, CLI
+  - ADR-039 documented in decision log
 
-- Initial attempts to add draft-04 compatibility caused runtime errors (Class constructor Ajv invocation issues)
-- Resolved by using Ajv's built-in draft-07 support without extra plugins
+### Current Branch
+
+- `phase5-example-design` — Design document complete, ready for implementation
 
 ### Precise Next Steps (Pick and execute IN ORDER)
 
-1. **Start Phase 5 Planning** — E-commerce PoC with full domain choreography, transformations, and end-to-end deployment
-2. **Optional: Create ADR-040** — Document the choreography deploy→build rename decision if it warrants future reference
+1. **Commit design document** — `git add examples/README.md && git commit`
+2. **Start Phase 1 Implementation** — Build core services + Repository integration per [examples/README.md](./examples/README.md) Phase 1:
+   - Build: api-gateway, order-service, inventory-service, fulfillment-stub, subscription-stub
+   - Verify each starts in Docker Desktop
+   - Publish SPAS services to Repository via `spas-service publish`
+3. **Phase 2: E-Commerce choreography** — Use `spas-compose` CLI to generate choreography and docker-compose
+4. **Phase 3: B2B choreography** — Same services, different choreography (proves reuse)
+
+### Key Design Reference
+
+📄 **[examples/README.md](./examples/README.md)** — Complete Phase 5 design document with:
+- Service portfolio and event flows (Mermaid diagrams)
+- Technology decisions (.NET services, Node.js gateway/stubs)
+- Folder structure with nested domains
+- Development phases and success criteria
 
 ## 📋 Key Rules for Multi-Machine Continuity
 
 1. **Before leaving a machine:** Document exactly what was done, what failed, and precise next steps in this file so agents on other machines can pick up from where you stopped.
-2. **On new machine:** Always read this file + principles/appendix/28-decision-log.md first.
-3. **Architecture diagrams:** Mermaid diagrams in principles/ and prototypes/ provide massive context with minimal tokens.
+2. **On new machine:** Always read this file + examples/README.md + principles/appendix/28-decision-log.md first.
+3. **Architecture diagrams:** Mermaid diagrams in principles/, prototypes/, and examples/ provide massive context with minimal tokens.
 4. **Specification is source-of-truth:** All implementation drives from principles/, cross-referenced via ./principles/README.md.
 5. **Track decisions:** New architectural decisions get recorded in principles/appendix/28-decision-log.md as ADRs.
 
@@ -58,48 +62,55 @@ You are continuing SPAS (Self-contained, Portable, Adaptable Services)
 framework PoC implementation. Read these context files first:
 
 1. ./TASKS.md (this file) - Project status, decisions, and next steps
-2. ./.github/agents/copilot-instructions.md - agent instructions
-3. .specify/memory/constitution.md - GitHub SpecKit constitution file generated by copilot
-4. ./README.md - SPAS framework overview and current achievements
-5. ./principles/README.md - Complete specification navigation
-6. ./principles/appendix/28-decision-log.md - Architecture decisions (ADRs)
-7. ./principles/02-architecture-overview.md - High-level system design
-8. ./specs (all files in subfolders) - contains GitHub SpecKit specifications for features
-9. ./prototypes/spas-sidecar-prototype/README.md - Prototype documentation
+2. ./examples/README.md - Phase 5 E-Commerce example design (CURRENT FOCUS)
+3. ./.github/agents/copilot-instructions.md - agent instructions
+4. .specify/memory/constitution.md - GitHub SpecKit constitution file generated by copilot
+5. ./README.md - SPAS framework overview and current achievements
+6. ./principles/README.md - Complete specification navigation
+7. ./principles/appendix/28-decision-log.md - Architecture decisions (ADRs)
+8. ./principles/02-architecture-overview.md - High-level system design
+9. ./specs (all files in subfolders) - contains GitHub SpecKit specifications for features
+10. ./prototypes/spas-sidecar-prototype/README.md - Prototype documentation
 
 Once read, answer: "What is the immediate next task and what implementation artifacts from the spec should guide it?"
 ```
 
 ## Remaining Phases
 
-### Phase 5: E-Commerce End-to-End PoC
+### Phase 5: E-Commerce End-to-End PoC ← CURRENT
 
-**Goal:** Demonstrate full SPAS framework in realistic multi-service scenario.
+**Status:** 🔨 Design Complete — Implementation Phase 1 Ready
+
+**Design Document:** [examples/README.md](./examples/README.md)
+
+**Goal:** Demonstrate full SPAS framework in realistic multi-service scenario with service reuse across domains.
+
+**Implementation Phases:**
+
+| Phase | Description | Status |
+|-------|-------------|--------|
+| Design | Complete design document with all 7 sections | ✅ Complete |
+| 1 | Core services + Repository integration | 🔲 Next |
+| 2 | E-Commerce public choreography | 🔲 Pending |
+| 3 | B2B subscription choreography | 🔲 Pending |
+| 4 | Documentation & polish | 🔲 Pending |
+| 5 | Product service (optional) | 🔲 TBD |
 
 **Spec Cross-Reference:**
 
+- `examples/README.md` (design decisions, service portfolio, event flows)
 - `principles/02-architecture-overview.md` (architecture)
 - `principles/service/04-service-contract.md` (service contracts)
 - `principles/component/14-domain-choreography.md` (adaptation rules)
 
-**Prerequisites:** Phase 4 (Sidecar) must be complete.
-
-**Implementation Plan:**
-
-- Define service portfolio (order, fulfillment, shipping, notification, etc.)
-- Plan domain composition and choreography (event flows, topic mappings)
-- Plan transformation mappings for cross-service event adaptation
-- Design Docker Compose orchestration with all components (services, sidecar, Redis, Zipkin)
-- Plan testing strategy (contract tests, integration scenarios)
-- Plan documentation and walkthrough guides
-
-**Scope:** Integrate all Phase 1-4 components into realistic multi-service domain.
+**Prerequisites:** Phase 4 (Sidecar) complete ✓
 
 **Outputs:**
 
-- `examples/e-commerce/` — production-quality reference implementation
-- Complete runnable system demonstrating all SPAS PoC concepts
-- Documentation and onboarding guides
+- `examples/services/` — SPAS-compliant services (.NET + SDK)
+- `examples/stubs/` — Domain-specific stubs (Node.js)
+- `examples/gateways/` — Custom API gateway (Node.js)
+- `examples/domains/` — Domain deployments with choreography and docker-compose
 
 ---
 

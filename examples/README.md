@@ -6,14 +6,14 @@ End-to-end demonstrations of the SPAS framework in realistic scenarios.
 
 ## E-Commerce Domain Example
 
-**Status**: ✅ Phase 1 Complete | 🚧 Phase 2 In Progress  
-**Branch**: `example/phase1`
+**Status**: ✅ Phase 1 Complete | ✅ Phase 2 Complete  
+**Branch**: `example/phase2`
 
 This example demonstrates the complete SPAS framework in a multi-service e-commerce domain.
 
 ---
 
-## Current Status (December 15, 2025)
+## Current Status (December 16, 2025)
 
 ### ✅ Phase 1: Core Services + Repository Integration - COMPLETE
 
@@ -58,22 +58,73 @@ This example demonstrates the complete SPAS framework in a multi-service e-comme
 - `examples/gateways/api-gateway/` - Node.js gateway
 - `examples/docker-compose.yml` - All services orchestration
 
-### 🚧 Phase 2: E-Commerce Public Choreography - NEXT
+### ✅ Phase 2: E-Commerce Public Choreography - COMPLETE
 
-**What's Needed:**
+**What's Done:**
 
-1. Use `spas-compose init` to create E-Commerce domain
-2. Create `choreography.yaml` for public e-commerce flow
-3. Generate sidecar configurations via `spas-compose choreography build`
-4. Create domain-specific `docker-compose.yaml` in `examples/domains/ecommerce/public/`
-5. Verify end-to-end flow: Client → Gateway → Order → Inventory → Fulfillment
-6. Confirm Zipkin trace visualization shows W3C Trace Context propagation
+1. ✅ Used `spas-compose init public` to create E-Commerce domain workspace
+2. ✅ Pulled services from Repository with `spas-compose services pull`
+3. ✅ Created `choreography.yaml` for public e-commerce flow (order → inventory → order confirmation)
+4. ✅ Generated sidecar configurations via `spas-compose choreography build --docker`
+5. ✅ Created domain-specific `docker-compose.yaml` in `examples/domains/ecommerce/public/`
+6. ✅ Verified end-to-end flow: OrderCreated → StockReserved → Order Confirmed
+7. ✅ Confirmed Zipkin trace visualization shows W3C Trace Context propagation
+
+**Event Flow Validated:**
+
+```
+POST /orders (order-service)
+    → OrderCreated event published
+    → inventory-service receives event
+    → Stock reserved for order items
+    → StockReserved event published
+    → order-service receives event
+    → Order status updated to "confirmed"
+```
+
+**Bugs Fixed During Phase 2:**
+
+- `spas-compose services pull` - Fixed ZIP parsing (was using JSON.parse on binary)
+- Added `adm-zip` dependency to spas-compose CLI
+
+**Bugs Documented (See README.md FG05-FG08):**
+
+- FG05: spas-compose should use `image:` from runtime metadata, not `build:`
+- FG06: sidecar config generation incomplete (eventType format, invokeEndpoint, transform loading)
+- FG07: incorrect port configurations (service ports, sidecar `SIDECAR_PORT` env var)
+- FG08: SDK should derive sidecar host from SERVICE_NAME convention
+
+**Phase 2 Files:**
+
+- `examples/domains/ecommerce/public/choreography.yaml` - Event flow definition
+- `examples/domains/ecommerce/public/docker-compose.yaml` - Domain deployment
+- `examples/domains/ecommerce/public/config.order-service.json` - Sidecar config
+- `examples/domains/ecommerce/public/config.inventory-service.json` - Sidecar config
+- `examples/domains/ecommerce/public/transformations/` - JSONata transform files
+
+**Running Phase 2 Example:**
+
+```bash
+# From examples/domains/ecommerce/public/
+docker compose up -d
+
+# Create order with valid product IDs
+curl -X POST http://localhost:5002/orders \
+  -H "Content-Type: application/json" \
+  -d '{"customerId":"cust-123","items":[{"productId":"prod-001","quantity":2,"price":10.00}],"total":20.00}'
+
+# Check order status (should be "confirmed" after event flow completes)
+curl http://localhost:5002/orders
+
+# View traces in Zipkin
+open http://localhost:9411
+```
 
 **⚠️ Stub Services Note:**
 
 The full E-Commerce flow requires `fulfillment-service` (a stub, not a SPAS service). Stubs are not published to Repository, so `spas-compose services pull` won't work. Options:
 
-- **Option A**: Simplify flow to end at `inventory-service` (PoC validation)
+- **Option A**: Simplify flow to end at `inventory-service` (PoC validation) ✅ **IMPLEMENTED**
 - **Option B**: Manually create `services/fulfillment-service/spas.json` with minimal metadata
 - **Option C** (future): Extend `spas-compose` to support stub service definitions in choreography
 
@@ -174,7 +225,38 @@ Same `order-service`, same `product-service` — different choreographies, diffe
 
 **Event Flows**:
 
-**E-Commerce Domain (Sync Edge via Sidecar HTTP Proxy → Async Internal)**:
+**E-Commerce Domain - Phase 2 Implementation (Order → Inventory → Confirmation)**:
+
+```mermaid
+sequenceDiagram
+    participant Client
+    participant OrderService as order-service
+    participant Order-Sidecar as order-sidecar
+    participant Redis
+    participant Inv-Sidecar as inventory-sidecar
+    participant InventoryService as inventory-service
+
+    Client->>OrderService: POST /orders
+    OrderService-->>Client: 201 Created (status: created)
+
+    OrderService->>Order-Sidecar: POST /publish (OrderCreated)
+    Order-Sidecar->>Redis: XADD orders-created
+
+    Redis->>Inv-Sidecar: XREAD orders-created
+    Inv-Sidecar->>InventoryService: POST /incoming (OrderCreated)
+    InventoryService-->>Inv-Sidecar: 200 OK (stock reserved)
+
+    InventoryService->>Inv-Sidecar: POST /publish (StockReserved)
+    Inv-Sidecar->>Redis: XADD stock-reserved
+
+    Redis->>Order-Sidecar: XREAD stock-reserved
+    Order-Sidecar->>OrderService: POST /events/stock-reserved
+    OrderService-->>Order-Sidecar: 200 OK (status: confirmed)
+
+    Note over Client,InventoryService: Order status now "confirmed" - GET /orders shows updated status
+```
+
+**Full E-Commerce Flow (Future - includes fulfillment stub)**:
 
 ```mermaid
 sequenceDiagram

@@ -8,8 +8,15 @@
 
 This section documents the latest actions, any issues encountered, and the exact next steps so another agent can resume seamlessly.
 
-### What Was Done (Repository Tests Fixed + Schema Standards Documented)
+### What Was Done (Rename choreography deploy to build + Schema Standards)
 
+- **Command Renamed** — Changed `spas-compose choreography deploy` to `spas-compose choreography build`
+  - Rationale: "build" more accurately describes generating deployment artifacts; "deploy" implies running containers
+  - File renamed: `choreography-deploy.ts` → `choreography-build.ts`
+  - Types updated: `ChoreographyDeployOptions` → `ChoreographyBuildOptions`
+  - Exit codes updated: `ChoreographyDeployExitCode` → `ChoreographyBuildExitCode`
+  - All specs, docs, and schemas updated (21 files changed)
+  - Tests: All 135 tests passing ✓
 - **Repository Tests Fixed** — Resolved Ajv JSON Schema validation errors; all 106 repository tests passing (7 suites)
   - Root cause: Integration test fixtures used draft-07 schemas; validator was misconfigured with draft-04 plugin
   - Solution: Simplified to Ajv default (draft-07); removed draft-04/meta-schema complications
@@ -22,7 +29,7 @@ This section documents the latest actions, any issues encountered, and the exact
   - Updated `principles/service/06-service-metadata.md` with draft-07 reference and rationale
   - Updated `principles/infrastructure/16-schema-registry.md` with technical specification
   - Added ADR-039 to `principles/appendix/28-decision-log.md` documenting decision
-- **All Tests Green** — Repository (106/106), Sidecar (passing per terminal), SDK SampleService (startup success confirmed)
+- **All Tests Green** — Repository (106/106), Sidecar (passing per terminal), CLI spas-compose (135/135), SDK SampleService (startup success confirmed)
 
 ### What Failed or Required Adjustment
 
@@ -32,6 +39,7 @@ This section documents the latest actions, any issues encountered, and the exact
 ### Precise Next Steps (Pick and execute IN ORDER)
 
 1. **Start Phase 5 Planning** — E-commerce PoC with full domain choreography, transformations, and end-to-end deployment
+2. **Optional: Create ADR-040** — Document the choreography deploy→build rename decision if it warrants future reference
 
 ## 📋 Key Rules for Multi-Machine Continuity
 

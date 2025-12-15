@@ -7,27 +7,18 @@ domain: public
 # Named choreography flows
 flows:
   order-fulfillment:
-    description: "Order creation triggers inventory reservation and fulfillment"
+    description: "Order creation triggers inventory reservation"
     participants:
       - order-service
       - inventory-service
-      - fulfillment-service
     events:
-      # Step 1: Order created → Inventory reserves stock
+      # Order created → Inventory reserves stock
       - source: order-service
         event: OrderCreated
-        topic: orders.created
+        topic: orders-created
         targets:
           - service: inventory-service
             transform: transformations/inventory-service/inbound-order-created.jsonata
-
-      # Step 2: Stock reserved → Fulfillment processes order
-      - source: inventory-service
-        event: StockReserved
-        topic: inventory.reserved
-        targets:
-          - service: fulfillment-service
-            transform: transformations/fulfillment-service/inbound-stock-reserved.jsonata
 
 # Infrastructure components
 infrastructure:

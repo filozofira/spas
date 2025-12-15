@@ -1,0 +1,11 @@
+{
+  "inbound": [
+    {
+      "kind": "event",
+      "topic": "orders-created",
+      "invokeEndpoint": "/incoming",
+      "transform": "transformations/inbound-order-created.jsonata"
+    }
+  ],
+  "outbound": []
+}

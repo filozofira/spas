@@ -114,8 +114,11 @@ All G-Features should be listed here to ensure AI agents have easy access to it.
 ### FG01: Extend spas-compose init to take --output argument
 
 Extend spas-compose init to take --output argument indicating where to initiate domain, while agent promts would go to project root.
+
 E.g. if I run `spas-compose public --output ./examples/ecommerce/public` cli would scaffold choreography files and folders in `./examples/ecommerce/public`, while agent prompts would go to `./.github/agents...`.
 
+Agent prompt should not be called `/spas-compose` but `/spas.compose` to follow standard.
+ 
 It is important that generated agent prompt has correct path references to domain schema files, etc. I.e.
 
 ```markdown

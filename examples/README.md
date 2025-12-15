@@ -69,6 +69,16 @@ This example demonstrates the complete SPAS framework in a multi-service e-comme
 5. Verify end-to-end flow: Client → Gateway → Order → Inventory → Fulfillment
 6. Confirm Zipkin trace visualization shows W3C Trace Context propagation
 
+**⚠️ Stub Services Note:**
+
+The full E-Commerce flow requires `fulfillment-service` (a stub, not a SPAS service). Stubs are not published to Repository, so `spas-compose services pull` won't work. Options:
+
+- **Option A**: Simplify flow to end at `inventory-service` (PoC validation)
+- **Option B**: Manually create `services/fulfillment-service/spas.json` with minimal metadata
+- **Option C** (future): Extend `spas-compose` to support stub service definitions in choreography
+
+Currently using Option A. Full flow with stubs deferred to Phase 3 or later.
+
 **Reference:**
 
 - Design: See "Event Flows" section below for E-Commerce sequence diagram

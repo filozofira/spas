@@ -1,0 +1,8 @@
+{
+  "inbound": [],
+  "outbound": [
+    {
+      "topic": "orders-created"
+    }
+  ]
+}

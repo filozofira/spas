@@ -297,13 +297,16 @@ Expected:
 2. Use correct transform path matching the workspace structure
 3. Generate appropriate `invokeEndpoint` based on event type or service contract
 
-### FG07: spas-compose generates incorrect service ports
+### FG07: spas-compose generates incorrect service and sidecar ports
 
-`spas-compose choreography build --docker` generates docker-compose with arbitrary ports (5001, 5002, etc.) that don't match actual service ports.
+`spas-compose choreography build --docker` generates docker-compose with incorrect port configurations.
 
-**Issue:** .NET services in containers default to port 8080 (ASP.NET Core behavior). The generator has no way to know what port services listen on.
+**Issue 1: Service ports**
+
+.NET services in containers default to port 8080 (ASP.NET Core behavior). The generator uses arbitrary ports (5001, 5002, etc.).
 
 **Generated:**
+
 ```yaml
 order-service:
   ports:
@@ -313,6 +316,7 @@ order-service:
 ```
 
 **Expected (for .NET services):**
+
 ```yaml
 order-service:
   ports:
@@ -321,15 +325,94 @@ order-service:
     - PORT=8080
 ```
 
-**PoC Fix (Option B):** Default to port 8080 for all containerized services. This works because:
-- .NET services default to 8080 in containers
-- Node.js services can be configured via PORT env var
+**Issue 2: Sidecar ports**
+
+Generator assigns different ports per sidecar (7001, 7002, 7003...), but services have hardcoded sidecar configuration (e.g., `appsettings.json` with port 7001). Service cannot connect to sidecar due to port mismatch.
+
+**Generated:**
+
+```yaml
+order-service-sidecar:
+  environment:
+    - PORT=7002 # Sidecar listens here
+order-service:
+  environment:
+    - SIDECAR_PORT=7002 # But service config may have 7001 hardcoded
+```
+
+**Expected:**
+
+```yaml
+order-service-sidecar:
+  environment:
+    - PORT=7001 # Standard sidecar port
+order-service:
+  environment:
+    - SERVICE_NAME=order-service
+    - SIDECAR_PORT=7001
+```
+
+**PoC Fix:**
+
+- Use port 8080 for all service containers (standard container port)
+- Use port 7001 for all sidecars (standard sidecar port)
+- Add `SERVICE_NAME` and `SIDECAR_PORT` env vars (SDK reads these directly)
+- Note: `SIDECAR_HOST` becomes unnecessary once FG08 is implemented (host derived from SERVICE_NAME)
 
 **Future Options:**
-- Option A: Add `port` field to service metadata schema (design-time-metadata-v1)
-- Option C: Allow port override in choreography.yaml per service
+
+- Add `port` and `sidecarPort` fields to service metadata schema
+- Allow port override in choreography.yaml per service
+
+**Justification:** Services unreachable without correct port mapping. Services cannot publish events if they can't connect to their sidecar.
 
 **Justification:** Services unreachable without correct port mapping. Sidecars also need correct SERVICE_PORT to invoke service endpoints.
+
+### FG08: SDK should derive sidecar host from SERVICE_NAME convention
+
+The .NET SDK currently requires explicit `SIDECAR_HOST` environment variable to connect to the sidecar. Per prototype design, the sidecar naming convention is `{service-name}-sidecar`, making this variable redundant.
+
+**Current behavior:**
+
+```csharp
+// SpasConfiguration.cs
+Host = Environment.GetEnvironmentVariable("SIDECAR_HOST") ?? "localhost";
+```
+
+**Expected behavior:**
+
+```csharp
+var serviceName = Environment.GetEnvironmentVariable("SERVICE_NAME");
+Host = serviceName != null ? $"{serviceName}-sidecar" : "localhost";
+```
+
+**docker-compose implications:**
+
+Current (redundant):
+
+```yaml
+order-service:
+  environment:
+    - SERVICE_NAME=order-service
+    - SIDECAR_HOST=order-service-sidecar # Redundant!
+    - SIDECAR_PORT=7001
+```
+
+Expected (simpler):
+
+```yaml
+order-service:
+  environment:
+    - SERVICE_NAME=order-service
+    - SIDECAR_PORT=7001 # Host derived from SERVICE_NAME
+```
+
+**Justification:**
+
+- Reduces configuration redundancy
+- Follows convention-over-configuration principle
+- Aligns with prototype design decisions
+- Simplifies docker-compose generation in spas-compose
 
 ## Related Documents
 

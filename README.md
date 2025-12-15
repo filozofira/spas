@@ -263,7 +263,18 @@ Expected:
 }
 ```
 
-**Issue 2: Incorrect transform path and invokeEndpoint**
+**Issue 2: Wrong eventType format**
+
+Generator uses event name (`OrderCreated`) instead of full CloudEvents type from service metadata (`com.ecommerce.order.created`). The sidecar routes by exact eventType match, so SDK-published events fail routing.
+
+Generated: `"eventType": "OrderCreated"`
+Expected: `"eventType": "com.ecommerce.order.created"`
+
+**Issue 3: Incorrect invokeEndpoint**
+
+Generator uses `/events/order-created` but service exposes `/incoming`. Should derive endpoint from service metadata or use consistent convention.
+
+**Issue 4: Incorrect transform path**
 
 Generated:
 
@@ -271,7 +282,6 @@ Generated:
 {
   "inbound": [
     {
-      "invokeEndpoint": "/incoming",
       "transform": "transformations/inbound-order-created.jsonata"
     }
   ]
@@ -284,18 +294,22 @@ Expected:
 {
   "inbound": [
     {
-      "invokeEndpoint": "/events/order-created",
       "transform": "transformations/inventory-service/inbound-order-created.jsonata"
     }
   ]
 }
 ```
 
-**Justification:** Sidecar fails to start with invalid configuration. The generator should:
+**Issue 5: Sidecar doesn't load transform files (sidecar bug)**
 
-1. Include `eventType` from choreography event definition
+The sidecar passes the transform file path directly to JSONata instead of loading the file content first. This causes transform failures. Workaround: omit transform or inline the JSONata expression.
+
+**Justification:** Sidecar fails to start or route events with invalid configuration. The generator should:
+
+1. Include `eventType` from service metadata (full CloudEvents type)
 2. Use correct transform path matching the workspace structure
-3. Generate appropriate `invokeEndpoint` based on event type or service contract
+3. Derive `invokeEndpoint` from service contract or use consistent convention
+4. Sidecar should load transform file content before passing to JSONata
 
 ### FG07: spas-compose generates incorrect service and sidecar ports
 
@@ -345,12 +359,16 @@ order-service:
 ```yaml
 order-service-sidecar:
   environment:
-    - PORT=7001 # Standard sidecar port
+    - SIDECAR_PORT=7001 # Sidecar reads SIDECAR_PORT, not PORT
 order-service:
   environment:
     - SERVICE_NAME=order-service
     - SIDECAR_PORT=7001
 ```
+
+**Issue 3: Wrong sidecar port environment variable name**
+
+Generator outputs `PORT=7001` for sidecars, but the sidecar reads `SIDECAR_PORT`. This causes sidecar to use default port (3500) instead of configured port.
 
 **PoC Fix:**
 

@@ -1,0 +1,5 @@
+{
+  "orderId": data.orderId,
+  "reservedItems": data.reservedItems,
+  "reservedAt": data.reservedAt
+}

@@ -88,6 +88,7 @@ services:
       - REDIS_PORT=6379
     volumes:
       - ./config.order-service.json:/app/config.json
+      - ./transformations/order-service:/app/transformations
     networks:
       - spas-network
     depends_on:

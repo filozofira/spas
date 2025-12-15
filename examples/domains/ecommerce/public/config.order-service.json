@@ -1,5 +1,11 @@
 {
-  "inbound": [],
+  "inbound": [
+    {
+      "kind": "event",
+      "topic": "stock-reserved",
+      "invokeEndpoint": "/events/stock-reserved"
+    }
+  ],
   "outbound": [
     {
       "eventType": "com.ecommerce.order.created",

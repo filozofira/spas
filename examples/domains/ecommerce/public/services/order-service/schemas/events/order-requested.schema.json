@@ -1,0 +1,40 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "OrderRequestedEvent",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "CustomerId": {
+      "type": "string"
+    },
+    "Items": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/OrderItem"
+      }
+    },
+    "Total": {
+      "type": "number",
+      "format": "decimal"
+    }
+  },
+  "definitions": {
+    "OrderItem": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "ProductId": {
+          "type": "string"
+        },
+        "Quantity": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "Price": {
+          "type": "number",
+          "format": "decimal"
+        }
+      }
+    }
+  }
+}

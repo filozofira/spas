@@ -95,3 +95,66 @@ Below you can find the quick navigation to SPAS principles documents organized b
 
 **I want to understand architectural decisions**
 → Read [Architecture Overview](02-architecture-overview.md) and [Decision Log](appendix/28-decision-log.md)
+
+---
+
+## Developer Cross-Reference Guide
+
+When implementing features, use these patterns to navigate the spec:
+
+### Building SDK Features
+
+```text
+Feature requested: "Event publishing API"
+  ↓
+Consult: component/12-sdk.md (SDK Specification > Responsibilities)
+  ↓
+Implement API to match spec examples
+  ↓
+Cross-check: service/04-service-contract.md (events[] published definitions)
+  ↓
+Validate: Examples match appendix/26-reference-examples.md
+```
+
+### Building Repository API
+
+```text
+Feature: "GET /services/{name}/{version}"
+  ↓
+Consult: component/11-repository.md (API Endpoints)
+  ↓
+Check schema: service/06-service-metadata.md
+  ↓
+Review: governance/24-compliance-checklist.md (validation requirements)
+```
+
+### Building CLI Commands
+
+```text
+Feature: "spas-service pack"
+  ↓
+Consult: component/13-cli.md (Commands section)
+  ↓
+Understand input: service/06-service-metadata.md (spas.json schema)
+  ↓
+Understand output: infrastructure/15-package-format.md
+  ↓
+Validate: Examples from appendix/26-reference-examples.md
+```
+
+---
+
+## Quick Specification Lookup
+
+| Component | Spec Reference | Purpose |
+|-----------|----------------|----------|
+| SDK | [component/12-sdk.md](component/12-sdk.md) | Service development library |
+| Repository | [component/11-repository.md](component/11-repository.md) | Metadata storage & discovery |
+| CLI | [component/13-cli.md](component/13-cli.md) | Packaging & composition tooling |
+| Sidecar | [component/10-sidecar-contract.md](component/10-sidecar-contract.md) | Runtime transformation & event I/O |
+| Service Contracts | [service/04-service-contract.md](service/04-service-contract.md) | What services expose |
+| Service Metadata | [service/06-service-metadata.md](service/06-service-metadata.md) | spas.json schema |
+| Choreography | [component/14-domain-choreography.md](component/14-domain-choreography.md) | Adaptation & mapping |
+| Communication | [protocol/07-communication-model.md](protocol/07-communication-model.md) | HTTP (PoC) → gRPC (prod) |
+| Events | [protocol/09-event-protocol.md](protocol/09-event-protocol.md) | CloudEvents + W3C Trace Context |
+| Decisions | [appendix/28-decision-log.md](appendix/28-decision-log.md) | Architecture Decision Records |

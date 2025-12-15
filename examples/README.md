@@ -408,7 +408,7 @@ spas-service publish http://localhost:5002 --repo http://localhost:3000 `
 
 **Note:** Stub services (fulfillment-service, subscription-service) and api-gateway are not SPAS services and are not published to Repository.
 
-**Phase 2 Note**:
+**Phase 2 Details**:
 
 > ⚠️ **CLI Smoke Test**: Phase 2 serves as integration verification for `spas-compose` CLI.
 > If issues are found, fix CLI before proceeding. Per specs 005/008, all CLI tasks are marked complete.

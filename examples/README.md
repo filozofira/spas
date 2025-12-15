@@ -26,7 +26,7 @@ This example demonstrates the complete SPAS framework in a multi-service e-comme
 | 3 | **End-to-end observability** — Single W3C Trace ID flows through entire event chain, visible in Zipkin | Recommended | Proves choreography doesn't break distributed tracing |
 | 4 | **Single-command deployment workflow** — From `spas-compose init` to `docker compose up` with minimal manual steps | Recommended | Validates toolchain integration and developer experience |
 
-**Proposed Scenario** *(to be refined in Section 3)*:
+**Scenario Summary**:
 
 Two domains share the same reusable services but compose them differently:
 
@@ -43,11 +43,30 @@ Same `order-service`, same `product-service` — different choreographies, diffe
 
 **In Scope**:
 
-- _TBD_
+| Category | Items |
+|----------|-------|
+| **Shared Services** | 2 reusable SPAS services with SDK integration (extensible to more) |
+| **Stub Services** | 2 mock/stub downstream services (replaceable with real SPAS services later) |
+| **Domain Contexts** | 2 domains with separate choreography.yaml demonstrating different compositions |
+| **Choreography Artifacts** | Topic mappings, JSONata transformations, sidecar configs for each domain |
+| **Deployment** | Docker Compose for each domain (infrastructure: Redis, Zipkin, sidecars) |
+| **Observability** | Zipkin trace visualization showing cross-service correlation |
+| **State Inspection** | REST endpoints on each service to view in-memory state (e.g., `GET /orders`) |
+| **Documentation** | README walkthroughs for each domain showing the full workflow |
+| **Repository Integration** | Services published to Repository; domains pull from Repository |
 
 **Out of Scope**:
 
-- _TBD_
+| Category | Rationale |
+|----------|-----------|
+| **Real business logic** | Services use minimal in-memory state; focus is on SPAS integration, not e-commerce implementation |
+| **Persistent storage** | In-memory only; restart = clean state *(SQLite as optional future enhancement)* |
+| **UI/Frontend** | No web interface; state inspection via REST endpoints and curl/Postman |
+| **Authentication/Authorization** | Identity in payload (PoC pattern); no real auth implementation |
+| **Kubernetes deployment** | Docker Compose only; K8s is production concern |
+| **Contract testing** | Deferred from PoC per constitution |
+| **Multiple languages** | All services in one language initially *(future extensibility for SDK demos in Java/Node)* |
+| **Performance testing** | Focus is correctness, not scale |
 
 ---
 

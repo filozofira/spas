@@ -89,10 +89,14 @@ Same `order-service`, same `product-service` — different choreographies, diffe
 
 **Gateway (External to SPAS)**:
 
-| Gateway | Domain | Pattern | Description |
-|---------|--------|---------|-------------|
-| **api-gateway** | E-Commerce | Sync (HTTP via sidecars) | Gateway-sidecar → order-sidecar (HTTP); sync response |
-| **api-gateway** | B2B | Async (event publishing) | Gateway-sidecar → Redis → order-sidecar; returns 202 Accepted |
+| Gateway | Description |
+|---------|-------------|
+| **api-gateway** | Single codebase; sync vs async behavior determined by domain's sidecar-config.json |
+
+| Domain | Sidecar Mode | Behavior |
+|--------|--------------|----------|
+| E-Commerce | HTTP proxy | Gateway-sidecar → order-sidecar (HTTP); sync response |
+| B2B | Event publishing | Gateway-sidecar → Redis → order-sidecar; returns 202 Accepted |
 
 **Event Flows**:
 
@@ -246,11 +250,8 @@ examples/
 │       ├── index.js
 │       └── Dockerfile
 │
-├── gateways/                              # Custom gateways (Node.js)
-│   ├── ecommerce-gateway/
-│   │   ├── index.js
-│   │   └── Dockerfile
-│   └── b2b-gateway/
+├── gateways/                              # Custom gateway (Node.js)
+│   └── api-gateway/                       # Single codebase; behavior via sidecar config
 │       ├── index.js
 │       └── Dockerfile
 │
@@ -258,6 +259,7 @@ examples/
     ├── ecommerce/                         # E-commerce organization
     │   ├── public/                        # Phase 1: customer-facing
     │   │   ├── choreography.yaml
+    │   │   ├── sidecar-config.json        # HTTP proxy mode for gateway
     │   │   ├── docker-compose.yaml
     │   │   └── README.md                  # Domain walkthrough
     │   └── admin/                         # Future: product management
@@ -266,6 +268,7 @@ examples/
     └── b2b/                               # B2B organization
         └── subscription/                  # Phase 1: recurring orders
             ├── choreography.yaml
+            ├── sidecar-config.json        # Event publishing mode for gateway
             ├── docker-compose.yaml
             └── README.md                  # Domain walkthrough
 ```
@@ -273,22 +276,73 @@ examples/
 **Notes**:
 - `services/` contains reusable SPAS services; published to Repository
 - `stubs/` contains domain-specific mocks; not published to Repository
-- `gateways/` are per-organization; external to SPAS
-- `domains/` groups sub-domains by organization; each has its own choreography
+- `gateways/` single api-gateway codebase; sync vs async determined by sidecar config
+- `domains/` groups sub-domains by organization; each has its own choreography and sidecar config
 
 ---
 
 ### 6. Development Phases
 
 | Phase | Description | Deliverables |
-| ----- | ----------- | ------------ |
-| 1     | _TBD_       | _TBD_        |
+|-------|-------------|-------------|
+| **1** | Core services + E-Commerce public | order-service, inventory-service, fulfillment-stub, ecommerce-gateway, choreography.yaml, docker-compose.yaml |
+| **2** | B2B subscription domain | subscription-stub, b2b-gateway, choreography.yaml, docker-compose.yaml |
+| **3** | Product service | product-service, query routing in both gateways |
+| **4** | Repository integration | Publish services to Repository; pull into domain deployments |
+| **5** | CLI workflow | `spas-compose init` → `choreography build` → `docker compose up` |
+| **6** | Documentation & polish | README walkthroughs, Zipkin trace screenshots, demo script |
+
+**Phase 1 Details** (MVP):
+
+```mermaid
+flowchart LR
+    subgraph "Phase 1 Scope"
+        Client([Client])
+        GW[ecommerce-gateway]
+        GWS[gateway-sidecar]
+        OS[order-sidecar]
+        O[order-service]
+        IS[inventory-sidecar]
+        I[inventory-service]
+        FS[fulfillment-stub]
+        R[(Redis)]
+        Z[Zipkin]
+    end
+
+    Client --> GW --> GWS --> OS --> O
+    OS --> R --> IS --> I
+    IS --> R --> FS
+    O -.-> Z
+    I -.-> Z
+```
+
+**Phase 2 Deliverable**: Same services, different choreography → proves reuse.
 
 ---
 
 ### 7. Success Criteria
 
-- [ ] _TBD_
+**Mandatory** (must pass for PoC success):
+
+- [ ] **Reuse proven**: Same order-service and inventory-service deployed to both E-Commerce and B2B domains without code changes
+- [ ] **Choreography differentiation**: Different `choreography.yaml` routes events to different downstream consumers
+- [ ] **End-to-end trace**: Single W3C Trace ID visible in Zipkin across all services in a request flow
+- [ ] **Docker Compose up**: Each domain starts with `docker compose up` and handles requests
+
+**Recommended** (validates toolchain):
+
+- [ ] **Repository publish**: Services published to Repository with manifests
+- [ ] **CLI workflow**: `spas-compose init` + `choreography build` generates working artifacts
+- [ ] **State inspection**: REST endpoints return in-memory state for debugging
+
+**Demo Scenarios**:
+
+| # | Scenario | Expected Outcome |
+|---|----------|------------------|
+| 1 | POST order in E-Commerce | Sync 201 response; Zipkin shows trace through inventory → fulfillment |
+| 2 | POST order in B2B | Async 202 response; Zipkin shows trace through inventory → subscription |
+| 3 | GET products (both domains) | Sync response with product list |
+| 4 | Restart and re-order | State cleared; new order created (in-memory proof) |
 
 ---
 

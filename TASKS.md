@@ -8,7 +8,22 @@
 
 This section documents the latest actions, any issues encountered, and the exact next steps so another agent can resume seamlessly.
 
-### What Was Done (Phase 5 Design Complete)
+### What Was Done (Phase 2 Preparation)
+
+- **Critical Bug Fixed: Runtime Metadata Not Published** (Dec 15, 2025)
+  - **Issue**: `spas-service publish` with `--image-digest/--image-repository/--image-tag` flags was NOT passing runtime metadata to Repository in normal publish mode (only in archive mode)
+  - **Root Cause**: `publish()` method in PublishService missing runtime metadata parameter
+  - **Files Fixed**:
+    - `components/cli/spas-service/src/commands/publish.ts` — Added runtimeMetadata parameter to publish() call
+    - `components/cli/spas-service/src/services/publish-service.ts` — Updated publish() signature to accept optional runtimeMetadata
+    - `components/cli/spas-service/test/integration/publish.test.ts` — Updated test expectations
+  - **Verification**: All 48 tests passing; services republished with runtime metadata successfully
+  - **Impact**: Runtime metadata now properly stored in Repository and included in downloaded archives
+
+- **SDK SchemaGeneratorTests Fixed** (Dec 15, 2025)
+  - **Issue**: 4 tests failing due to return type mismatch (expected string, got Dictionary)
+  - **Fix**: `GenerateSchemaWithDraft07Async()` now serializes Dictionary to JSON string before returning
+  - **Verification**: All 125 SDK tests passing (6/6 SchemaGeneratorTests, 93/93 total in Metadata.Tests)
 
 - **Phase 5 Design Document Created** — Complete design for E-Commerce example in `examples/README.md`
   - 7 sections finalized: Requirements, Scope, Service Portfolio, Technology, Folder Structure, Phases, Success Criteria

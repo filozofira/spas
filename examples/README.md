@@ -47,7 +47,9 @@ This example demonstrates the complete SPAS framework in a multi-service e-comme
 
 **Files Changed:**
 
-- `components/sdk/dotnet/src/Spas.Sdk.Metadata/Schema/SchemaGenerator.cs` - Fixed draft-07 schema generation
+- `components/sdk/dotnet/src/Spas.Sdk.Metadata/Schema/SchemaGenerator.cs` - Fixed draft-07 schema generation + test return type fix (Dec 15)
+- `components/cli/spas-service/src/commands/publish.ts` - Fixed runtime metadata not being passed in normal publish mode (Dec 15)
+- `components/cli/spas-service/src/services/publish-service.ts` - Updated publish() to accept runtime metadata (Dec 15)
 - `examples/services/order-service/` - Complete service implementation
 - `examples/services/inventory-service/` - Complete service implementation
 - `examples/services/product-service/` - Complete service implementation

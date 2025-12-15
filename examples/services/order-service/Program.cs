@@ -34,7 +34,7 @@ app.UseSpasIdentity();
 var identity = new ServiceIdentityBuilder()
     .WithId("order-service")
     .WithName("order-service")
-    .WithVersion("1.0.2")
+    .WithVersion("1.0.0")
     .WithBoundedContext("order")
     .WithDescription("Order lifecycle management service")
     .AddCapability("order-management")

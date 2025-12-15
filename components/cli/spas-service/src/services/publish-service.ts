@@ -25,7 +25,7 @@ export class PublishService {
         private repositoryClient: RepositoryClient
     ) {}
 
-    async publish(serviceHost: string): Promise<ServiceIdentity> {
+    async publish(serviceHost: string, runtimeMetadata?: RuntimeMetadata): Promise<ServiceIdentity> {
         // Step 1: Prompt user to ensure service is running
         await this.promptUser(serviceHost);
 
@@ -35,8 +35,13 @@ export class PublishService {
         // Step 3: Extract service identity from archive
         const identity = await this.archiveReader.extractIdentity(archiveBuffer);
 
-        // Step 4: Publish to repository
-        await this.repositoryClient.publishService(identity.id, identity.version, archiveBuffer);
+        // Step 4: Publish to repository with optional runtime metadata
+        await this.repositoryClient.publishService(
+            identity.id,
+            identity.version,
+            archiveBuffer,
+            runtimeMetadata
+        );
 
         return identity;
     }

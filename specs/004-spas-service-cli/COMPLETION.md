@@ -1,9 +1,40 @@
 # SPAS Service CLI - Completion Summary
 
 **Feature**: 004-spas-service-cli  
-**Status**: ✅ Complete (PoC)  
+**Status**: ✅ Complete (PoC) + Critical Bug Fix (Dec 15, 2025)  
 **Completed**: 2025-01  
 **Tests**: 48/48 passing
+
+## ⚠️ Critical Bug Fix (December 15, 2025)
+
+**Issue**: Runtime metadata not being passed to Repository in normal publish mode
+
+**Problem**: When using `spas-service publish http://localhost:5000 --image-digest ... --image-repository ... --image-tag ...`, the runtime metadata flags were correctly parsed but NOT passed to the `publishService.publish()` method. Runtime metadata was only passed in archive mode (`--archive` flag).
+
+**Impact**: Services published without runtime metadata resulted in `runtime: null` in:
+- Repository API responses (`GET /services/{name}/versions/{version}`)
+- Downloaded archives (`spas.json` inside ZIP files)
+
+**Root Cause**:
+- `commands/publish.ts` line 85: Called `publishService.publish(serviceHost!)` without passing `runtimeMetadata` parameter
+- `services/publish-service.ts`: `publish()` method signature didn't accept runtime metadata
+
+**Fix Applied**:
+- Updated `PublishService.publish()` signature: `async publish(serviceHost: string, runtimeMetadata?: RuntimeMetadata)`
+- Pass runtime metadata to `repositoryClient.publishService()` in normal publish mode
+- Added runtime info display after successful publish (matching archive mode)
+- Updated integration test expectations
+
+**Files Modified**:
+- `src/commands/publish.ts` — Added runtimeMetadata parameter to publish() call + info display
+- `src/services/publish-service.ts` — Updated publish() method signature and implementation
+- `test/integration/publish.test.ts` — Updated test to expect 4 parameters (including undefined for runtimeMetadata)
+
+**Verification**: All 48 tests passing
+
+**Resolution**: Services can now be published with runtime metadata in both normal and archive modes.
+
+---
 
 ## Overview
 

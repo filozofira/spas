@@ -33,7 +33,7 @@ app.UseSpasIdentity();
 var identity = new ServiceIdentityBuilder()
     .WithId("product-service")
     .WithName("product-service")
-    .WithVersion("1.0.2")
+    .WithVersion("1.0.0")
     .WithBoundedContext("product")
     .WithDescription("Product catalog browsing service")
     .AddCapability("product-catalog")

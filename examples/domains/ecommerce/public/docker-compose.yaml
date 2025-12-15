@@ -30,11 +30,11 @@ services:
     image: spas-examples/inventory-service:1.0.0
     container_name: spas-inventory-service
     ports:
-      - "5001:5001"
+      - "5001:8080"
     environment:
       - SERVICE_NAME=inventory-service
       - SIDECAR_PORT=7001
-      - PORT=5001
+      - PORT=8080
       - ZIPKIN_URL=http://zipkin:9411
     networks:
       - spas-network
@@ -46,7 +46,7 @@ services:
       - CONFIG_PATH=/app/config.json
       - SERVICE_NAME=inventory-service
       - ZIPKIN_URL=http://zipkin:9411
-      - SERVICE_PORT=5001
+      - SERVICE_PORT=8080
       - REDIS_HOST=redis
       - REDIS_PORT=6379
     volumes:
@@ -61,11 +61,11 @@ services:
     image: spas-examples/order-service:1.0.0
     container_name: spas-order-service
     ports:
-      - "5002:5002"
+      - "5002:8080"
     environment:
       - SERVICE_NAME=order-service
       - SIDECAR_PORT=7002
-      - PORT=5002
+      - PORT=8080
       - ZIPKIN_URL=http://zipkin:9411
     networks:
       - spas-network
@@ -77,7 +77,7 @@ services:
       - CONFIG_PATH=/app/config.json
       - SERVICE_NAME=order-service
       - ZIPKIN_URL=http://zipkin:9411
-      - SERVICE_PORT=5002
+      - SERVICE_PORT=8080
       - REDIS_HOST=redis
       - REDIS_PORT=6379
     volumes:

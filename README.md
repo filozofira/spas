@@ -297,6 +297,40 @@ Expected:
 2. Use correct transform path matching the workspace structure
 3. Generate appropriate `invokeEndpoint` based on event type or service contract
 
+### FG07: spas-compose generates incorrect service ports
+
+`spas-compose choreography build --docker` generates docker-compose with arbitrary ports (5001, 5002, etc.) that don't match actual service ports.
+
+**Issue:** .NET services in containers default to port 8080 (ASP.NET Core behavior). The generator has no way to know what port services listen on.
+
+**Generated:**
+```yaml
+order-service:
+  ports:
+    - "5002:5002"
+  environment:
+    - PORT=5002
+```
+
+**Expected (for .NET services):**
+```yaml
+order-service:
+  ports:
+    - "5002:8080"
+  environment:
+    - PORT=8080
+```
+
+**PoC Fix (Option B):** Default to port 8080 for all containerized services. This works because:
+- .NET services default to 8080 in containers
+- Node.js services can be configured via PORT env var
+
+**Future Options:**
+- Option A: Add `port` field to service metadata schema (design-time-metadata-v1)
+- Option C: Allow port override in choreography.yaml per service
+
+**Justification:** Services unreachable without correct port mapping. Sidecars also need correct SERVICE_PORT to invoke service endpoints.
+
 ## Related Documents
 
 - [Principles](./principles/README.md) - SPAS Framework guiding principles

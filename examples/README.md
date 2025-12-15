@@ -6,14 +6,14 @@ End-to-end demonstrations of the SPAS framework in realistic scenarios.
 
 ## E-Commerce Domain Example
 
-**Status**: ✅ Phase 1 Complete | 🚧 Phase 2 In Progress  
-**Branch**: `example/phase1`
+**Status**: ✅ Phase 1 Complete | ✅ Phase 2 Complete  
+**Branch**: `example/phase2`
 
 This example demonstrates the complete SPAS framework in a multi-service e-commerce domain.
 
 ---
 
-## Current Status (December 15, 2025)
+## Current Status (December 16, 2025)
 
 ### ✅ Phase 1: Core Services + Repository Integration - COMPLETE
 
@@ -36,7 +36,7 @@ This example demonstrates the complete SPAS framework in a multi-service e-comme
 
 - **Repository Integration:**
 
-  - All SPAS services successfully published to Repository (http://localhost:3000)
+  - All SPAS services successfully published to Repository (<http://localhost:3000>)
   - **Critical Bug Fixed:** SDK schema generation updated from draft-04 to draft-07 (per ADR-039)
   - Schema validation passing in Repository
 
@@ -47,7 +47,9 @@ This example demonstrates the complete SPAS framework in a multi-service e-comme
 
 **Files Changed:**
 
-- `components/sdk/dotnet/src/Spas.Sdk.Metadata/Schema/SchemaGenerator.cs` - Fixed draft-07 schema generation
+- `components/sdk/dotnet/src/Spas.Sdk.Metadata/Schema/SchemaGenerator.cs` - Fixed draft-07 schema generation + test return type fix (Dec 15)
+- `components/cli/spas-service/src/commands/publish.ts` - Fixed runtime metadata not being passed in normal publish mode (Dec 15)
+- `components/cli/spas-service/src/services/publish-service.ts` - Updated publish() to accept runtime metadata (Dec 15)
 - `examples/services/order-service/` - Complete service implementation
 - `examples/services/inventory-service/` - Complete service implementation
 - `examples/services/product-service/` - Complete service implementation
@@ -56,16 +58,77 @@ This example demonstrates the complete SPAS framework in a multi-service e-comme
 - `examples/gateways/api-gateway/` - Node.js gateway
 - `examples/docker-compose.yml` - All services orchestration
 
-### 🚧 Phase 2: E-Commerce Public Choreography - NEXT
+### ✅ Phase 2: E-Commerce Public Choreography - COMPLETE
 
-**What's Needed:**
+**What's Done:**
 
-1. Use `spas-compose init` to create E-Commerce domain
-2. Create `choreography.yaml` for public e-commerce flow
-3. Generate sidecar configurations via `spas-compose choreography build`
-4. Create domain-specific `docker-compose.yaml` in `examples/domains/ecommerce/public/`
-5. Verify end-to-end flow: Client → Gateway → Order → Inventory → Fulfillment
-6. Confirm Zipkin trace visualization shows W3C Trace Context propagation
+1. ✅ Used `spas-compose init public` to create E-Commerce domain workspace
+2. ✅ Pulled services from Repository with `spas-compose services pull`
+3. ✅ Created `choreography.yaml` for public e-commerce flow (order → inventory → order confirmation)
+4. ✅ Generated sidecar configurations via `spas-compose choreography build --docker`
+5. ✅ Created domain-specific `docker-compose.yaml` in `examples/domains/ecommerce/public/`
+6. ✅ Verified end-to-end flow: OrderCreated → StockReserved → Order Confirmed
+7. ✅ Confirmed Zipkin trace visualization shows W3C Trace Context propagation
+
+**Event Flow Validated:**
+
+```
+POST /orders (order-service)
+    → OrderCreated event published
+    → inventory-service receives event
+    → Stock reserved for order items
+    → StockReserved event published
+    → order-service receives event
+    → Order status updated to "confirmed"
+```
+
+**Bugs Fixed During Phase 2:**
+
+- `spas-compose services pull` - Fixed ZIP parsing (was using JSON.parse on binary)
+- Added `adm-zip` dependency to spas-compose CLI
+
+**Bugs Documented (See README.md FG05-FG08):**
+
+- FG05: spas-compose should use `image:` from runtime metadata, not `build:`
+- FG06: sidecar config generation incomplete (eventType format, invokeEndpoint, transform loading)
+- FG07: incorrect port configurations (service ports, sidecar `SIDECAR_PORT` env var)
+- FG08: SDK should derive sidecar host from SERVICE_NAME convention
+
+**Phase 2 Files:**
+
+- `examples/domains/ecommerce/public/choreography.yaml` - Event flow definition
+- `examples/domains/ecommerce/public/docker-compose.yaml` - Domain deployment
+- `examples/domains/ecommerce/public/config.order-service.json` - Sidecar config
+- `examples/domains/ecommerce/public/config.inventory-service.json` - Sidecar config
+- `examples/domains/ecommerce/public/transformations/` - JSONata transform files
+
+**Running Phase 2 Example:**
+
+```bash
+# From examples/domains/ecommerce/public/
+docker compose up -d
+
+# Create order with valid product IDs
+curl -X POST http://localhost:5002/orders \
+  -H "Content-Type: application/json" \
+  -d '{"customerId":"cust-123","items":[{"productId":"prod-001","quantity":2,"price":10.00}],"total":20.00}'
+
+# Check order status (should be "confirmed" after event flow completes)
+curl http://localhost:5002/orders
+
+# View traces in Zipkin
+open http://localhost:9411
+```
+
+**⚠️ Stub Services Note:**
+
+The full E-Commerce flow requires `fulfillment-service` (a stub, not a SPAS service). Stubs are not published to Repository, so `spas-compose services pull` won't work. Options:
+
+- **Option A**: Simplify flow to end at `inventory-service` (PoC validation) ✅ **IMPLEMENTED**
+- **Option B**: Manually create `services/fulfillment-service/spas.json` with minimal metadata
+- **Option C** (future): Extend `spas-compose` to support stub service definitions in choreography
+
+Currently using Option A. Full flow with stubs deferred to Phase 3 or later.
 
 **Reference:**
 
@@ -162,7 +225,38 @@ Same `order-service`, same `product-service` — different choreographies, diffe
 
 **Event Flows**:
 
-**E-Commerce Domain (Sync Edge via Sidecar HTTP Proxy → Async Internal)**:
+**E-Commerce Domain - Phase 2 Implementation (Order → Inventory → Confirmation)**:
+
+```mermaid
+sequenceDiagram
+    participant Client
+    participant OrderService as order-service
+    participant Order-Sidecar as order-sidecar
+    participant Redis
+    participant Inv-Sidecar as inventory-sidecar
+    participant InventoryService as inventory-service
+
+    Client->>OrderService: POST /orders
+    OrderService-->>Client: 201 Created (status: created)
+
+    OrderService->>Order-Sidecar: POST /publish (OrderCreated)
+    Order-Sidecar->>Redis: XADD orders-created
+
+    Redis->>Inv-Sidecar: XREAD orders-created
+    Inv-Sidecar->>InventoryService: POST /incoming (OrderCreated)
+    InventoryService-->>Inv-Sidecar: 200 OK (stock reserved)
+
+    InventoryService->>Inv-Sidecar: POST /publish (StockReserved)
+    Inv-Sidecar->>Redis: XADD stock-reserved
+
+    Redis->>Order-Sidecar: XREAD stock-reserved
+    Order-Sidecar->>OrderService: POST /events/stock-reserved
+    OrderService-->>Order-Sidecar: 200 OK (status: confirmed)
+
+    Note over Client,InventoryService: Order status now "confirmed" - GET /orders shows updated status
+```
+
+**Full E-Commerce Flow (Future - includes fulfillment stub)**:
 
 ```mermaid
 sequenceDiagram
@@ -389,26 +483,26 @@ For republishing services with runtime metadata:
 ```powershell
 # order-service
 spas-service publish http://localhost:5000 --repo http://localhost:3000 `
-  --imageDigest "sha256:c09d46af396e2340fd182fbba36c3f4e0ae817c94a36b1d261ec2e37d67e6ea5" `
-  --imageRepository "spas-examples/order-service" `
-  --imageTag "1.0.0"
+  --image-digest "your_sha256" `
+  --image-repository "spas-examples/order-service" `
+  --image-tag "1.0.0"
 
 # inventory-service
 spas-service publish http://localhost:5001 --repo http://localhost:3000 `
-  --imageDigest "sha256:3ddedc3cff4dccc7e3a8ec7c319504c51776097e9dd66b5baba9dab4b3e81148" `
-  --imageRepository "spas-examples/inventory-service" `
-  --imageTag "1.0.0"
+  --image-digest "your_sha256" `
+  --image-repository "spas-examples/inventory-service" `
+  --image-tag "1.0.0"
 
 # product-service
 spas-service publish http://localhost:5002 --repo http://localhost:3000 `
-  --imageDigest "sha256:71c345af04a2832e9bb56f7f9dc5752493ecedcc46d30fbcd4ff77693df90bdf" `
-  --imageRepository "spas-examples/product-service" `
-  --imageTag "1.0.0"
+  --image-digest "your_sha256" `
+  --image-repository "spas-examples/product-service" `
+  --image-tag "1.0.0"
 ```
 
 **Note:** Stub services (fulfillment-service, subscription-service) and api-gateway are not SPAS services and are not published to Repository.
 
-**Phase 2 Note**:
+**Phase 2 Details**:
 
 > ⚠️ **CLI Smoke Test**: Phase 2 serves as integration verification for `spas-compose` CLI.
 > If issues are found, fix CLI before proceeding. Per specs 005/008, all CLI tasks are marked complete.

@@ -1,0 +1,3 @@
+---
+agent: spas-compose
+---

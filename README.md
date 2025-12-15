@@ -111,7 +111,41 @@ All G-Features should be listed here to ensure AI agents have easy access to it.
   1. Nice-to-have examples and perhaps even code snippets etc.
   1. Must-have justification or why implement the feature.
 
-### FG01: Add State element to Service Metadata
+### FG01: Extend spas-compose init to take --output argument
+
+Extend spas-compose init to take --output argument indicating where to initiate domain, while agent promts would go to project root.
+
+E.g. if I run `spas-compose public --output ./examples/ecommerce/public` cli would scaffold choreography files and folders in `./examples/ecommerce/public`, while agent prompts would go to `./.github/agents...`.
+
+Agent prompt should not be called `/spas-compose` but `/spas.compose` to follow standard.
+
+It is important that generated agent prompt has correct path references to domain schema files, etc. I.e.
+
+```markdown
+...
+
+1. **Contract Analysis**: Parse service metadata from `./examples/ecommerce/public/services/*/spas.json`
+   ...
+   other paths...
+```
+
+Also, any reference to spas principles should be removed, since this will not be available for domain developer operating from different project. Instead it important info should be embedded in prompt.
+I.e. currently below is mentioned in References section:
+
+```markdown
+## References
+
+- [./examples/ecommerce/public/.spas/schemas/sidecar-config-v1.schema.json](public/.spas/schemas/sidecar-config-v1.schema.json)
+- [specs/005-spas-compose-cli/](specs/005-spas-compose-cli/)
+- [principles/component/14-domain-choreography.md](principles/component/14-domain-choreography.md)
+- [ADR-037: AI-in-the-loop composition](principles/appendix/28-decision-log.md)
+```
+
+**Justification:** Agent prompts are project-level resources (shared across all domains).
+Domain workspaces are domain-specific (each domain has its own choreography)
+Current behavior creates agent prompts relative to where you run the command, causing duplication or misplacement.
+
+### FG02: Add State element to Service Metadata
 
 Add StateStore or State element to spas.json, design-time and runtime.
 
@@ -143,13 +177,13 @@ Add StateStore or State element to spas.json, design-time and runtime.
 - Allow spas-compose CLI to add these dependencies to docker-compose file and hence allow one command to bootstrap full domain with all dependencies.
 - Visualises full network dependencies required by service to operate.
 
-### FG02: Cross Domain Choreography
+### FG03: Cross Domain Choreography
 
 Extend framework to support choreographies across multiple domain contexts.
 
 **Justification:** Adding this feature would allow domain composers to integrate multiple domains into one SPAS solution, allowing data to flow/synchronise across these boundaries. E.g. admin-e-commerce and public-e-commerce domain contexts can synchronise products, stock related data and similar.
 
-### FG03: SDK Metadata extraction
+### FG04: SDK Metadata extraction
 
 Consider swapping `_spas/metadata` endpoint with cli based extraction of metadata archive.
 E.g. extend SDK to support writing metadata to file (e.g. already implemented in SampleService `SpasComposer.ComposeToFile(...)`) when running app with certain arguments.
@@ -185,6 +219,219 @@ dotnet run
 - Allows easier integration with CI/CD pipelines to build and publish service metadata to SPAS Repository automatically.
 - Would simplify spas-service publishing since there is no need to wait for developer to start service any more.
 
+### FG05: spas-compose should use image references from runtime metadata
+
+Currently `spas-compose choreography build --docker` generates `build: ./service-name` directives expecting local Dockerfiles. When services have `runtime` metadata in spas.json (image, repository, tag, digest), the generated docker-compose should use `image:` instead.
+
+**Current (incorrect):**
+
+```yaml
+order-service:
+  build: ./order-service
+```
+
+**Expected:**
+
+```yaml
+order-service:
+  image: spas-examples/order-service:1.0.0
+```
+
+Similarly, sidecar services should reference a published sidecar image (`spas/sidecar:latest`) rather than expecting a local `./spas-sidecar/` folder.
+
+**Justification:** Domain composers pull service metadata from Repository - they don't have local source code. The generated docker-compose must be runnable using only published images.
+
+### FG06: spas-compose sidecar config generation incomplete
+
+`spas-compose choreography build --docker` generates sidecar config files with missing or incorrect fields:
+
+**Issue 1: Missing eventType in outbound config**
+
+Generated:
+
+```json
+{
+  "outbound": [{ "topic": "orders-created" }]
+}
+```
+
+Expected:
+
+```json
+{
+  "outbound": [{ "eventType": "OrderCreated", "topic": "orders-created" }]
+}
+```
+
+**Issue 2: Wrong eventType format**
+
+Generator uses event name (`OrderCreated`) instead of full CloudEvents type from service metadata (`com.ecommerce.order.created`). The sidecar routes by exact eventType match, so SDK-published events fail routing.
+
+Generated: `"eventType": "OrderCreated"`
+Expected: `"eventType": "com.ecommerce.order.created"`
+
+**Issue 3: Incorrect invokeEndpoint**
+
+Generator uses `/events/order-created` but service exposes `/incoming`. Should derive endpoint from service metadata or use consistent convention.
+
+**Issue 4: Incorrect transform path**
+
+Generated:
+
+```json
+{
+  "inbound": [
+    {
+      "transform": "transformations/inbound-order-created.jsonata"
+    }
+  ]
+}
+```
+
+Expected:
+
+```json
+{
+  "inbound": [
+    {
+      "transform": "transformations/inventory-service/inbound-order-created.jsonata"
+    }
+  ]
+}
+```
+
+**Issue 5: Sidecar doesn't load transform files (sidecar bug)**
+
+The sidecar passes the transform file path directly to JSONata instead of loading the file content first. This causes transform failures. Workaround: omit transform or inline the JSONata expression.
+
+**Justification:** Sidecar fails to start or route events with invalid configuration. The generator should:
+
+1. Include `eventType` from service metadata (full CloudEvents type)
+2. Use correct transform path matching the workspace structure
+3. Derive `invokeEndpoint` from service contract or use consistent convention
+4. Sidecar should load transform file content before passing to JSONata
+
+### FG07: spas-compose generates incorrect service and sidecar ports
+
+`spas-compose choreography build --docker` generates docker-compose with incorrect port configurations.
+
+**Issue 1: Service ports**
+
+.NET services in containers default to port 8080 (ASP.NET Core behavior). The generator uses arbitrary ports (5001, 5002, etc.).
+
+**Generated:**
+
+```yaml
+order-service:
+  ports:
+    - "5002:5002"
+  environment:
+    - PORT=5002
+```
+
+**Expected (for .NET services):**
+
+```yaml
+order-service:
+  ports:
+    - "5002:8080"
+  environment:
+    - PORT=8080
+```
+
+**Issue 2: Sidecar ports**
+
+Generator assigns different ports per sidecar (7001, 7002, 7003...), but services have hardcoded sidecar configuration (e.g., `appsettings.json` with port 7001). Service cannot connect to sidecar due to port mismatch.
+
+**Generated:**
+
+```yaml
+order-service-sidecar:
+  environment:
+    - PORT=7002 # Sidecar listens here
+order-service:
+  environment:
+    - SIDECAR_PORT=7002 # But service config may have 7001 hardcoded
+```
+
+**Expected:**
+
+```yaml
+order-service-sidecar:
+  environment:
+    - SIDECAR_PORT=7001 # Sidecar reads SIDECAR_PORT, not PORT
+order-service:
+  environment:
+    - SERVICE_NAME=order-service
+    - SIDECAR_PORT=7001
+```
+
+**Issue 3: Wrong sidecar port environment variable name**
+
+Generator outputs `PORT=7001` for sidecars, but the sidecar reads `SIDECAR_PORT`. This causes sidecar to use default port (3500) instead of configured port.
+
+**PoC Fix:**
+
+- Use port 8080 for all service containers (standard container port)
+- Use port 7001 for all sidecars (standard sidecar port)
+- Add `SERVICE_NAME` and `SIDECAR_PORT` env vars (SDK reads these directly)
+- Note: `SIDECAR_HOST` becomes unnecessary once FG08 is implemented (host derived from SERVICE_NAME)
+
+**Future Options:**
+
+- Add `port` and `sidecarPort` fields to service metadata schema
+- Allow port override in choreography.yaml per service
+
+**Justification:** Services unreachable without correct port mapping. Services cannot publish events if they can't connect to their sidecar.
+
+**Justification:** Services unreachable without correct port mapping. Sidecars also need correct SERVICE_PORT to invoke service endpoints.
+
+### FG08: SDK should derive sidecar host from SERVICE_NAME convention
+
+The .NET SDK currently requires explicit `SIDECAR_HOST` environment variable to connect to the sidecar. Per prototype design, the sidecar naming convention is `{service-name}-sidecar`, making this variable redundant.
+
+**Current behavior:**
+
+```csharp
+// SpasConfiguration.cs
+Host = Environment.GetEnvironmentVariable("SIDECAR_HOST") ?? "localhost";
+```
+
+**Expected behavior:**
+
+```csharp
+var serviceName = Environment.GetEnvironmentVariable("SERVICE_NAME");
+Host = serviceName != null ? $"{serviceName}-sidecar" : "localhost";
+```
+
+**docker-compose implications:**
+
+Current (redundant):
+
+```yaml
+order-service:
+  environment:
+    - SERVICE_NAME=order-service
+    - SIDECAR_HOST=order-service-sidecar # Redundant!
+    - SIDECAR_PORT=7001
+```
+
+Expected (simpler):
+
+```yaml
+order-service:
+  environment:
+    - SERVICE_NAME=order-service
+    - SIDECAR_PORT=7001 # Host derived from SERVICE_NAME
+```
+
+**Justification:**
+
+- Reduces configuration redundancy
+- Follows convention-over-configuration principle
+- Aligns with prototype design decisions
+- Simplifies docker-compose generation in spas-compose
+
 ## Related Documents
 
 - [Principles](./principles/README.md) - SPAS Framework guiding principles
@@ -192,3 +439,4 @@ dotnet run
 - [Components](./components/README.md) - SPAS Framework component development
 - Prototypes
   - [spas-sidecar](./prototypes/spas-sidecar-prototype/README.md) - SPAS Sidecar prototype
+- [Examples](./examples/README.md)

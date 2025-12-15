@@ -34,7 +34,7 @@ app.UseSpasIdentity();
 var identity = new ServiceIdentityBuilder()
     .WithId("inventory-service")
     .WithName("inventory-service")
-    .WithVersion("1.0.2")
+    .WithVersion("1.0.0")
     .WithBoundedContext("inventory")
     .WithDescription("Stock tracking and reservation service")
     .AddCapability("inventory-tracking")

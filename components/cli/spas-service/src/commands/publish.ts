@@ -82,11 +82,20 @@ async function executePublish(serviceHost: string | undefined, options: PublishO
       info(`Publishing service metadata from ${serviceHost}`);
       info(`Target repository: ${repositoryUrl}`);
 
-      const identity = await publishService.publish(serviceHost!);
+      const identity = await publishService.publish(serviceHost!, runtimeMetadata);
 
       success(`Downloaded metadata from ${serviceHost}`);
       success(`Extracted identity: ${identity.id} v${identity.version}`);
       success(`Published ${identity.id}:${identity.version} to ${repositoryUrl}`);
+      
+      if (runtimeMetadata) {
+        if (runtimeMetadata.imageRepository) {
+          info(`  Image: ${runtimeMetadata.imageRepository}:${runtimeMetadata.imageTag || 'latest'}`);
+        }
+        if (runtimeMetadata.imageDigest) {
+          info(`  Digest: ${runtimeMetadata.imageDigest}`);
+        }
+      }
     }
   } catch (err) {
     handlePublishError(err);

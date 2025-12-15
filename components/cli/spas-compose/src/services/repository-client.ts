@@ -6,6 +6,7 @@
  */
 
 import axios, { AxiosError } from "axios";
+import AdmZip from "adm-zip";
 import type { RepositoryServiceResponse } from "../types.js";
 
 /**
@@ -81,7 +82,7 @@ export class RepositoryClient {
       }
 
       // Parse ZIP archive and extract metadata
-      return await this.parseServiceArchive(Buffer.from(response.data));
+      return this.parseServiceArchive(Buffer.from(response.data));
     } catch (error) {
       if (error instanceof RepositoryError) {
         throw error;
@@ -114,26 +115,36 @@ export class RepositoryClient {
 
   /**
    * Parse service archive (ZIP) and extract metadata and schemas
-   *
-   * Note: This is a simplified implementation for PoC.
-   * Production should use proper ZIP parsing (adm-zip or unzipper).
    */
-  private async parseServiceArchive(
-    buffer: Buffer,
-  ): Promise<RepositoryServiceResponse> {
-    // For PoC, assume repository returns pre-parsed JSON structure
-    // Production: Extract spas.json and schemas/*.json from ZIP
+  private parseServiceArchive(buffer: Buffer): RepositoryServiceResponse {
     try {
-      const data = JSON.parse(buffer.toString("utf-8"));
-      return {
-        metadata: data.metadata,
-        schemas: data.schemas || [],
-      };
+      const zip = new AdmZip(buffer);
+
+      // Extract spas.json
+      const metadataEntry = zip.getEntry("spas.json");
+      if (!metadataEntry) {
+        throw new Error("Archive missing spas.json");
+      }
+      const metadata = JSON.parse(metadataEntry.getData().toString("utf-8"));
+
+      // Extract schema files
+      const schemas: Array<{ path: string; name: string; content: string }> = [];
+      for (const entry of zip.getEntries()) {
+        if (entry.entryName.includes("schemas/") && entry.entryName.endsWith(".json")) {
+          schemas.push({
+            path: entry.entryName,
+            name: entry.entryName.split("/").pop() || entry.entryName,
+            content: entry.getData().toString("utf-8"),
+          });
+        }
+      }
+
+      return { metadata, schemas };
     } catch (error) {
       throw new RepositoryError(
         RepositoryErrorCode.INVALID_RESPONSE,
         "Failed to parse service archive",
-        "Repository may have returned invalid data",
+        "Archive may be corrupted or missing spas.json",
         error as Error,
       );
     }

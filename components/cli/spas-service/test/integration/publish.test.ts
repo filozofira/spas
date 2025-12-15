@@ -50,7 +50,8 @@ describe('Publish Command Integration', () => {
             expect(mockRepositoryClient.publishService).toHaveBeenCalledWith(
                 identity.id,
                 identity.version,
-                archiveBuffer
+                archiveBuffer,
+                undefined  // runtimeMetadata defaults to undefined
             );
         });
 

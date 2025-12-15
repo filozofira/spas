@@ -60,7 +60,7 @@ public class SchemaGenerator
     /// Generates a JSON schema for a specific type.
     /// </summary>
     /// <param name="type">The type to generate a schema for.</param>
-    /// <returns>The schema as a JSON object.</returns>
+    /// <returns>The schema as a JSON string.</returns>
     public async Task<object> GenerateSchemaAsync(Type type)
     {
         return await GenerateSchemaWithDraft07Async(type);
@@ -68,6 +68,7 @@ public class SchemaGenerator
 
     /// <summary>
     /// Generates JSON Schema and converts $schema to draft-07 for SPAS compliance (ADR-039).
+    /// Returns the schema as a JSON string per ADR-039 (JSON Schema draft-07 standard).
     /// </summary>
     private async Task<object> GenerateSchemaWithDraft07Async(Type type)
     {
@@ -75,10 +76,15 @@ public class SchemaGenerator
         var schema = JsonSchema.FromType(type);
         var schemaJson = schema.ToJson();
         
-        // Parse and modify $schema to draft-07
+        // Parse schema JSON and replace $schema value with draft-07
         var schemaObj = JsonSerializer.Deserialize<Dictionary<string, object>>(schemaJson)!;
-        schemaObj["$schema"] = JsonElement.Parse("\"http://json-schema.org/draft-07/schema#\"");
+        // Set $schema to draft-07 string (plain string, not JsonElement)
+        schemaObj["$schema"] = "http://json-schema.org/draft-07/schema#";
         
-        return await Task.FromResult(schemaObj);
+        // Serialize back to JSON string (per ADR-039: JSON Schema draft-07 compliance)
+        var options = new JsonSerializerOptions { WriteIndented = true };
+        var jsonString = JsonSerializer.Serialize(schemaObj, options);
+        
+        return await Task.FromResult(jsonString);
     }
 }

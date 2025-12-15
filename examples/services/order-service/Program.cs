@@ -34,7 +34,7 @@ app.UseSpasIdentity();
 var identity = new ServiceIdentityBuilder()
     .WithId("order-service")
     .WithName("order-service")
-    .WithVersion("1.0.2")
+    .WithVersion("1.0.0")
     .WithBoundedContext("order")
     .WithDescription("Order lifecycle management service")
     .AddCapability("order-management")
@@ -132,6 +132,27 @@ app.MapPost("/incoming",
         return Results.Ok(new { orderId, status = "created" });
     });
 
+// POST /events/stock-reserved - Receive StockReserved events from inventory-service
+app.MapPost("/events/stock-reserved",
+    (StockReservedEvent stockEvent, OrderStore store) =>
+    {
+        Console.WriteLine($"[order-service] Received StockReserved for order {stockEvent.OrderId}");
+        
+        var order = store.Get(stockEvent.OrderId);
+        if (order == null)
+        {
+            Console.WriteLine($"[order-service] Order {stockEvent.OrderId} not found");
+            return Results.NotFound(new { error = $"Order {stockEvent.OrderId} not found" });
+        }
+
+        // Update order status to confirmed
+        var updatedOrder = order with { Status = "confirmed" };
+        store.Add(updatedOrder);
+        
+        Console.WriteLine($"[order-service] Order {stockEvent.OrderId} status updated to 'confirmed'");
+        return Results.Ok(new { orderId = stockEvent.OrderId, status = "confirmed" });
+    });
+
 // Discover contracts
 var contracts = app.DiscoverSpasMetadata();
 
@@ -182,6 +203,12 @@ public record OrderCreatedEvent(Guid OrderId, string CustomerId, List<OrderItem>
 
 [SpasEvent("OrderRequested", "1.0", EventType = "com.b2b.order.requested")]
 public record OrderRequestedEvent(string CustomerId, List<OrderItem> Items, decimal Total);
+
+// Inbound events (subscribed)
+[SpasEvent("StockReserved", "1.0", EventType = "com.inventory.stock.reserved")]
+public record StockReservedEvent(Guid OrderId, List<ReservedItem> ReservedItems, DateTime ReservedAt);
+
+public record ReservedItem(string ProductId, int Quantity);
 
 // In-memory store
 public class OrderStore

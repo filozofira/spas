@@ -1,0 +1,36 @@
+# SPAS Choreography Configuration
+# E-Commerce Public Domain - Order Fulfillment Flow
+
+version: "1.0"
+domain: public
+
+# Named choreography flows
+flows:
+  order-fulfillment:
+    description: "Order creation triggers inventory reservation, confirmation flows back"
+    participants:
+      - order-service
+      - inventory-service
+    events:
+      # Order created → Inventory reserves stock
+      - source: order-service
+        event: OrderCreated
+        topic: orders-created
+        targets:
+          - service: inventory-service
+            transform: transformations/inventory-service/inbound-order-created.jsonata
+
+      # Stock reserved → Order confirmed
+      - source: inventory-service
+        event: StockReserved
+        topic: stock-reserved
+        targets:
+          - service: order-service
+            transform: transformations/order-service/inbound-stock-reserved.jsonata
+
+# Infrastructure components
+infrastructure:
+  redis:
+    enabled: true
+  zipkin:
+    enabled: true

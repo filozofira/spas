@@ -4,46 +4,65 @@
 
 ---
 
-## Agent Handoff Update (Dec 15, 2025)
+## Agent Handoff Update (Dec 16, 2025)
 
 This section documents the latest actions, any issues encountered, and the exact next steps so another agent can resume seamlessly.
 
-### What Was Done (Phase 5 Design Complete)
+### What Was Done (Phase 2 Complete)
 
-- **Phase 5 Design Document Created** — Complete design for E-Commerce example in `examples/README.md`
-  - 7 sections finalized: Requirements, Scope, Service Portfolio, Technology, Folder Structure, Phases, Success Criteria
-  - Mermaid sequence diagrams for E-Commerce (sync edge) and B2B (async edge) flows
-  - Service portfolio: order-service, inventory-service, product-service (SPAS) + fulfillment-stub, subscription-stub
-  - Single api-gateway codebase; sync vs async behavior via sidecar config per domain
-  - Nested domain structure: `domains/ecommerce/public/`, `domains/b2b/subscription/`
+- **Phase 2: E-Commerce Public Choreography - COMPLETE** (Dec 16, 2025)
 
-- **Previous Session (Rename + Schema Standards):**
-  - Command renamed: `spas-compose choreography deploy` → `choreography build`
-  - Repository tests fixed (106/106 passing)
-  - JSON Schema draft-07 standardized across SDK, Repository, CLI
-  - ADR-039 documented in decision log
+  - Initialized E-Commerce domain workspace with `spas-compose init public`
+  - Pulled services from Repository with `spas-compose services pull`
+  - **Bug Fixed**: `spas-compose services pull` failed with "Failed to parse service archive" - was using `JSON.parse()` on ZIP binary
+    - Added `adm-zip` dependency to spas-compose
+    - Rewrote `parseServiceArchive()` in `repository-client.ts`
+  - Created `choreography.yaml` with round-trip flow: OrderCreated → StockReserved → Order Confirmed
+  - Generated sidecar configs via `spas-compose choreography build --docker`
+  - Manually fixed multiple generator bugs (documented as FG05-FG08)
+  - Added `StockReserved` handler to order-service for order confirmation
+  - Verified end-to-end event flow working
+  - Zipkin traces showing W3C Trace Context propagation
 
-### Current Branch
+- **Files Changed/Created (Phase 2):**
 
-- `phase5-example-design` — Design document complete, ready for implementation
+  - `components/cli/spas-compose/src/services/repository-client.ts` - Fixed ZIP parsing with adm-zip
+  - `components/cli/spas-compose/package.json` - Added adm-zip dependency
+  - `examples/domains/ecommerce/public/choreography.yaml` - Event flow definition
+  - `examples/domains/ecommerce/public/docker-compose.yaml` - Domain deployment (manually fixed)
+  - `examples/domains/ecommerce/public/config.order-service.json` - Sidecar config
+  - `examples/domains/ecommerce/public/config.inventory-service.json` - Sidecar config
+  - `examples/domains/ecommerce/public/transformations/` - JSONata transform files
+  - `examples/services/order-service/Program.cs` - Added StockReserved handler
+  - `examples/README.md` - Updated with Phase 2 completion, new sequence diagram
+  - `README.md` - Added FG05-FG08 bug documentation
+
+- **Bugs Documented for Future Fix (README.md Feature Grooming):**
+  - **FG05**: spas-compose should use `image:` from runtime metadata, not `build:`
+  - **FG06**: Sidecar config generation incomplete (5 issues: missing eventType, wrong eventType format, incorrect invokeEndpoint, wrong transform path, sidecar doesn't load transform files)
+  - **FG07**: Incorrect port configurations (service ports 8080, sidecar `SIDECAR_PORT` env var not `PORT`)
+  - **FG08**: SDK should derive sidecar host from SERVICE_NAME convention
 
 ### Precise Next Steps (Pick and execute IN ORDER)
 
-1. **Commit design document** — `git add examples/README.md && git commit`
-2. **Start Phase 1 Implementation** — Build core services + Repository integration per [examples/README.md](./examples/README.md) Phase 1:
-   - Build: api-gateway, order-service, inventory-service, fulfillment-stub, subscription-stub
-   - Verify each starts in Docker Desktop
-   - Publish SPAS services to Repository via `spas-service publish`
-3. **Phase 2: E-Commerce choreography** — Use `spas-compose` CLI to generate choreography and docker-compose
-4. **Phase 3: B2B choreography** — Same services, different choreography (proves reuse)
+1. **Fix spas-compose bugs (FG05-FG07)** — Make tooling generate correct configs:
 
-### Key Design Reference
+   - FG05: Use `image:` from runtime metadata instead of `build:`
+   - FG06: Fix sidecar config generation (eventType format, invokeEndpoint, transform loading)
+   - FG07: Fix port configurations (8080 for services, SIDECAR_PORT env var)
+   - Optionally: FG08 (SDK sidecar host derivation)
 
-📄 **[examples/README.md](./examples/README.md)** — Complete Phase 5 design document with:
-- Service portfolio and event flows (Mermaid diagrams)
-- Technology decisions (.NET services, Node.js gateway/stubs)
-- Folder structure with nested domains
-- Development phases and success criteria
+2. **Phase 3: B2B Subscription Choreography** — Same services, different choreography:
+   - Proves service reuse across domains (core SPAS value proposition)
+   - Use `spas-compose init` for B2B domain
+   - Create async-first choreography (OrderRequested → OrderCreated → subscription flow)
+   - Verify same order-service/inventory-service work in different domain context
+
+### Key Files for Context
+
+- **[examples/README.md](./examples/README.md)** — Phase 1 & 2 complete, sequence diagrams, running instructions
+- **[README.md](./README.md)** — Feature Grooming section with FG05-FG08 bugs to fix
+- **[examples/domains/ecommerce/public/](./examples/domains/ecommerce/public/)** — Working Phase 2 deployment
 
 ## 📋 Key Rules for Multi-Machine Continuity
 
@@ -87,14 +106,14 @@ Once read, answer: "What is the immediate next task and what implementation arti
 
 **Implementation Phases:**
 
-| Phase | Description | Status |
-|-------|-------------|--------|
+| Phase  | Description                                  | Status      |
+| ------ | -------------------------------------------- | ----------- |
 | Design | Complete design document with all 7 sections | ✅ Complete |
-| 1 | Core services + Repository integration | 🔲 Next |
-| 2 | E-Commerce public choreography | 🔲 Pending |
-| 3 | B2B subscription choreography | 🔲 Pending |
-| 4 | Documentation & polish | 🔲 Pending |
-| 5 | Product service (optional) | 🔲 TBD |
+| 1      | Core services + Repository integration       | 🔲 Next     |
+| 2      | E-Commerce public choreography               | 🔲 Pending  |
+| 3      | B2B subscription choreography                | 🔲 Pending  |
+| 4      | Documentation & polish                       | 🔲 Pending  |
+| 5      | Product service (optional)                   | 🔲 TBD      |
 
 **Spec Cross-Reference:**
 
@@ -118,11 +137,11 @@ Once read, answer: "What is the immediate next task and what implementation arti
 
 Permanent documentation for spec cross-referencing and constraints:
 
-| Topic | Location |
-|-------|----------|
-| Spec navigation & cross-reference guide | [principles/README.md](./principles/README.md) |
-| PoC constraints & simplifications | [principles/02-architecture-overview.md](./principles/02-architecture-overview.md) |
-| Architecture decisions (ADRs) | [principles/appendix/28-decision-log.md](./principles/appendix/28-decision-log.md) |
-| Phase 5 folder structure | [examples/README.md](./examples/README.md) |
-| GitHub SpecKit specs | [specs/README.md](./specs/README.md) |
-| Components | [components/README.md](./components/README.md) |
+| Topic                                   | Location                                                                           |
+| --------------------------------------- | ---------------------------------------------------------------------------------- |
+| Spec navigation & cross-reference guide | [principles/README.md](./principles/README.md)                                     |
+| PoC constraints & simplifications       | [principles/02-architecture-overview.md](./principles/02-architecture-overview.md) |
+| Architecture decisions (ADRs)           | [principles/appendix/28-decision-log.md](./principles/appendix/28-decision-log.md) |
+| Phase 5 folder structure                | [examples/README.md](./examples/README.md)                                         |
+| GitHub SpecKit specs                    | [specs/README.md](./specs/README.md)                                               |
+| Components                              | [components/README.md](./components/README.md)                                     |

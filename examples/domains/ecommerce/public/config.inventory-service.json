@@ -1,0 +1,19 @@
+{
+  "inbound": [
+    {
+      "kind": "event",
+      "topic": "orders-created",
+      "invokeEndpoint": "/incoming"
+    }
+  ],
+  "outbound": [
+    {
+      "eventType": "com.inventory.stock.reserved",
+      "topic": "stock-reserved"
+    },
+    {
+      "eventType": "com.inventory.stock.depleted",
+      "topic": "stock-depleted"
+    }
+  ]
+}

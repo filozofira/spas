@@ -260,7 +260,13 @@ spas/                                  # Root repository
 │       ├── README.md                  # Integration guide (keyed to principles/10-sidecar-contract.md)
 │
 ├── examples/                          # 🔨 PHASE 5 - End-to-end PoC demonstrations
-│   ├── e-commerce/                    # E-commerce domain PoC
+│   ├── services/                      # Root folder to develop SPAS services that will be used in various domains. These services will be published to SPAS repository once developed.
+│   │   ├── README.md                  # 
+│   │   ├── Order-Service              # 
+│   │   ├── Notification-Service       # 
+│   │   ├── Some-Other-Service         # 
+│   ├── compositions/                  # Root folder to develop domain compositions using published services developed earlier in examples/services folder.
+│   ├── domain-x/                      # Some domain, e.g. e-commerce domain PoC
 │   │   ├── README.md                  # Domain walkthrough
 │   │   ├── docker-compose.yml         # Local deployment
 │   │   ├── services/
@@ -280,8 +286,8 @@ spas/                                  # Root repository
 │   │   └── test/
 │   │       ├── contract-test/        # Pact-style contract testing
 │   │       └── integration-test/     # End-to-end scenario test
-│   │
-│   └── simple-sync/                   # Minimal synchronous example
+│   ├── domain-y/                     # Some other domain
+│   └── simple-sync/                  # Minimal synchronous example
 │       └── [Two services + choreography]
 │
 ├── TASKS.md                           # This file - multi-machine continuity

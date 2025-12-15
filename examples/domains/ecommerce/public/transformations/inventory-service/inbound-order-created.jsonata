@@ -1,0 +1,8 @@
+/* Transform OrderCreated → inventory-service format */
+/* Source: order-service.OrderCreated */
+/* Target: inventory-service stock reservation */
+{
+  "orderId": orderId,
+  "items": items,
+  "timestamp": $now()
+}

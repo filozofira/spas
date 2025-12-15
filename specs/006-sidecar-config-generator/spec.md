@@ -8,7 +8,7 @@
 
 ## Context
 
-The `spas-compose choreography deploy --docker` command generates `docker-compose.yaml` that references sidecar configuration files:
+The `spas-compose choreography build --docker` command generates `docker-compose.yaml` that references sidecar configuration files:
 
 ```yaml
 volumes:
@@ -23,15 +23,15 @@ This feature adds `SidecarConfigGenerator` to produce these config files automat
 
 ### User Story 1 - Generate Sidecar Configs During Deploy (Priority: P1)
 
-As a developer, I want `spas-compose choreography deploy --docker` to generate sidecar configuration files alongside docker-compose.yaml so that I can run the composed domain with a single command without manual configuration.
+As a developer, I want `spas-compose choreography build --docker` to generate sidecar configuration files alongside docker-compose.yaml so that I can run the composed domain with a single command without manual configuration.
 
-**Why this priority**: This is the core functionality that bridges choreography definition to runnable sidecar containers. Without it, the entire choreography deploy workflow is incomplete.
+**Why this priority**: This is the core functionality that bridges choreography definition to runnable sidecar containers. Without it, the entire choreography build workflow is incomplete.
 
-**Independent Test**: Can be fully tested by running `spas-compose choreography deploy --docker` with a valid choreography.yaml and verifying `config.{service}.json` files are generated for each participating service.
+**Independent Test**: Can be fully tested by running `spas-compose choreography build --docker` with a valid choreography.yaml and verifying `config.{service}.json` files are generated for each participating service.
 
 **Acceptance Scenarios**:
 
-1. **Given** a domain with valid `choreography.yaml` containing flows with order-service and fulfillment-service, **When** I run `spas-compose choreography deploy --docker`, **Then**:
+1. **Given** a domain with valid `choreography.yaml` containing flows with order-service and fulfillment-service, **When** I run `spas-compose choreography build --docker`, **Then**:
 
    - `docker-compose.yaml` is generated (existing behavior)
    - `config.order-service.json` is generated with correct inbound/outbound entries
@@ -76,11 +76,11 @@ As a developer, I want `--dry-run` to also validate sidecar config generation so
 
 **Why this priority**: Dry run should give complete visibility into all generated artifacts, not just docker-compose.yaml.
 
-**Independent Test**: Can be fully tested by running `spas-compose choreography deploy --docker --dry-run` and verifying output shows both docker-compose.yaml content AND sidecar config contents.
+**Independent Test**: Can be fully tested by running `spas-compose choreography build --docker --dry-run` and verifying output shows both docker-compose.yaml content AND sidecar config contents.
 
 **Acceptance Scenarios**:
 
-1. **Given** a valid choreography, **When** I run `spas-compose choreography deploy --docker --dry-run`, **Then** output shows:
+1. **Given** a valid choreography, **When** I run `spas-compose choreography build --docker --dry-run`, **Then** output shows:
 
    - docker-compose.yaml content (existing)
    - List of sidecar config files that would be generated
@@ -100,7 +100,7 @@ As a developer, I want clear error messages when transformation files referenced
 
 **Acceptance Scenarios**:
 
-1. **Given** choreography references `transformations/order-service/outbound-order.jsonata` that doesn't exist, **When** I run `spas-compose choreography deploy --docker`, **Then** command fails with error listing the missing file path.
+1. **Given** choreography references `transformations/order-service/outbound-order.jsonata` that doesn't exist, **When** I run `spas-compose choreography build --docker`, **Then** command fails with error listing the missing file path.
 
 2. **Given** multiple transformation files are missing, **When** I run deploy, **Then** error lists ALL missing files (not just the first one).
 
@@ -136,7 +136,7 @@ As a developer, I want to define event routes without transformations for passth
 
 ### Functional Requirements
 
-- **FR-001**: `spas-compose choreography deploy --docker` MUST generate `config.{service}.json` for each service participating in any flow.
+- **FR-001**: `spas-compose choreography build --docker` MUST generate `config.{service}.json` for each service participating in any flow.
 - **FR-002**: Generated config MUST use the sidecar config schema with `inbound` and `outbound` arrays.
 - **FR-003**: Inbound entries MUST include `kind` ("event" or "command"), `topic`, optional `transform`, and `invokeEndpoint`.
 - **FR-004**: Outbound entries MUST include `topic` and optional `transform`.
@@ -184,7 +184,7 @@ As a developer, I want to define event routes without transformations for passth
 
 ### Measurable Outcomes
 
-- **SC-001**: `spas-compose choreography deploy --docker` produces all files needed to run `docker compose up` without manual file creation.
+- **SC-001**: `spas-compose choreography build --docker` produces all files needed to run `docker compose up` without manual file creation.
 - **SC-002**: Config generation adds <1 second to deploy command execution time.
 - **SC-003**: Generated configs are valid JSON parseable by sidecar without errors.
 - **SC-004**: All transformation paths in generated configs resolve correctly when mounted in Docker.

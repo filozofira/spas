@@ -71,7 +71,7 @@ SPAS specifies:
 
   - Workspace scaffolding with `init` command
   - Service metadata pull from Repository with `services pull` command
-  - Docker Compose deployment generation with `choreography deploy --docker`
+  - Docker Compose deployment generation with `choreography build --docker`
   - Sidecar config file generation (`config.{service}.json`) for runnable deployments (006-sidecar-config-generator)
   - Custom backbone images with `--event-backbone` and `--observability-backbone` flags (008-compose-backbone-args)
   - Backbone disable support for BYO infrastructure (`--event-backbone none`)

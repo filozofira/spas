@@ -177,7 +177,7 @@ View traces at http://localhost:9411
 
 ## Workflow Integration
 
-1. **Generate configs**: `spas-compose choreography deploy --docker`
+1. **Generate configs**: `spas-compose choreography build --docker`
 2. **Start infrastructure**: `docker compose up redis zipkin`
 3. **Start services with sidecars**: `docker compose up`
 

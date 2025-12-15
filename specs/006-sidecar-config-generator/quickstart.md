@@ -5,13 +5,13 @@
 
 ## Overview
 
-This enhancement adds automatic sidecar configuration file generation to `spas-compose choreography deploy --docker`. After this feature, a single command produces all artifacts needed to run `docker compose up`.
+This enhancement adds automatic sidecar configuration file generation to `spas-compose choreography build --docker`. After this feature, a single command produces all artifacts needed to run `docker compose up`.
 
 ## Before This Feature
 
 ```bash
 # Generate docker-compose.yaml
-spas-compose choreography deploy --docker
+spas-compose choreography build --docker
 
 # ❌ docker compose up fails - config files missing!
 docker compose up
@@ -22,7 +22,7 @@ docker compose up
 
 ```bash
 # Generate docker-compose.yaml AND config files
-spas-compose choreography deploy --docker
+spas-compose choreography build --docker
 
 # Generated files:
 # - docker-compose.yaml (existing)
@@ -39,7 +39,7 @@ docker compose up
 
 ```bash
 cd my-domain
-spas-compose choreography deploy --docker
+spas-compose choreography build --docker
 ```
 
 **Output**:
@@ -57,7 +57,7 @@ Next steps:
 ### Dry Run
 
 ```bash
-spas-compose choreography deploy --docker --dry-run
+spas-compose choreography build --docker --dry-run
 ```
 
 **Output**:
@@ -78,7 +78,7 @@ No files written (dry run)
 ### JSON Output
 
 ```bash
-spas-compose choreography deploy --docker --json
+spas-compose choreography build --docker --json
 ```
 
 ```json
@@ -131,7 +131,7 @@ spas-compose choreography deploy --docker --json
 ### Missing Transformation File
 
 ```bash
-spas-compose choreography deploy --docker
+spas-compose choreography build --docker
 ```
 
 ```
@@ -144,7 +144,7 @@ Hint: Create the missing file or remove the transform reference from choreograph
 ### Invalid Choreography
 
 ```bash
-spas-compose choreography deploy --docker
+spas-compose choreography build --docker
 ```
 
 ```
@@ -156,7 +156,7 @@ Hint: Pull the service with: spas-compose services pull unknown-service <version
 
 ## File Layout
 
-After running `spas-compose choreography deploy --docker`:
+After running `spas-compose choreography build --docker`:
 
 ```
 my-domain/

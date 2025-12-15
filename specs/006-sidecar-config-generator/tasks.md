@@ -49,9 +49,9 @@ Target: `components/cli/spas-compose/` (enhancement to existing CLI)
 
 ## Phase 3: User Story 1 - Generate Sidecar Configs During Deploy (Priority: P1) 🎯 MVP
 
-**Goal**: `spas-compose choreography deploy --docker` generates `config.{service}.json` files alongside docker-compose.yaml
+**Goal**: `spas-compose choreography build --docker` generates `config.{service}.json` files alongside docker-compose.yaml
 
-**Independent Test**: Run `spas-compose choreography deploy --docker` with valid choreography and verify config files are generated for each service
+**Independent Test**: Run `spas-compose choreography build --docker` with valid choreography and verify config files are generated for each service
 
 ### Tests for User Story 1
 
@@ -75,7 +75,7 @@ Target: `components/cli/spas-compose/` (enhancement to existing CLI)
 
 **Goal**: `--dry-run` shows sidecar config summaries without writing files
 
-**Independent Test**: Run `spas-compose choreography deploy --docker --dry-run` and verify output shows config summaries but no files are written
+**Independent Test**: Run `spas-compose choreography build --docker --dry-run` and verify output shows config summaries but no files are written
 
 ### Tests for User Story 2
 

@@ -5,7 +5,7 @@
 
 ## Summary
 
-Enhance `spas-compose choreography deploy --docker` to generate sidecar configuration files (`config.{service}.json`) alongside `docker-compose.yaml`. This bridges the gap between choreography definition and runnable sidecar containers, enabling a single-command workflow that produces all artifacts needed to run `docker compose up`.
+Enhance `spas-compose choreography build --docker` to generate sidecar configuration files (`config.{service}.json`) alongside `docker-compose.yaml`. This bridges the gap between choreography definition and runnable sidecar containers, enabling a single-command workflow that produces all artifacts needed to run `docker compose up`.
 
 ## Technical Context
 

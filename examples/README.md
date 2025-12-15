@@ -284,39 +284,43 @@ examples/
 ### 6. Development Phases
 
 | Phase | Description | Deliverables |
-|-------|-------------|-------------|
-| **1** | Core services + E-Commerce public | order-service, inventory-service, fulfillment-stub, ecommerce-gateway, choreography.yaml, docker-compose.yaml |
-| **2** | B2B subscription domain | subscription-stub, b2b-gateway, choreography.yaml, docker-compose.yaml |
-| **3** | Product service | product-service, query routing in both gateways |
-| **4** | Repository integration | Publish services to Repository; pull into domain deployments |
-| **5** | CLI workflow | `spas-compose init` → `choreography build` → `docker compose up` |
-| **6** | Documentation & polish | README walkthroughs, Zipkin trace screenshots, demo script |
+|-------|-------------|--------------|
+| **1** | Core services + Repository integration | api-gateway, order-service, inventory-service, fulfillment-stub, subscription-stub; publish SPAS services to Repository; verify each starts in Docker |
+| **2** | E-Commerce public | `spas-compose init` → `choreography build` → docker-compose.yaml; full end-to-end flow |
+| **3** | B2B subscription domain | Same CLI workflow, different choreography; proves service reuse |
+| **4** | Documentation & polish | README walkthroughs, Zipkin trace screenshots, demo script |
+| **5** | Product service (optional) | Depends on time; decide after Phase 4 |
 
-**Phase 1 Details** (MVP):
+**Phase 1 Details** (Services + Repository):
 
 ```mermaid
 flowchart LR
-    subgraph "Phase 1 Scope"
-        Client([Client])
-        GW[ecommerce-gateway]
-        GWS[gateway-sidecar]
-        OS[order-sidecar]
+    subgraph "Phase 1: Build & Publish"
+        GW[api-gateway]
         O[order-service]
-        IS[inventory-sidecar]
         I[inventory-service]
         FS[fulfillment-stub]
-        R[(Redis)]
-        Z[Zipkin]
+        SS[subscription-stub]
+        R[(Repository)]
     end
 
-    Client --> GW --> GWS --> OS --> O
-    OS --> R --> IS --> I
-    IS --> R --> FS
-    O -.-> Z
-    I -.-> Z
+    O -->|publish| R
+    I -->|publish| R
+    GW -.->|verify starts| Docker
+    O -.->|verify starts| Docker
+    I -.->|verify starts| Docker
+    FS -.->|verify starts| Docker
+    SS -.->|verify starts| Docker
 ```
 
-**Phase 2 Deliverable**: Same services, different choreography → proves reuse.
+**Phase 1 Verification Criteria**:
+- [ ] Each service/stub starts in Docker Desktop without errors
+- [ ] SPAS services (order, inventory) are SPAS-compliant (spas.yaml valid)
+- [ ] SPAS services published to Repository via `spas-service publish`
+
+**Phase 2 Note**:
+> ⚠️ **CLI Smoke Test**: Phase 2 serves as integration verification for `spas-compose` CLI.
+> If issues are found, fix CLI before proceeding. Per specs 005/008, all CLI tasks are marked complete.
 
 ---
 

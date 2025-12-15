@@ -80,9 +80,11 @@ Design-time metadata does not include `runtime`.
 
 ## JSON Schema (outline, design-time v1)
 
+> **JSON Schema Version**: SPAS uses JSON Schema **draft-07** for all metadata and contract schemas. This decision balances broad tooling support (Ajv, JsonSchema.Net) with stable specification maturity. See ADR-039.
+
 ```json
 {
-  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$schema": "http://json-schema.org/draft-07/schema#",
   "$id": "https://spas.dev/schemas/design-time-metadata-v1.json",
   "type": "object",
   "required": ["schemaVersion", "id", "version", "boundedContext", "capabilities", "endpoints", "events", "consistency", "network", "security", "license"],

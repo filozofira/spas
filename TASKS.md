@@ -4,48 +4,43 @@
 
 ---
 
-## Agent Handoff Update (Dec 14, 2025)
+## Agent Handoff Update (Dec 15, 2025)
 
 This section documents the latest actions, any issues encountered, and the exact next steps so another agent can resume seamlessly.
 
-### What Was Done (006-sidecar-config-generator Spec Created)
+### What Was Done (Repository Tests Fixed + Schema Standards Documented)
 
-- **All CLI Features Complete** — Both `spas-service` and `spas-compose` CLIs implemented
-- **Branch**: `006-sidecar-config-generator` (active)
-- **Status**: Config generator spec created, ready for `/speckit.tasks`
-
-**Session Actions**:
-
-1. Created `specs/006-sidecar-config-generator/spec.md` — Enhancement to spas-compose CLI
-2. Created `specs/006-sidecar-config-generator/checklists/requirements.md` — Quality checklist (all items pass)
-3. **Technology Decision**: Node.js for PoC (leverage prototype), Go migration path for Production
-4. Clarified separation of concerns:
-   - AI agent creates `.jsonata` transformation files (already works)
-   - `spas-compose choreography deploy` generates sidecar configs (THIS FEATURE)
-   - Sidecar loads configs + transformations at runtime (NEXT: 007-spas-sidecar)
+- **Repository Tests Fixed** — Resolved Ajv JSON Schema validation errors; all 106 repository tests passing (7 suites)
+  - Root cause: Integration test fixtures used draft-07 schemas; validator was misconfigured with draft-04 plugin
+  - Solution: Simplified to Ajv default (draft-07); removed draft-04/meta-schema complications
+  - Fixed deprecated ts-jest globals warning in jest.config.js (moved to transform array)
+- **Schema Compliance Verified** — Confirmed SDK, Repository, and CLI all use draft-07 JSON Schema; schemas are structurally compatible
+  - SDK emits `design-time-metadata-v1` (draft-07)
+  - Repository enriches to `runtime-metadata-v1` (draft-07) at publish
+  - CLI references SDK schema; all alignment confirmed
+- **Standards Documented** — Added ADR-039 and updated principles docs to formalize JSON Schema draft-07 as SPAS standard
+  - Updated `principles/service/06-service-metadata.md` with draft-07 reference and rationale
+  - Updated `principles/infrastructure/16-schema-registry.md` with technical specification
+  - Added ADR-039 to `principles/appendix/28-decision-log.md` documenting decision
+- **All Tests Green** — Repository (106/106), Sidecar (passing per terminal), SDK SampleService (startup success confirmed)
 
 ### What Failed or Required Adjustment
 
-- Nothing failed in this session
-- SDK SampleService `dotnet run` still exits with code 1 (pre-existing issue, not addressed)
-- Renumbered: Config generator is 006, Sidecar runtime will be 007
+- Initial attempts to add draft-04 compatibility caused runtime errors (Class constructor Ajv invocation issues)
+- Resolved by using Ajv's built-in draft-07 support without extra plugins
 
 ### Precise Next Steps (Pick and execute IN ORDER)
 
-1. **Implement Config Generator** — Run `/speckit.tasks` for 006-sidecar-config-generator, then implement:
-   - `SidecarConfigGenerator` class in `components/cli/spas-compose/src/services/`
-   - Integration with `choreography-deploy.ts`
-   - Unit tests (target: 10+ tests)
+1. **Complete SPAS Sidecar** — Verify sidecar tests, close final task in `specs/007-spas-sidecar/tasks.md`, write COMPLETION.md
+2. **Update All Docs** — Propagate sidecar completion to root README, components/README, specs/README, and this TASKS file
+3. **Start Phase 5 Planning** — E-commerce PoC with full domain choreography, transformations, and end-to-end deployment
 
-2. **Create Sidecar Specification** — Run `/speckit.specify` with sidecar spec text to create `specs/007-spas-sidecar/`
-
-3. **Implement Sidecar** — Run `/speckit.tasks` then `/speckit.implement` for 007-spas-sidecar
-
-### 006-sidecar-config-generator Summary
+### 006-sidecar-config-generator Summary (Completed)
 
 **Scope**: Add `SidecarConfigGenerator` to `spas-compose choreography deploy --docker`
 
 **User Stories**:
+
 | # | Story | Priority |
 |---|-------|----------|
 | 1 | Generate Sidecar Configs During Deploy | P1 |
@@ -54,9 +49,10 @@ This section documents the latest actions, any issues encountered, and the exact
 | 4 | Support Optional Transformations | P2 |
 
 **Key Deliverables**:
+
 - `config.{service}.json` files generated alongside `docker-compose.yaml`
 - Single command produces all artifacts needed to run `docker compose up`
-- 10+ new tests added to existing spas-compose test suite
+- 10+ new tests added to existing spas-compose test suite (total compose tests: 95 after this feature, 134 after spec 008)
 
 ### Sidecar Spec Summary (for `/speckit.specify` - Step 2)
 
@@ -64,16 +60,17 @@ This section documents the latest actions, any issues encountered, and the exact
 
 **User Stories (Priority Order)**:
 
-| # | Story | Priority | Description |
-|---|-------|----------|-------------|
-| 1 | Dynamic JSONata Transformation Loading | P1 | Load `.jsonata` files from mounted volumes — **foundational** |
-| 2 | Event Publishing via Sidecar | P1 | `POST /publish` with topic routing from `x-event-type` |
-| 3 | Event Consumption via Sidecar | P1 | Redis subscription → service HTTP delivery |
-| 4 | Command Invocation via Sidecar | P1 | `/invoke/{command}` request-response pattern |
-| 5 | Health and Readiness Endpoints | P2 | `/health` and `/ready` for orchestration |
-| 6 | Zipkin Distributed Tracing | P2 | Span reporting with parent-child relationships |
+| #   | Story                                  | Priority | Description                                                   |
+| --- | -------------------------------------- | -------- | ------------------------------------------------------------- |
+| 1   | Dynamic JSONata Transformation Loading | P1       | Load `.jsonata` files from mounted volumes — **foundational** |
+| 2   | Event Publishing via Sidecar           | P1       | `POST /publish` with topic routing from `x-event-type`        |
+| 3   | Event Consumption via Sidecar          | P1       | Redis subscription → service HTTP delivery                    |
+| 4   | Command Invocation via Sidecar         | P1       | `/invoke/{command}` request-response pattern                  |
+| 5   | Health and Readiness Endpoints         | P2       | `/health` and `/ready` for orchestration                      |
+| 6   | Zipkin Distributed Tracing             | P2       | Span reporting with parent-child relationships                |
 
 **Key Implementation Notes**:
+
 - Migrate from `prototypes/spas-sidecar-prototype/spas-sidecar/`
 - Replace hardcoded `transform.js` with dynamic JSONata loading
 - Config schema already uses `inbound/outbound` structure
@@ -81,20 +78,22 @@ This section documents the latest actions, any issues encountered, and the exact
 - Target: 30+ unit tests
 
 **Dependencies**:
+
 - Requires 006-sidecar-config-generator for integration testing
 - Sidecar runtime can be developed in parallel with config generator
 
 ### Completed Features Summary
 
-| Feature               | Spec                                                                          | Status      | Tests |
-| --------------------- | ----------------------------------------------------------------------------- | ----------- | ----- |
-| .NET SDK              | [001-dotnet-spas-sdk](./specs/001-dotnet-spas-sdk/)                           | ✅ Complete | 88/88 |
-| Schema Alignment      | [002-metadata-schema-alignment](./specs/002-metadata-schema-alignment/)       | ✅ Complete | —     |
-| Repository Service    | [003-repository-service](./specs/003-repository-service/)                     | ✅ Complete | 35/35 |
-| spas-service CLI      | [004-spas-service-cli](./specs/004-spas-service-cli/)                         | ✅ Complete | 48/48 |
-| spas-compose CLI      | [005-spas-compose-cli](./specs/005-spas-compose-cli/)                         | ✅ Complete | 67/67 |
-| Sidecar Config Gen    | [006-sidecar-config-generator](./specs/006-sidecar-config-generator/)         | 🔨 Active   | —     |
-| SPAS Sidecar          | [007-spas-sidecar](./specs/007-spas-sidecar/) *(to create)*                   | 🔜 Next     | —     |
+| Feature                 | Spec                                                                    | Status         | Tests       |
+| ----------------------- | ----------------------------------------------------------------------- | -------------- | ----------- |
+| .NET SDK                | [001-dotnet-spas-sdk](./specs/001-dotnet-spas-sdk/)                     | ✅ Complete    | 60/60       |
+| Schema Alignment        | [002-metadata-schema-alignment](./specs/002-metadata-schema-alignment/) | ✅ Complete    | —           |
+| Repository Service      | [003-repository-service](./specs/003-repository-service/)               | ✅ Complete    | 99/99       |
+| spas-service CLI        | [004-spas-service-cli](./specs/004-spas-service-cli/)                   | ✅ Complete    | 48/48       |
+| spas-compose CLI (core) | [005-spas-compose-cli](./specs/005-spas-compose-cli/)                   | ✅ Complete    | 67/67       |
+| Sidecar Config Gen      | [006-sidecar-config-generator](./specs/006-sidecar-config-generator/)   | ✅ Complete    | 95/95       |
+| Compose Backbone Args   | [008-compose-backbone-args](./specs/008-compose-backbone-args/)         | ✅ Complete    | 134/134     |
+| SPAS Sidecar            | [007-spas-sidecar](./specs/007-spas-sidecar/)                           | 🚧 In progress | 48/49 tasks |
 
 ## 📋 Key Rules for Multi-Machine Continuity
 
@@ -147,31 +146,27 @@ Once read, answer: "What is the immediate next task and what implementation arti
 
 **Technology Decision: Node.js** (PoC) with Go migration path (Production)
 
-| Criterion | Node.js (PoC) | Go (Production) |
-|-----------|---------------|-----------------|
-| JSONata Support | Native (`jsonata` npm) | Limited (port required) |
-| Docker Image Size | ~150MB | ~10MB |
-| Existing Prototype | ✅ Full working code | 🔨 New implementation |
+| Criterion          | Node.js (PoC)          | Go (Production)         |
+| ------------------ | ---------------------- | ----------------------- |
+| JSONata Support    | Native (`jsonata` npm) | Limited (port required) |
+| Docker Image Size  | ~150MB                 | ~10MB                   |
+| Existing Prototype | ✅ Full working code   | 🔨 New implementation   |
 
-**Two Work Items:**
+**Remaining Work (Phase 4):**
 
-1. **006-spas-sidecar** — Sidecar runtime implementation:
-   - Dynamic JSONata transformation loading (foundational)
-   - Event publishing via `POST /publish` (topic resolved from `x-event-type`)
-   - Event consumption via Redis subscription
-   - Command invocation via `/invoke/{command}`
-   - Health/readiness endpoints
-   - Zipkin distributed tracing
+1. **007-spas-sidecar** — Finalize production sidecar runtime:
 
-2. **005-spas-compose enhancement** — Add `SidecarConfigGenerator`:
-   - Parse `choreography.yaml` flows and topic mappings
-   - Generate `config.{service}.json` for each service
-   - Output alongside `docker-compose.yaml`
+- Dynamic JSONata transformation loading (foundational)
+- Event publishing via `POST /publish` (topic resolved from `x-event-type`)
+- Event consumption via Redis subscription
+- Command invocation via `/invoke/{command}`
+- Health/readiness endpoints
+- Zipkin distributed tracing
 
 **Outputs:**
 
 - `components/sidecar/` — Production-quality sidecar component (30+ tests)
-- CLI enhancement: `spas-compose` generates sidecar configs automatically
+- CLI enhancements completed: `spas-compose` generates sidecar configs and supports backbone customization
 - Docker image ready for E-Commerce PoC
 
 ---

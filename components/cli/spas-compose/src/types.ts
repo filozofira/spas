@@ -197,9 +197,9 @@ export interface ServicesPullOptions extends CommonOptions {
 }
 
 /**
- * Choreography Deploy Options
+ * Choreography Build Options
  */
-export interface ChoreographyDeployOptions extends CommonOptions {
+export interface ChoreographyBuildOptions extends CommonOptions {
   /** Generate docker-compose.yaml */
   docker?: boolean;
   /** Validate without generating files */

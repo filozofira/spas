@@ -153,13 +153,13 @@ Hint: Verify service exists with Repository API:
 
 ---
 
-### `spas-compose choreography deploy`
+### `spas-compose choreography build`
 
 Generate deployment artifacts from choreography configuration.
 
 **Synopsis**:
 ```
-spas-compose choreography deploy [options]
+spas-compose choreography build [options]
 ```
 
 **Options**:

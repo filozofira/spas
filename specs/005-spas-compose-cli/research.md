@@ -25,7 +25,7 @@ The following vision was proposed by the product owner and guided the specificat
       3. Once developer has responded with confirm, AI agent generates transformation files as well and asks developer again to confirm. Same here, iterative until developer confirms.
       4. Then developer can start over, adding new choreography by running again `/spas.compose` command and follow the same flow.
       5. Once all choreographies are written to choreography file and all transformation files are created, developer is back to using spas-compose cli to deploy the composition.
-         1. I.e. `spas-compose choreography deploy (or generate) --docker` which generates docker-compose.yaml ready to run
+         1. I.e. `spas-compose choreography build (or generate) --docker` which generates docker-compose.yaml ready to run
 
 ---
 
@@ -59,14 +59,14 @@ During specification refinement, the following decisions were made:
 6. **Simplified CLI surface**: 
    - `spas-compose init <domain-name>`
    - `spas-compose services pull <name> <version>`
-   - `spas-compose choreography deploy --docker [--dry-run]`
+   - `spas-compose choreography build --docker [--dry-run]`
 
 ### Future Considerations
 
 - AI-assisted service discovery: `/spas.compose` prompt could search Repository and propose services
 - Choreography diff: Compare versions of choreography.yaml
 - Event replay: `spas-compose replay <events-file>` for local testing
-- Kubernetes deployment: `spas-compose choreography deploy --k8s`
+- Kubernetes deployment: `spas-compose choreography build --k8s`
 
 ## References
 

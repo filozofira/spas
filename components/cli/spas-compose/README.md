@@ -118,9 +118,9 @@ services/
 
 ---
 
-### `spas-compose choreography deploy [options]`
+### `spas-compose choreography build [options]`
 
-Generate deployment configuration from choreography.yaml.
+Build deployment configuration from choreography.yaml.
 
 **Options:**
 - `--docker` - Generate docker-compose.yaml and sidecar config files (required)
@@ -133,20 +133,20 @@ Generate deployment configuration from choreography.yaml.
 
 **Backbone Configuration:**
 
-The deploy command includes Redis and Zipkin backbone services by default. You can customize these:
+The build command includes Redis and Zipkin backbone services by default. You can customize these:
 
 ```bash
 # Use custom Redis version
-spas-compose choreography deploy --docker --event-backbone redis:6.2-alpine
+spas-compose choreography build --docker --event-backbone redis:6.2-alpine
 
 # Use Jaeger instead of Zipkin (auto-configures ports 16686 and 9411)
-spas-compose choreography deploy --docker --observability-backbone jaegertracing/all-in-one:latest
+spas-compose choreography build --docker --observability-backbone jaegertracing/all-in-one:latest
 
 # Use shorthand notation for common images
-spas-compose choreography deploy --docker --observability-backbone jaeger:latest
+spas-compose choreography build --docker --observability-backbone jaeger:latest
 
 # Disable backbones for BYO infrastructure (uses env var substitution)
-spas-compose choreography deploy --docker --event-backbone none --observability-backbone none
+spas-compose choreography build --docker --event-backbone none --observability-backbone none
 ```
 
 When using `none`, sidecars will be configured with environment variable placeholders (`${REDIS_HOST}`, `${REDIS_PORT}`, `${ZIPKIN_URL}`) that you must provide at runtime.
@@ -154,9 +154,9 @@ When using `none`, sidecars will be configured with environment variable placeho
 **Example:**
 
 ```bash
-spas-compose choreography deploy --docker
-spas-compose choreography deploy --docker --dry-run  # Validation only
-spas-compose choreography deploy --docker --output deployment.yaml
+spas-compose choreography build --docker
+spas-compose choreography build --docker --dry-run  # Validation only
+spas-compose choreography build --docker --output deployment.yaml
 ```
 
 **Output:**
@@ -234,9 +234,9 @@ spas-compose services pull fulfillment-service 1.0.0
 # 3. Use AI to compose choreography
 # (Interactive prompt session with /spas.compose agent)
 
-# 4. Validate and deploy
-spas-compose choreography deploy --dry-run
-spas-compose choreography deploy --docker
+# 4. Validate and build
+spas-compose choreography build --dry-run
+spas-compose choreography build --docker
 
 # 5. Start services
 docker compose up
@@ -254,7 +254,7 @@ docker compose up
 
 ### Workspace Detection
 
-Commands requiring workspace context (`services pull`, `choreography deploy`) validate:
+Commands requiring workspace context (`services pull`, `choreography build`) validate:
 - `choreography.yaml` exists
 - `services/` directory exists
 
@@ -302,7 +302,7 @@ src/
 ├── commands/
 │   ├── init.ts                       # init command
 │   ├── services-pull.ts              # services pull command
-│   └── choreography-deploy.ts        # choreography deploy command
+│   └── choreography-build.ts         # choreography build command
 ├── services/
 │   ├── repository-client.ts          # SPAS Repository HTTP client
 │   ├── workspace-service.ts          # Workspace operations

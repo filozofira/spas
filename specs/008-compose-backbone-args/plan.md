@@ -5,7 +5,7 @@
 
 ## Summary
 
-Add `--event-backbone` and `--observability-backbone` arguments to the `spas-compose choreography deploy` command. These allow customizing or disabling the infrastructure services (Redis, Zipkin/Jaeger) included in generated docker-compose.yaml files. Defaults provide zero-config experience; `none` value enables BYO infrastructure.
+Add `--event-backbone` and `--observability-backbone` arguments to the `spas-compose choreography build` command. These allow customizing or disabling the infrastructure services (Redis, Zipkin/Jaeger) included in generated docker-compose.yaml files. Defaults provide zero-config experience; `none` value enables BYO infrastructure.
 
 ## Technical Context
 

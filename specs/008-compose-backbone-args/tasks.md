@@ -25,7 +25,7 @@
 
 **Goal**: Zero-config deployment with Redis 7-alpine and Zipkin latest by default, including health checks
 
-**Independent Test**: Run `spas-compose choreography deploy --docker` and verify docker-compose.yaml includes default backbones with correct configuration
+**Independent Test**: Run `spas-compose choreography build --docker` and verify docker-compose.yaml includes default backbones with correct configuration
 
 ### Tests for User Story 1
 
@@ -48,7 +48,7 @@
 
 **Goal**: Allow custom Redis image via `--event-backbone` argument
 
-**Independent Test**: Run `spas-compose choreography deploy --docker --event-backbone redis:6.2` and verify custom image in output
+**Independent Test**: Run `spas-compose choreography build --docker --event-backbone redis:6.2` and verify custom image in output
 
 ### Tests for User Story 2
 
@@ -70,7 +70,7 @@
 
 **Goal**: Allow custom Zipkin/Jaeger image via `--observability-backbone` argument with automatic port configuration
 
-**Independent Test**: Run `spas-compose choreography deploy --docker --observability-backbone jaeger:latest` and verify Jaeger ports (16686, 9411)
+**Independent Test**: Run `spas-compose choreography build --docker --observability-backbone jaeger:latest` and verify Jaeger ports (16686, 9411)
 
 ### Tests for User Story 3
 
@@ -92,7 +92,7 @@
 
 **Goal**: Support `none` value to disable backbone provisioning for BYO infrastructure
 
-**Independent Test**: Run `spas-compose choreography deploy --docker --event-backbone none` and verify no Redis service, sidecar uses env var substitution
+**Independent Test**: Run `spas-compose choreography build --docker --event-backbone none` and verify no Redis service, sidecar uses env var substitution
 
 ### Tests for User Story 4
 

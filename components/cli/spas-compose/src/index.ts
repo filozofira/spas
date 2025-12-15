@@ -6,7 +6,7 @@ import { fileURLToPath } from "url";
 import { dirname, join } from "path";
 import { createInitCommand } from "./commands/init.js";
 import { createServicesPullCommand } from "./commands/services-pull.js";
-import { createChoreographyCommand } from "./commands/choreography-deploy.js";
+import { createChoreographyCommand } from "./commands/choreography-build.js";
 
 // Get package.json for version
 const __filename = fileURLToPath(import.meta.url);

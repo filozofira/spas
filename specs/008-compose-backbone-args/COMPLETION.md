@@ -54,16 +54,16 @@ The backbone customization feature for spas-compose has been fully implemented w
 
 ```bash
 # Default usage (unchanged)
-spas-compose choreography deploy --docker
+spas-compose choreography build --docker
 
 # Custom event backbone
-spas-compose choreography deploy --docker --event-backbone redis:6.2-alpine
+spas-compose choreography build --docker --event-backbone redis:6.2-alpine
 
 # Custom observability (Jaeger)
-spas-compose choreography deploy --docker --observability-backbone jaeger:latest
+spas-compose choreography build --docker --observability-backbone jaeger:latest
 
 # BYO infrastructure (disable both)
-spas-compose choreography deploy --docker --event-backbone none --observability-backbone none
+spas-compose choreography build --docker --event-backbone none --observability-backbone none
 ```
 
 ---
@@ -146,10 +146,10 @@ npm run build
 npm test
 
 # Example usage
-spas-compose choreography deploy --docker --verbose
-spas-compose choreography deploy --docker --event-backbone redis:6.2 --dry-run
-spas-compose choreography deploy --docker --observability-backbone jaeger:latest
-spas-compose choreography deploy --docker --event-backbone none
+spas-compose choreography build --docker --verbose
+spas-compose choreography build --docker --event-backbone redis:6.2 --dry-run
+spas-compose choreography build --docker --observability-backbone jaeger:latest
+spas-compose choreography build --docker --event-backbone none
 ```
 
 ---

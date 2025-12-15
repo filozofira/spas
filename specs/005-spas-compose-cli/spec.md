@@ -64,22 +64,22 @@ As a developer, I want to generate a Docker Compose deployment from my choreogra
 
 **Why this priority**: Deployment is the ultimate goal of composition. This enables running and testing the choreography. Ranked P2 because it depends on having a valid choreography.yaml (which AI assists with).
 
-**Independent Test**: Can be fully tested by running `spas-compose choreography deploy --docker` with a valid choreography.yaml and verifying docker-compose.yaml is generated with correct service and sidecar configurations.
+**Independent Test**: Can be fully tested by running `spas-compose choreography build --docker` with a valid choreography.yaml and verifying docker-compose.yaml is generated with correct service and sidecar configurations.
 
 **Acceptance Scenarios**:
 
-1. **Given** a domain with valid `choreography.yaml` and pulled services, **When** I run `spas-compose choreography deploy --docker`, **Then** `docker-compose.yaml` is generated with:
+1. **Given** a domain with valid `choreography.yaml` and pulled services, **When** I run `spas-compose choreography build --docker`, **Then** `docker-compose.yaml` is generated with:
    - Service containers for each participating service
    - Sidecar containers for each service with transformation volume mounts
    - Redis container for event streaming
    - Zipkin container for distributed tracing
    - Correct environment variables and network configuration
 
-2. **Given** a domain with valid choreography, **When** I run `spas-compose choreography deploy --docker --dry-run`, **Then** the command validates choreography and shows what would be generated without writing files.
+2. **Given** a domain with valid choreography, **When** I run `spas-compose choreography build --docker --dry-run`, **Then** the command validates choreography and shows what would be generated without writing files.
 
-3. **Given** transformation files referenced in choreography don't exist, **When** I run `spas-compose choreography deploy --docker`, **Then** the command fails with clear error listing missing transformation files.
+3. **Given** transformation files referenced in choreography don't exist, **When** I run `spas-compose choreography build --docker`, **Then** the command fails with clear error listing missing transformation files.
 
-4. **Given** services referenced in choreography haven't been pulled, **When** I run `spas-compose choreography deploy --docker`, **Then** the command fails with error suggesting `spas-compose services pull` for missing services.
+4. **Given** services referenced in choreography haven't been pulled, **When** I run `spas-compose choreography build --docker`, **Then** the command fails with error suggesting `spas-compose services pull` for missing services.
 
 ---
 
@@ -123,7 +123,7 @@ As a developer, I want to use an AI agent to analyze pulled service contracts an
 
 - **FR-001**: CLI MUST provide `spas-compose init <domain-name>` command to scaffold a domain workspace with standard folder structure.
 - **FR-002**: CLI MUST provide `spas-compose services pull <name> <version>` command to download service metadata from SPAS Repository.
-- **FR-003**: CLI MUST provide `spas-compose choreography deploy --docker` command to generate Docker Compose deployment from choreography.yaml.
+- **FR-003**: CLI MUST provide `spas-compose choreography build --docker` command to generate Docker Compose deployment from choreography.yaml.
 - **FR-004**: CLI MUST support `--dry-run` flag on deploy command to validate without generating files.
 - **FR-005**: CLI MUST support `--repo <url>` flag and `SPAS_REPOSITORY_URL` environment variable for repository location.
 - **FR-006**: CLI MUST create/update `.github/agents/spas-compose.md` agent prompt file during init.

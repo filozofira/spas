@@ -31,69 +31,7 @@ This section documents the latest actions, any issues encountered, and the exact
 
 ### Precise Next Steps (Pick and execute IN ORDER)
 
-1. **Complete SPAS Sidecar** — Verify sidecar tests, close final task in `specs/007-spas-sidecar/tasks.md`, write COMPLETION.md
-2. **Update All Docs** — Propagate sidecar completion to root README, components/README, specs/README, and this TASKS file
-3. **Start Phase 5 Planning** — E-commerce PoC with full domain choreography, transformations, and end-to-end deployment
-
-### 006-sidecar-config-generator Summary (Completed)
-
-**Scope**: Add `SidecarConfigGenerator` to `spas-compose choreography deploy --docker`
-
-**User Stories**:
-
-| # | Story | Priority |
-|---|-------|----------|
-| 1 | Generate Sidecar Configs During Deploy | P1 |
-| 2 | Validate Config Generation in Dry Run | P1 |
-| 3 | Handle Missing Transformation References | P2 |
-| 4 | Support Optional Transformations | P2 |
-
-**Key Deliverables**:
-
-- `config.{service}.json` files generated alongside `docker-compose.yaml`
-- Single command produces all artifacts needed to run `docker compose up`
-- 10+ new tests added to existing spas-compose test suite (total compose tests: 95 after this feature, 134 after spec 008)
-
-### Sidecar Spec Summary (for `/speckit.specify` - Step 2)
-
-**Technology**: Node.js (PoC), Go migration path (Production)
-
-**User Stories (Priority Order)**:
-
-| #   | Story                                  | Priority | Description                                                   |
-| --- | -------------------------------------- | -------- | ------------------------------------------------------------- |
-| 1   | Dynamic JSONata Transformation Loading | P1       | Load `.jsonata` files from mounted volumes — **foundational** |
-| 2   | Event Publishing via Sidecar           | P1       | `POST /publish` with topic routing from `x-event-type`        |
-| 3   | Event Consumption via Sidecar          | P1       | Redis subscription → service HTTP delivery                    |
-| 4   | Command Invocation via Sidecar         | P1       | `/invoke/{command}` request-response pattern                  |
-| 5   | Health and Readiness Endpoints         | P2       | `/health` and `/ready` for orchestration                      |
-| 6   | Zipkin Distributed Tracing             | P2       | Span reporting with parent-child relationships                |
-
-**Key Implementation Notes**:
-
-- Migrate from `prototypes/spas-sidecar-prototype/spas-sidecar/`
-- Replace hardcoded `transform.js` with dynamic JSONata loading
-- Config schema already uses `inbound/outbound` structure
-- Add `/health` and `/ready` endpoints
-- Target: 30+ unit tests
-
-**Dependencies**:
-
-- Requires 006-sidecar-config-generator for integration testing
-- Sidecar runtime can be developed in parallel with config generator
-
-### Completed Features Summary
-
-| Feature                 | Spec                                                                    | Status         | Tests       |
-| ----------------------- | ----------------------------------------------------------------------- | -------------- | ----------- |
-| .NET SDK                | [001-dotnet-spas-sdk](./specs/001-dotnet-spas-sdk/)                     | ✅ Complete    | 60/60       |
-| Schema Alignment        | [002-metadata-schema-alignment](./specs/002-metadata-schema-alignment/) | ✅ Complete    | —           |
-| Repository Service      | [003-repository-service](./specs/003-repository-service/)               | ✅ Complete    | 99/99       |
-| spas-service CLI        | [004-spas-service-cli](./specs/004-spas-service-cli/)                   | ✅ Complete    | 48/48       |
-| spas-compose CLI (core) | [005-spas-compose-cli](./specs/005-spas-compose-cli/)                   | ✅ Complete    | 67/67       |
-| Sidecar Config Gen      | [006-sidecar-config-generator](./specs/006-sidecar-config-generator/)   | ✅ Complete    | 95/95       |
-| Compose Backbone Args   | [008-compose-backbone-args](./specs/008-compose-backbone-args/)         | ✅ Complete    | 134/134     |
-| SPAS Sidecar            | [007-spas-sidecar](./specs/007-spas-sidecar/)                           | 🚧 In progress | 48/49 tasks |
+1. **Start Phase 5 Planning** — E-commerce PoC with full domain choreography, transformations, and end-to-end deployment
 
 ## 📋 Key Rules for Multi-Machine Continuity
 
@@ -125,51 +63,6 @@ Once read, answer: "What is the immediate next task and what implementation arti
 ```
 
 ## Remaining Phases
-
-### ~~Phase 3: CLI Tool~~ ✅ COMPLETE
-
-**Status:** Both `spas-service` and `spas-compose` CLIs implemented and tested.
-
-**Deliverables:**
-
-- `spas-service`: init, metadata get, pack, publish, pull (48 tests)
-- `spas-compose`: init, services pull, choreography deploy (67 tests)
-- AI-assisted composition via `/spas.compose` agent prompt
-
----
-
-### Phase 4: SPAS Sidecar Development
-
-**Goal:** Promote prototype sidecar to production-quality component with dynamic JSONata loading.
-
-**Spec Cross-Reference:** `principles/component/10-sidecar-contract.md` (source-of-truth)
-
-**Technology Decision: Node.js** (PoC) with Go migration path (Production)
-
-| Criterion          | Node.js (PoC)          | Go (Production)         |
-| ------------------ | ---------------------- | ----------------------- |
-| JSONata Support    | Native (`jsonata` npm) | Limited (port required) |
-| Docker Image Size  | ~150MB                 | ~10MB                   |
-| Existing Prototype | ✅ Full working code   | 🔨 New implementation   |
-
-**Remaining Work (Phase 4):**
-
-1. **007-spas-sidecar** — Finalize production sidecar runtime:
-
-- Dynamic JSONata transformation loading (foundational)
-- Event publishing via `POST /publish` (topic resolved from `x-event-type`)
-- Event consumption via Redis subscription
-- Command invocation via `/invoke/{command}`
-- Health/readiness endpoints
-- Zipkin distributed tracing
-
-**Outputs:**
-
-- `components/sidecar/` — Production-quality sidecar component (30+ tests)
-- CLI enhancements completed: `spas-compose` generates sidecar configs and supports backbone customization
-- Docker image ready for E-Commerce PoC
-
----
 
 ### Phase 5: E-Commerce End-to-End PoC
 

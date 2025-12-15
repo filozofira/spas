@@ -69,7 +69,7 @@ The SidecarConfigGenerator enhancement to spas-compose CLI has been fully implem
 
 ## Generated Output Example
 
-After `spas-compose choreography deploy --docker`:
+After `spas-compose choreography build --docker`:
 
 ```
 ✓ Validated choreography.yaml
@@ -124,9 +124,9 @@ npm test
 
 ## Next Steps
 
-This feature completes the single-command workflow for `spas-compose choreography deploy --docker`. Users can now:
+This feature completes the single-command workflow for `spas-compose choreography build --docker`. Users can now:
 
 1. Pull services: `spas-compose services pull order-service 1.0.0`
 2. Define choreography in `choreography.yaml`
-3. Generate all artifacts: `spas-compose choreography deploy --docker`
+3. Generate all artifacts: `spas-compose choreography build --docker`
 4. Run composed domain: `docker compose up`

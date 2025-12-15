@@ -5,7 +5,7 @@
 
 ## Summary
 
-Build the spas-compose CLI tool for domain choreography composition with AI-in-the-loop assistance. The CLI provides three core commands (`init`, `services pull`, `choreography deploy`) while delegating complex semantic choreography composition to an AI agent via `/spas.compose` prompt. Uses JSONata for transformations (ADR-036) to maintain sidecar language flexibility.
+Build the spas-compose CLI tool for domain choreography composition with AI-in-the-loop assistance. The CLI provides three core commands (`init`, `services pull`, `choreography build`) while delegating complex semantic choreography composition to an AI agent via `/spas.compose` prompt. Uses JSONata for transformations (ADR-036) to maintain sidecar language flexibility.
 
 ## Technical Context
 
@@ -83,7 +83,7 @@ components/cli/spas-compose/
 │   ├── commands/
 │   │   ├── init.ts               # init command handler
 │   │   ├── services-pull.ts      # services pull command handler
-│   │   └── choreography-deploy.ts # choreography deploy command handler
+│   │   └── choreography-deploy.ts # choreography build command handler
 │   ├── services/
 │   │   ├── repository-client.ts  # HTTP client for SPAS Repository
 │   │   ├── workspace-service.ts  # Domain workspace operations

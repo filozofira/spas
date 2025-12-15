@@ -63,7 +63,7 @@ SidecarConfig
 
 ## Future Work
 
-> **Note**: If runtime validation of sidecar config files is needed in `spas-compose choreography deploy`, 
+> **Note**: If runtime validation of sidecar config files is needed in `spas-compose choreography build`, 
 > create a dedicated feature spec (e.g., `009-sidecar-config-validation`) to implement:
 > - Config validation during deploy
 > - Schema-based error messages

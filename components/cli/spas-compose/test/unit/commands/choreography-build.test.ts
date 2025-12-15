@@ -1,10 +1,10 @@
 /**
- * Unit tests for choreography-deploy command
+ * Unit tests for choreography-build command
  */
 
-describe("choreography-deploy command", () => {
+describe("choreography-build command", () => {
   describe("option validation", () => {
-    it("should require --docker flag for deployment", () => {
+    it("should require --docker flag for build", () => {
       // The command requires --docker to specify output format
       expect(true).toBe(true);
     });

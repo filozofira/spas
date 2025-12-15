@@ -100,7 +100,7 @@
 
 **Goal**: Developer can generate Docker Compose deployment from choreography configuration
 
-**Independent Test**: Run `spas-compose choreography deploy --docker` with valid choreography.yaml and verify docker-compose.yaml generated with services, sidecars, Redis, Zipkin
+**Independent Test**: Run `spas-compose choreography build --docker` with valid choreography.yaml and verify docker-compose.yaml generated with services, sidecars, Redis, Zipkin
 
 **FR Mapping**: FR-003, FR-004, FR-007, FR-008, FR-009, FR-010, FR-011, FR-012
 
@@ -121,10 +121,10 @@
 - [X] T036 [US3] Implement service validation (check pulled services exist)
 - [X] T037 [US3] Implement transformation file validation (check .jsonata files exist and valid syntax)
 - [X] T038 [US3] Generate docker-compose.yaml with sidecar volume mounts for transformation folders
-- [X] T039 [US3] Wire choreography deploy command to CLI entry point in src/index.ts
+- [X] T039 [US3] Wire choreography build command to CLI entry point in src/index.ts
 - [X] T040 [US3] Add JSON output format support and actionable error messages
 
-**Checkpoint**: `spas-compose choreography deploy --docker` works end-to-end
+**Checkpoint**: `spas-compose choreography build --docker` works end-to-end
 
 ---
 
@@ -271,7 +271,7 @@ At this point, developer can:
 |------------|------------|
 | After T017 | `spas-compose init test-domain` creates folder structure |
 | After T025 | `spas-compose services pull` downloads from Repository |
-| After T039 | `spas-compose choreography deploy --docker` generates docker-compose.yaml |
+| After T039 | `spas-compose choreography build --docker` generates docker-compose.yaml |
 | After T047 | `/spas.compose` recognized by GitHub Copilot |
 | After T053 | `npm link` installs CLI globally |
 

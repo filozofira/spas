@@ -16,7 +16,7 @@ The spas-compose CLI has been fully implemented with all 53 tasks complete acros
 |---------|-------------|--------|
 | `spas-compose init <name>` | Create domain workspace with agent prompt | ✅ |
 | `spas-compose services pull <name> <version>` | Pull service metadata from Repository | ✅ |
-| `spas-compose choreography deploy --docker` | Generate Docker Compose deployment | ✅ |
+| `spas-compose choreography build --docker` | Generate Docker Compose deployment | ✅ |
 | `/spas.compose` agent prompt | AI-assisted choreography composition | ✅ |
 
 ### Test Coverage
@@ -101,7 +101,7 @@ spas-compose init ecommerce-domain
 cd ecommerce-domain
 spas-compose services pull order-service 1.0.0
 spas-compose services pull fulfillment-service 1.0.0
-spas-compose choreography deploy --docker
+spas-compose choreography build --docker
 docker compose up
 ```
 

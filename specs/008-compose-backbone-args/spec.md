@@ -14,11 +14,11 @@ As a developer, I want the deploy command to automatically include Redis and Zip
 
 **Why this priority**: This is the core value proposition - zero-config deployment with all dependencies included by default.
 
-**Independent Test**: Can be fully tested by running `spas-compose choreography deploy --docker` and verifying docker-compose.yaml includes Redis 7-alpine and Zipkin latest with correct networking.
+**Independent Test**: Can be fully tested by running `spas-compose choreography build --docker` and verifying docker-compose.yaml includes Redis 7-alpine and Zipkin latest with correct networking.
 
 **Acceptance Scenarios**:
 
-1. **Given** a valid choreography.yaml exists, **When** I run `spas-compose choreography deploy --docker` without backbone arguments, **Then** docker-compose.yaml is generated with:
+1. **Given** a valid choreography.yaml exists, **When** I run `spas-compose choreography build --docker` without backbone arguments, **Then** docker-compose.yaml is generated with:
 
    - Redis service using `redis:7-alpine` image
    - Zipkin service using `openzipkin/zipkin:latest` image
@@ -26,9 +26,9 @@ As a developer, I want the deploy command to automatically include Redis and Zip
    - Sidecar `REDIS_HOST` set to `redis`
    - Sidecar `ZIPKIN_URL` set to `http://zipkin:9411`
 
-2. **Given** a valid choreography.yaml exists, **When** I run `spas-compose choreography deploy --docker`, **Then** Redis service includes a health check using `redis-cli ping`.
+2. **Given** a valid choreography.yaml exists, **When** I run `spas-compose choreography build --docker`, **Then** Redis service includes a health check using `redis-cli ping`.
 
-3. **Given** a valid choreography.yaml exists, **When** I run `spas-compose choreography deploy --docker`, **Then** Zipkin service exposes port 9411 for trace viewing.
+3. **Given** a valid choreography.yaml exists, **When** I run `spas-compose choreography build --docker`, **Then** Zipkin service exposes port 9411 for trace viewing.
 
 ---
 
@@ -38,13 +38,13 @@ As a developer, I want to specify a custom Redis image version so that I can mat
 
 **Why this priority**: Allows version pinning and production parity while keeping the default simple.
 
-**Independent Test**: Can be fully tested by running `spas-compose choreography deploy --docker --event-backbone redis:6.2` and verifying the Redis image version in generated docker-compose.yaml.
+**Independent Test**: Can be fully tested by running `spas-compose choreography build --docker --event-backbone redis:6.2` and verifying the Redis image version in generated docker-compose.yaml.
 
 **Acceptance Scenarios**:
 
-1. **Given** a valid choreography.yaml exists, **When** I run `spas-compose choreography deploy --docker --event-backbone redis:6.2`, **Then** docker-compose.yaml uses `redis:6.2` image instead of default.
+1. **Given** a valid choreography.yaml exists, **When** I run `spas-compose choreography build --docker --event-backbone redis:6.2`, **Then** docker-compose.yaml uses `redis:6.2` image instead of default.
 
-2. **Given** a valid choreography.yaml exists, **When** I run `spas-compose choreography deploy --docker --event-backbone redis:7.2-alpine`, **Then** the specified image tag is used exactly as provided.
+2. **Given** a valid choreography.yaml exists, **When** I run `spas-compose choreography build --docker --event-backbone redis:7.2-alpine`, **Then** the specified image tag is used exactly as provided.
 
 3. **Given** I run deploy with invalid image format, **When** I use `--event-backbone invalid::image`, **Then** the command fails with clear error about invalid image format.
 
@@ -56,13 +56,13 @@ As a developer, I want to specify a custom Zipkin image or use Jaeger instead so
 
 **Why this priority**: Teams have different observability preferences; flexibility is important but defaults should work out of the box.
 
-**Independent Test**: Can be fully tested by running `spas-compose choreography deploy --docker --observability-backbone jaegertracing/all-in-one:latest` and verifying Jaeger is configured instead of Zipkin.
+**Independent Test**: Can be fully tested by running `spas-compose choreography build --docker --observability-backbone jaegertracing/all-in-one:latest` and verifying Jaeger is configured instead of Zipkin.
 
 **Acceptance Scenarios**:
 
-1. **Given** a valid choreography.yaml exists, **When** I run `spas-compose choreography deploy --docker --observability-backbone zipkin:2.24`, **Then** docker-compose.yaml uses `openzipkin/zipkin:2.24` image.
+1. **Given** a valid choreography.yaml exists, **When** I run `spas-compose choreography build --docker --observability-backbone zipkin:2.24`, **Then** docker-compose.yaml uses `openzipkin/zipkin:2.24` image.
 
-2. **Given** a valid choreography.yaml exists, **When** I run `spas-compose choreography deploy --docker --observability-backbone jaegertracing/all-in-one:latest`, **Then** docker-compose.yaml includes Jaeger with:
+2. **Given** a valid choreography.yaml exists, **When** I run `spas-compose choreography build --docker --observability-backbone jaegertracing/all-in-one:latest`, **Then** docker-compose.yaml includes Jaeger with:
 
    - Port 16686 exposed for Jaeger UI
    - Port 9411 exposed for Zipkin-compatible endpoint
@@ -78,21 +78,21 @@ As a developer with existing infrastructure, I want to disable automatic backbon
 
 **Why this priority**: Advanced use case for production-like environments or shared infrastructure. Lower priority as most local development uses defaults.
 
-**Independent Test**: Can be fully tested by running `spas-compose choreography deploy --docker --event-backbone none` and verifying no Redis service is included, while sidecar still has REDIS_HOST env var that must be set externally.
+**Independent Test**: Can be fully tested by running `spas-compose choreography build --docker --event-backbone none` and verifying no Redis service is included, while sidecar still has REDIS_HOST env var that must be set externally.
 
 **Acceptance Scenarios**:
 
-1. **Given** a valid choreography.yaml exists, **When** I run `spas-compose choreography deploy --docker --event-backbone none`, **Then** docker-compose.yaml:
+1. **Given** a valid choreography.yaml exists, **When** I run `spas-compose choreography build --docker --event-backbone none`, **Then** docker-compose.yaml:
 
    - Does NOT include a Redis service
    - Sidecar `REDIS_HOST` is set to `${REDIS_HOST:-localhost}` (environment variable with default)
 
-2. **Given** a valid choreography.yaml exists, **When** I run `spas-compose choreography deploy --docker --observability-backbone none`, **Then** docker-compose.yaml:
+2. **Given** a valid choreography.yaml exists, **When** I run `spas-compose choreography build --docker --observability-backbone none`, **Then** docker-compose.yaml:
 
    - Does NOT include a Zipkin/Jaeger service
    - Sidecar `ZIPKIN_URL` is set to `${ZIPKIN_URL:-}` (optional environment variable)
 
-3. **Given** I disable both backbones, **When** I run `spas-compose choreography deploy --docker --event-backbone none --observability-backbone none`, **Then** docker-compose.yaml only includes service and sidecar containers.
+3. **Given** I disable both backbones, **When** I run `spas-compose choreography build --docker --event-backbone none --observability-backbone none`, **Then** docker-compose.yaml only includes service and sidecar containers.
 
 ---
 

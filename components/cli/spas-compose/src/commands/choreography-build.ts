@@ -1,13 +1,13 @@
 /**
- * choreography-deploy command handler
+ * choreography-build command handler
  *
- * Generates Docker Compose deployment from choreography configuration.
+ * Builds Docker Compose deployment from choreography configuration.
  */
 
 import * as fs from "fs";
 import * as path from "path";
 import { Command } from "commander";
-import type { ChoreographyDeployOptions } from "../types.js";
+import type { ChoreographyBuildOptions } from "../types.js";
 import { ChoreographyLoader } from "../services/choreography-loader.js";
 import { JsonataValidator } from "../services/jsonata-validator.js";
 import { DockerGenerator } from "../services/docker-generator.js";
@@ -19,7 +19,7 @@ import * as output from "../utils/output.js";
 /**
  * Exit codes per CLI contract
  */
-export enum ChoreographyDeployExitCode {
+export enum ChoreographyBuildExitCode {
   SUCCESS = 0,
   INVALID_CHOREOGRAPHY = 1,
   MISSING_SERVICE = 2,
@@ -54,10 +54,10 @@ function findWorkspaceRoot(startPath: string): string | null {
 }
 
 /**
- * Handle choreography deploy command
+ * Handle choreography build command
  */
-export async function handleChoreographyDeploy(
-  options: ChoreographyDeployOptions,
+export async function handleChoreographyBuild(
+  options: ChoreographyBuildOptions,
 ): Promise<void> {
   // Must specify --docker for now (only output format supported)
   if (!options.docker) {
@@ -104,7 +104,7 @@ export async function handleChoreographyDeploy(
         'Hint: Run "spas-compose init <name>" to create a workspace first.',
       );
     }
-    process.exit(ChoreographyDeployExitCode.NOT_IN_WORKSPACE);
+    process.exit(ChoreographyBuildExitCode.NOT_IN_WORKSPACE);
   }
 
   output.verbose(`Found workspace root: ${workspaceRoot}`, options.verbose);
@@ -126,7 +126,7 @@ export async function handleChoreographyDeploy(
     } else {
       output.error(result.message);
     }
-    process.exit(ChoreographyDeployExitCode.INVALID_CHOREOGRAPHY);
+    process.exit(ChoreographyBuildExitCode.INVALID_CHOREOGRAPHY);
   }
 
   const choreography = loadResult.choreography!;
@@ -166,7 +166,7 @@ export async function handleChoreographyDeploy(
         "Hint: Review choreography.yaml and ensure all required fields are present.",
       );
     }
-    process.exit(ChoreographyDeployExitCode.INVALID_CHOREOGRAPHY);
+    process.exit(ChoreographyBuildExitCode.INVALID_CHOREOGRAPHY);
   }
 
   output.verbose("Choreography structure is valid", options.verbose);
@@ -199,7 +199,7 @@ export async function handleChoreographyDeploy(
         'Hint: Run "spas-compose services pull <name> <version>" for each missing service.',
       );
     }
-    process.exit(ChoreographyDeployExitCode.MISSING_SERVICE);
+    process.exit(ChoreographyBuildExitCode.MISSING_SERVICE);
   }
 
   output.verbose(
@@ -329,7 +329,7 @@ export async function handleChoreographyDeploy(
             "Hint: Create the transformation files in choreography/transformations/ directory.",
           );
         }
-        process.exit(ChoreographyDeployExitCode.MISSING_TRANSFORMATION);
+        process.exit(ChoreographyBuildExitCode.MISSING_TRANSFORMATION);
       }
 
       if (syntaxErrors.length > 0) {
@@ -363,7 +363,7 @@ export async function handleChoreographyDeploy(
             "Hint: Check JSONata syntax at https://docs.jsonata.org/",
           );
         }
-        process.exit(ChoreographyDeployExitCode.INVALID_JSONATA);
+        process.exit(ChoreographyBuildExitCode.INVALID_JSONATA);
       }
     }
   }
@@ -437,7 +437,7 @@ export async function handleChoreographyDeploy(
       output.info("");
       output.info("No files written (dry run)");
     }
-    process.exit(ChoreographyDeployExitCode.SUCCESS);
+    process.exit(ChoreographyBuildExitCode.SUCCESS);
   }
 
   // Generate docker-compose.yaml
@@ -511,7 +511,7 @@ export async function handleChoreographyDeploy(
       output.info("  • Copy service source to workspace");
       output.info("  • Run: docker compose up");
     }
-    process.exit(ChoreographyDeployExitCode.SUCCESS);
+    process.exit(ChoreographyBuildExitCode.SUCCESS);
   } catch (error) {
     const result = {
       success: false,
@@ -542,8 +542,8 @@ export function createChoreographyCommand(): Command {
   );
 
   choreography
-    .command("deploy")
-    .description("Generate deployment artifacts from choreography")
+    .command("build")
+    .description("Build deployment artifacts from choreography")
     .option("--docker", "Generate Docker Compose deployment", false)
     .option("--dry-run", "Validate without generating files", false)
     .option("--output <file>", "Output filename", "docker-compose.yaml")
@@ -557,8 +557,8 @@ export function createChoreographyCommand(): Command {
       "--observability-backbone <image>",
       "Observability backbone image (default: openzipkin/zipkin:latest, use 'none' to disable)",
     )
-    .action(async (options: ChoreographyDeployOptions) => {
-      await handleChoreographyDeploy(options);
+    .action(async (options: ChoreographyBuildOptions) => {
+      await handleChoreographyBuild(options);
     });
 
   return choreography;

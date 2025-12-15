@@ -146,10 +146,10 @@ Generate the Docker Compose deployment:
 
 ```bash
 # Validate first (dry run)
-spas-compose choreography deploy --docker --dry-run
+spas-compose choreography build --docker --dry-run
 
 # Generate docker-compose.yaml
-spas-compose choreography deploy --docker
+spas-compose choreography build --docker
 ```
 
 This generates a complete `docker-compose.yaml` with:

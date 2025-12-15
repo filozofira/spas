@@ -1,10 +1,20 @@
 <!--
-Sync Impact Report (v1.0.4)
+Sync Impact Report (v1.0.5)
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-Version Change: 1.0.3 → 1.0.4 (PATCH)
-Amended: 2025-12-14 (PoC Phase)
+Version Change: 1.0.4 → 1.0.5 (PATCH)
+Amended: 2025-12-15 (PoC Phase)
 
 Changes:
+  • Renamed spas-compose command: `choreography deploy` → `choreography build`
+  • Updated principles/13-cli.md: Moved from command syntax details to responsibility-focused design
+  • Updated all spec files (006, 007), README, and decision log with new command name
+
+Impact:
+  • `spas-compose choreography build --docker` now is the primary command
+  • Better clarity: build = generate artifacts; deploy = run containers (docker compose up)
+  • Principles now focus on responsibilities; component READMEs document syntax
+
+Previous (v1.0.4):
   • Updated spas-compose CLI commands: init, services pull, choreography deploy (replaces context init, choreography init, choreography generate)
   • Added AI-in-the-loop composition approach (/spas.compose agent prompt)
   • Aligned with ADR-036 (JSONata), ADR-037 (AI composition), ADR-038 (sidecar language flexibility)
@@ -262,7 +272,7 @@ Unit tests are non‑negotiable in both PoC and Production phases. During PoC, i
 **Mandatory Commands** (PoC):
 
 - Service: `init`, `publish` (with `--dry-run`, `--archive` flags), `pull`
-- Compose: `init`, `services pull`, `choreography deploy` (with `--docker`, `--dry-run` flags)
+- Compose: `init`, `services pull`, `choreography build` (with `--docker`, `--dry-run` flags)
 
 > **AI-in-the-Loop**: Choreography composition uses `/spas.compose` agent prompt for iterative contract analysis and transformation generation. CLI provides scaffolding and deployment; AI assists with semantic composition.
 

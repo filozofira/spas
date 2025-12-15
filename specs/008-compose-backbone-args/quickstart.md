@@ -5,14 +5,14 @@
 
 ## Overview
 
-The `spas-compose choreography deploy` command now supports customizable infrastructure backbones for event streaming (Redis) and observability (Zipkin/Jaeger).
+The `spas-compose choreography build` command now supports customizable infrastructure backbones for event streaming (Redis) and observability (Zipkin/Jaeger).
 
 ## Default Behavior
 
 Deploy with sensible defaults (no arguments needed):
 
 ```bash
-spas-compose choreography deploy --docker
+spas-compose choreography build --docker
 ```
 
 This generates docker-compose.yaml with:
@@ -25,24 +25,24 @@ This generates docker-compose.yaml with:
 
 ```bash
 # Use Redis 6.2 for production parity
-spas-compose choreography deploy --docker --event-backbone redis:6.2
+spas-compose choreography build --docker --event-backbone redis:6.2
 
 # Use Bitnami Redis
-spas-compose choreography deploy --docker --event-backbone bitnami/redis:7.0
+spas-compose choreography build --docker --event-backbone bitnami/redis:7.0
 ```
 
 ### Custom Zipkin Version
 
 ```bash
 # Pin Zipkin version
-spas-compose choreography deploy --docker --observability-backbone zipkin:2.24
+spas-compose choreography build --docker --observability-backbone zipkin:2.24
 ```
 
 ### Using Jaeger Instead of Zipkin
 
 ```bash
 # Use Jaeger for tracing (Zipkin-compatible)
-spas-compose choreography deploy --docker --observability-backbone jaeger:latest
+spas-compose choreography build --docker --observability-backbone jaeger:latest
 ```
 
 Jaeger provides a richer UI at http://localhost:16686 while remaining compatible with the sidecar's Zipkin protocol.
@@ -53,7 +53,7 @@ Jaeger provides a richer UI at http://localhost:16686 while remaining compatible
 
 ```bash
 # Don't provision Redis (use external)
-spas-compose choreography deploy --docker --event-backbone none
+spas-compose choreography build --docker --event-backbone none
 ```
 
 Then provide Redis connection at runtime:
@@ -66,7 +66,7 @@ REDIS_HOST=my-redis.example.com REDIS_PORT=6379 docker compose up
 
 ```bash
 # Don't provision observability (use external)
-spas-compose choreography deploy --docker --observability-backbone none
+spas-compose choreography build --docker --observability-backbone none
 ```
 
 Then provide Zipkin URL at runtime:
@@ -79,7 +79,7 @@ ZIPKIN_URL=http://zipkin.example.com:9411 docker compose up
 
 ```bash
 # Services and sidecars only
-spas-compose choreography deploy --docker \
+spas-compose choreography build --docker \
   --event-backbone none \
   --observability-backbone none
 ```
@@ -88,7 +88,7 @@ spas-compose choreography deploy --docker \
 
 ```bash
 # Custom Redis + Jaeger
-spas-compose choreography deploy --docker \
+spas-compose choreography build --docker \
   --event-backbone redis:7.2-alpine \
   --observability-backbone jaeger:latest
 ```
@@ -98,7 +98,7 @@ spas-compose choreography deploy --docker \
 Preview what would be generated without writing files:
 
 ```bash
-spas-compose choreography deploy --docker --dry-run \
+spas-compose choreography build --docker --dry-run \
   --event-backbone redis:6.2 \
   --observability-backbone jaeger:latest
 ```

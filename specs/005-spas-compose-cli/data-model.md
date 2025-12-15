@@ -251,7 +251,7 @@ services/<service-name>/
 [choreography composed]
        │ choreography.yaml (flows), transformations/*.jsonata
        │
-       ▼ spas-compose choreography deploy --docker
+       ▼ spas-compose choreography build --docker
 [deployment generated]
          docker-compose.yaml ready to run
 ```

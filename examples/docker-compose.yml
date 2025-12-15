@@ -1,0 +1,113 @@
+version: '3.8'
+
+services:
+  # SPAS Services (.NET)
+  order-service:
+    build:
+      context: ..
+      dockerfile: examples/services/order-service/Dockerfile
+    image: spas-examples/order-service:1.0.0
+    container_name: order-service
+    ports:
+      - "5000:8080"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:8080
+    networks:
+      - spas-network
+
+  inventory-service:
+    build:
+      context: ..
+      dockerfile: examples/services/inventory-service/Dockerfile
+    image: spas-examples/inventory-service:1.0.0
+    container_name: inventory-service
+    ports:
+      - "5001:8080"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:8080
+    networks:
+      - spas-network
+
+  product-service:
+    build:
+      context: ..
+      dockerfile: examples/services/product-service/Dockerfile
+    image: spas-examples/product-service:1.0.0
+    container_name: product-service
+    ports:
+      - "5002:8080"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:8080
+    networks:
+      - spas-network
+
+  # Stub Services (Node.js)
+  fulfillment-service:
+    build:
+      context: ./stubs/fulfillment-service
+      dockerfile: Dockerfile
+    image: spas-examples/fulfillment-service:1.0.0
+    container_name: fulfillment-service
+    ports:
+      - "5003:3000"
+    environment:
+      - NODE_ENV=development
+      - PORT=3000
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3000/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 5s
+    networks:
+      - spas-network
+
+  subscription-service:
+    build:
+      context: ./stubs/subscription-service
+      dockerfile: Dockerfile
+    image: spas-examples/subscription-service:1.0.0
+    container_name: subscription-service
+    ports:
+      - "5004:3000"
+    environment:
+      - NODE_ENV=development
+      - PORT=3000
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3000/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 5s
+    networks:
+      - spas-network
+
+  # Gateway (Node.js)
+  api-gateway:
+    build:
+      context: ./gateways/api-gateway
+      dockerfile: Dockerfile
+    image: spas-examples/api-gateway:1.0.0
+    container_name: api-gateway
+    ports:
+      - "8080:3000"
+    environment:
+      - NODE_ENV=development
+      - PORT=3000
+      - SIDECAR_MODE=sync
+      - SIDECAR_URL=http://sidecar:8081
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3000/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 5s
+    networks:
+      - spas-network
+
+networks:
+  spas-network:
+    driver: bridge

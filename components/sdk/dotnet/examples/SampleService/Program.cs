@@ -36,7 +36,7 @@ app.UseSpasTracelog();
 var identity = new ServiceIdentityBuilder()
     .WithId("sample-service")
     .WithName("sample-service")
-    .WithVersion("1.0.0")
+    .WithVersion("1.0.1")
     .WithBoundedContext("samples")
     .WithDescription("Sample SPAS service demonstrating SDK usage")
     .AddCapability("create-order")

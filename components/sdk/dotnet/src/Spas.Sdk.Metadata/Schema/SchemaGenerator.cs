@@ -1,5 +1,6 @@
 using NJsonSchema;
 using System.Reflection;
+using System.Text.Json;
 using Spas.Sdk.Metadata.Attributes;
 
 namespace Spas.Sdk.Metadata.Schema;
@@ -31,28 +32,28 @@ public class SchemaGenerator
             var eventAttr = type.GetCustomAttribute<SpasEventAttribute>();
             if (eventAttr != null && !string.IsNullOrEmpty(eventAttr.Schema))
             {
-                var schema = JsonSchema.FromType(type);
-                schemas[eventAttr.Schema] = schema.ToJson();
+                var schema = await GenerateSchemaWithDraft07Async(type);
+                schemas[eventAttr.Schema] = schema;
             }
 
             // Check for command attribute
             var commandAttr = type.GetCustomAttribute<SpasCommandAttribute>();
             if (commandAttr != null && !string.IsNullOrEmpty(commandAttr.Schema))
             {
-                var schema = JsonSchema.FromType(type);
-                schemas[commandAttr.Schema] = schema.ToJson();
+                var schema = await GenerateSchemaWithDraft07Async(type);
+                schemas[commandAttr.Schema] = schema;
             }
 
             // Check for query attribute
             var queryAttr = type.GetCustomAttribute<SpasQueryAttribute>();
             if (queryAttr != null && !string.IsNullOrEmpty(queryAttr.Schema))
             {
-                var schema = JsonSchema.FromType(type);
-                schemas[queryAttr.Schema] = schema.ToJson();
+                var schema = await GenerateSchemaWithDraft07Async(type);
+                schemas[queryAttr.Schema] = schema;
             }
         }
 
-        return await Task.FromResult(schemas);
+        return schemas;
     }
 
     /// <summary>
@@ -62,7 +63,22 @@ public class SchemaGenerator
     /// <returns>The schema as a JSON object.</returns>
     public async Task<object> GenerateSchemaAsync(Type type)
     {
+        return await GenerateSchemaWithDraft07Async(type);
+    }
+
+    /// <summary>
+    /// Generates JSON Schema and converts $schema to draft-07 for SPAS compliance (ADR-039).
+    /// </summary>
+    private async Task<object> GenerateSchemaWithDraft07Async(Type type)
+    {
+        // Generate schema using NJsonSchema (produces draft-04)
         var schema = JsonSchema.FromType(type);
-        return await Task.FromResult(schema.ToJson());
+        var schemaJson = schema.ToJson();
+        
+        // Parse and modify $schema to draft-07
+        var schemaObj = JsonSerializer.Deserialize<Dictionary<string, object>>(schemaJson)!;
+        schemaObj["$schema"] = JsonElement.Parse("\"http://json-schema.org/draft-07/schema#\"");
+        
+        return await Task.FromResult(schemaObj);
     }
 }

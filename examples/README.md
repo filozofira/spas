@@ -36,7 +36,7 @@ This example demonstrates the complete SPAS framework in a multi-service e-comme
 
 - **Repository Integration:**
 
-  - All SPAS services successfully published to Repository (http://localhost:3000)
+  - All SPAS services successfully published to Repository (<http://localhost:3000>)
   - **Critical Bug Fixed:** SDK schema generation updated from draft-04 to draft-07 (per ADR-039)
   - Schema validation passing in Repository
 
@@ -389,21 +389,21 @@ For republishing services with runtime metadata:
 ```powershell
 # order-service
 spas-service publish http://localhost:5000 --repo http://localhost:3000 `
-  --imageDigest "sha256:c09d46af396e2340fd182fbba36c3f4e0ae817c94a36b1d261ec2e37d67e6ea5" `
-  --imageRepository "spas-examples/order-service" `
-  --imageTag "1.0.0"
+  --image-digest "your_sha256" `
+  --image-repository "spas-examples/order-service" `
+  --image-tag "1.0.0"
 
 # inventory-service
 spas-service publish http://localhost:5001 --repo http://localhost:3000 `
-  --imageDigest "sha256:3ddedc3cff4dccc7e3a8ec7c319504c51776097e9dd66b5baba9dab4b3e81148" `
-  --imageRepository "spas-examples/inventory-service" `
-  --imageTag "1.0.0"
+  --image-digest "your_sha256" `
+  --image-repository "spas-examples/inventory-service" `
+  --image-tag "1.0.0"
 
 # product-service
 spas-service publish http://localhost:5002 --repo http://localhost:3000 `
-  --imageDigest "sha256:71c345af04a2832e9bb56f7f9dc5752493ecedcc46d30fbcd4ff77693df90bdf" `
-  --imageRepository "spas-examples/product-service" `
-  --imageTag "1.0.0"
+  --image-digest "your_sha256" `
+  --image-repository "spas-examples/product-service" `
+  --image-tag "1.0.0"
 ```
 
 **Note:** Stub services (fulfillment-service, subscription-service) and api-gateway are not SPAS services and are not published to Repository.

@@ -111,7 +111,38 @@ All G-Features should be listed here to ensure AI agents have easy access to it.
   1. Nice-to-have examples and perhaps even code snippets etc.
   1. Must-have justification or why implement the feature.
 
-### FG01: Add State element to Service Metadata
+### FG01: Extend spas-compose init to take --output argument
+
+Extend spas-compose init to take --output argument indicating where to initiate domain, while agent promts would go to project root.
+E.g. if I run `spas-compose public --output ./examples/ecommerce/public` cli would scaffold choreography files and folders in `./examples/ecommerce/public`, while agent prompts would go to `./.github/agents...`.
+
+It is important that generated agent prompt has correct path references to domain schema files, etc. I.e.
+
+```markdown
+...
+
+1. **Contract Analysis**: Parse service metadata from `./examples/ecommerce/public/services/*/spas.json`
+   ...
+   other paths...
+```
+
+Also, any reference to spas principles should be removed, since this will not be available for domain developer operating from different project. Instead it important info should be embedded in prompt.
+I.e. currently below is mentioned in References section:
+
+```markdown
+## References
+
+- [./examples/ecommerce/public/.spas/schemas/sidecar-config-v1.schema.json](public/.spas/schemas/sidecar-config-v1.schema.json)
+- [specs/005-spas-compose-cli/](specs/005-spas-compose-cli/)
+- [principles/component/14-domain-choreography.md](principles/component/14-domain-choreography.md)
+- [ADR-037: AI-in-the-loop composition](principles/appendix/28-decision-log.md)
+```
+
+**Justification:** Agent prompts are project-level resources (shared across all domains).
+Domain workspaces are domain-specific (each domain has its own choreography)
+Current behavior creates agent prompts relative to where you run the command, causing duplication or misplacement.
+
+### FG02: Add State element to Service Metadata
 
 Add StateStore or State element to spas.json, design-time and runtime.
 
@@ -143,13 +174,13 @@ Add StateStore or State element to spas.json, design-time and runtime.
 - Allow spas-compose CLI to add these dependencies to docker-compose file and hence allow one command to bootstrap full domain with all dependencies.
 - Visualises full network dependencies required by service to operate.
 
-### FG02: Cross Domain Choreography
+### FG03: Cross Domain Choreography
 
 Extend framework to support choreographies across multiple domain contexts.
 
 **Justification:** Adding this feature would allow domain composers to integrate multiple domains into one SPAS solution, allowing data to flow/synchronise across these boundaries. E.g. admin-e-commerce and public-e-commerce domain contexts can synchronise products, stock related data and similar.
 
-### FG03: SDK Metadata extraction
+### FG04: SDK Metadata extraction
 
 Consider swapping `_spas/metadata` endpoint with cli based extraction of metadata archive.
 E.g. extend SDK to support writing metadata to file (e.g. already implemented in SampleService `SpasComposer.ComposeToFile(...)`) when running app with certain arguments.

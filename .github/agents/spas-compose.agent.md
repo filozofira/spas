@@ -16,13 +16,15 @@ Analyze pulled service contracts and generate choreography configuration with tr
 
 ## Responsibilities
 
-1. **Contract Analysis**: Parse service metadata from `public/services/*/spas.json`
+1. **Contract Analysis**: Parse service metadata from `./examples/ecommerce/public/services/*/spas.json`
 2. **Event Matching**: Identify semantic matches between published/subscribed events
 3. **Choreography Generation**: Propose topic mappings and flow definitions
 4. **Transformation Generation**: Create JSONata transformation files
 5. **Iterative Refinement**: Confirm with developer, iterate based on feedback
 
 ## Workspace Structure
+
+Starts at `./examples/ecommerce`
 
 ```
 public/
@@ -46,8 +48,8 @@ public/
 ### Step 1: Validate Workspace
 
 Before any operation, verify:
-- `public/choreography.yaml` exists
-- `public/services/` directory exists with at least one service
+- `./examples/ecommerce/public/choreography.yaml` exists
+- `./examples/ecommerce/public/services/` directory exists with at least one service
 
 If invalid:
 ```
@@ -58,9 +60,9 @@ Run `spas-compose init public` first, then `spas-compose services pull`.
 ### Step 2: Analyze Services
 
 When asked to analyze services:
-1. Read `public/services/<service-name>/spas.json` for each service
+1. Read `./examples/ecommerce/public/services/<service-name>/spas.json` for each service
 2. Extract: `id`, `version`, `boundedContext`, `events.published[]`, `events.subscribed[]`
-3. Read schemas from `public/services/<service-name>/schemas/`
+3. Read schemas from `./examples/ecommerce/public/services/<service-name>/schemas/`
 
 **Output Format:**
 ```
@@ -98,7 +100,7 @@ flows:
 
 ### Step 4: Generate Transformations
 
-Create JSONata files at `public/transformations/<service>/*.jsonata`:
+Create JSONata files at `./examples/ecommerce/public/transformations/<service>/*.jsonata`:
 ```jsonata
 /* inbound-order-created.jsonata */
 /* Transforms OrderCreated (order-service) → FulfillmentRequest (fulfillment-service) */
@@ -127,7 +129,7 @@ Next steps:
 
 | Constraint | Behavior |
 |------------|----------|
-| **Read-only services/** | NEVER modify files in `public/services/` |
+| **Read-only services/** | NEVER modify files in `./examples/ecommerce/public/services/` |
 | **Preserve existing flows** | When adding flows, preserve all existing flows |
 | **Valid JSONata** | All .jsonata files must have valid syntax |
 | **Confirm before write** | ALWAYS wait for explicit confirmation |
@@ -156,7 +158,7 @@ Next steps:
 
 ## Sidecar Configuration Mapping
 
-The choreography.yaml flows generate sidecar configuration files. Use the schema at `.spas/schemas/sidecar-config-v1.schema.json` to understand the mapping:
+The choreography.yaml flows generate sidecar configuration files. Use the schema at `./examples/ecommerce/public/.spas/schemas/sidecar-config-v1.schema.json` to understand the mapping:
 
 | Choreography Field | Sidecar Config Path | Description |
 |-------------------|---------------------|-------------|
@@ -172,7 +174,7 @@ The choreography.yaml flows generate sidecar configuration files. Use the schema
 
 ## References
 
-- [.spas/schemas/sidecar-config-v1.schema.json](public/.spas/schemas/sidecar-config-v1.schema.json)
+- [./examples/ecommerce/public/.spas/schemas/sidecar-config-v1.schema.json](./examples/ecommerce/public/.spas/schemas/sidecar-config-v1.schema.json)
 - [specs/005-spas-compose-cli/](specs/005-spas-compose-cli/)
 - [principles/component/14-domain-choreography.md](principles/component/14-domain-choreography.md)
 - [ADR-037: AI-in-the-loop composition](principles/appendix/28-decision-log.md)

@@ -111,13 +111,13 @@
 
 ---
 
-## Phase 6: Polish & Validation
+## Phase 6: Polish & Validation ✅
 
 **Purpose**: Final validation and documentation
 
-- [ ] T025 Run full test suite to verify all changes in components/sidecar/
-- [ ] T026 [P] Update sidecar README with file-based transform documentation in components/sidecar/README.md
-- [ ] T027 Run quickstart.md validation (manual verification of transform file workflow)
+- [x] T025 Run full test suite to verify all changes in components/sidecar/
+- [x] T026 [P] Update sidecar README with file-based transform documentation in components/sidecar/README.md
+- [x] T027 Run quickstart.md validation (manual verification of transform file workflow)
 
 ---
 

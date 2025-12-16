@@ -7,7 +7,7 @@ Specifies responsibilities and interfaces for the platform-injected sidecar/mesh
 - Traffic interception: ingress/egress
 - Protocol translation: HTTP ↔ CloudEvents (PoC); gRPC ↔ events (Production)
 - Service invocation: Direct HTTP/gRPC calls to services for command/query patterns (configured via `choreography.yaml`)
-- Transformation execution (inbound domain→internal, outbound internal→domain) via custom HTTP middleware (PoC) or sidecar native (Production)
+- Transformation execution: Inbound domain→internal, outbound internal→domain. Transforms specified as either inline JSONata expressions OR file paths (`.jsonata` extension). File-based transforms loaded once and cached for performance. See ADR-036 for transformation file standards.
 - Identity propagation (PoC: payload-based; Production: middleware injection)
 - mTLS termination (Production; PoC deferred)
 - Schema validation (PoC optional; Production required)

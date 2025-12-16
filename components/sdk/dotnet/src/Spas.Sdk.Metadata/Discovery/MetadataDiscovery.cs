@@ -59,6 +59,7 @@ public class MetadataDiscovery
 
     /// <summary>
     /// Discovers event contracts from types decorated with SpasEventAttribute.
+    /// Event names are normalized to kebab-case for language-neutral interoperability.
     /// </summary>
     private void DiscoverEventsFromAssemblies(ContractsBuilder builder)
     {
@@ -74,8 +75,11 @@ public class MetadataDiscovery
                     var eventAttr = eventType.GetCustomAttribute<SpasEventAttribute>();
                     if (eventAttr != null)
                     {
+                        // Normalize event name to kebab-case for cross-SDK interoperability
+                        // e.g., "OrderCreated" → "order-created"
+                        var normalizedName = AttributeHelpers.ToKebabCase(eventAttr.Name);
                         var schema = eventAttr.Schema ?? GenerateSchemaReference(eventAttr.Name);
-                        builder.AddEvent(eventAttr.Name, eventAttr.Version, schema);
+                        builder.AddEvent(normalizedName, eventAttr.Version, schema);
                     }
                 }
             }

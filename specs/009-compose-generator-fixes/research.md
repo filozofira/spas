@@ -42,22 +42,41 @@ export interface EventDefinition {
 }
 ```
 
-But the SDK publishes CloudEvents with full type like `com.ecommerce.order.created`. This format is:
+The SDK publishes CloudEvents with full type like `com.order.order-created`. This format is:
 
 - Domain prefix: `com.{bounded-context}`
-- Event name: lowercased, dot-separated
+- Event name: kebab-case (lowercased, hyphen-separated)
 
-**Decision**: Derive CloudEvents type from service metadata. The generator must:
+**Key Discovery**: The SDK (authoritative) uses kebab-case for event names in CloudEvents:
+- `EventPublisher.cs` has `ConvertToKebabCase()` method
+- Example: "OrderCreated" → "order-created" → `com.sample-service.order-created`
+
+**Cross-SDK Interoperability Decision**: 
+
+For multi-language SDK support (C#, Java, Go, Python, Ruby, etc.), the canonical format
+in `spas.json` uses kebab-case for event names:
+
+1. **C# SDK**: Uses `[SpasEvent("OrderCreated")]` → normalized to `order-created` in spas.json
+2. **Python SDK**: Would use `@spas_event("order_created")` → normalized to `order-created` 
+3. **Other SDKs**: Same principle - normalize native convention to kebab-case
+
+This ensures that:
+- spas.json is language-neutral (kebab-case is URL-safe and widely adopted)
+- Choreography authors don't need to know SDK-specific naming conventions
+- Event types are consistent across all services regardless of implementation language
+
+**Decision**: Derive CloudEvents type from service metadata using kebab-case:
 
 1. Read `boundedContext` from service metadata
-2. Convert event name (PascalCase → lowercase dot-separated)
-3. Compose: `com.{boundedContext}.{event.name.converted}`
+2. Convert event name (PascalCase/snake_case → kebab-case)
+3. Compose: `com.{boundedContext}.{event-name-kebab}`
 
-**Rationale**: Matches CloudEvents 1.0 spec type conventions and SDK behavior.  
+**Rationale**: Matches CloudEvents 1.0 spec type conventions and SDK runtime behavior.  
 **Alternatives Considered**:
 
 - Add explicit `cloudEventsType` to metadata - rejected as duplicative
 - Use short event name - rejected as SDK already uses full format
+- Use dot-separated format (order.created) - rejected in favor of kebab (order-created) to match SDK
 
 ---
 
@@ -145,9 +164,10 @@ All technical unknowns resolved:
 | Topic             | Decision                                          |
 | ----------------- | ------------------------------------------------- |
 | Image reference   | `{runtime.repository}:{runtime.tag}`              |
-| EventType format  | `com.{boundedContext}.{event.name.to.lower.case}` |
+| EventType format  | `com.{boundedContext}.{event-name-kebab}`         |
 | Invoke endpoint   | Default to `/incoming`                            |
 | Service port      | 8080 (internal)                                   |
 | Sidecar port      | 7001 via `SIDECAR_PORT`                           |
 | Transform paths   | Full path with service folder                     |
 | --output behavior | Domain to output dir, agents to git root          |
+| spas.json naming  | kebab-case (cross-SDK interoperability)           |

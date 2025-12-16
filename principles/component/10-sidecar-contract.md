@@ -55,6 +55,8 @@ Specifies responsibilities and interfaces for the platform-injected sidecar/mesh
 
 Note: Topic is NOT in the URL path. The sidecar uses routing configuration to map `x-event-type` to the target topic. This decouples services from infrastructure concerns.
 
+**Event Type Format**: Sidecar expects `x-event-type` in format `com.{boundedContext}.{event-name-kebab}` where event name is kebab-case (e.g., `com.order.order-created`). This format is consistent across all SDK languages.
+
 **Expected Headers from SDK**:
 
 - `traceparent`: W3C Trace Context (required)

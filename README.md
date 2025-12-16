@@ -432,6 +432,49 @@ order-service:
 - Aligns with prototype design decisions
 - Simplifies docker-compose generation in spas-compose
 
+### FG09: CloudEvents Type Construction Refactor
+
+Move CloudEvents `type` field construction from SDK to Sidecar for cleaner separation of concerns.
+
+**Current behavior (SDK constructs full type):**
+
+```csharp
+// EventPublisher.cs
+var eventName = ConvertToKebabCase(eventAttr.Name); // "OrderCreated" → "order-created"
+eventType = $"com.{_serviceName}.{eventName}";     // "com.order-service.order-created"
+request.Headers.Add("x-event-type", eventType);    // Full type in header
+```
+
+**Expected behavior (Sidecar constructs full type):**
+
+SDK sends short event name:
+```csharp
+request.Headers.Add("x-event-name", "order-created"); // Short name only
+request.Headers.Add("x-service-name", "order-service");
+```
+
+Sidecar constructs CloudEvents type:
+```javascript
+const eventType = `com.${headers['x-service-name']}.${headers['x-event-name']}`;
+cloudEvent.type = eventType; // "com.order-service.order-created"
+```
+
+**Benefits:**
+
+- Single responsibility: Sidecar owns CloudEvents envelope construction
+- SDK simplicity: All SDKs just emit kebab event names
+- Flexibility: Format changes (e.g., `org.` prefix) only affect sidecar
+- Consistency: Matches existing pattern where sidecar constructs `source`, `id`, `time`
+
+**Components affected:**
+
+- SDK (`EventPublisher.cs`): Send `x-event-name` instead of full `x-event-type`
+- Sidecar: Construct full type from `x-service-name` + `x-event-name`
+- CLI sidecar-config-generator: Generate `eventName` instead of full `eventType`
+- Principles docs: Update 10-sidecar-contract.md, 12-sdk.md
+
+**Justification:** Cleaner architecture with single point of CloudEvents construction. Currently both SDK and sidecar know the format, violating DRY.
+
 ## Related Documents
 
 - [Principles](./principles/README.md) - SPAS Framework guiding principles

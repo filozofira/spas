@@ -23,6 +23,7 @@ Specifies required interfaces and behaviors for a SPAS service.
 - Subscribed events: Sidecar invokes designated handler (gRPC or HTTP); service implements idempotent processing (PoC responsibility)
 - Envelope: CloudEvents JSON; required attributes: `id`, `source`, `type`, `specversion`, `time`; extensions: `correlationid`, `traceparent`, optional `causationid`
 - Schema evolution: additive-only; new fields optional; incompatible removal requires new major event type version
+- **Event naming**: Event names in `spas.json` use kebab-case format (e.g., `order-created`) regardless of implementation language. SDKs normalize native conventions (PascalCase, snake_case) to kebab-case for cross-language interoperability.
 
 ## Consistency & Idempotency
 

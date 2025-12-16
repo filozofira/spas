@@ -79,18 +79,18 @@ Based on plan.md structure:
 
 ### Unit Tests for User Story 2
 
-- [ ] T016 [P] [US2] Unit test for eventType generation (full CloudEvents type) in `components/cli/spas-compose/test/unit/sidecar-config-generator.test.ts`
-- [ ] T017 [P] [US2] Unit test for transform path resolution (includes service folder) in `components/cli/spas-compose/test/unit/sidecar-config-generator.test.ts`
+- [X] T016 [P] [US2] Unit test for eventType generation (full CloudEvents type) in `components/cli/spas-compose/test/unit/sidecar-config-generator.test.ts`
+- [X] T017 [P] [US2] Unit test for transform path resolution (includes service folder) in `components/cli/spas-compose/test/unit/sidecar-config-generator.test.ts`
 
 ### Implementation for User Story 2
 
-- [ ] T018 [US2] Modify buildOutboundEntries() to include eventType field in `components/cli/spas-compose/src/services/sidecar-config-generator.ts`
-- [ ] T019 [US2] Modify buildOutboundEntries() to derive eventType using CloudEvents utility from T005 in `components/cli/spas-compose/src/services/sidecar-config-generator.ts`
-- [ ] T020 [US2] Add loadServiceMetadata() helper to read spas.json for boundedContext in `components/cli/spas-compose/src/services/sidecar-config-generator.ts`
-- [ ] T021 [US2] Fix resolveTransformPath() to keep full path with service folder in `components/cli/spas-compose/src/services/sidecar-config-generator.ts`
-- [ ] T022 [US2] Verify invokeEndpoint defaults to /incoming in buildInboundEntries() in `components/cli/spas-compose/src/services/sidecar-config-generator.ts`
+- [X] T018 [US2] Modify buildOutboundEntries() to include eventType field in `components/cli/spas-compose/src/services/sidecar-config-generator.ts`
+- [X] T019 [US2] Modify buildOutboundEntries() to derive eventType using CloudEvents utility from T005 in `components/cli/spas-compose/src/services/sidecar-config-generator.ts`
+- [X] T020 [US2] Add loadServiceMetadata() helper to read spas.json for boundedContext in `components/cli/spas-compose/src/services/sidecar-config-generator.ts`
+- [X] T021 [US2] Fix resolveTransformPath() to keep full path with service folder in `components/cli/spas-compose/src/services/sidecar-config-generator.ts`
+- [X] T022 [US2] Verify invokeEndpoint defaults to /incoming in buildInboundEntries() in `components/cli/spas-compose/src/services/sidecar-config-generator.ts`
 
-**Checkpoint**: Sidecar configs have correct eventType format and transform paths
+**Checkpoint**: Sidecar configs have correct eventType format and transform paths ✓ (kebab-case aligned with SDK)
 
 ---
 

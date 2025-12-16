@@ -36,10 +36,10 @@ principles/component/
 
 **Purpose**: Verify existing components build and tests pass before modification
 
-- [ ] T001 Verify SDK solution builds with `dotnet build` in `components/sdk/dotnet/`
-- [ ] T002 [P] Verify sidecar builds with `npm run build` in `components/sidecar/`
-- [ ] T003 Run existing SDK tests with `dotnet test` to establish baseline
-- [ ] T004 [P] Run existing sidecar tests with `npm test` to establish baseline
+- [X] T001 Verify SDK solution builds with `dotnet build` in `components/sdk/dotnet/`
+- [X] T002 [P] Verify sidecar builds with `npm run build` in `components/sidecar/`
+- [X] T003 Run existing SDK tests with `dotnet test` to establish baseline
+- [X] T004 [P] Run existing sidecar tests with `npm test` to establish baseline (184 passed)
 
 ---
 

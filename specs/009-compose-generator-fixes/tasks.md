@@ -102,20 +102,20 @@ Based on plan.md structure:
 
 ### Unit Tests for User Story 3
 
-- [ ] T023 [P] [US3] Unit test for --output argument parsing in `components/cli/spas-compose/test/unit/init.test.ts`
-- [ ] T024 [P] [US3] Unit test for agent prompt path generation with output directory in `components/cli/spas-compose/test/unit/workspace-service.test.ts`
+- [X] T023 [P] [US3] Unit test for --output argument parsing in `components/cli/spas-compose/test/unit/init.test.ts`
+- [X] T024 [P] [US3] Unit test for agent prompt path generation with output directory in `components/cli/spas-compose/test/unit/workspace-service.test.ts`
 
 ### Implementation for User Story 3
 
-- [ ] T025 [US3] Add --output option to init command in `components/cli/spas-compose/src/commands/init.ts`
-- [ ] T026 [US3] Modify executeInit() to resolve workspace path from --output argument in `components/cli/spas-compose/src/commands/init.ts`
-- [ ] T027 [US3] Modify WorkspaceService.create() to accept output path and project root separately in `components/cli/spas-compose/src/services/workspace-service.ts`
-- [ ] T028 [US3] Add git root detection for agent prompt placement in `components/cli/spas-compose/src/utils/git.ts`
-- [ ] T029 [US3] Modify generateAgentFile() to use relative paths from project root to domain in `components/cli/spas-compose/src/utils/templates.ts`
-- [ ] T030 [US3] Remove SPAS principles references from agent template in `components/cli/spas-compose/src/utils/templates.ts`
-- [ ] T031 [US3] Rename agent file to spas.compose.agent.md (dot separator) in `components/cli/spas-compose/src/services/workspace-service.ts`
+- [X] T025 [US3] Add --output option to init command in `components/cli/spas-compose/src/commands/init.ts`
+- [X] T026 [US3] Modify executeInit() to resolve workspace path from --output argument in `components/cli/spas-compose/src/commands/init.ts`
+- [X] T027 [US3] Modify WorkspaceService.create() to accept output path and project root separately in `components/cli/spas-compose/src/services/workspace-service.ts`
+- [X] T028 [US3] Add git root detection for agent prompt placement in `components/cli/spas-compose/src/utils/git.ts`
+- [X] T029 [US3] Modify generateAgentFile() to use relative paths from project root to domain in `components/cli/spas-compose/src/utils/templates.ts`
+- [X] T030 [US3] Remove SPAS principles references from agent template in `components/cli/spas-compose/src/utils/templates.ts`
+- [X] T031 [US3] Rename agent file to spas.compose.agent.md (dot separator) in `components/cli/spas-compose/src/services/workspace-service.ts`
 
-**Checkpoint**: Init command with --output creates files in correct locations with valid path references
+**Checkpoint**: Init command with --output creates files in correct locations with valid path references ✓
 
 ---
 

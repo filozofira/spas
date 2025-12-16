@@ -3,7 +3,7 @@
  */
 
 import { existsSync, mkdirSync, writeFileSync, rmSync, statSync } from "fs";
-import { join } from "path";
+import { join, relative } from "path";
 import type { CommandResult } from "../types.js";
 import {
   generateWorkspaceReadme,
@@ -31,12 +31,14 @@ export class WorkspaceService {
    * @param workspacePath Absolute path to workspace root
    * @param workspaceName Name of the workspace (for templates)
    * @param force Overwrite existing workspace if true
+   * @param projectRoot Optional git root for agent file placement (defaults to workspace parent)
    * @returns CommandResult with success/failure status
    */
   async create(
     workspacePath: string,
     workspaceName: string,
     force: boolean = false,
+    projectRoot?: string,
   ): Promise<CommandResult> {
     try {
       // Check if workspace already exists
@@ -79,19 +81,24 @@ export class WorkspaceService {
       );
 
       // Create agent and prompt files at project root (.github/agents/ and .github/prompts/)
-      // These are created at the parent of workspace (project root) for VS Code recognition
-      const projectRoot = join(workspacePath, "..");
-      const agentsDir = join(projectRoot, ".github", "agents");
-      const promptsDir = join(projectRoot, ".github", "prompts");
+      // Use provided projectRoot (git root) or fall back to workspace parent
+      const effectiveProjectRoot = projectRoot ?? join(workspacePath, "..");
+      const agentsDir = join(effectiveProjectRoot, ".github", "agents");
+      const promptsDir = join(effectiveProjectRoot, ".github", "prompts");
+
+      // Calculate relative path from project root to domain workspace
+      // e.g., if projectRoot=/project and workspacePath=/project/domains/my-domain
+      // then domainRelativePath = "domains/my-domain"
+      const domainRelativePath = relative(effectiveProjectRoot, workspacePath).replace(/\\/g, "/");
 
       // Ensure directories exist
       mkdirSync(agentsDir, { recursive: true });
       mkdirSync(promptsDir, { recursive: true });
 
-      // Create agent file (full instructions)
-      const agentContent = generateAgentFile(workspaceName);
+      // Create agent file (full instructions) with relative path
+      const agentContent = generateAgentFile(workspaceName, domainRelativePath);
       writeFileSync(
-        join(agentsDir, "spas-compose.agent.md"),
+        join(agentsDir, "spas.compose.agent.md"),
         agentContent,
         "utf-8",
       );
@@ -116,6 +123,14 @@ export class WorkspaceService {
         "utf-8",
       );
 
+      // Calculate relative agent file path for display
+      const agentRelativePath = projectRoot
+        ? `${relative(workspacePath, effectiveProjectRoot).replace(/\\/g, "/")}/.github/agents/spas.compose.agent.md`
+        : "../.github/agents/spas.compose.agent.md";
+      const promptRelativePath = projectRoot
+        ? `${relative(workspacePath, effectiveProjectRoot).replace(/\\/g, "/")}/.github/prompts/spas-compose.prompt.md`
+        : "../.github/prompts/spas-compose.prompt.md";
+
       return {
         success: true,
         message: `Created domain workspace at ${workspacePath}`,
@@ -128,8 +143,8 @@ export class WorkspaceService {
             "services/",
             "transformations/",
             ".spas/schemas/sidecar-config-v1.schema.json",
-            "../.github/agents/spas-compose.agent.md",
-            "../.github/prompts/spas-compose.prompt.md",
+            agentRelativePath,
+            promptRelativePath,
           ],
         },
       };

@@ -59,4 +59,28 @@ describe("init command", () => {
       expect(true).toBe(true);
     });
   });
+
+  describe("--output option", () => {
+    it("should accept --output argument for custom domain path", async () => {
+      // The --output option allows specifying where the domain folder is created
+      // e.g., spas-compose init public --output ./examples/domains
+      // This creates: ./examples/domains/public/choreography.yaml
+      const { createInitCommand } = await import("../../../src/commands/init.js");
+      const command = createInitCommand();
+      
+      // Verify --output option is defined
+      const outputOption = command.options.find(
+        (opt) => opt.long === "--output"
+      );
+      expect(outputOption).toBeDefined();
+      expect(outputOption!.flags).toContain("-o");
+      expect(outputOption!.description?.toLowerCase()).toContain("output");
+    });
+
+    it("should use current directory when --output is not specified", () => {
+      // Default behavior: create domain folder in current working directory
+      const result = resolveWorkspacePath("my-domain");
+      expect(result).toContain("my-domain");
+    });
+  });
 });

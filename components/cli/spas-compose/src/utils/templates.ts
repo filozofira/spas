@@ -131,12 +131,18 @@ infrastructure:
 }
 
 /**
- * Generate agent file content (.github/agents/spas-compose.agent.md)
+ * Generate agent file content (.github/agents/spas.compose.agent.md)
  *
  * Creates the full agent instructions at project root.
  * Follows SpecKit pattern: .github/agents/*.agent.md
+ *
+ * @param workspaceName Name of the domain workspace
+ * @param domainPath Relative path from project root to domain (e.g., "domains/my-domain")
  */
-export function generateAgentFile(workspaceName: string): string {
+export function generateAgentFile(workspaceName: string, domainPath?: string): string {
+  // Use domainPath if provided, otherwise fall back to workspaceName for backward compatibility
+  const path = domainPath ?? workspaceName;
+  
   return `---
 description: AI-assisted choreography composition for SPAS domain workspaces
 ---
@@ -155,7 +161,7 @@ Analyze pulled service contracts and generate choreography configuration with tr
 
 ## Responsibilities
 
-1. **Contract Analysis**: Parse service metadata from \`${workspaceName}/services/*/spas.json\`
+1. **Contract Analysis**: Parse service metadata from \`${path}/services/*/spas.json\`
 2. **Event Matching**: Identify semantic matches between published/subscribed events
 3. **Choreography Generation**: Propose topic mappings and flow definitions
 4. **Transformation Generation**: Create JSONata transformation files
@@ -164,7 +170,7 @@ Analyze pulled service contracts and generate choreography configuration with tr
 ## Workspace Structure
 
 \`\`\`
-${workspaceName}/
+${path}/
 ├── choreography.yaml              # Choreography configuration (you modify this)
 ├── services/                      # Pulled service metadata (read-only)
 │   └── <service-name>/
@@ -185,8 +191,8 @@ ${workspaceName}/
 ### Step 1: Validate Workspace
 
 Before any operation, verify:
-- \`${workspaceName}/choreography.yaml\` exists
-- \`${workspaceName}/services/\` directory exists with at least one service
+- \`${path}/choreography.yaml\` exists
+- \`${path}/services/\` directory exists with at least one service
 
 If invalid:
 \`\`\`
@@ -197,9 +203,9 @@ Run \`spas-compose init ${workspaceName}\` first, then \`spas-compose services p
 ### Step 2: Analyze Services
 
 When asked to analyze services:
-1. Read \`${workspaceName}/services/<service-name>/spas.json\` for each service
+1. Read \`${path}/services/<service-name>/spas.json\` for each service
 2. Extract: \`id\`, \`version\`, \`boundedContext\`, \`events.published[]\`, \`events.subscribed[]\`
-3. Read schemas from \`${workspaceName}/services/<service-name>/schemas/\`
+3. Read schemas from \`${path}/services/<service-name>/schemas/\`
 
 **Output Format:**
 \`\`\`
@@ -237,7 +243,7 @@ flows:
 
 ### Step 4: Generate Transformations
 
-Create JSONata files at \`${workspaceName}/transformations/<service>/*.jsonata\`:
+Create JSONata files at \`${path}/transformations/<service>/*.jsonata\`:
 \`\`\`jsonata
 /* inbound-order-created.jsonata */
 /* Transforms OrderCreated (order-service) → FulfillmentRequest (fulfillment-service) */
@@ -266,7 +272,7 @@ Next steps:
 
 | Constraint | Behavior |
 |------------|----------|
-| **Read-only services/** | NEVER modify files in \`${workspaceName}/services/\` |
+| **Read-only services/** | NEVER modify files in \`${path}/services/\` |
 | **Preserve existing flows** | When adding flows, preserve all existing flows |
 | **Valid JSONata** | All .jsonata files must have valid syntax |
 | **Confirm before write** | ALWAYS wait for explicit confirmation |
@@ -295,7 +301,7 @@ Next steps:
 
 ## Sidecar Configuration Mapping
 
-The choreography.yaml flows generate sidecar configuration files. Use the schema at \`.spas/schemas/sidecar-config-v1.schema.json\` to understand the mapping:
+The choreography.yaml flows generate sidecar configuration files. Use the schema at \`${path}/.spas/schemas/sidecar-config-v1.schema.json\` to understand the mapping:
 
 | Choreography Field | Sidecar Config Path | Description |
 |-------------------|---------------------|-------------|
@@ -311,10 +317,7 @@ The choreography.yaml flows generate sidecar configuration files. Use the schema
 
 ## References
 
-- [.spas/schemas/sidecar-config-v1.schema.json](${workspaceName}/.spas/schemas/sidecar-config-v1.schema.json)
-- [specs/005-spas-compose-cli/](specs/005-spas-compose-cli/)
-- [principles/component/14-domain-choreography.md](principles/component/14-domain-choreography.md)
-- [ADR-037: AI-in-the-loop composition](principles/appendix/28-decision-log.md)
+- [Sidecar Config Schema](${path}/.spas/schemas/sidecar-config-v1.schema.json)
 `;
 }
 

@@ -79,7 +79,7 @@ components/sdk/dotnet/
 |-------|-----------|--------|
 | Phase 0 | [research.md](research.md) | ✅ Complete |
 | Phase 1 | [data-model.md](data-model.md), [contracts/](contracts/), [quickstart.md](quickstart.md) | ✅ Complete |
-| Phase 2 | [tasks.md](tasks.md) | ⏳ Next |
+| Phase 2 | [tasks.md](tasks.md) | ✅ Complete |
 
 ## Plan Summary
 

@@ -55,15 +55,14 @@ export function loadTransformContent(filePath: string): string {
   const absolutePath = resolveTransformPath(filePath);
   try {
     return readFileSync(absolutePath, 'utf-8');
-  } catch (err) {
-    if (err instanceof Error && 'code' in err) {
-      const nodeErr = err as NodeJS.ErrnoException;
-      if (nodeErr.code === 'ENOENT') {
-        throw new Error(`Transform file not found: ${filePath}`);
-      }
-      if (nodeErr.code === 'EACCES') {
-        throw new Error(`Transform file not accessible: ${filePath}`);
-      }
+  } catch (err: unknown) {
+    // Check for Node.js file system error codes
+    const nodeErr = err as { code?: string; message?: string };
+    if (nodeErr.code === 'ENOENT') {
+      throw new Error(`Transform file not found: ${filePath}`);
+    }
+    if (nodeErr.code === 'EACCES') {
+      throw new Error(`Transform file not accessible: ${filePath}`);
     }
     const message = err instanceof Error ? err.message : 'Unknown error';
     throw new Error(`Failed to read transform file ${filePath}: ${message}`);
@@ -76,9 +75,10 @@ export function loadTransformContent(filePath: string): string {
 
 /**
  * Apply a transformation to a payload.
+ * Supports both inline JSONata expressions and .jsonata file paths.
  *
  * @param payload - Input payload to transform
- * @param transform - JSONata expression or transform identifier
+ * @param transform - JSONata expression OR path to .jsonata file
  * @returns Transformed payload
  */
 export async function applyTransform(payload: unknown, transform: string): Promise<unknown> {
@@ -87,10 +87,40 @@ export async function applyTransform(payload: unknown, transform: string): Promi
   }
 
   try {
-    // Get or compile the expression
+    // Check cache first (keyed by transform string - file path or inline expression)
     let expression = transformCache.get(transform);
-    if (!expression) {
-      expression = jsonata(transform);
+    
+    if (expression) {
+      // Cache hit - reuse compiled expression
+      console.log(`[transformer] Cache hit for: ${transform}`);
+    } else {
+      // Cache miss - need to load/compile
+      console.log(`[transformer] Cache miss for: ${transform}`);
+      
+      // Determine if this is a file path or inline expression
+      let expressionContent: string;
+      
+      if (isFilePath(transform)) {
+        // Load file content for .jsonata files
+        expressionContent = loadTransformContent(transform);
+        console.log(`[transformer] Loaded transform from file: ${transform}`);
+      } else {
+        // Use as inline expression
+        expressionContent = transform;
+      }
+      
+      // Compile the expression
+      try {
+        expression = jsonata(expressionContent);
+      } catch (parseErr) {
+        const parseMessage = parseErr instanceof Error ? parseErr.message : 'Unknown error';
+        if (isFilePath(transform)) {
+          throw new Error(`Invalid JSONata in ${transform}: ${parseMessage}`);
+        }
+        throw parseErr;
+      }
+      
+      // Cache the compiled expression (keyed by original transform string)
       transformCache.set(transform, expression);
     }
 
@@ -115,16 +145,30 @@ export async function applyTransformSync(payload: unknown, transform: string): P
 
 /**
  * Validate a transform expression without applying it.
+ * Supports both inline JSONata expressions and .jsonata file paths.
  *
- * @param transform - JSONata expression to validate
+ * @param transform - JSONata expression OR path to .jsonata file
  * @returns true if valid, throws on invalid
  */
 export function validateTransform(transform: string): boolean {
   try {
-    jsonata(transform);
+    let expressionContent: string;
+    
+    if (isFilePath(transform)) {
+      // Load and validate file content
+      expressionContent = loadTransformContent(transform);
+    } else {
+      // Validate inline expression
+      expressionContent = transform;
+    }
+    
+    jsonata(expressionContent);
     return true;
   } catch (err) {
     const message = err instanceof Error ? err.message : 'Unknown error';
+    if (isFilePath(transform)) {
+      throw new Error(`Invalid transform in ${transform}: ${message}`);
+    }
     throw new Error(`Invalid transform expression: ${message}`);
   }
 }

@@ -44,7 +44,7 @@
 
 ---
 
-## Phase 3: User Story 1 - Apply File-Based Transform to Inbound Events (Priority: P1) 🎯 MVP
+## Phase 3: User Story 1 - Apply File-Based Transform to Inbound Events (Priority: P1) 🎯 MVP ✅
 
 **Goal**: Sidecar loads JSONata expressions from `.jsonata` files and applies them to inbound events
 
@@ -52,21 +52,21 @@
 
 ### Unit Tests for User Story 1
 
-- [ ] T006 [P] [US1] Add test fixture file `passthrough.jsonata` with `$` expression in components/sidecar/test/fixtures/transforms/
-- [ ] T007 [P] [US1] Add test fixture file `extract-order.jsonata` with object construction in components/sidecar/test/fixtures/transforms/
-- [ ] T008 [US1] Add unit tests for `isFilePath()` helper in components/sidecar/test/unit/services/transformer.test.ts
-- [ ] T009 [US1] Add unit tests for file-based transform loading (success case) in components/sidecar/test/unit/services/transformer.test.ts
-- [ ] T010 [US1] Add unit tests for file not found error in components/sidecar/test/unit/services/transformer.test.ts
-- [ ] T011 [US1] Add unit tests for invalid JSONata syntax in file in components/sidecar/test/unit/services/transformer.test.ts
-- [ ] T012 [US1] Add unit tests for inline expression backward compatibility in components/sidecar/test/unit/services/transformer.test.ts
+- [x] T006 [P] [US1] Add test fixture file `passthrough.jsonata` with `$` expression in components/sidecar/test/fixtures/transforms/
+- [x] T007 [P] [US1] Add test fixture file `extract-order.jsonata` with object construction in components/sidecar/test/fixtures/transforms/
+- [x] T008 [US1] Add unit tests for `isFilePath()` helper in components/sidecar/test/unit/services/transformer.test.ts
+- [x] T009 [US1] Add unit tests for file-based transform loading (success case) in components/sidecar/test/unit/services/transformer.test.ts
+- [x] T010 [US1] Add unit tests for file not found error in components/sidecar/test/unit/services/transformer.test.ts
+- [x] T011 [US1] Add unit tests for invalid JSONata syntax in file in components/sidecar/test/unit/services/transformer.test.ts
+- [x] T012 [US1] Add unit tests for inline expression backward compatibility in components/sidecar/test/unit/services/transformer.test.ts
 
 ### Implementation for User Story 1
 
-- [ ] T013 [US1] Modify `applyTransform()` to detect file paths and load content before compilation in components/sidecar/src/services/transformer.ts
-- [ ] T014 [US1] Update `validateTransform()` to support file-based validation in components/sidecar/src/services/transformer.ts
-- [ ] T015 [US1] Run tests to verify User Story 1 complete with `npm test` in components/sidecar/
+- [x] T013 [US1] Modify `applyTransform()` to detect file paths and load content before compilation in components/sidecar/src/services/transformer.ts
+- [x] T014 [US1] Update `validateTransform()` to support file-based validation in components/sidecar/src/services/transformer.ts
+- [x] T015 [US1] Run tests to verify User Story 1 complete with `npm test` in components/sidecar/
 
-**Checkpoint**: Inbound file-based transforms work. Events with `.jsonata` paths are transformed correctly.
+**Checkpoint**: ✅ Inbound file-based transforms work. Events with `.jsonata` paths are transformed correctly.
 
 ---
 

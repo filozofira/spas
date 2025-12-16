@@ -1,0 +1,5 @@
+{
+  "orderId": data.id,
+  "customerName": data.customer.name,
+  "items": data.lineItems
+}

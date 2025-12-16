@@ -70,7 +70,7 @@
 
 ---
 
-## Phase 4: User Story 2 - Cache Compiled Transform Expressions (Priority: P2)
+## Phase 4: User Story 2 - Cache Compiled Transform Expressions (Priority: P2) ✅
 
 **Goal**: Transform expressions (file-based and inline) are cached after first compilation
 
@@ -78,16 +78,16 @@
 
 ### Unit Tests for User Story 2
 
-- [ ] T016 [US2] Add unit test verifying file-based transform cache hit (file read once) in components/sidecar/test/unit/services/transformer.test.ts
-- [ ] T017 [US2] Add unit test verifying cache key uses file path not content in components/sidecar/test/unit/services/transformer.test.ts
+- [x] T016 [US2] Add unit test verifying file-based transform cache hit (file read once) in components/sidecar/test/unit/services/transformer.test.ts
+- [x] T017 [US2] Add unit test verifying cache key uses file path not content in components/sidecar/test/unit/services/transformer.test.ts
 
 ### Implementation for User Story 2
 
-- [ ] T018 [US2] Verify existing cache mechanism handles file paths correctly (cache key = file path string) in components/sidecar/src/services/transformer.ts
-- [ ] T019 [US2] Add logging for cache hit/miss to aid debugging in components/sidecar/src/services/transformer.ts
-- [ ] T020 [US2] Run tests to verify User Story 2 complete with `npm test` in components/sidecar/
+- [x] T018 [US2] Verify existing cache mechanism handles file paths correctly (cache key = file path string) in components/sidecar/src/services/transformer.ts
+- [x] T019 [US2] Add logging for cache hit/miss to aid debugging in components/sidecar/src/services/transformer.ts
+- [x] T020 [US2] Run tests to verify User Story 2 complete with `npm test` in components/sidecar/
 
-**Checkpoint**: Caching works. Same file path reuses compiled expression.
+**Checkpoint**: ✅ Caching works. Same file path reuses compiled expression.
 
 ---
 

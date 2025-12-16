@@ -2,7 +2,7 @@
  * Transformer Unit Tests
  */
 
-import { describe, it, expect, beforeEach } from '@jest/globals';
+import { describe, it, expect, beforeEach, jest, afterEach } from '@jest/globals';
 import { join } from 'path';
 import {
   applyTransform,
@@ -245,6 +245,81 @@ describe('Transformer', () => {
       const result = await applyTransform(payload, CommonTransforms.WRAP_EVENT);
 
       expect(result).toEqual({ event: { orderId: '123' } });
+    });
+  });
+
+  // ===========================================================================
+  // Cache Verification Tests (T016, T017) - User Story 2
+  // ===========================================================================
+
+  describe('transform caching', () => {
+    let logSpy: ReturnType<typeof jest.spyOn>;
+
+    beforeEach(() => {
+      logSpy = jest.spyOn(console, 'log').mockImplementation(() => {});
+    });
+
+    afterEach(() => {
+      logSpy.mockRestore();
+    });
+
+    it('should cache file-based transforms and log cache hit on reuse (T016)', async () => {
+      const payload = { orderId: '123', amount: 100 };
+      const transformPath = join(FIXTURES_DIR, 'passthrough.jsonata');
+
+      // First call - cache miss
+      await applyTransform(payload, transformPath);
+      
+      // Verify cache miss was logged
+      const calls = logSpy.mock.calls.map((call: unknown[]) => call[0] as string);
+      expect(calls.some((msg: string) => msg.includes('Cache miss'))).toBe(true);
+      expect(calls.some((msg: string) => msg.includes('Loaded transform from file'))).toBe(true);
+
+      // Clear logs for second call
+      logSpy.mockClear();
+
+      // Second call - should be cache hit
+      await applyTransform(payload, transformPath);
+
+      // Verify cache hit was logged (not cache miss or file load)
+      const secondCalls = logSpy.mock.calls.map((call: unknown[]) => call[0] as string);
+      expect(secondCalls.some((msg: string) => msg.includes('Cache hit'))).toBe(true);
+      expect(secondCalls.some((msg: string) => msg.includes('Loaded transform from file'))).toBe(false);
+    });
+
+    it('should use file path as cache key, not content (T017)', async () => {
+      const transformPath = join(FIXTURES_DIR, 'passthrough.jsonata');
+
+      // First call
+      await applyTransform({ a: 1 }, transformPath);
+
+      // Clear logs
+      logSpy.mockClear();
+
+      // Second call with same path - should hit cache
+      await applyTransform({ b: 2 }, transformPath);
+
+      const secondCalls = logSpy.mock.calls.map((call: unknown[]) => call[0] as string);
+      // Verify we got a cache hit (keyed by file path)
+      expect(secondCalls.some((msg: string) => msg.includes('Cache hit'))).toBe(true);
+      // Verify the cache key includes the file path
+      expect(secondCalls.some((msg: string) => msg.includes('passthrough.jsonata'))).toBe(true);
+    });
+
+    it('should cache inline expressions separately from file paths', async () => {
+      const inlineExpression = '$';
+      const filePath = join(FIXTURES_DIR, 'passthrough.jsonata');
+      const payload = { test: true };
+
+      // First inline expression call
+      await applyTransform(payload, inlineExpression);
+      logSpy.mockClear();
+
+      // First file call - should be cache miss (different key)
+      await applyTransform(payload, filePath);
+
+      const calls = logSpy.mock.calls.map((call: unknown[]) => call[0] as string);
+      expect(calls.some((msg: string) => msg.includes('Cache miss'))).toBe(true);
     });
   });
 

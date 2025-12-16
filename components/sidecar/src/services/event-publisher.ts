@@ -10,6 +10,7 @@ import { RedisClient } from '../transport/redis.js';
 import { wrapCloudEvent, serializeCloudEvent } from '../cloudevents/wrapper.js';
 import { resolveTopicFromEventType } from './topic-router.js';
 import { getTracer } from './tracer.js';
+import { applyTransform } from './transformer.js';
 
 /**
  * Event publisher that wraps payloads in CloudEvents and sends to Redis.
@@ -44,10 +45,10 @@ export class EventPublisher {
       throw new Error(`No outbound route configured for event type: ${headers.eventType}`);
     }
 
-    // 2. Apply transform if configured (placeholder - transforms implemented in Phase 5)
+    // 2. Apply transform if configured (using shared transformer service)
     let transformedPayload = payload;
     if (route.transform) {
-      transformedPayload = await this.applyTransform(payload, route.transform);
+      transformedPayload = await applyTransform(payload, route.transform);
     }
 
     // 3. Wrap in CloudEvents envelope
@@ -88,16 +89,6 @@ export class EventPublisher {
       }
       throw err;
     }
-  }
-
-  /**
-   * Apply transformation to payload.
-   * Placeholder - full transform implementation in Phase 5.
-   */
-  private async applyTransform(payload: unknown, _transform: string): Promise<unknown> {
-    // Transform will be implemented in T026 (Phase 5)
-    // For now, passthrough
-    return payload;
   }
 }
 

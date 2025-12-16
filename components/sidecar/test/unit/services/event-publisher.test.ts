@@ -3,11 +3,13 @@
  */
 
 import { describe, it, expect, jest, beforeEach } from '@jest/globals';
+import { join } from 'path';
 import {
   EventPublisher,
   extractPublishHeaders,
   validatePublishHeaders,
 } from '../../../src/services/event-publisher.js';
+import { clearTransformCache } from '../../../src/services/transformer.js';
 import type { SidecarConfig, PublishHeaders } from '../../../src/types.js';
 
 // Mock RedisClient
@@ -105,6 +107,59 @@ describe('Event Publisher', () => {
       await expect(publisher.publish({}, headers)).rejects.toThrow(
         'No outbound route configured for event type: com.unknown.event'
       );
+    });
+
+    // T022: Outbound file-based transform test
+    it('should apply file-based transform to outbound events', async () => {
+      // Path to test fixture
+      const transformPath = join(process.cwd(), 'test/fixtures/transforms/outbound-stock-reserved.jsonata');
+      
+      // Config with file-based transform
+      const configWithTransform: SidecarConfig = {
+        inbound: [],
+        outbound: [
+          { 
+            eventType: 'com.example.stock.reserved', 
+            topic: 'stock.reserved', 
+            transform: transformPath 
+          },
+        ],
+      };
+
+      // Clear cache for clean test
+      clearTransformCache();
+
+      const publisher = new EventPublisher(mockRedis as never, configWithTransform);
+      const payload = {
+        data: {
+          sku: 'PROD-123',
+          quantity: 5,
+          warehouse: 'WH-001',
+          orderId: 'ORD-456',
+        },
+      };
+      const headers: PublishHeaders = {
+        serviceName: 'inventory-service',
+        eventType: 'com.example.stock.reserved',
+        correlationId: 'corr-stock-123',
+      };
+
+      const result = await publisher.publish(payload, headers);
+
+      expect(result.status).toBe('accepted');
+      expect(result.topic).toBe('stock.reserved');
+
+      // Verify the transformed payload in CloudEvent
+      const callArgs = mockRedis.xadd.mock.calls[0];
+      const cloudEvent = JSON.parse(callArgs[1].data);
+
+      // The transform should have restructured the data
+      expect(cloudEvent.data).toEqual({
+        productId: 'PROD-123',
+        reservedQuantity: 5,
+        warehouseId: 'WH-001',
+        orderId: 'ORD-456',
+      });
     });
   });
 

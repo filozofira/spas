@@ -91,7 +91,7 @@
 
 ---
 
-## Phase 5: User Story 3 - Apply File-Based Transform to Outbound Events (Priority: P3)
+## Phase 5: User Story 3 - Apply File-Based Transform to Outbound Events (Priority: P3) ✅
 
 **Goal**: Outbound event transforms from files work via EventPublisher
 
@@ -99,15 +99,15 @@
 
 ### Unit Tests for User Story 3
 
-- [ ] T021 [P] [US3] Add test fixture file `outbound-stock-reserved.jsonata` in components/sidecar/test/fixtures/transforms/
-- [ ] T022 [US3] Add unit test for outbound file-based transform in components/sidecar/test/unit/services/event-publisher.test.ts
+- [x] T021 [P] [US3] Add test fixture file `outbound-stock-reserved.jsonata` in components/sidecar/test/fixtures/transforms/
+- [x] T022 [US3] Add unit test for outbound file-based transform in components/sidecar/test/unit/services/event-publisher.test.ts
 
 ### Implementation for User Story 3
 
-- [ ] T023 [US3] Replace placeholder `applyTransform` in EventPublisher with import from transformer.ts in components/sidecar/src/services/event-publisher.ts
-- [ ] T024 [US3] Run tests to verify User Story 3 complete with `npm test` in components/sidecar/
+- [x] T023 [US3] Replace placeholder `applyTransform` in EventPublisher with import from transformer.ts in components/sidecar/src/services/event-publisher.ts
+- [x] T024 [US3] Run tests to verify User Story 3 complete with `npm test` in components/sidecar/
 
-**Checkpoint**: Outbound transforms work. Both inbound and outbound support file-based transforms.
+**Checkpoint**: ✅ Outbound transforms work. Both inbound and outbound support file-based transforms.
 
 ---
 

@@ -39,8 +39,8 @@ Based on plan.md structure:
 
 **⚠️ CRITICAL**: These must complete before user story work begins
 
-- [ ] T005 Create CloudEvents type derivation utility function (boundedContext + eventName → com.x.y.z) in `components/cli/spas-compose/src/utils/event-type.ts`
-- [ ] T006 [P] Create unit test for CloudEvents type derivation in `components/cli/spas-compose/test/unit/event-type.test.ts`
+- [x] T005 Create CloudEvents type derivation utility function (boundedContext + eventName → com.x.y.z) in `components/cli/spas-compose/src/utils/event-type.ts`
+- [x] T006 [P] Create unit test for CloudEvents type derivation in `components/cli/spas-compose/test/unit/event-type.test.ts`
 
 **Checkpoint**: Foundation ready - user story implementation can begin
 

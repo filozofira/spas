@@ -70,9 +70,9 @@ components/sdk/dotnet/
 
 ### Implementation for User Story 2
 
-- [ ] T010 [US2] Add unit test `GetSpasSidecarUrl_WithSidecarUrl_IgnoresDerivation` in `components/sdk/dotnet/test/Spas.Sdk.Core.Tests/Configuration/SpasConfigurationTests.cs`
-- [ ] T011 [US2] Add unit test `GetSpasSidecarUrl_WithSidecarHost_IgnoresServiceName` in `components/sdk/dotnet/test/Spas.Sdk.Core.Tests/Configuration/SpasConfigurationTests.cs`
-- [ ] T012 [US2] Add unit test `GetSpasSidecarUrl_WithSidecarHostAndPort_UsesExplicitPort` in `components/sdk/dotnet/test/Spas.Sdk.Core.Tests/Configuration/SpasConfigurationTests.cs`
+- [X] T010 [US2] Add unit test `GetSpasSidecarUrl_WithSidecarUrl_IgnoresDerivation` in `components/sdk/dotnet/test/Spas.Sdk.Core.Tests/Configuration/SpasConfigurationTests.cs`
+- [X] T011 [US2] Add unit test `GetSpasSidecarUrl_WithSidecarHost_IgnoresServiceName` in `components/sdk/dotnet/test/Spas.Sdk.Core.Tests/Configuration/SpasConfigurationTests.cs`
+- [X] T012 [US2] Add unit test `GetSpasSidecarUrl_WithSidecarHostAndPort_UsesExplicitPort` in `components/sdk/dotnet/test/Spas.Sdk.Core.Tests/Configuration/SpasConfigurationTests.cs`
 
 **Checkpoint**: User Story 2 complete - explicit config wins over derivation
 

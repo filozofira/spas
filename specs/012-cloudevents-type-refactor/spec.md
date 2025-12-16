@@ -2,7 +2,8 @@
 
 **Feature Branch**: `012-cloudevents-type-refactor`  
 **Created**: 2025-01-20  
-**Status**: Draft  
+**Completed**: 2025-12-16  
+**Status**: ✅ Complete (PoC)  
 **Input**: FG09 - Move CloudEvents `type` field construction from SDK to Sidecar for cleaner separation of concerns
 
 ## Problem Statement
@@ -10,16 +11,18 @@
 Currently, both the SDK and sidecar have knowledge of the CloudEvents `type` format (`com.{service-name}.{event-name-kebab}`). The SDK constructs the full type string and passes it via `x-event-type` header, while the sidecar just copies it into the CloudEvents envelope. This violates DRY and creates maintenance burden when the format needs to change.
 
 **Current flow:**
+
 1. SDK constructs full type: `com.order-service.order-created`
 2. SDK sends header: `x-event-type: com.order-service.order-created`
 3. Sidecar copies header value → CloudEvents `type` field
 
 **Target flow:**
+
 1. SDK sends short event name: `x-event-name: order-created`
 2. SDK sends service name: `x-service-name: order-service` (already exists)
 3. Sidecar constructs full type: `com.order-service.order-created`
 
-## User Scenarios & Testing *(mandatory)*
+## User Scenarios & Testing _(mandatory)_
 
 ### User Story 1 - SDK Sends Short Event Name (Priority: P1)
 
@@ -90,26 +93,30 @@ As a framework maintainer, I want the principles documentation to reflect the ne
 - What happens when event name is already kebab-case? **Answer**: Pass through unchanged.
 - What happens during rolling deployment (old SDK + new sidecar)? **Answer**: Sidecar backward compatible - accepts `x-event-type` if `x-event-name` missing.
 
-## Requirements *(mandatory)*
+## Requirements _(mandatory)_
 
 ### Functional Requirements
 
 **SDK Changes:**
+
 - **FR-001**: SDK MUST send `x-event-name` header containing kebab-case event name (e.g., "order-created")
 - **FR-002**: SDK MUST remove `x-event-type` header from publish requests
 - **FR-003**: SDK MUST convert PascalCase event names to kebab-case before sending
 
 **Sidecar Changes:**
+
 - **FR-004**: Sidecar MUST construct CloudEvents `type` as `com.{x-service-name}.{x-event-name}` when `x-event-name` header present
 - **FR-005**: Sidecar MUST accept legacy `x-event-type` header for backward compatibility when `x-event-name` is absent
 - **FR-006**: Sidecar MUST prefer `x-event-name` over `x-event-type` when both present
 - **FR-007**: Sidecar MUST return 400 error if neither `x-event-type` nor `x-event-name` header is present
 
 **CLI Changes:**
+
 - **FR-008**: CLI sidecar-config-generator MUST generate `eventName` field in outbound entries (short name)
 - **FR-009**: CLI MUST retain `eventType` field for routing lookup (sidecar uses for topic mapping)
 
 **Documentation:**
+
 - **FR-010**: Principles doc 10-sidecar-contract.md MUST document `x-event-name` header convention
 - **FR-011**: Principles doc 12-sdk.md MUST document SDK sending short event name
 
@@ -126,7 +133,7 @@ As a framework maintainer, I want the principles documentation to reflect the ne
 - The `com.` prefix is the standard CloudEvents type prefix for this system
 - Existing deployments using old SDK/sidecar combinations will continue working due to backward compatibility
 
-## Success Criteria *(mandatory)*
+## Success Criteria _(mandatory)_
 
 ### Measurable Outcomes
 

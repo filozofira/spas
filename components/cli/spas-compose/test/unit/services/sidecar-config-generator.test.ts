@@ -808,6 +808,86 @@ describe("SidecarConfigGenerator", () => {
         result.configs["order-service"].outbound[0].eventType,
       ).toBeUndefined();
     });
+
+    // T023: Test eventName field in generated outbound entries
+    it("should include eventName in outbound entries with short kebab-case format", () => {
+      // Arrange
+      const servicesDir = path.join(workspacePath, "services", "order-service");
+      fs.mkdirSync(servicesDir, { recursive: true });
+      fs.writeFileSync(
+        path.join(servicesDir, "spas.json"),
+        JSON.stringify({
+          id: "order-service",
+          version: "1.0.0",
+          boundedContext: "order",
+        }),
+      );
+      const generator = new SidecarConfigGenerator(workspacePath);
+
+      // Act
+      const result = generator.generate(sampleChoreography);
+
+      // Assert - eventName is short kebab-case, eventType is full CloudEvents format
+      expect(result.configs["order-service"].outbound[0].eventName).toBe(
+        "order-created",
+      );
+      expect(result.configs["order-service"].outbound[0].eventType).toBe(
+        "com.order.order-created",
+      );
+    });
+
+    it("should convert PascalCase event to kebab-case eventName", () => {
+      // Arrange
+      const servicesDir = path.join(workspacePath, "services", "order-service");
+      fs.mkdirSync(servicesDir, { recursive: true });
+      fs.writeFileSync(
+        path.join(servicesDir, "spas.json"),
+        JSON.stringify({
+          id: "order-service",
+          version: "1.0.0",
+          boundedContext: "order",
+        }),
+      );
+      const choreographyWithPascal: Choreography = {
+        version: "1.0",
+        domain: "test",
+        flows: {
+          "test-flow": {
+            participants: ["order-service"],
+            events: [
+              {
+                source: "order-service",
+                event: "OrderCreated",
+                topic: "orders-created",
+                targets: [],
+              },
+            ],
+          },
+        },
+      };
+      const generator = new SidecarConfigGenerator(workspacePath);
+
+      // Act
+      const result = generator.generate(choreographyWithPascal);
+
+      // Assert - PascalCase converted to kebab-case
+      expect(result.configs["order-service"].outbound[0].eventName).toBe(
+        "order-created",
+      );
+    });
+
+    it("should leave eventName undefined if service metadata not found", () => {
+      // Arrange - no spas.json for order-service
+      const generator = new SidecarConfigGenerator(workspacePath);
+
+      // Act
+      const result = generator.generate(sampleChoreography);
+
+      // Assert - no metadata means no eventName
+      expect(
+        result.configs["order-service"].outbound[0].eventName,
+      ).toBeUndefined();
+    });
   });
 
   describe("transform path resolution (T017)", () => {

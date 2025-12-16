@@ -20,7 +20,7 @@ import type {
   ServiceSummarySidecar,
   ServiceMetadata,
 } from "../types.js";
-import { deriveCloudEventsType } from "../utils/event-type.js";
+import { deriveCloudEventsType, pascalToKebab } from "../utils/event-type.js";
 
 /**
  * Service for generating sidecar configuration files from choreography
@@ -113,6 +113,8 @@ export class SidecarConfigGenerator {
                 metadata.boundedContext,
                 eventRoute.event,
               );
+              // T024/T025: Add short kebab-case eventName (sidecar uses to construct type)
+              entry.eventName = pascalToKebab(eventRoute.event);
             }
 
             entries.push(entry);

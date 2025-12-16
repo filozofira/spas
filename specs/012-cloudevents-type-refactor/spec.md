@@ -7,7 +7,7 @@
 
 ## Problem Statement
 
-Currently, both the SDK and sidecar have knowledge of the CloudEvents `type` format (`com.{boundedContext}.{event-name-kebab}`). The SDK constructs the full type string and passes it via `x-event-type` header, while the sidecar just copies it into the CloudEvents envelope. This violates DRY and creates maintenance burden when the format needs to change.
+Currently, both the SDK and sidecar have knowledge of the CloudEvents `type` format (`com.{service-name}.{event-name-kebab}`). The SDK constructs the full type string and passes it via `x-event-type` header, while the sidecar just copies it into the CloudEvents envelope. This violates DRY and creates maintenance burden when the format needs to change.
 
 **Current flow:**
 1. SDK constructs full type: `com.order-service.order-created`

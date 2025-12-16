@@ -3,14 +3,76 @@
  *
  * Applies transformations to payloads using JSONata expressions.
  * Supports both inbound (event→service) and outbound (service→event) transforms.
+ * Supports loading expressions from .jsonata files.
  */
 
+import { readFileSync } from 'fs';
+import { resolve, isAbsolute } from 'path';
 import jsonata from 'jsonata';
 
 /**
  * Transform cache to avoid recompiling expressions.
  */
 const transformCache = new Map<string, jsonata.Expression>();
+
+// =============================================================================
+// File Loading Utilities
+// =============================================================================
+
+/**
+ * Check if a transform value is a file path (ends with .jsonata extension).
+ *
+ * @param transform - Transform value from configuration
+ * @returns true if the transform is a file path, false if inline expression
+ */
+export function isFilePath(transform: string): boolean {
+  return transform.endsWith('.jsonata');
+}
+
+/**
+ * Resolve a transform file path to an absolute path.
+ * Relative paths are resolved from the current working directory.
+ *
+ * @param filePath - Transform file path (relative or absolute)
+ * @returns Absolute file path
+ */
+export function resolveTransformPath(filePath: string): string {
+  if (isAbsolute(filePath)) {
+    return filePath;
+  }
+  return resolve(process.cwd(), filePath);
+}
+
+/**
+ * Load transform file content from disk.
+ * Throws descriptive errors for missing or unreadable files.
+ *
+ * @param filePath - Path to the .jsonata file
+ * @returns File content as UTF-8 string
+ * @throws Error with descriptive message if file cannot be read
+ */
+export function loadTransformContent(filePath: string): string {
+  const absolutePath = resolveTransformPath(filePath);
+  try {
+    return readFileSync(absolutePath, 'utf-8');
+  } catch (err) {
+    if (err instanceof Error && 'code' in err) {
+      const nodeErr = err as NodeJS.ErrnoException;
+      if (nodeErr.code === 'ENOENT') {
+        throw new Error(`Transform file not found: ${filePath}`);
+      }
+      if (nodeErr.code === 'EACCES') {
+        throw new Error(`Transform file not accessible: ${filePath}`);
+      }
+    }
+    const message = err instanceof Error ? err.message : 'Unknown error';
+    throw new Error(`Failed to read transform file ${filePath}: ${message}`);
+  }
+}
+
+// =============================================================================
+// Transform Application
+// =============================================================================
 
 /**
  * Apply a transformation to a payload.

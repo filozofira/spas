@@ -36,9 +36,9 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T003 Add `isFilePath()` helper function to detect `.jsonata` extension in components/sidecar/src/services/transformer.ts
-- [ ] T004 Add `loadTransformContent()` function to read file content with error handling in components/sidecar/src/services/transformer.ts
-- [ ] T005 Add `resolveTransformPath()` function to handle relative path resolution in components/sidecar/src/services/transformer.ts
+- [x] T003 Add `isFilePath()` helper function to detect `.jsonata` extension in components/sidecar/src/services/transformer.ts
+- [x] T004 Add `loadTransformContent()` function to read file content with error handling in components/sidecar/src/services/transformer.ts
+- [x] T005 Add `resolveTransformPath()` function to handle relative path resolution in components/sidecar/src/services/transformer.ts
 
 **Checkpoint**: File loading utilities ready - user story implementation can begin
 

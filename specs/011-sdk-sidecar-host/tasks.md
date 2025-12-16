@@ -86,8 +86,8 @@ components/sdk/dotnet/
 
 ### Implementation for User Story 3
 
-- [ ] T013 [US3] Add unit test `GetSpasSidecarUrl_NoConfig_FallsBackToLocalhost7000` in `components/sdk/dotnet/test/Spas.Sdk.Core.Tests/Configuration/SpasConfigurationTests.cs`
-- [ ] T014 [US3] Add unit test `GetSpasSidecarUrl_EmptyServiceName_FallsBackToLocalhost` in `components/sdk/dotnet/test/Spas.Sdk.Core.Tests/Configuration/SpasConfigurationTests.cs`
+- [X] T013 [US3] Add unit test `GetSpasSidecarUrl_NoConfig_FallsBackToLocalhost7000` in `components/sdk/dotnet/test/Spas.Sdk.Core.Tests/Configuration/SpasConfigurationTests.cs`
+- [X] T014 [US3] Add unit test `GetSpasSidecarUrl_EmptyServiceName_FallsBackToLocalhost` in `components/sdk/dotnet/test/Spas.Sdk.Core.Tests/Configuration/SpasConfigurationTests.cs`
 
 **Checkpoint**: User Story 3 complete - local dev scenario works
 

@@ -26,8 +26,8 @@ components/sdk/dotnet/
 
 **Purpose**: Ensure existing SDK builds and tests pass before modification
 
-- [ ] T001 Verify SDK solution builds with `dotnet build` in `components/sdk/dotnet/`
-- [ ] T002 Run existing tests with `dotnet test` to establish baseline
+- [X] T001 Verify SDK solution builds with `dotnet build` in `components/sdk/dotnet/`
+- [X] T002 Run existing tests with `dotnet test` to establish baseline (125 passed)
 
 ---
 

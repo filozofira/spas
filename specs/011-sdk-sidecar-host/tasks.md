@@ -54,9 +54,9 @@ components/sdk/dotnet/
 
 ### Implementation for User Story 1
 
-- [ ] T007 [US1] Add unit test `GetSpasSidecarUrl_WithServiceName_DerivesSidecarHost` in `components/sdk/dotnet/test/Spas.Sdk.Core.Tests/Configuration/SpasConfigurationTests.cs`
-- [ ] T008 [US1] Add unit test `GetSpasSidecarUrl_NormalizesServiceName_ForDns` (underscores, spaces, case) in `components/sdk/dotnet/test/Spas.Sdk.Core.Tests/Configuration/SpasConfigurationTests.cs`
-- [ ] T009 [US1] Update `AddSpasServices()` to pass service name to `GetSpasSidecarUrl()` in `components/sdk/dotnet/src/Spas.Sdk.Observability/Extensions/SpasServiceExtensions.cs`
+- [X] T007 [US1] Add unit test `GetSpasSidecarUrl_WithServiceName_DerivesSidecarHost` in `components/sdk/dotnet/test/Spas.Sdk.Core.Tests/Configuration/SpasConfigurationTests.cs`
+- [X] T008 [US1] Add unit test `GetSpasSidecarUrl_NormalizesServiceName_ForDns` (underscores, spaces, case) in `components/sdk/dotnet/test/Spas.Sdk.Core.Tests/Configuration/SpasConfigurationTests.cs`
+- [X] T009 [US1] Update `AddSpasServices()` to pass service name to `GetSpasSidecarUrl()` in `components/sdk/dotnet/src/Spas.Sdk.Observability/Extensions/SpasServiceExtensions.cs`
 
 **Checkpoint**: User Story 1 complete - derivation works with SERVICE_NAME only
 

@@ -51,10 +51,13 @@ public static class SpasConfiguration
         }
 
         // Priority 4: Derive from service name using convention
-        if (!string.IsNullOrEmpty(serviceName))
+        if (!string.IsNullOrWhiteSpace(serviceName))
         {
             var normalizedName = NormalizeForDns(serviceName);
-            return $"http://{normalizedName}-sidecar:{sidecarPort}";
+            if (!string.IsNullOrEmpty(normalizedName))
+            {
+                return $"http://{normalizedName}-sidecar:{sidecarPort}";
+            }
         }
 
         // Priority 5: Local development fallback

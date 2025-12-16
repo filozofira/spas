@@ -27,7 +27,9 @@ public static class SpasServiceExtensions
     {
         // Get service name from environment variable
         var serviceName = configuration.GetSpasServiceName(defaultServiceName);
-        var sidecarUrl = configuration.GetSpasSidecarUrl();
+        
+        // Get sidecar URL - pass service name for convention-based derivation
+        var sidecarUrl = configuration.GetSpasSidecarUrl(serviceName);
         var zipkinUrl = configuration.GetSpasZipkinUrl();
 
         // Configure event publishing to sidecar

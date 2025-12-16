@@ -86,17 +86,19 @@ export class WorkspaceService {
       const agentsDir = join(effectiveProjectRoot, ".github", "agents");
       const promptsDir = join(effectiveProjectRoot, ".github", "prompts");
 
-      // Calculate relative path from project root to domain workspace
-      // e.g., if projectRoot=/project and workspacePath=/project/domains/my-domain
-      // then domainRelativePath = "domains/my-domain"
-      const domainRelativePath = relative(effectiveProjectRoot, workspacePath).replace(/\\/g, "/");
+      // Calculate domainRoot: the parent directory of the domain workspace relative to project root
+      // e.g., if projectRoot=/project and workspacePath=/project/examples/ecommerce/public
+      // then domainRoot = "./examples/ecommerce" (or "." if workspace is directly under project root)
+      const workspaceParent = join(workspacePath, "..");
+      const domainRootRelative = relative(effectiveProjectRoot, workspaceParent);
+      const domainRoot = domainRootRelative === "" ? "." : `./${domainRootRelative.replace(/\\/g, "/")}`;
 
       // Ensure directories exist
       mkdirSync(agentsDir, { recursive: true });
       mkdirSync(promptsDir, { recursive: true });
 
-      // Create agent file (full instructions) with relative path
-      const agentContent = generateAgentFile(workspaceName, domainRelativePath);
+      // Create agent file (full instructions) with domainRoot for DOMAIN: prefix support
+      const agentContent = generateAgentFile(domainRoot);
       writeFileSync(
         join(agentsDir, "spas.compose.agent.md"),
         agentContent,
@@ -106,7 +108,7 @@ export class WorkspaceService {
       // Create prompt file (trigger)
       const promptContent = generatePromptFile();
       writeFileSync(
-        join(promptsDir, "spas-compose.prompt.md"),
+        join(promptsDir, "spas.compose.prompt.md"),
         promptContent,
         "utf-8",
       );
@@ -128,8 +130,8 @@ export class WorkspaceService {
         ? `${relative(workspacePath, effectiveProjectRoot).replace(/\\/g, "/")}/.github/agents/spas.compose.agent.md`
         : "../.github/agents/spas.compose.agent.md";
       const promptRelativePath = projectRoot
-        ? `${relative(workspacePath, effectiveProjectRoot).replace(/\\/g, "/")}/.github/prompts/spas-compose.prompt.md`
-        : "../.github/prompts/spas-compose.prompt.md";
+        ? `${relative(workspacePath, effectiveProjectRoot).replace(/\\/g, "/")}/.github/prompts/spas.compose.prompt.md`
+        : "../.github/prompts/spas.compose.prompt.md";
 
       return {
         success: true,

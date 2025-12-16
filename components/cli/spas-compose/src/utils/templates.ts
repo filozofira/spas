@@ -136,13 +136,12 @@ infrastructure:
  * Creates the full agent instructions at project root.
  * Follows SpecKit pattern: .github/agents/*.agent.md
  *
- * @param workspaceName Name of the domain workspace
- * @param domainPath Relative path from project root to domain (e.g., "domains/my-domain")
+ * The agent supports multiple domains via DOMAIN: prefix in user input.
+ * The domainRoot is baked in at init time from --output arg (or "." default).
+ *
+ * @param domainRoot Relative path from project root to domain parent (e.g., "./examples/ecommerce" or ".")
  */
-export function generateAgentFile(workspaceName: string, domainPath?: string): string {
-  // Use domainPath if provided, otherwise fall back to workspaceName for backward compatibility
-  const path = domainPath ?? workspaceName;
-  
+export function generateAgentFile(domainRoot: string): string {
   return `---
 description: AI-assisted choreography composition for SPAS domain workspaces
 ---
@@ -155,13 +154,30 @@ $ARGUMENTS
 
 You **MUST** consider the user input before proceeding (if not empty).
 
+## Domain Selection
+
+**REQUIRED**: User input must include \`DOMAIN:<name>\` to specify which domain to work with.
+
+**Parse the domain name:**
+1. Extract \`DOMAIN:<name>\` from user input (e.g., \`DOMAIN:public\`, \`DOMAIN:internal\`)
+2. Use \`<name>\` to construct paths: \`${domainRoot}/<name>/...\`
+3. If no \`DOMAIN:\` specified, respond with error:
+   \`\`\`
+   Error: No domain specified.
+   Usage: /spas.compose DOMAIN:<name> <action>
+   Example: /spas.compose DOMAIN:public Analyze order-service
+   \`\`\`
+
+**Domain root**: \`${domainRoot}\`
+**Full domain path**: \`${domainRoot}/{DOMAIN}/\`
+
 ## Goal
 
-Analyze pulled service contracts and generate choreography configuration with transformations for the **${workspaceName}** domain workspace.
+Analyze pulled service contracts and generate choreography configuration with transformations for the specified domain workspace.
 
 ## Responsibilities
 
-1. **Contract Analysis**: Parse service metadata from \`${path}/services/*/spas.json\`
+1. **Contract Analysis**: Parse service metadata from \`${domainRoot}/{DOMAIN}/services/*/spas.json\`
 2. **Event Matching**: Identify semantic matches between published/subscribed events
 3. **Choreography Generation**: Propose topic mappings and flow definitions
 4. **Transformation Generation**: Create JSONata transformation files
@@ -170,7 +186,7 @@ Analyze pulled service contracts and generate choreography configuration with tr
 ## Workspace Structure
 
 \`\`\`
-${path}/
+${domainRoot}/{DOMAIN}/
 ├── choreography.yaml              # Choreography configuration (you modify this)
 ├── services/                      # Pulled service metadata (read-only)
 │   └── <service-name>/
@@ -191,21 +207,21 @@ ${path}/
 ### Step 1: Validate Workspace
 
 Before any operation, verify:
-- \`${path}/choreography.yaml\` exists
-- \`${path}/services/\` directory exists with at least one service
+- \`${domainRoot}/{DOMAIN}/choreography.yaml\` exists
+- \`${domainRoot}/{DOMAIN}/services/\` directory exists with at least one service
 
 If invalid:
 \`\`\`
 Error: Not in a valid domain workspace.
-Run \`spas-compose init ${workspaceName}\` first, then \`spas-compose services pull\`.
+Run \`spas-compose init {DOMAIN} --output ${domainRoot}\` first, then \`spas-compose services pull\`.
 \`\`\`
 
 ### Step 2: Analyze Services
 
 When asked to analyze services:
-1. Read \`${path}/services/<service-name>/spas.json\` for each service
+1. Read \`${domainRoot}/{DOMAIN}/services/<service-name>/spas.json\` for each service
 2. Extract: \`id\`, \`version\`, \`boundedContext\`, \`events.published[]\`, \`events.subscribed[]\`
-3. Read schemas from \`${path}/services/<service-name>/schemas/\`
+3. Read schemas from \`${domainRoot}/{DOMAIN}/services/<service-name>/schemas/\`
 
 **Output Format:**
 \`\`\`
@@ -223,13 +239,14 @@ When asked to analyze services:
 Generate choreography.yaml following schema:
 \`\`\`yaml
 version: "1.0"
-domain: ${workspaceName}
+domain: {DOMAIN}
 
 flows:
   <flow-name>:
     description: "<description>"
     participants:
-      - <service-name>
+      - <publisher-service>
+      - <subscriber-service>
     events:
       - source: <publishing-service>
         event: <EventType>
@@ -237,13 +254,22 @@ flows:
         targets:
           - service: <subscribing-service>
             transform: transformations/<service>/inbound-<event>.jsonata
+
+# Optional infrastructure configuration
+infrastructure:
+  redis:
+    enabled: true
+  zipkin:
+    enabled: true
 \`\`\`
+
+**Note:** \`participants\` must include at least 2 services.
 
 **Ask:** "Confirm choreography changes? (yes/no/feedback)"
 
 ### Step 4: Generate Transformations
 
-Create JSONata files at \`${path}/transformations/<service>/*.jsonata\`:
+Create JSONata files at \`${domainRoot}/{DOMAIN}/transformations/<service>/*.jsonata\`:
 \`\`\`jsonata
 /* inbound-order-created.jsonata */
 /* Transforms OrderCreated (order-service) → FulfillmentRequest (fulfillment-service) */
@@ -272,7 +298,7 @@ Next steps:
 
 | Constraint | Behavior |
 |------------|----------|
-| **Read-only services/** | NEVER modify files in \`${path}/services/\` |
+| **Read-only services/** | NEVER modify files in \`${domainRoot}/{DOMAIN}/services/\` |
 | **Preserve existing flows** | When adding flows, preserve all existing flows |
 | **Valid JSONata** | All .jsonata files must have valid syntax |
 | **Confirm before write** | ALWAYS wait for explicit confirmation |
@@ -282,7 +308,8 @@ Next steps:
 
 | Error | Response |
 |-------|----------|
-| No choreography.yaml | "Error: Workspace not initialized. Run \`spas-compose init\` first." |
+| No DOMAIN specified | "Error: No domain specified. Usage: /spas.compose DOMAIN:<name> <action>" |
+| No choreography.yaml | "Error: Workspace not initialized. Run \`spas-compose init {DOMAIN} --output ${domainRoot}\` first." |
 | No services pulled | "Error: No services found. Run \`spas-compose services pull\` first." |
 | Service not found | "Error: Service '<name>' not found in services/ directory." |
 | Schema mismatch | "Warning: Cannot auto-generate transformation. Manual mapping required." |
@@ -290,18 +317,18 @@ Next steps:
 ## Example Prompts
 
 \`\`\`
-/spas.compose Analyze order-service and fulfillment-service
+/spas.compose DOMAIN:public Analyze order-service and fulfillment-service
 
-/spas.compose Generate transformation for OrderCreated to fulfillment-service
+/spas.compose DOMAIN:public Generate transformation for OrderCreated to fulfillment-service
 
-/spas.compose Review choreography.yaml and identify missing transformations
+/spas.compose DOMAIN:internal Review choreography.yaml and identify missing transformations
 
-/spas.compose Add notification-service to order-fulfillment flow
+/spas.compose DOMAIN:partner Add notification-service to order-fulfillment flow
 \`\`\`
 
 ## Sidecar Configuration Mapping
 
-The choreography.yaml flows generate sidecar configuration files. Use the schema at \`${path}/.spas/schemas/sidecar-config-v1.schema.json\` to understand the mapping:
+The choreography.yaml flows generate sidecar configuration files. Use the schema at \`${domainRoot}/{DOMAIN}/.spas/schemas/sidecar-config-v1.schema.json\` to understand the mapping:
 
 | Choreography Field | Sidecar Config Path | Description |
 |-------------------|---------------------|-------------|
@@ -317,19 +344,19 @@ The choreography.yaml flows generate sidecar configuration files. Use the schema
 
 ## References
 
-- [Sidecar Config Schema](${path}/.spas/schemas/sidecar-config-v1.schema.json)
+- [Sidecar Config Schema](${domainRoot}/{DOMAIN}/.spas/schemas/sidecar-config-v1.schema.json)
 `;
 }
 
 /**
- * Generate prompt file content (.github/prompts/spas-compose.prompt.md)
+ * Generate prompt file content (.github/prompts/spas.compose.prompt.md)
  *
  * Creates the trigger file that references the agent.
  * Follows SpecKit pattern: .github/prompts/*.prompt.md
  */
 export function generatePromptFile(): string {
   return `---
-agent: spas-compose
+agent: spas.compose
 ---
 `;
 }

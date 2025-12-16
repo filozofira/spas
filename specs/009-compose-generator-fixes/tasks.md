@@ -26,10 +26,10 @@ Based on plan.md structure:
 
 **Purpose**: Type definitions and foundational changes that all stories depend on
 
-- [ ] T001 Extend ServiceMetadata interface with runtime fields in `components/cli/spas-compose/src/types.ts`
-- [ ] T002 [P] Add eventType field to OutboundEntry interface in `components/cli/spas-compose/src/types.ts`
-- [ ] T003 [P] Add GeneratorConfig interface for port configuration in `components/cli/spas-compose/src/types.ts`
-- [ ] T004 [P] Extend InitOptions interface with output field in `components/cli/spas-compose/src/types.ts`
+- [x] T001 Extend ServiceMetadata interface with runtime fields in `components/cli/spas-compose/src/types.ts`
+- [x] T002 [P] Add eventType field to OutboundEntry interface in `components/cli/spas-compose/src/types.ts`
+- [x] T003 [P] Add GeneratorConfig interface for port configuration in `components/cli/spas-compose/src/types.ts`
+- [x] T004 [P] Extend InitOptions interface with output field in `components/cli/spas-compose/src/types.ts`
 
 ---
 

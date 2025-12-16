@@ -25,8 +25,8 @@
 
 **Purpose**: Verify existing test infrastructure and prepare for changes
 
-- [ ] T001 Verify sidecar tests pass with `npm test` in components/sidecar/
-- [ ] T002 [P] Create test fixture directory at components/sidecar/test/fixtures/transforms/
+- [x] T001 Verify sidecar tests pass with `npm test` in components/sidecar/
+- [x] T002 [P] Create test fixture directory at components/sidecar/test/fixtures/transforms/
 
 ---
 

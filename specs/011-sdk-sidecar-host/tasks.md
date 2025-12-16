@@ -37,10 +37,10 @@ components/sdk/dotnet/
 
 **⚠️ CRITICAL**: All user stories depend on this method change
 
-- [ ] T003 Add `NormalizeForDns()` private helper method in `components/sdk/dotnet/src/Spas.Sdk.Core/Configuration/SpasConfiguration.cs`
-- [ ] T004 Modify `GetSpasSidecarUrl()` signature to add optional `serviceName` parameter in `components/sdk/dotnet/src/Spas.Sdk.Core/Configuration/SpasConfiguration.cs`
-- [ ] T005 Implement resolution priority logic (SIDECAR_URL → SIDECAR_HOST → SERVICE_NAME derivation → localhost) in `GetSpasSidecarUrl()`
-- [ ] T006 Fix default port from 3001 to 7000 in `components/sdk/dotnet/src/Spas.Sdk.Core/Configuration/SpasConfiguration.cs`
+- [X] T003 Add `NormalizeForDns()` private helper method in `components/sdk/dotnet/src/Spas.Sdk.Core/Configuration/SpasConfiguration.cs`
+- [X] T004 Modify `GetSpasSidecarUrl()` signature to add optional `serviceName` parameter in `components/sdk/dotnet/src/Spas.Sdk.Core/Configuration/SpasConfiguration.cs`
+- [X] T005 Implement resolution priority logic (SIDECAR_URL → SIDECAR_HOST → SERVICE_NAME derivation → localhost) in `GetSpasSidecarUrl()`
+- [X] T006 Fix default port from 3001 to 7000 in `components/sdk/dotnet/src/Spas.Sdk.Core/Configuration/SpasConfiguration.cs`
 
 **Checkpoint**: Core method modified - user story validation can begin
 

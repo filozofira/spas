@@ -53,21 +53,21 @@ principles/component/
 
 ### Tests for User Story 2
 
-- [ ] T005 [P] [US2] Unit test for type construction from `x-event-name` header in `components/sidecar/test/unit/services/event-publisher.test.ts`
-- [ ] T006 [P] [US2] Unit test for backward compat with `x-event-type` header in `components/sidecar/test/unit/services/event-publisher.test.ts`
-- [ ] T007 [P] [US2] Unit test for validation error when both headers missing in `components/sidecar/test/unit/services/event-publisher.test.ts`
-- [ ] T008 [P] [US2] Unit test for `x-event-name` priority over `x-event-type` in `components/sidecar/test/unit/services/event-publisher.test.ts`
+- [X] T005 [P] [US2] Unit test for type construction from `x-event-name` header in `components/sidecar/test/unit/cloudevents/wrapper.test.ts`
+- [X] T006 [P] [US2] Unit test for backward compat with `x-event-type` header in `components/sidecar/test/unit/cloudevents/wrapper.test.ts`
+- [X] T007 [P] [US2] Unit test for validation error when both headers missing in `components/sidecar/test/unit/cloudevents/wrapper.test.ts`
+- [X] T008 [P] [US2] Unit test for `x-event-name` priority over `x-event-type` in `components/sidecar/test/unit/cloudevents/wrapper.test.ts`
 
 ### Implementation for User Story 2
 
-- [ ] T009 [US2] Add `eventName?: string` field to `PublishHeaders` interface in `components/sidecar/src/types.ts`
-- [ ] T010 [US2] Add `constructCloudEventsType()` helper function in `components/sidecar/src/cloudevents/wrapper.ts`
-- [ ] T011 [US2] Modify `extractPublishHeaders()` to extract `x-event-name` header in `components/sidecar/src/services/event-publisher.ts`
-- [ ] T012 [US2] Modify `validatePublishHeaders()` to require ONE OF `x-event-type` OR `x-event-name` in `components/sidecar/src/services/event-publisher.ts`
-- [ ] T013 [US2] Modify `wrapCloudEvent()` to use `constructCloudEventsType()` when `eventName` present in `components/sidecar/src/cloudevents/wrapper.ts`
-- [ ] T014 [US2] Run sidecar tests with `npm test` to verify all pass
+- [X] T009 [US2] Add `eventName?: string` field to `PublishHeaders` interface in `components/sidecar/src/types.ts`
+- [X] T010 [US2] Add `constructCloudEventsType()` helper function in `components/sidecar/src/cloudevents/wrapper.ts`
+- [X] T011 [US2] Modify `extractPublishHeaders()` to extract `x-event-name` header in `components/sidecar/src/services/event-publisher.ts`
+- [X] T012 [US2] Modify `validatePublishHeaders()` to require ONE OF `x-event-type` OR `x-event-name` in `components/sidecar/src/services/event-publisher.ts`
+- [X] T013 [US2] Modify `wrapCloudEvent()` to use `constructCloudEventsType()` when `eventName` present in `components/sidecar/src/cloudevents/wrapper.ts`
+- [X] T014 [US2] Run sidecar tests with `npm test` to verify all pass (194 tests passed)
 
-**Checkpoint**: Sidecar accepts both header formats - backward compatible, ready for SDK changes
+**Checkpoint**: Sidecar accepts both header formats - backward compatible, ready for SDK changes ✅
 
 ---
 

@@ -108,13 +108,13 @@ describe('Publish Handler', () => {
         { orderId: '123' },
         {
           'x-service-name': 'order-service',
-          // missing x-event-type and x-correlation-id
+          // missing x-event-type/x-event-name and x-correlation-id
         }
       );
 
       expect(response.status).toBe(400);
       expect((response.body as any).error).toBe('Missing required headers');
-      expect((response.body as any).missing).toContain('x-event-type');
+      expect((response.body as any).missing).toContain('x-event-type or x-event-name');
       expect((response.body as any).missing).toContain('x-correlation-id');
     });
 

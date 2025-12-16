@@ -123,9 +123,11 @@ Based on plan.md structure:
 
 **Purpose**: Integration validation and documentation
 
-- [ ] T032 Run E-Commerce example validation per quickstart.md
-- [ ] T033 [P] Update CLI help text for new --output option in `components/cli/spas-compose/src/commands/init.ts`
-- [ ] T034 [P] Update components/cli/spas-compose/README.md with new command options
+- [X] T032 Run E-Commerce example validation per quickstart.md
+- [X] T033 [P] Update CLI help text for new --output option in `components/cli/spas-compose/src/commands/init.ts`
+- [X] T034 [P] Update components/cli/spas-compose/README.md with new command options
+
+**Checkpoint**: All tasks complete, E-Commerce example generates correct output ✓
 
 ---
 

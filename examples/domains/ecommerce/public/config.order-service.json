@@ -3,13 +3,14 @@
     {
       "kind": "event",
       "topic": "stock-reserved",
-      "invokeEndpoint": "/events/stock-reserved"
+      "invokeEndpoint": "/incoming",
+      "transform": "transformations/order-service/inbound-stock-reserved.jsonata"
     }
   ],
   "outbound": [
     {
-      "eventType": "com.ecommerce.order.created",
-      "topic": "orders-created"
+      "topic": "orders-created",
+      "eventType": "com.order.order-created"
     }
   ]
 }

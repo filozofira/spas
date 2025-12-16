@@ -57,8 +57,8 @@ As a domain composer, I need outbound transforms from files to work so that I ca
 
 ### Edge Cases
 
-- What happens when the transform file doesn't exist? The sidecar should log an error and fail gracefully (either skip transform or reject the event with a clear error).
-- What happens when the transform file contains invalid JSONata syntax? The sidecar should log a validation error at startup or first use and provide a clear error message.
+- What happens when the transform file doesn't exist? The sidecar rejects the event with an error response identifying the missing file.
+- What happens when the transform file contains invalid JSONata syntax? The sidecar rejects the event with an error response identifying the file and parse error.
 - What happens when the transform file path is absolute vs. relative? Relative paths should resolve from the sidecar's working directory (typically where config.json is mounted).
 - How does the system distinguish file paths from inline expressions? File paths end with `.jsonata` extension; other strings are treated as inline expressions.
 
@@ -73,6 +73,7 @@ As a domain composer, I need outbound transforms from files to work so that I ca
 - **FR-005**: Sidecar MUST log a clear error message when a transform file cannot be read or parsed
 - **FR-006**: Sidecar MUST apply file-based transforms for both inbound (event→service) and outbound (service→event) flows
 - **FR-007**: Sidecar MUST validate transform file syntax when first loaded and surface errors clearly
+- **FR-008**: Sidecar MUST reject events with an error response when transform file loading or parsing fails (fail explicitly, no silent pass-through)
 
 ### Key Entities
 
@@ -97,3 +98,9 @@ As a domain composer, I need outbound transforms from files to work so that I ca
 - Transform file paths in configuration are relative to the sidecar's working directory (typically `/app` in container)
 - The `.jsonata` extension is the standard indicator for file-based transforms
 - Sidecar has read access to the directory where transform files are mounted
+
+## Clarifications
+
+### Session 2025-12-16
+
+- Q: What should happen when a transform file cannot be loaded or contains invalid JSONata syntax during event processing? → A: Reject the event and return an error response (fail explicitly)

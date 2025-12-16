@@ -178,8 +178,8 @@ export class ChoreographyLoader {
 
     if (!route.event) {
       errors.push(`${prefix}: event is required`);
-    } else if (!/^[A-Z][a-zA-Z0-9]*$/.test(route.event)) {
-      errors.push(`${prefix}: event "${route.event}" must be PascalCase`);
+    } else if (!/^[a-z][a-z0-9]*(-[a-z0-9]+)*$/.test(route.event)) {
+      errors.push(`${prefix}: event "${route.event}" must be kebab-case`);
     }
 
     if (!route.topic) {

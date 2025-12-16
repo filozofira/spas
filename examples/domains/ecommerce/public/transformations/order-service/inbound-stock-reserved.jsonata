@@ -1,0 +1,14 @@
+/* inbound-stock-reserved.jsonata */
+/* Transforms stock-reserved (inventory-service) → order-service format */
+/* Source: inventory-service.stock-reserved */
+/* Target: order-service */
+{
+  "orderId": OrderId,
+  "reservations": Reservations.{
+    "productId": ProductId,
+    "quantity": Quantity,
+    "reservedAt": ReservedAt
+  },
+  "completedAt": Timestamp,
+  "status": "inventory-reserved"
+}

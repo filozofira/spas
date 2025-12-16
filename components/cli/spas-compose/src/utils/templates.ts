@@ -112,7 +112,7 @@ flows: {}
   #     - fulfillment-service
   #   events:
   #     - source: order-service
-  #       event: OrderCreated
+  #       event: order-created
   #       topic: orders
   #       targets:
   #         - service: fulfillment-service
@@ -226,12 +226,12 @@ When asked to analyze services:
 **Output Format:**
 \`\`\`
 📦 order-service (1.0.0) - orders bounded context
-  Published: OrderCreated, OrderCancelled
-  Subscribed: PaymentReceived
+  Published: order-created, order-cancelled
+  Subscribed: payment-received
 
 📦 fulfillment-service (1.0.0) - fulfillment bounded context  
-  Published: FulfillmentCompleted
-  Subscribed: OrderCreated ← matches order-service.OrderCreated ✓
+  Published: fulfillment-completed
+  Subscribed: order-created ← matches order-service.order-created ✓
 \`\`\`
 
 ### Step 3: Propose Choreography
@@ -249,7 +249,7 @@ flows:
       - <subscriber-service>
     events:
       - source: <publishing-service>
-        event: <EventType>
+        event: <event-type>
         topic: <topic-name>
         targets:
           - service: <subscribing-service>
@@ -272,7 +272,7 @@ infrastructure:
 Create JSONata files at \`${domainRoot}/{DOMAIN}/transformations/<service>/*.jsonata\`:
 \`\`\`jsonata
 /* inbound-order-created.jsonata */
-/* Transforms OrderCreated (order-service) → FulfillmentRequest (fulfillment-service) */
+/* Transforms order-created (order-service) → fulfillment-request (fulfillment-service) */
 {
   "orderId": orderId,
   "items": items.{ "sku": productId, "qty": quantity },
@@ -319,7 +319,7 @@ Next steps:
 \`\`\`
 /spas.compose DOMAIN:public Analyze order-service and fulfillment-service
 
-/spas.compose DOMAIN:public Generate transformation for OrderCreated to fulfillment-service
+/spas.compose DOMAIN:public Generate transformation for order-created to fulfillment-service
 
 /spas.compose DOMAIN:internal Review choreography.yaml and identify missing transformations
 

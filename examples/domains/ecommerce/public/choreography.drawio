@@ -1,0 +1,169 @@
+<mxfile host="app.diagrams.net" modified="2025-12-17T00:00:00.000Z" agent="SPAS Compose" version="22.1.0" type="device">
+  <diagram id="order-fulfillment-flow" name="Order Fulfillment Choreography">
+    <mxGraphModel dx="1200" dy="800" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1100" pageHeight="850" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        
+        <!-- Title -->
+        <mxCell id="title" value="Order Fulfillment Choreography" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=20;fontStyle=1;fontColor=#333333;" vertex="1" parent="1">
+          <mxGeometry x="350" y="20" width="400" height="40" as="geometry" />
+        </mxCell>
+        
+        <!-- Swim Lane: order-service -->
+        <mxCell id="lane-order" value="order-service" style="swimlane;horizontal=0;whiteSpace=wrap;html=1;startSize=30;fillColor=#dae8fc;strokeColor=#6c8ebf;fontStyle=1;fontSize=14;" vertex="1" parent="1">
+          <mxGeometry x="40" y="80" width="1020" height="160" as="geometry" />
+        </mxCell>
+        
+        <!-- order-service: Start -->
+        <mxCell id="order-start" value="Order&#xa;Placed" style="ellipse;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontStyle=1;" vertex="1" parent="lane-order">
+          <mxGeometry x="50" y="55" width="80" height="50" as="geometry" />
+        </mxCell>
+        
+        <!-- order-service: Publish order-created -->
+        <mxCell id="order-publish" value="Publish&#xa;order-created" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontStyle=0;" vertex="1" parent="lane-order">
+          <mxGeometry x="180" y="55" width="120" height="50" as="geometry" />
+        </mxCell>
+        
+        <!-- order-service: Receive stock-reserved -->
+        <mxCell id="order-receive" value="Receive&#xa;stock-reserved" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontStyle=0;" vertex="1" parent="lane-order">
+          <mxGeometry x="720" y="55" width="120" height="50" as="geometry" />
+        </mxCell>
+        
+        <!-- order-service: Complete -->
+        <mxCell id="order-complete" value="Order&#xa;Confirmed" style="ellipse;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontStyle=1;" vertex="1" parent="lane-order">
+          <mxGeometry x="890" y="55" width="80" height="50" as="geometry" />
+        </mxCell>
+        
+        <!-- Arrow: Start -> Publish -->
+        <mxCell id="edge1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#333333;strokeWidth=2;" edge="1" parent="lane-order" source="order-start" target="order-publish">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        
+        <!-- Arrow: Receive -> Complete -->
+        <mxCell id="edge4" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#333333;strokeWidth=2;" edge="1" parent="lane-order" source="order-receive" target="order-complete">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        
+        <!-- Swim Lane: inventory-service -->
+        <mxCell id="lane-inventory" value="inventory-service" style="swimlane;horizontal=0;whiteSpace=wrap;html=1;startSize=30;fillColor=#ffe6cc;strokeColor=#d79b00;fontStyle=1;fontSize=14;" vertex="1" parent="1">
+          <mxGeometry x="40" y="260" width="1020" height="160" as="geometry" />
+        </mxCell>
+        
+        <!-- inventory-service: Receive order-created -->
+        <mxCell id="inv-receive" value="Receive&#xa;order-created" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontStyle=0;" vertex="1" parent="lane-inventory">
+          <mxGeometry x="340" y="55" width="120" height="50" as="geometry" />
+        </mxCell>
+        
+        <!-- inventory-service: Reserve Stock -->
+        <mxCell id="inv-reserve" value="Reserve&#xa;Stock" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontStyle=0;" vertex="1" parent="lane-inventory">
+          <mxGeometry x="500" y="55" width="100" height="50" as="geometry" />
+        </mxCell>
+        
+        <!-- inventory-service: Publish stock-reserved -->
+        <mxCell id="inv-publish" value="Publish&#xa;stock-reserved" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontStyle=0;" vertex="1" parent="lane-inventory">
+          <mxGeometry x="640" y="55" width="120" height="50" as="geometry" />
+        </mxCell>
+        
+        <!-- Arrow: Receive -> Reserve -->
+        <mxCell id="edge5" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#333333;strokeWidth=2;" edge="1" parent="lane-inventory" source="inv-receive" target="inv-reserve">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        
+        <!-- Arrow: Reserve -> Publish -->
+        <mxCell id="edge6" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#333333;strokeWidth=2;" edge="1" parent="lane-inventory" source="inv-reserve" target="inv-publish">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        
+        <!-- Cross-lane Event: order-created (order-service -> inventory-service) -->
+        <mxCell id="event-order-created" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#0066CC;strokeWidth=3;dashed=1;dashPattern=8 8;endArrow=blockThin;endFill=1;" edge="1" parent="1" source="order-publish" target="inv-receive">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="280" y="220" />
+              <mxPoint x="440" y="220" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- Label for order-created event -->
+        <mxCell id="label-order-created" value="📨 order-created&#xa;topic: orders" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=11;fontColor=#0066CC;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="290" y="195" width="120" height="40" as="geometry" />
+        </mxCell>
+        
+        <!-- Cross-lane Event: stock-reserved (inventory-service -> order-service) -->
+        <mxCell id="event-stock-reserved" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#009900;strokeWidth=3;dashed=1;dashPattern=8 8;endArrow=blockThin;endFill=1;" edge="1" parent="1" source="inv-publish" target="order-receive">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="740" y="220" />
+              <mxPoint x="820" y="220" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- Label for stock-reserved event -->
+        <mxCell id="label-stock-reserved" value="📨 stock-reserved&#xa;topic: inventory" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=11;fontColor=#009900;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="725" y="195" width="120" height="40" as="geometry" />
+        </mxCell>
+        
+        <!-- Legend Box -->
+        <mxCell id="legend-box" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;strokeWidth=1;" vertex="1" parent="1">
+          <mxGeometry x="40" y="450" width="400" height="120" as="geometry" />
+        </mxCell>
+        
+        <!-- Legend Title -->
+        <mxCell id="legend-title" value="Legend" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=14;fontStyle=1;fontColor=#333333;" vertex="1" parent="1">
+          <mxGeometry x="50" y="455" width="100" height="25" as="geometry" />
+        </mxCell>
+        
+        <!-- Legend: Start/End -->
+        <mxCell id="legend-start" value="" style="ellipse;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="1">
+          <mxGeometry x="55" y="490" width="30" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="legend-start-text" value="Start/End State" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="95" y="490" width="100" height="20" as="geometry" />
+        </mxCell>
+        
+        <!-- Legend: Publish -->
+        <mxCell id="legend-publish" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="1">
+          <mxGeometry x="55" y="515" width="30" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="legend-publish-text" value="Publish Event" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="95" y="515" width="100" height="20" as="geometry" />
+        </mxCell>
+        
+        <!-- Legend: Receive -->
+        <mxCell id="legend-receive" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;" vertex="1" parent="1">
+          <mxGeometry x="55" y="540" width="30" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="legend-receive-text" value="Receive Event" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="95" y="540" width="100" height="20" as="geometry" />
+        </mxCell>
+        
+        <!-- Legend: Process -->
+        <mxCell id="legend-process" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;" vertex="1" parent="1">
+          <mxGeometry x="230" y="490" width="30" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="legend-process-text" value="Process/Action" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="270" y="490" width="100" height="20" as="geometry" />
+        </mxCell>
+        
+        <!-- Legend: Event Flow -->
+        <mxCell id="legend-flow" value="" style="endArrow=blockThin;html=1;strokeColor=#0066CC;strokeWidth=2;dashed=1;dashPattern=8 8;endFill=1;" edge="1" parent="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="230" y="530" as="sourcePoint" />
+            <mxPoint x="290" y="530" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="legend-flow-text" value="Event Flow (Pub/Sub)" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="300" y="520" width="130" height="20" as="geometry" />
+        </mxCell>
+        
+        <!-- Domain Info -->
+        <mxCell id="domain-info" value="Domain: public | Infrastructure: Redis, Zipkin" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=12;fontColor=#666666;fontStyle=2;" vertex="1" parent="1">
+          <mxGeometry x="480" y="530" width="300" height="30" as="geometry" />
+        </mxCell>
+        
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

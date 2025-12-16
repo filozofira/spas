@@ -1,0 +1,12 @@
+/* inbound-order-created.jsonata */
+/* Transforms order-created (order-service) → inventory-service format */
+/* Source: order-service.order-created */
+/* Target: inventory-service */
+{
+  "orderId": OrderId,
+  "items": Items.{
+    "productId": ProductId,
+    "quantity": Quantity
+  },
+  "requestedAt": CreatedAt
+}

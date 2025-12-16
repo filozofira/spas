@@ -836,7 +836,7 @@ describe("SidecarConfigGenerator", () => {
       );
     });
 
-    it("should convert PascalCase event to kebab-case eventName", () => {
+    it("should use kebab-case eventName from choreography", () => {
       // Arrange
       const servicesDir = path.join(workspacePath, "services", "order-service");
       fs.mkdirSync(servicesDir, { recursive: true });
@@ -848,7 +848,7 @@ describe("SidecarConfigGenerator", () => {
           boundedContext: "order",
         }),
       );
-      const choreographyWithPascal: Choreography = {
+      const choreographyWithKebab: Choreography = {
         version: "1.0",
         domain: "test",
         flows: {
@@ -857,7 +857,7 @@ describe("SidecarConfigGenerator", () => {
             events: [
               {
                 source: "order-service",
-                event: "OrderCreated",
+                event: "order-created",
                 topic: "orders-created",
                 targets: [],
               },
@@ -868,9 +868,9 @@ describe("SidecarConfigGenerator", () => {
       const generator = new SidecarConfigGenerator(workspacePath);
 
       // Act
-      const result = generator.generate(choreographyWithPascal);
+      const result = generator.generate(choreographyWithKebab);
 
-      // Assert - PascalCase converted to kebab-case
+      // Assert - kebab-case used directly
       expect(result.configs["order-service"].outbound[0].eventName).toBe(
         "order-created",
       );

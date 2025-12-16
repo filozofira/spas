@@ -1,5 +1,6 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using Spas.Sdk.Core.Configuration;
 using Spas.Sdk.Events.Publish;
 using Spas.Sdk.Observability.Tracing;
@@ -15,6 +16,7 @@ public static class SpasServiceExtensions
     /// <summary>
     /// Configures all SPAS infrastructure services: event publishing, distributed tracing.
     /// Reads configuration from environment variables (SERVICE_NAME, SIDECAR_HOST, SIDECAR_PORT, ZIPKIN_URL).
+    /// Logs the resolved sidecar URL at startup for debugging connection issues.
     /// </summary>
     /// <param name="services">The service collection</param>
     /// <param name="configuration">The configuration</param>
@@ -27,8 +29,15 @@ public static class SpasServiceExtensions
     {
         // Get service name from environment variable
         var serviceName = configuration.GetSpasServiceName(defaultServiceName);
-        var sidecarUrl = configuration.GetSpasSidecarUrl();
+        
+        // Get sidecar URL - pass service name for convention-based derivation
+        var sidecarUrl = configuration.GetSpasSidecarUrl(serviceName);
         var zipkinUrl = configuration.GetSpasZipkinUrl();
+
+        // Log resolved sidecar URL for debugging
+        var logger = services.BuildServiceProvider().GetRequiredService<ILoggerFactory>().CreateLogger(nameof(SpasServiceExtensions));
+        logger.LogInformation("SPAS SDK configured for service '{ServiceName}'", serviceName);
+        logger.LogInformation("Sidecar URL: {SidecarUrl}", sidecarUrl);
 
         // Configure event publishing to sidecar
         services.AddHttpClient<EventPublisher>(client =>

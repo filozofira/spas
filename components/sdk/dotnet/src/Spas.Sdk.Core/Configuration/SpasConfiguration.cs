@@ -20,28 +20,85 @@ public static class SpasConfiguration
 
     /// <summary>
     /// Gets the sidecar URL from configuration.
-    /// Constructs URL from SIDECAR_HOST and SIDECAR_PORT environment variables,
-    /// or falls back to SIDECAR_URL, or defaults to http://localhost:3001.
+    /// Resolution priority:
+    /// 1. SIDECAR_URL - Full URL (e.g., http://custom:8080)
+    /// 2. SIDECAR_HOST + SIDECAR_PORT - Explicit host and port
+    /// 3. SIDECAR_HOST + default port 7000 - Explicit host, default port
+    /// 4. Derived from serviceName + default port 7000 - Convention-based ({service-name}-sidecar)
+    /// 5. http://localhost:7000 - Local development fallback
     /// </summary>
-    public static string GetSpasSidecarUrl(this IConfiguration configuration)
+    /// <param name="configuration">The configuration instance.</param>
+    /// <param name="serviceName">Optional service name for deriving sidecar host using convention {serviceName}-sidecar.</param>
+    /// <returns>The resolved sidecar URL.</returns>
+    public static string GetSpasSidecarUrl(this IConfiguration configuration, string? serviceName = null)
     {
-        var sidecarHost = configuration.GetValue<string>("SIDECAR_HOST");
-        var sidecarPort = configuration.GetValue<int?>("SIDECAR_PORT");
+        const int defaultPort = 7000;
 
-        if (!string.IsNullOrEmpty(sidecarHost) && sidecarPort.HasValue)
-        {
-            return $"http://{sidecarHost}:{sidecarPort}";
-        }
-
-        // Fallback: single SIDECAR_URL variable
+        // Priority 1: Full URL (highest priority)
         var sidecarUrl = configuration.GetValue<string>("SIDECAR_URL");
         if (!string.IsNullOrEmpty(sidecarUrl))
         {
             return sidecarUrl;
         }
 
-        // Default for local development
-        return "http://localhost:3001";
+        // Priority 2/3: Explicit host (with optional port)
+        var sidecarHost = configuration.GetValue<string>("SIDECAR_HOST");
+        var sidecarPort = configuration.GetValue<int?>("SIDECAR_PORT") ?? defaultPort;
+
+        if (!string.IsNullOrEmpty(sidecarHost))
+        {
+            return $"http://{sidecarHost}:{sidecarPort}";
+        }
+
+        // Priority 4: Derive from service name using convention
+        if (!string.IsNullOrWhiteSpace(serviceName))
+        {
+            var normalizedName = NormalizeForDns(serviceName);
+            if (!string.IsNullOrEmpty(normalizedName))
+            {
+                return $"http://{normalizedName}-sidecar:{sidecarPort}";
+            }
+        }
+
+        // Priority 5: Local development fallback
+        return $"http://localhost:{defaultPort}";
+    }
+
+    /// <summary>
+    /// Normalizes a service name for DNS hostname compatibility.
+    /// Converts to lowercase, replaces underscores and spaces with hyphens,
+    /// removes invalid characters, and trims leading/trailing hyphens.
+    /// </summary>
+    /// <param name="serviceName">The service name to normalize.</param>
+    /// <returns>A DNS-compatible hostname.</returns>
+    private static string NormalizeForDns(string serviceName)
+    {
+        if (string.IsNullOrWhiteSpace(serviceName))
+        {
+            return string.Empty;
+        }
+
+        // Convert to lowercase
+        var normalized = serviceName.ToLowerInvariant();
+
+        // Replace underscores and spaces with hyphens
+        normalized = normalized.Replace('_', '-').Replace(' ', '-');
+
+        // Remove any characters that are not alphanumeric or hyphen
+        normalized = new string(normalized
+            .Where(c => char.IsLetterOrDigit(c) || c == '-')
+            .ToArray());
+
+        // Trim leading/trailing hyphens
+        normalized = normalized.Trim('-');
+
+        // Collapse multiple consecutive hyphens into one
+        while (normalized.Contains("--"))
+        {
+            normalized = normalized.Replace("--", "-");
+        }
+
+        return normalized;
     }
 
     /// <summary>

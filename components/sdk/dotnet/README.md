@@ -98,7 +98,8 @@ builder.Services.AddSpasMetadata(options =>
 });
 
 // 2. Configure all SPAS infrastructure (EventPublisher + OpenTelemetry + Zipkin)
-// Reads: SERVICE_NAME, SIDECAR_HOST, SIDECAR_PORT, ZIPKIN_URL from environment
+// Reads: SERVICE_NAME, SIDECAR_HOST, SIDECAR_PORT, SIDECAR_URL, ZIPKIN_URL from environment
+// Derives sidecar host from SERVICE_NAME if SIDECAR_HOST not set
 var serviceName = builder.Services.AddSpasServices(builder.Configuration, "my-service");
 
 var app = builder.Build();
@@ -125,29 +126,84 @@ app.Run();
 
 **That's it!** Set environment variables and the SDK handles everything.
 
-## 📝 Environment Variables
+## 📝 Environment Variables & Sidecar URL Resolution
 
 The SDK uses flat environment variables matching docker-compose patterns:
 
 | Variable       | Description            | Default             | Example                            |
 | -------------- | ---------------------- | ------------------- | ---------------------------------- |
 | `SERVICE_NAME` | Service identifier     | `"unknown-service"` | `"order-service"`                  |
-| `SIDECAR_HOST` | Sidecar hostname       | Required            | `"localhost"` or `"order-sidecar"` |
-| `SIDECAR_PORT` | Sidecar port           | Required            | `7001`                             |
-| `SIDECAR_URL`  | Alternative single URL | Optional            | `"http://localhost:7001"`          |
+| `SIDECAR_URL`  | Full sidecar URL       | Derived from convention | `"http://localhost:7000"`          |
+| `SIDECAR_HOST` | Sidecar hostname       | Derived from SERVICE_NAME | `"order-sidecar"` or `"custom"`|
+| `SIDECAR_PORT` | Sidecar port           | `7000` (default)    | `7001` or `3000`                   |
 | `ZIPKIN_URL`   | Zipkin endpoint        | Optional            | `"http://localhost:9411"`          |
 | `PORT`         | Service listening port | `5000`              | `8080`                             |
 
-**docker-compose example:**
+### Sidecar URL Resolution Priority
+
+The SDK resolves the sidecar URL in this order (first match wins):
+
+1. **`SIDECAR_URL`** (full URL)
+   - Set this for complete control: `http://custom-sidecar:8080`
+   - Highest priority
+
+2. **`SIDECAR_HOST` + `SIDECAR_PORT`** (explicit host and port)
+   - Host: `"custom-sidecar"` → `http://custom-sidecar:7000` (uses default port 7000)
+   - Host + Port: `"my-sidecar"` + `7001` → `http://my-sidecar:7001`
+
+3. **Derived from `SERVICE_NAME`** (convention-based)
+   - `SERVICE_NAME=order-service` → `http://order-service-sidecar:7000`
+   - `SERVICE_NAME=Order_Service` → `http://order-service-sidecar:7000` (normalized for DNS)
+   - Automatic: no additional configuration needed
+   - **Recommended for Docker Compose** - sidecars are named `{service-name}-sidecar`
+
+4. **Localhost fallback** (development)
+   - No configuration needed → `http://localhost:7000`
+   - Use for local development without containers
+
+### Examples
+
+**Docker Compose (Recommended - Uses Convention)**
 
 ```yaml
 services:
   order-service:
     environment:
       - SERVICE_NAME=order-service
-      - SIDECAR_HOST=order-sidecar
-      - SIDECAR_PORT=7001
-      - ZIPKIN_URL=http://zipkin:9411
+      # That's it! SDK auto-derives: order-service-sidecar:7000
+
+  order-service-sidecar:
+    container_name: order-service-sidecar
+    environment:
+      - SIDECAR_PORT=7000
+```
+
+**Explicit Configuration (Override)**
+
+```yaml
+services:
+  order-service:
+    environment:
+      - SERVICE_NAME=order-service
+      - SIDECAR_HOST=shared-sidecar  # Override: use custom host
+      - SIDECAR_PORT=7001            # Override: use custom port
+```
+
+**Full URL (Complete Control)**
+
+```yaml
+services:
+  order-service:
+    environment:
+      - SERVICE_NAME=order-service
+      - SIDECAR_URL=http://custom-gateway:8080  # Complete URL, highest priority
+```
+
+**Local Development (Fallback)**
+
+```bash
+# No configuration → defaults to http://localhost:7000
+dotnet run
 ```
 
 ## 🎨 Usage Examples

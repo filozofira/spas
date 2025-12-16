@@ -79,19 +79,19 @@ principles/component/
 
 ### Tests for User Story 1
 
-- [ ] T015 [P] [US1] Unit test for `x-event-name` header sent with kebab-case value in `components/sdk/dotnet/test/Spas.Sdk.Events.Tests/Publish/EventPublisherTests.cs`
-- [ ] T016 [P] [US1] Unit test for `x-event-type` header NOT sent in `components/sdk/dotnet/test/Spas.Sdk.Events.Tests/Publish/EventPublisherTests.cs`
-- [ ] T017 [P] [US1] Unit test for generic `PublishAsync<TEvent>` sends derived event name in `components/sdk/dotnet/test/Spas.Sdk.Events.Tests/Publish/EventPublisherTests.cs`
+- [X] T015 [P] [US1] Unit test for `x-event-name` header sent with kebab-case value in `components/sdk/dotnet/test/Spas.Sdk.Events.Tests/EventPublisherTests.cs`
+- [X] T016 [P] [US1] Unit test for `x-event-type` header NOT sent in `components/sdk/dotnet/test/Spas.Sdk.Events.Tests/EventPublisherTests.cs`
+- [X] T017 [P] [US1] Unit test for generic `PublishAsync<TEvent>` sends derived event name in `components/sdk/dotnet/test/Spas.Sdk.Events.Tests/EventPublisherTests.cs`
 
 ### Implementation for User Story 1
 
-- [ ] T018 [US1] Modify `PublishAsync(string eventType, object payload)` to send `x-event-name` instead of `x-event-type` in `components/sdk/dotnet/src/Spas.Sdk.Events/Publish/EventPublisher.cs`
-- [ ] T019 [US1] Update method parameter name from `eventType` to `eventName` and update XML docs in `components/sdk/dotnet/src/Spas.Sdk.Events/Publish/EventPublisher.cs`
-- [ ] T020 [US1] Modify `PublishAsync<TEvent>` to pass only kebab-case event name (remove full type construction) in `components/sdk/dotnet/src/Spas.Sdk.Events/Publish/EventPublisher.cs`
-- [ ] T021 [US1] Update class XML documentation to reflect new header convention in `components/sdk/dotnet/src/Spas.Sdk.Events/Publish/EventPublisher.cs`
-- [ ] T022 [US1] Run SDK tests with `dotnet test` to verify all pass
+- [X] T018 [US1] Modify `PublishAsync(string eventType, object payload)` to send `x-event-name` instead of `x-event-type` in `components/sdk/dotnet/src/Spas.Sdk.Events/Publish/EventPublisher.cs`
+- [X] T019 [US1] Update method parameter name from `eventType` to `eventName` and update XML docs in `components/sdk/dotnet/src/Spas.Sdk.Events/Publish/EventPublisher.cs`
+- [X] T020 [US1] Modify `PublishAsync<TEvent>` to pass only kebab-case event name (remove full type construction) in `components/sdk/dotnet/src/Spas.Sdk.Events/Publish/EventPublisher.cs`
+- [X] T021 [US1] Update class XML documentation to reflect new header convention in `components/sdk/dotnet/src/Spas.Sdk.Events/Publish/EventPublisher.cs`
+- [X] T022 [US1] Run SDK tests with `dotnet test` to verify all pass
 
-**Checkpoint**: SDK sends new header format - sidecar already deployed handles it
+**Checkpoint**: SDK sends new header format - sidecar already deployed handles it ✅
 
 ---
 

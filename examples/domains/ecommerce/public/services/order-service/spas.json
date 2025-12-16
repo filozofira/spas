@@ -1,0 +1,58 @@
+{
+  "schemaVersion": "design-time-metadata-v1",
+  "id": "order-service",
+  "name": "order-service",
+  "description": "Order lifecycle management service",
+  "version": "1.0.0",
+  "boundedContext": "order",
+  "capabilities": [
+    "order-management"
+  ],
+  "endpoints": [],
+  "events": [
+    {
+      "type": "order-created",
+      "version": "1.0",
+      "schemaRef": "schemas/events/order-created.schema.json"
+    },
+    {
+      "type": "order-requested",
+      "version": "1.0",
+      "schemaRef": "schemas/events/order-requested.schema.json"
+    },
+    {
+      "type": "stock-reserved",
+      "version": "1.0",
+      "schemaRef": "schemas/events/stock-reserved.schema.json"
+    }
+  ],
+  "consistency": {
+    "commands": "ACID",
+    "queries": "EVENTUAL"
+  },
+  "network": {
+    "requiredEgress": [
+      "localhost:6379"
+    ]
+  },
+  "security": {
+    "authentication": {
+      "type": "jwt",
+      "requiredScopes": [
+        "orders.read",
+        "orders.write"
+      ]
+    },
+    "dataClassification": [
+      "internal"
+    ]
+  },
+  "license": "MIT",
+  "publishedAt": "2025-12-16T23:03:04.720Z",
+  "runtime": {
+    "digest": "sha256:a8045ddbf45f8f8f71afea8003a428d191499d0f2a97c65b13020ab550f2f3c7",
+    "repository": "spas-examples/order-service",
+    "tag": "1.0.0",
+    "image": "spas-examples/order-service@sha256:a8045ddbf45f8f8f71afea8003a428d191499d0f2a97c65b13020ab550f2f3c7"
+  }
+}

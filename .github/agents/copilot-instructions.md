@@ -242,6 +242,8 @@ Auto-generated from all feature plans. Last updated: 2025-12-12
 - N/A (generates files) (008-compose-backbone-args)
 - TypeScript 5.3 (Node.js 20+) + Commander 11.x, js-yaml 4.x, jsonata 2.x, axios 1.x (009-compose-generator-fixes)
 - Filesystem (reading/writing config files) (009-compose-generator-fixes)
+- TypeScript 5.3, Node.js 20+ + jsonata 2.1.0, express 4.18.2, redis 4.6.12 (010-sidecar-transform-loading)
+- N/A (in-memory transform cache only) (010-sidecar-transform-loading)
 
 - .NET 10 (target net10.0); Microsoft.Extensions.Logging; System.Text.Json (001-dotnet-spas-sdk)
 

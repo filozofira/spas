@@ -306,7 +306,7 @@ export interface InboundEntry {
  */
 export interface OutboundEntry {
   /** CloudEvents type (e.g., "com.order.order.created") - T002 */
-  eventType: string;
+  eventType?: string;
   /** Topic name for published events */
   topic: string;
   /** Path to JSONata transformation file, relative to sidecar /app/transformations mount */

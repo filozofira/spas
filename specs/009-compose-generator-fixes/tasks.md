@@ -54,18 +54,18 @@ Based on plan.md structure:
 
 ### Unit Tests for User Story 1
 
-- [ ] T007 [P] [US1] Unit test for image reference generation (runtime metadata → image:) in `components/cli/spas-compose/test/unit/docker-generator.test.ts`
-- [ ] T008 [P] [US1] Unit test for port configuration (8080 internal, SIDECAR_PORT env var) in `components/cli/spas-compose/test/unit/docker-generator.test.ts`
+- [X] T007 [P] [US1] Unit test for image reference generation (runtime metadata → image:) in `components/cli/spas-compose/test/unit/docker-generator.test.ts`
+- [X] T008 [P] [US1] Unit test for port configuration (8080 internal, SIDECAR_PORT env var) in `components/cli/spas-compose/test/unit/docker-generator.test.ts`
 
 ### Implementation for User Story 1
 
-- [ ] T009 [US1] Modify generateService() to use image: from runtime.repository:runtime.tag in `components/cli/spas-compose/src/services/docker-generator.ts`
-- [ ] T010 [US1] Modify generateService() to use port 8080 as internal port in `components/cli/spas-compose/src/services/docker-generator.ts`
-- [ ] T011 [US1] Modify generateService() to add SERVICE_NAME and SIDECAR_PORT=7001 env vars in `components/cli/spas-compose/src/services/docker-generator.ts`
-- [ ] T012 [US1] Modify generateSidecar() to use image: spas/sidecar:latest in `components/cli/spas-compose/src/services/docker-generator.ts`
-- [ ] T013 [US1] Modify generateSidecar() to use SIDECAR_PORT env var (not PORT) in `components/cli/spas-compose/src/services/docker-generator.ts`
-- [ ] T014 [US1] Modify generateSidecar() to use fixed port 7001 for all sidecars in `components/cli/spas-compose/src/services/docker-generator.ts`
-- [ ] T015 [US1] Add warning log when service has no runtime metadata in `components/cli/spas-compose/src/services/docker-generator.ts`
+- [X] T009 [US1] Modify generateService() to use image: from runtime.repository:runtime.tag in `components/cli/spas-compose/src/services/docker-generator.ts`
+- [X] T010 [US1] Modify generateService() to use port 8080 as internal port in `components/cli/spas-compose/src/services/docker-generator.ts`
+- [X] T011 [US1] Modify generateService() to add SERVICE_NAME and SIDECAR_PORT=7001 env vars in `components/cli/spas-compose/src/services/docker-generator.ts`
+- [X] T012 [US1] Modify generateSidecar() to use image: spas/sidecar:latest in `components/cli/spas-compose/src/services/docker-generator.ts`
+- [X] T013 [US1] Modify generateSidecar() to use SIDECAR_PORT env var (not PORT) in `components/cli/spas-compose/src/services/docker-generator.ts`
+- [X] T014 [US1] Modify generateSidecar() to use fixed port 7001 for all sidecars in `components/cli/spas-compose/src/services/docker-generator.ts`
+- [X] T015 [US1] Add warning log when service has no runtime metadata in `components/cli/spas-compose/src/services/docker-generator.ts`
 
 **Checkpoint**: Docker Compose generation produces runnable output with correct images and ports
 

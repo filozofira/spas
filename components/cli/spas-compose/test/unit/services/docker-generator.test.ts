@@ -241,4 +241,109 @@ describe("DockerGenerator", () => {
       expect(result.content).toContain("${ZIPKIN_URL}");
     });
   });
+
+  // ==========================================================================
+  // T007, T008: Image reference and port configuration tests (Spec 009)
+  // ==========================================================================
+
+  describe("image reference generation (T007)", () => {
+    it("should use image: from runtime metadata when available", () => {
+      // Arrange
+      const servicesDir = path.join(workspacePath, "services");
+      fs.writeFileSync(
+        path.join(servicesDir, "order-service", "spas.json"),
+        JSON.stringify({
+          id: "order-service",
+          version: "1.0.0",
+          boundedContext: "order",
+          runtime: {
+            repository: "spas-examples/order-service",
+            tag: "1.0.0",
+          },
+        }),
+      );
+      const generator = new DockerGenerator(workspacePath);
+
+      // Act
+      const result = generator.generate(sampleChoreography);
+
+      // Assert
+      expect(result.success).toBe(true);
+      expect(result.content).toContain("image: spas-examples/order-service:1.0.0");
+      expect(result.content).not.toContain("build: ./order-service");
+    });
+
+    it("should use sidecar image instead of build directive", () => {
+      // Arrange
+      const generator = new DockerGenerator(workspacePath);
+
+      // Act
+      const result = generator.generate(sampleChoreography);
+
+      // Assert
+      expect(result.success).toBe(true);
+      expect(result.content).toContain("image: spas/sidecar:latest");
+      expect(result.content).not.toContain("build: ./spas-sidecar");
+    });
+  });
+
+  describe("port configuration (T008)", () => {
+    it("should use 8080 as internal port for services", () => {
+      // Arrange
+      const generator = new DockerGenerator(workspacePath);
+
+      // Act
+      const result = generator.generate(sampleChoreography);
+
+      // Assert
+      expect(result.success).toBe(true);
+      // Host port varies, but internal should be 8080
+      expect(result.content).toMatch(/ports:\s*\n\s*- "\d+:8080"/);
+    });
+
+    it("should use SIDECAR_PORT=7001 for sidecars instead of PORT", () => {
+      // Arrange
+      const generator = new DockerGenerator(workspacePath);
+
+      // Act
+      const result = generator.generate(sampleChoreography);
+
+      // Assert
+      expect(result.success).toBe(true);
+      expect(result.content).toContain("SIDECAR_PORT=7001");
+      // Ensure sidecars don't use bare PORT= for the sidecar port (they used to have "PORT=7001")
+      // Use negative lookbehind to ensure PORT= is not preceded by SIDECAR_
+      expect(result.content).not.toMatch(/(?<!SIDECAR_)PORT=7001/);
+    });
+
+    it("should include SERVICE_NAME and SIDECAR_PORT in service environment", () => {
+      // Arrange
+      const generator = new DockerGenerator(workspacePath);
+
+      // Act
+      const result = generator.generate(sampleChoreography);
+
+      // Assert
+      expect(result.success).toBe(true);
+      expect(result.content).toContain("SERVICE_NAME=order-service");
+      expect(result.content).toContain("SIDECAR_PORT=7001");
+    });
+
+    it("should use fixed port 7001 for all sidecars", () => {
+      // Arrange
+      const generator = new DockerGenerator(workspacePath);
+
+      // Act
+      const result = generator.generate(sampleChoreography);
+
+      // Assert
+      expect(result.success).toBe(true);
+      // All sidecars should use 7001, not incrementing ports
+      const sidecarPortMatches = result.content!.match(/SIDECAR_PORT=(\d+)/g);
+      expect(sidecarPortMatches).toBeDefined();
+      for (const match of sidecarPortMatches!) {
+        expect(match).toBe("SIDECAR_PORT=7001");
+      }
+    });
+  });
 });

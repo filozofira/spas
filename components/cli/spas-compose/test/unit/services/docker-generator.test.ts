@@ -301,7 +301,7 @@ describe("DockerGenerator", () => {
       expect(result.content).toMatch(/ports:\s*\n\s*- "\d+:8080"/);
     });
 
-    it("should use SIDECAR_PORT=7001 for sidecars instead of PORT", () => {
+    it("should use SIDECAR_PORT=7000 for sidecars instead of PORT", () => {
       // Arrange
       const generator = new DockerGenerator(workspacePath);
 
@@ -310,10 +310,10 @@ describe("DockerGenerator", () => {
 
       // Assert
       expect(result.success).toBe(true);
-      expect(result.content).toContain("SIDECAR_PORT=7001");
-      // Ensure sidecars don't use bare PORT= for the sidecar port (they used to have "PORT=7001")
+      expect(result.content).toContain("SIDECAR_PORT=7000");
+      // Ensure sidecars don't use bare PORT= for the sidecar port (they used to have "PORT=7000")
       // Use negative lookbehind to ensure PORT= is not preceded by SIDECAR_
-      expect(result.content).not.toMatch(/(?<!SIDECAR_)PORT=7001/);
+      expect(result.content).not.toMatch(/(?<!SIDECAR_)PORT=7000/);
     });
 
     it("should include SERVICE_NAME and SIDECAR_PORT in service environment", () => {
@@ -326,10 +326,10 @@ describe("DockerGenerator", () => {
       // Assert
       expect(result.success).toBe(true);
       expect(result.content).toContain("SERVICE_NAME=order-service");
-      expect(result.content).toContain("SIDECAR_PORT=7001");
+      expect(result.content).toContain("SIDECAR_PORT=7000");
     });
 
-    it("should use fixed port 7001 for all sidecars", () => {
+    it("should use fixed port 7000 for all sidecars", () => {
       // Arrange
       const generator = new DockerGenerator(workspacePath);
 
@@ -338,11 +338,11 @@ describe("DockerGenerator", () => {
 
       // Assert
       expect(result.success).toBe(true);
-      // All sidecars should use 7001, not incrementing ports
+      // All sidecars should use 7000, not incrementing ports
       const sidecarPortMatches = result.content!.match(/SIDECAR_PORT=(\d+)/g);
       expect(sidecarPortMatches).toBeDefined();
       for (const match of sidecarPortMatches!) {
-        expect(match).toBe("SIDECAR_PORT=7001");
+        expect(match).toBe("SIDECAR_PORT=7000");
       }
     });
   });

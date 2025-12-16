@@ -97,11 +97,14 @@ components/sdk/dotnet/
 
 **Purpose**: Logging, documentation, and validation
 
-- [ ] T015 [P] Add startup logging of resolved sidecar URL in `components/sdk/dotnet/src/Spas.Sdk.Observability/Extensions/SpasServiceExtensions.cs`
-- [ ] T016 [P] Update SDK README with sidecar URL resolution priority in `components/sdk/dotnet/README.md`
-- [ ] T017 Run all SDK tests with `dotnet test` to verify no regressions
-- [ ] T018 Run quickstart.md validation scenarios manually
-- [ ] T019 Update requirements checklist in `specs/011-sdk-sidecar-host/checklists/requirements.md`
+- [X] T015 [P] Add startup logging of resolved sidecar URL in `components/sdk/dotnet/src/Spas.Sdk.Observability/Extensions/SpasServiceExtensions.cs`
+- [X] T016 [P] Update SDK README with sidecar URL resolution priority in `components/sdk/dotnet/README.md`
+- [X] T019A [P] Update spas-compose CLI default sidecar port from 7001 → 7000 in `components/cli/spas-compose/src/types.ts` and tests
+- [X] T017 Run all SDK tests with `dotnet test` to verify no regressions (all passing)
+- [X] T018 Run quickstart.md validation scenarios manually
+- [X] T019 Update requirements checklist in `specs/011-sdk-sidecar-host/checklists/requirements.md`
+
+**Checkpoint**: Phase 6 complete - all tests passing, documentation updated, port aligned
 
 ---
 

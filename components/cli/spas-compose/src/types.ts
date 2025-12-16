@@ -434,7 +434,7 @@ export interface BackboneConfig {
 export interface GeneratorConfig {
   /** Internal port for .NET service containers (default: 8080) */
   serviceInternalPort: number;
-  /** Standard sidecar port (default: 7001) */
+  /** Standard sidecar port (default: 7000) */
   sidecarPort: number;
   /** Sidecar image reference (default: "spas/sidecar:latest") */
   sidecarImage: string;
@@ -447,7 +447,7 @@ export interface GeneratorConfig {
  */
 export const DEFAULT_GENERATOR_CONFIG: GeneratorConfig = {
   serviceInternalPort: 8080,
-  sidecarPort: 7001,
+  sidecarPort: 7000,
   sidecarImage: "spas/sidecar:latest",
   defaultInvokeEndpoint: "/incoming",
 };

@@ -3,7 +3,7 @@
 **Feature Branch**: `009-compose-generator-fixes`  
 **Created**: 2025-01-20  
 **Completed**: 2025-12-16  
-**Status**: ✅ Complete  
+**Status**: ✅ Complete (PoC)
 **Input**: Fix spas-compose CLI generator bugs discovered during Phase 2 E-Commerce choreography validation (FG01, FG05, FG06, FG07)
 
 ## User Scenarios & Testing *(mandatory)*

@@ -2,7 +2,8 @@
 
 **Feature Branch**: `010-sidecar-transform-loading`  
 **Created**: 2025-12-16  
-**Status**: Draft  
+**Completed**: 2025-12-16  
+**Status**: ✅ Complete (PoC)  
 **Input**: User description: "Fix sidecar transform file loading (FG06.5). The sidecar currently passes the transform file path directly to JSONata instead of loading the file content first. This causes transform failures when using file-based transforms."
 
 ## User Scenarios & Testing *(mandatory)*

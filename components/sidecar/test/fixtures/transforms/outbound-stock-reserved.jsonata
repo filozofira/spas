@@ -1,0 +1,6 @@
+{
+  "productId": data.sku,
+  "reservedQuantity": data.quantity,
+  "warehouseId": data.warehouse,
+  "orderId": data.orderId
+}

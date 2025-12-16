@@ -2,7 +2,8 @@
 
 **Feature Branch**: `011-sdk-sidecar-host`  
 **Created**: 2025-12-16  
-**Status**: Draft  
+**Completed**: 2025-12-16  
+**Status**: ✅ Complete (PoC)  
 **Input**: User description: "SDK Sidecar Host Convention (FG08) - Auto-derive sidecar host from SERVICE_NAME"
 
 ## Problem Statement

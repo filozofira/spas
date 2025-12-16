@@ -18,7 +18,9 @@ import type {
   ConfigError,
   ConfigSummary,
   ServiceSummarySidecar,
+  ServiceMetadata,
 } from "../types.js";
+import { deriveCloudEventsType } from "../utils/event-type.js";
 
 /**
  * Service for generating sidecar configuration files from choreography
@@ -78,6 +80,8 @@ export class SidecarConfigGenerator {
 
   /**
    * Build outbound entries for a service from all flows
+   * T018: Include eventType field
+   * T019: Derive eventType using CloudEvents utility
    *
    * @param choreography - Parsed choreography configuration
    * @param serviceName - Service to extract outbound entries for
@@ -90,6 +94,9 @@ export class SidecarConfigGenerator {
     const entries: OutboundEntry[] = [];
     const seenTopics = new Set<string>();
 
+    // T020: Load service metadata for boundedContext
+    const metadata = this.loadServiceMetadata(serviceName);
+
     for (const flow of Object.values(choreography.flows)) {
       for (const eventRoute of flow.events) {
         // Service is the source → outbound
@@ -97,7 +104,18 @@ export class SidecarConfigGenerator {
           // Deduplicate by topic
           if (!seenTopics.has(eventRoute.topic)) {
             seenTopics.add(eventRoute.topic);
-            entries.push({ topic: eventRoute.topic });
+
+            const entry: OutboundEntry = { topic: eventRoute.topic };
+
+            // T019: Derive eventType from boundedContext and event name
+            if (metadata?.boundedContext && eventRoute.event) {
+              entry.eventType = deriveCloudEventsType(
+                metadata.boundedContext,
+                eventRoute.event,
+              );
+            }
+
+            entries.push(entry);
           }
         }
       }
@@ -156,26 +174,22 @@ export class SidecarConfigGenerator {
 
   /**
    * Resolve transformation path for sidecar config
+   * T021: Keep full path with service folder - sidecar mounts at workspace root
    *
-   * Converts workspace-relative path to sidecar mount-relative path
-   * e.g., "transformations/fulfillment-service/inbound-order.jsonata"
-   *    → "transformations/inbound-order.jsonata"
+   * The sidecar mounts ./transformations:/app/transformations at the container level.
+   * The docker-compose mounts the full transformations directory, so paths should
+   * preserve the full structure including service folder.
    *
    * @param workspacePath - Path relative to workspace root
-   * @param serviceName - Service name for context
-   * @returns Path relative to sidecar /app/transformations mount
+   * @param _serviceName - Service name (unused, kept for backwards compatibility)
+   * @returns Path as-is (full path preserved)
    */
   private resolveTransformPath(
     workspacePath: string,
-    serviceName: string,
+    _serviceName: string,
   ): string {
-    // The sidecar mounts ./transformations/{service}:/app/transformations
-    // So we strip the service folder prefix from the path
-    const prefix = `transformations/${serviceName}/`;
-    if (workspacePath.startsWith(prefix)) {
-      return `transformations/${workspacePath.substring(prefix.length)}`;
-    }
-    // Fallback: return as-is if pattern doesn't match
+    // T021: Return path as-is - docker-compose mounts full transformations directory
+    // e.g., "transformations/fulfillment-service/inbound-order.jsonata" stays the same
     return workspacePath;
   }
 
@@ -227,5 +241,32 @@ export class SidecarConfigGenerator {
     }
 
     return errors;
+  }
+
+  /**
+   * Load service metadata from spas.json
+   * T020: Helper to read service metadata for boundedContext
+   *
+   * @param serviceName - Name of the service to load metadata for
+   * @returns ServiceMetadata or null if not found
+   */
+  private loadServiceMetadata(serviceName: string): ServiceMetadata | null {
+    const metadataPath = path.join(
+      this.workspacePath,
+      "services",
+      serviceName,
+      "spas.json",
+    );
+
+    try {
+      if (fs.existsSync(metadataPath)) {
+        const content = fs.readFileSync(metadataPath, "utf-8");
+        return JSON.parse(content) as ServiceMetadata;
+      }
+    } catch {
+      // Silently ignore parse errors - return null
+    }
+
+    return null;
   }
 }

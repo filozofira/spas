@@ -43,14 +43,22 @@ Initialize a new domain workspace with recommended folder structure.
 - `<workspace-name>` - Name of the domain workspace (lowercase, hyphen-separated)
 
 **Options:**
-- `--force` - Overwrite existing workspace
+- `-o, --output <path>` - Output directory for domain workspace (default: current directory)
+- `-f, --force` - Overwrite existing workspace
 - `--json` - Output result as JSON
+- `--verbose` - Enable verbose output
 
-**Example:**
+**Examples:**
 
 ```bash
+# Create domain in current directory
 spas-compose init e-commerce-domain
 cd e-commerce-domain
+
+# Create domain in a specific directory
+spas-compose init public --output ./examples/domains
+
+# This creates ./examples/domains/public/choreography.yaml
 ```
 
 **Output:**
@@ -60,8 +68,28 @@ e-commerce-domain/
 ├── README.md                          # Workspace documentation
 ├── choreography.yaml                  # Choreography configuration (scaffold)
 ├── services/                          # Pulled service metadata
-└── transformations/                   # JSONata transformation files
+├── transformations/                   # JSONata transformation files
+└── .spas/
+    └── schemas/
+        └── sidecar-config-v1.schema.json  # Sidecar config schema for AI
 ```
+
+**Agent File Placement:**
+
+The `init` command also creates AI agent files at the git repository root:
+
+```
+<project-root>/
+├── .github/
+│   ├── agents/
+│   │   └── spas.compose.agent.md      # AI agent instructions
+│   └── prompts/
+│       └── spas-compose.prompt.md     # Agent trigger file
+└── <domain>/
+    └── ...
+```
+
+When using `--output`, the CLI detects the git repository root and places agent files there. If not in a git repository, agent files are placed in the parent of the output directory.
 
 ---
 

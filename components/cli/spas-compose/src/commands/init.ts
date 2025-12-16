@@ -5,9 +5,11 @@
  */
 
 import { Command } from "commander";
+import { join, resolve } from "path";
 import type { InitOptions, CommandResult } from "../types.js";
 import { WorkspaceService } from "../services/workspace-service.js";
 import { resolveWorkspacePath, isValidWorkspaceName } from "../utils/config.js";
+import { findGitRoot } from "../utils/git.js";
 import {
   success,
   error,
@@ -41,9 +43,27 @@ async function executeInit(
     };
   }
 
-  // Resolve full path
-  const workspacePath = resolveWorkspacePath(workspaceName);
+  // Resolve workspace path based on --output option
+  let workspacePath: string;
+  if (options.output) {
+    // Use specified output directory
+    const outputDir = resolve(options.output);
+    workspacePath = join(outputDir, workspaceName);
+    verbose(`Using custom output directory: ${outputDir}`, options.verbose);
+  } else {
+    // Default: current working directory
+    workspacePath = resolveWorkspacePath(workspaceName);
+  }
   verbose(`Resolved workspace path: ${workspacePath}`, options.verbose);
+
+  // Find git root for agent file placement
+  // Start search from output directory or current directory
+  const searchStart = options.output ? resolve(options.output) : process.cwd();
+  const projectRoot = findGitRoot(searchStart);
+  verbose(
+    `Project root (git): ${projectRoot ?? "not found (will use workspace parent)"}`,
+    options.verbose,
+  );
 
   // Create workspace
   verbose(
@@ -54,6 +74,7 @@ async function executeInit(
     workspacePath,
     workspaceName,
     options.force ?? false,
+    projectRoot ?? undefined,
   );
 
   return result;
@@ -97,6 +118,7 @@ export function createInitCommand(): Command {
       "<workspace-name>",
       "Name of the domain workspace (lowercase, hyphen-separated)",
     )
+    .option("-o, --output <path>", "Output directory for domain workspace (default: current directory)")
     .option("-f, --force", "Overwrite existing workspace", false)
     .option("--json", "Output result as JSON", false)
     .option("--verbose", "Enable verbose output", false)

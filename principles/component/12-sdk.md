@@ -55,6 +55,19 @@ SDK Responsibilities:
 - Propagate context through handler execution
 - Include context in logs and any outbound events/calls
 
+### Event Name Normalization
+
+SDKs MUST normalize event names to **kebab-case** when writing to `spas.json`:
+
+| Language | Native Convention | spas.json Output |
+|----------|-------------------|------------------|
+| C#       | `[SpasEvent("OrderCreated")]` | `order-created` |
+| Python   | `@spas_event("order_created")` | `order-created` |
+| Go       | `SpasEvent{Name: "OrderCreated"}` | `order-created` |
+| Java     | `@SpasEvent("OrderCreated")` | `order-created` |
+
+This ensures choreography authors work with a single consistent format regardless of service implementation language.
+
 ## Future Capabilities (Production)
 
 ## Design Constraints

@@ -240,6 +240,8 @@ Auto-generated from all feature plans. Last updated: 2025-12-12
 - Redis Streams (message broker) (007-spas-sidecar)
 - TypeScript 5.3, Node.js 20+ + Commander.js (CLI), js-yaml (YAML generation) (008-compose-backbone-args)
 - N/A (generates files) (008-compose-backbone-args)
+- TypeScript 5.3 (Node.js 20+) + Commander 11.x, js-yaml 4.x, jsonata 2.x, axios 1.x (009-compose-generator-fixes)
+- Filesystem (reading/writing config files) (009-compose-generator-fixes)
 
 - .NET 10 (target net10.0); Microsoft.Extensions.Logging; System.Text.Json (001-dotnet-spas-sdk)
 

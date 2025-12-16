@@ -153,7 +153,7 @@ describe("WorkspaceService", () => {
         tempDir,
         ".github",
         "agents",
-        "spas-compose.agent.md",
+        "spas.compose.agent.md",
       );
       expect(fs.existsSync(agentPath)).toBe(true);
       const content = fs.readFileSync(agentPath, "utf-8");
@@ -201,6 +201,70 @@ describe("WorkspaceService", () => {
       expect(schema.title).toBe("SPAS Sidecar Configuration");
       expect(schema.properties).toHaveProperty("inbound");
       expect(schema.properties).toHaveProperty("outbound");
+    });
+
+    it("should place agent file relative to project root, not workspace", async () => {
+      // Arrange - Create a project structure like:
+      // project-root/
+      //   ├── .git/
+      //   └── domains/
+      //       └── my-domain/
+      const projectRoot = fs.mkdtempSync(path.join(os.tmpdir(), "spas-project-"));
+      const domainsDir = path.join(projectRoot, "domains");
+      const domainPath = path.join(domainsDir, testWorkspaceName);
+      
+      // Create .git to simulate git repo root
+      fs.mkdirSync(path.join(projectRoot, ".git"), { recursive: true });
+      fs.mkdirSync(domainsDir, { recursive: true });
+
+      const service = new WorkspaceService();
+
+      // Act - Pass project root separately
+      await service.create(domainPath, testWorkspaceName, false, projectRoot);
+
+      // Assert - Agent file should be at project root, not workspace parent
+      const agentPath = path.join(
+        projectRoot,
+        ".github",
+        "agents",
+        "spas.compose.agent.md",
+      );
+      expect(fs.existsSync(agentPath)).toBe(true);
+
+      // Clean up
+      fs.rmSync(projectRoot, { recursive: true, force: true });
+    });
+
+    it("should use relative path in agent file references", async () => {
+      // Arrange
+      const projectRoot = fs.mkdtempSync(path.join(os.tmpdir(), "spas-project-"));
+      const domainsDir = path.join(projectRoot, "domains");
+      const domainPath = path.join(domainsDir, testWorkspaceName);
+      
+      fs.mkdirSync(path.join(projectRoot, ".git"), { recursive: true });
+      fs.mkdirSync(domainsDir, { recursive: true });
+
+      const service = new WorkspaceService();
+
+      // Act
+      await service.create(domainPath, testWorkspaceName, false, projectRoot);
+
+      // Assert - Agent file should contain relative paths to domain
+      const agentPath = path.join(
+        projectRoot,
+        ".github",
+        "agents",
+        "spas.compose.agent.md",
+      );
+      const content = fs.readFileSync(agentPath, "utf-8");
+      
+      // Should reference domain files using relative path from project root
+      expect(content).toContain("domains/my-domain");
+      // Should NOT contain hardcoded paths or SPAS principles references
+      expect(content).not.toContain("principles/component/14-domain-choreography.md");
+
+      // Clean up
+      fs.rmSync(projectRoot, { recursive: true, force: true });
     });
   });
 

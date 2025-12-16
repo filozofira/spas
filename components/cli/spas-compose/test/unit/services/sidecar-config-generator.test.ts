@@ -261,9 +261,9 @@ describe("SidecarConfigGenerator", () => {
         "fulfillment-service",
       );
 
-      // Assert
+      // Assert - T021: Keep full path with service folder
       expect(entries[0].transform).toBe(
-        "transformations/inbound-order-created.jsonata",
+        "transformations/fulfillment-service/inbound-order-created.jsonata",
       );
     });
 
@@ -742,6 +742,121 @@ describe("SidecarConfigGenerator", () => {
       expect(result.configs["service-a"]).toBeDefined();
       expect(result.configs["service-a"].inbound).toEqual([]);
       expect(result.configs["service-a"].outbound).toEqual([]);
+    });
+  });
+
+  // ==========================================================================
+  // T016, T017: CloudEvents eventType and transform path tests (Spec 009)
+  // ==========================================================================
+
+  describe("eventType generation (T016)", () => {
+    it("should include eventType in outbound entries with full CloudEvents format", () => {
+      // Arrange
+      const servicesDir = path.join(workspacePath, "services", "order-service");
+      fs.mkdirSync(servicesDir, { recursive: true });
+      fs.writeFileSync(
+        path.join(servicesDir, "spas.json"),
+        JSON.stringify({
+          id: "order-service",
+          version: "1.0.0",
+          boundedContext: "order",
+        }),
+      );
+      const generator = new SidecarConfigGenerator(workspacePath);
+
+      // Act
+      const result = generator.generate(sampleChoreography);
+
+      // Assert - kebab-case format matches SDK: com.{context}.{event-kebab}
+      expect(result.configs["order-service"].outbound[0].eventType).toBe(
+        "com.order.order-created",
+      );
+    });
+
+    it("should derive eventType from boundedContext and event name", () => {
+      // Arrange
+      const servicesDir = path.join(workspacePath, "services", "order-service");
+      fs.mkdirSync(servicesDir, { recursive: true });
+      fs.writeFileSync(
+        path.join(servicesDir, "spas.json"),
+        JSON.stringify({
+          id: "order-service",
+          version: "1.0.0",
+          boundedContext: "e-commerce",
+        }),
+      );
+      const generator = new SidecarConfigGenerator(workspacePath);
+
+      // Act
+      const result = generator.generate(sampleChoreography);
+
+      // Assert - hyphenated context preserved, event name kebab-case
+      expect(result.configs["order-service"].outbound[0].eventType).toBe(
+        "com.e-commerce.order-created",
+      );
+    });
+
+    it("should leave eventType undefined if service metadata not found", () => {
+      // Arrange - no spas.json for order-service
+      const generator = new SidecarConfigGenerator(workspacePath);
+
+      // Act
+      const result = generator.generate(sampleChoreography);
+
+      // Assert
+      expect(
+        result.configs["order-service"].outbound[0].eventType,
+      ).toBeUndefined();
+    });
+  });
+
+  describe("transform path resolution (T017)", () => {
+    it("should keep full path with service folder for sidecar mount", () => {
+      // Arrange
+      const generator = new SidecarConfigGenerator(workspacePath);
+
+      // Act
+      const result = generator.generate(sampleChoreography);
+
+      // Assert - should keep full path: transformations/fulfillment-service/inbound-order-created.jsonata
+      expect(result.configs["fulfillment-service"].inbound[0].transform).toBe(
+        "transformations/fulfillment-service/inbound-order-created.jsonata",
+      );
+    });
+
+    it("should preserve absolute transform path from choreography", () => {
+      // Arrange
+      const generator = new SidecarConfigGenerator(workspacePath);
+      const choreographyWithPath: Choreography = {
+        version: "1.0",
+        domain: "test",
+        flows: {
+          flow1: {
+            participants: ["svc-a", "svc-b"],
+            events: [
+              {
+                source: "svc-a",
+                event: "TestEvent",
+                topic: "test-topic",
+                targets: [
+                  {
+                    service: "svc-b",
+                    transform: "transformations/svc-b/custom-transform.jsonata",
+                  },
+                ],
+              },
+            ],
+          },
+        },
+      };
+
+      // Act
+      const result = generator.generate(choreographyWithPath);
+
+      // Assert - path should be preserved exactly
+      expect(result.configs["svc-b"].inbound[0].transform).toBe(
+        "transformations/svc-b/custom-transform.jsonata",
+      );
     });
   });
 });

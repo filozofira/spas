@@ -127,6 +127,23 @@ export interface ServiceMetadata {
     port: number;
     protocol: string;
   };
+  /** Runtime metadata (from repository pull) - T001 */
+  runtime?: RuntimeMetadata;
+}
+
+/**
+ * Runtime Metadata
+ * Container image information from service publish
+ */
+export interface RuntimeMetadata {
+  /** Image repository (e.g., "spas-examples/order-service") */
+  repository: string;
+  /** Image tag (e.g., "1.0.0") */
+  tag: string;
+  /** SHA256 digest (optional) */
+  digest?: string;
+  /** Full image reference with digest (optional) */
+  image?: string;
 }
 
 /**
@@ -186,6 +203,8 @@ export interface CommonOptions {
 export interface InitOptions extends CommonOptions {
   /** Overwrite existing workspace */
   force?: boolean;
+  /** Output directory for domain workspace (default: current directory) - T004 */
+  output?: string;
 }
 
 /**
@@ -286,6 +305,8 @@ export interface InboundEntry {
  * Sidecar transforms and publishes to topic.
  */
 export interface OutboundEntry {
+  /** CloudEvents type (e.g., "com.order.order.created") - T002 */
+  eventType?: string;
   /** Topic name for published events */
   topic: string;
   /** Path to JSONata transformation file, relative to sidecar /app/transformations mount */
@@ -401,3 +422,32 @@ export interface BackboneConfig {
   eventBackbone: EventBackboneConfig;
   observabilityBackbone: ObservabilityBackboneConfig;
 }
+
+// =============================================================================
+// Generator Configuration Types - T003
+// =============================================================================
+
+/**
+ * Configuration for Docker Compose and sidecar config generation
+ * Defines port and image defaults
+ */
+export interface GeneratorConfig {
+  /** Internal port for .NET service containers (default: 8080) */
+  serviceInternalPort: number;
+  /** Standard sidecar port (default: 7001) */
+  sidecarPort: number;
+  /** Sidecar image reference (default: "spas/sidecar:latest") */
+  sidecarImage: string;
+  /** Default endpoint for inbound events (default: "/incoming") */
+  defaultInvokeEndpoint: string;
+}
+
+/**
+ * Default generator configuration
+ */
+export const DEFAULT_GENERATOR_CONFIG: GeneratorConfig = {
+  serviceInternalPort: 8080,
+  sidecarPort: 7001,
+  sidecarImage: "spas/sidecar:latest",
+  defaultInvokeEndpoint: "/incoming",
+};

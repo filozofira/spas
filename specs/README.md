@@ -12,3 +12,4 @@ This folder contains spec files used by [GitHub SpecKit](https://github.com/gith
 - [006-sidecar-config-generator](./006-sidecar-config-generator/spec.md) - Sidecar config file generation for spas-compose
 - [007-spas-sidecar](./007-spas-sidecar/spec.md) - SPAS Sidecar PoC
 - [008-compose-backbone-args](./008-compose-backbone-args/spec.md) - SPAS CLI compose enhancement to specify redis and zipkin backbones
+- [009-compose-generator-fixes](./009-compose-generator-fixes/spec.md) - Fix spas-compose CLI generator bugs (FG01, FG05, FG06, FG07)

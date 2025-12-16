@@ -47,6 +47,10 @@ SPAS is an architectural framework where:
 - **Sidecar integration**: Publishes to sidecar via HTTP POST; sidecar wraps in CloudEvents
 - **Topic routing**: Sidecar handles topic routing based on event type configuration
 - **Trace propagation**: W3C Trace Context flows through entire event chain
+- **Event naming**: SDK normalizes event names to **kebab-case** in `spas.json` for cross-language interoperability
+  - `[SpasEvent("OrderCreated")]` → stored as `order-created` in spas.json
+  - CloudEvents type: `com.{service-name}.{event-name-kebab}` (e.g., `com.order-service.order-created`)
+  - Other SDKs (Python, Go, etc.) normalize their native conventions to the same kebab-case format
 
 ### 📊 Observability
 

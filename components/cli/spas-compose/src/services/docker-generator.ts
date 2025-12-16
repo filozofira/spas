@@ -11,7 +11,9 @@ import type {
   BackboneConfig,
   EventBackboneConfig,
   ObservabilityBackboneConfig,
+  GeneratorConfig,
 } from "../types.js";
+import { DEFAULT_GENERATOR_CONFIG } from "../types.js";
 import { BackboneNormalizer } from "./backbone-normalizer.js";
 
 /**
@@ -71,11 +73,16 @@ export class DockerGenerator {
   private readonly servicesPath: string;
   private readonly workspaceName: string;
   private readonly backboneNormalizer: BackboneNormalizer;
+  private readonly generatorConfig: GeneratorConfig;
 
-  constructor(private readonly workspacePath: string) {
+  constructor(
+    private readonly workspacePath: string,
+    generatorConfig?: Partial<GeneratorConfig>,
+  ) {
     this.servicesPath = path.join(workspacePath, "services");
     this.workspaceName = path.basename(workspacePath);
     this.backboneNormalizer = new BackboneNormalizer();
+    this.generatorConfig = { ...DEFAULT_GENERATOR_CONFIG, ...generatorConfig };
   }
 
   /**
@@ -113,7 +120,8 @@ export class DockerGenerator {
       for (const serviceName of participants) {
         const metadata = this.loadServiceMetadata(serviceName);
         const servicePort = metadata?.network?.port || 5001 + portOffset;
-        const sidecarPort = 7001 + portOffset;
+        // Use fixed sidecar port from generator config (T014)
+        const sidecarPort = this.generatorConfig.sidecarPort;
 
         // Generate application service
         compose.services[serviceName] = this.generateService(
@@ -121,6 +129,7 @@ export class DockerGenerator {
           servicePort,
           sidecarPort,
           config.observabilityBackbone,
+          metadata,
         );
 
         // Generate sidecar service
@@ -216,34 +225,59 @@ export class DockerGenerator {
 
   /**
    * Generate application service definition
+   * T009: Use image: from runtime metadata
+   * T010: Use port 8080 as internal port
+   * T011: Add SERVICE_NAME and SIDECAR_PORT=7001
+   * T015: Log warning when service has no runtime metadata
    */
   private generateService(
     serviceName: string,
     servicePort: number,
     sidecarPort: number,
     observabilityConfig: ObservabilityBackboneConfig,
+    metadata?: ServiceMetadata | null,
   ): DockerService {
     // Use env var substitution when observability is disabled
     const zipkinUrl = observabilityConfig.enabled
       ? `http://${observabilityConfig.containerName.replace("spas-", "")}:${observabilityConfig.ports.find((p) => p.container === 9411)?.container || 9411}`
       : "${ZIPKIN_URL}";
 
-    return {
-      build: `./${serviceName}`,
+    // T010: Use fixed internal port from generator config
+    const internalPort = this.generatorConfig.serviceInternalPort;
+
+    const service: DockerService = {
       container_name: `spas-${serviceName}`,
-      ports: [`${servicePort}:${servicePort}`],
+      ports: [`${servicePort}:${internalPort}`],
       environment: [
         `SERVICE_NAME=${serviceName}`,
         `SIDECAR_PORT=${sidecarPort}`,
-        `PORT=${servicePort}`,
+        `PORT=${internalPort}`,
         `ZIPKIN_URL=${zipkinUrl}`,
       ],
       networks: ["spas-network"],
     };
+
+    // T009: Use image: from runtime metadata when available
+    if (metadata?.runtime) {
+      const { repository, tag, image } = metadata.runtime;
+      // Prefer full image reference if available, otherwise construct from repo:tag
+      service.image = image || `${repository}:${tag}`;
+    } else {
+      // T015: Fallback to build directive with warning
+      console.warn(
+        `[WARN] Service '${serviceName}' has no runtime metadata. Using build directive instead of image.`,
+      );
+      service.build = `./${serviceName}`;
+    }
+
+    return service;
   }
 
   /**
    * Generate sidecar service definition
+   * T012: Use image: spas/sidecar:latest
+   * T013: Use SIDECAR_PORT env var instead of PORT
+   * T014: Use fixed port 7001
    */
   private generateSidecar(
     serviceName: string,
@@ -286,10 +320,12 @@ export class DockerGenerator {
     }
 
     const service: DockerService = {
-      build: "./spas-sidecar",
+      // T012: Use image reference instead of build directive
+      image: this.generatorConfig.sidecarImage,
       container_name: `${serviceName}-sidecar`,
       environment: [
-        `PORT=${sidecarPort}`,
+        // T013: Use SIDECAR_PORT instead of PORT
+        `SIDECAR_PORT=${sidecarPort}`,
         `CONFIG_PATH=/app/config.json`,
         `SERVICE_NAME=${serviceName}`,
         `ZIPKIN_URL=${zipkinUrl}`,

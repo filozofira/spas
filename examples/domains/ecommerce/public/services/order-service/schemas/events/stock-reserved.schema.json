@@ -1,6 +1,6 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "title": "OrderCreatedEvent",
+  "title": "StockReservedEvent",
   "type": "object",
   "additionalProperties": false,
   "properties": {
@@ -8,26 +8,19 @@
       "type": "string",
       "format": "guid"
     },
-    "customerId": {
-      "type": "string"
-    },
-    "items": {
+    "reservedItems": {
       "type": "array",
       "items": {
-        "$ref": "#/definitions/OrderItem"
+        "$ref": "#/definitions/ReservedItem"
       }
     },
-    "total": {
-      "type": "number",
-      "format": "decimal"
-    },
-    "createdAt": {
+    "reservedAt": {
       "type": "string",
       "format": "date-time"
     }
   },
   "definitions": {
-    "OrderItem": {
+    "ReservedItem": {
       "type": "object",
       "additionalProperties": false,
       "properties": {
@@ -37,10 +30,6 @@
         "quantity": {
           "type": "integer",
           "format": "int32"
-        },
-        "price": {
-          "type": "number",
-          "format": "decimal"
         }
       }
     }

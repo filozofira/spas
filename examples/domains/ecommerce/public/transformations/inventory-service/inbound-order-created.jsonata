@@ -1,11 +1,15 @@
-/* Transform OrderCreated → inventory-service format */
-/* Source: order-service.OrderCreated */
-/* Target: inventory-service stock reservation */
-/* Pass through all fields needed by OrderCreatedEvent record */
+/* inbound-order-created.jsonata */
+/* Transforms order-created (order-service) → inventory-service format */
+/* Source: order-service.order-created */
+/* Target: inventory-service */
 {
-  "orderId": data.orderId,
-  "customerId": data.customerId,
-  "items": data.items,
-  "total": data.total,
-  "createdAt": data.createdAt
+  "orderId": orderId,
+  "customerId": customerId,
+  "items": $append([], items.{
+    "productId": productId,
+    "quantity": quantity,
+    "price": price
+  }),
+  "total": total,
+  "createdAt": createdAt
 }

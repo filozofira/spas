@@ -1,6 +1,8 @@
 using NJsonSchema;
+using NJsonSchema.Generation;
 using System.Reflection;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using Spas.Sdk.Metadata.Attributes;
 
 namespace Spas.Sdk.Metadata.Schema;
@@ -69,11 +71,23 @@ public class SchemaGenerator
     /// <summary>
     /// Generates JSON Schema and converts $schema to draft-07 for SPAS compliance (ADR-039).
     /// Returns the schema as a JSON string per ADR-039 (JSON Schema draft-07 standard).
+    /// Uses camelCase property names to match runtime JSON serialization.
     /// </summary>
     private async Task<object> GenerateSchemaWithDraft07Async(Type type)
     {
-        // Generate schema using NJsonSchema (produces draft-04)
-        var schema = JsonSchema.FromType(type);
+        // Configure NJsonSchema to use camelCase property names
+        // This matches the runtime serialization behavior (System.Text.Json with CamelCase policy)
+        var settings = new SystemTextJsonSchemaGeneratorSettings
+        {
+            SerializerOptions = new JsonSerializerOptions
+            {
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+                DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
+            }
+        };
+        
+        // Generate schema using NJsonSchema with camelCase settings
+        var schema = JsonSchema.FromType(type, settings);
         var schemaJson = schema.ToJson();
         
         // Parse schema JSON and replace $schema value with draft-07

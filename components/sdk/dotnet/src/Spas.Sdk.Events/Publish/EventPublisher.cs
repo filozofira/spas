@@ -10,13 +10,13 @@ namespace Spas.Sdk.Events.Publish;
 /// <summary>
 /// Publishes events to the SPAS sidecar via HTTP.
 /// The SDK sends only the payload and metadata via headers.
-/// The sidecar wraps the payload in CloudEvents 1.0 format and routes to the appropriate topic based on event type.
+/// The sidecar wraps the payload in CloudEvents 1.0 format and routes to the appropriate topic based on event name.
 /// </summary>
 /// <remarks>
 /// Headers sent to sidecar (used by sidecar to construct CloudEvents envelope and route events):
 /// - traceparent: W3C Trace Context (format: 00-{trace-id}-{span-id}-{flags})
 /// - x-service-name: Source service name (maps to CloudEvents 'source')
-/// - x-event-type: Event type (maps to CloudEvents 'type' - typically reverse-DNS format; sidecar uses for topic routing)
+/// - x-event-name: Short kebab-case event name (sidecar constructs full CloudEvents 'type' as com.{service-name}.{event-name})
 /// - x-correlation-id: Correlation ID for event chain correlation
 /// - x-user-id: Optional user identity claim
 /// - x-tenant-id: Optional tenant identity claim
@@ -50,18 +50,18 @@ public class EventPublisher
 
     /// <summary>
     /// Publishes an event payload to the sidecar for wrapping and forwarding to the event bus.
-    /// The sidecar determines topic routing based on the event type.
+    /// The sidecar constructs the full CloudEvents type from service name and event name.
     /// </summary>
-    /// <param name="eventType">The CloudEvents type value (typically reverse-DNS format, e.g., com.example.order.created).</param>
+    /// <param name="eventName">Short kebab-case event name (e.g., "order-created"). Sidecar constructs full type as com.{service-name}.{event-name}.</param>
     /// <param name="payload">The event payload (business data) to publish.</param>
     /// <returns>A task representing the asynchronous publish operation.</returns>
-    /// <exception cref="ArgumentNullException">Thrown when eventType or payload is null.</exception>
+    /// <exception cref="ArgumentNullException">Thrown when eventName or payload is null.</exception>
     /// <exception cref="HttpRequestException">Thrown when the sidecar returns an error response.</exception>
-    public async Task PublishAsync(string eventType, object payload)
+    public async Task PublishAsync(string eventName, object payload)
     {
-        if (eventType == null)
+        if (eventName == null)
         {
-            throw new ArgumentNullException(nameof(eventType));
+            throw new ArgumentNullException(nameof(eventName));
         }
 
         if (payload == null)
@@ -81,8 +81,8 @@ public class EventPublisher
         // Service name - sidecar uses for CloudEvents 'source' field
         request.Headers.Add("x-service-name", _serviceName);
 
-        // Event type - sidecar uses for CloudEvents 'type' field
-        request.Headers.Add("x-event-type", eventType);
+        // Event name - sidecar constructs full CloudEvents 'type' field as com.{service-name}.{event-name}
+        request.Headers.Add("x-event-name", eventName);
 
         // Correlation ID - sidecar includes in CloudEvents 'correlationid' extension
         var correlationId = SpasContext.CorrelationId ?? Guid.NewGuid().ToString();
@@ -108,8 +108,8 @@ public class EventPublisher
     }
 
     /// <summary>
-    /// Publishes an event payload to the sidecar, deriving the event type from the <see cref="SpasEventAttribute"/> on <typeparamref name="TEvent"/>.
-    /// The sidecar determines topic routing based on the event type.
+    /// Publishes an event payload to the sidecar, deriving the event name from the <see cref="SpasEventAttribute"/> on <typeparamref name="TEvent"/>.
+    /// The sidecar constructs the full CloudEvents type from service name and event name.
     /// </summary>
     /// <typeparam name="TEvent">The event type decorated with <see cref="SpasEventAttribute"/>.</typeparam>
     /// <param name="payload">The event payload (business data) to publish.</param>
@@ -132,18 +132,12 @@ public class EventPublisher
                 $"Type {typeof(TEvent).Name} must be decorated with [SpasEvent] attribute to use generic PublishAsync.");
         }
 
-        // Derive event type: use explicit EventType if set, otherwise auto-generate
-        var eventType = eventAttribute.EventType;
-        if (string.IsNullOrEmpty(eventType))
-        {
-            // Auto-generate: com.{service-name}.{event-name-kebab}
-            // Example: "OrderCreated" -> "com.sample-service.order-created"
-            var eventName = ConvertToKebabCase(eventAttribute.Name);
-            eventType = $"com.{_serviceName}.{eventName}";
-        }
+        // Derive event name: convert PascalCase attribute Name to kebab-case
+        // Example: "OrderCreated" -> "order-created"
+        var eventName = ConvertToKebabCase(eventAttribute.Name);
 
-        // Delegate to the existing PublishAsync method
-        await PublishAsync(eventType, payload);
+        // Delegate to the existing PublishAsync method (sidecar constructs full type)
+        await PublishAsync(eventName, payload);
     }
 
     /// <summary>

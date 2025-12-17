@@ -1,36 +1,37 @@
 # SPAS Choreography Configuration
-# E-Commerce Public Domain - Order Fulfillment Flow
+# See: specs/005-spas-compose-cli/contracts/choreography-schema.yaml
 
 version: "1.0"
 domain: public
 
 # Named choreography flows
+# Use /spas.compose agent to generate flows based on service contracts
 flows:
   order-fulfillment:
-    description: "Order creation triggers inventory reservation, confirmation flows back"
+    description: "Order placement triggers inventory reservation"
     participants:
       - order-service
       - inventory-service
     events:
-      # Order created → Inventory reserves stock
       - source: order-service
-        event: OrderCreated
-        topic: orders-created
+        event: order-created
+        topic: orders
         targets:
           - service: inventory-service
             transform: transformations/inventory-service/inbound-order-created.jsonata
-
-      # Stock reserved → Order confirmed
       - source: inventory-service
-        event: StockReserved
-        topic: stock-reserved
+        event: stock-reserved
+        topic: inventory
         targets:
           - service: order-service
             transform: transformations/order-service/inbound-stock-reserved.jsonata
 
-# Infrastructure components
+# Infrastructure components (optional)
 infrastructure:
   redis:
     enabled: true
+    # host: redis
+    # port: 6379
   zipkin:
     enabled: true
+    # url: http://zipkin:9411

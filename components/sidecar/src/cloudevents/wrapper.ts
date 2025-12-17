@@ -9,6 +9,39 @@ import { v4 as uuid } from 'uuid';
 import type { CloudEvent, PublishHeaders } from '../types.js';
 
 /**
+ * Construct full CloudEvents type from service name and event name.
+ * Format: com.{service-name}.{event-name-kebab}
+ *
+ * @param serviceName - Service name from x-service-name header
+ * @param eventName - Short event name from x-event-name header (kebab-case)
+ * @returns Full CloudEvents type string
+ */
+export function constructCloudEventsType(
+  serviceName: string,
+  eventName: string
+): string {
+  return `com.${serviceName}.${eventName}`;
+}
+
+/**
+ * Resolve the CloudEvents type from headers.
+ * Priority: x-event-name (construct) > x-event-type (legacy passthrough)
+ *
+ * @param headers - Publish request headers
+ * @returns Resolved CloudEvents type string
+ * @throws Error if neither eventName nor eventType is present
+ */
+export function resolveEventType(headers: PublishHeaders): string {
+  if (headers.eventName) {
+    return constructCloudEventsType(headers.serviceName, headers.eventName);
+  }
+  if (headers.eventType) {
+    return headers.eventType;
+  }
+  throw new Error('Either x-event-name or x-event-type header is required');
+}
+
+/**
  * Wrap a payload in a CloudEvents 1.0 envelope.
  *
  * @param payload - Event data payload
@@ -21,9 +54,11 @@ export function wrapCloudEvent<T = unknown>(
   topic: string,
   headers: PublishHeaders
 ): CloudEvent<T> {
+  const eventType = resolveEventType(headers);
+  
   return {
     specversion: '1.0',
-    type: headers.eventType,
+    type: eventType,
     source: headers.serviceName,
     subject: topic,
     id: uuid(),

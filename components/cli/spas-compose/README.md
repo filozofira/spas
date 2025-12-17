@@ -84,12 +84,24 @@ The `init` command also creates AI agent files at the git repository root:
 │   ├── agents/
 │   │   └── spas.compose.agent.md      # AI agent instructions
 │   └── prompts/
-│       └── spas-compose.prompt.md     # Agent trigger file
-└── <domain>/
-    └── ...
+│       └── spas.compose.prompt.md     # Agent trigger file
+└── <output-path>/
+    └── <domain>/
+        └── ...
 ```
 
-When using `--output`, the CLI detects the git repository root and places agent files there. If not in a git repository, agent files are placed in the parent of the output directory.
+When using `--output`, the CLI detects the git repository root and places agent files there. The agent supports **multiple domains** under the same output path using the `DOMAIN:` prefix:
+
+```bash
+# Create multiple domains under the same output path
+spas-compose init public --output ./examples/ecommerce
+spas-compose init internal --output ./examples/ecommerce
+spas-compose init partner --output ./examples/ecommerce
+
+# Use agent with DOMAIN: prefix to specify which domain to compose
+/spas.compose DOMAIN:public Analyze order-service
+/spas.compose DOMAIN:internal Review choreography
+```
 
 ---
 
@@ -231,20 +243,26 @@ Next steps:
 
 ## AI-Assisted Composition
 
-Use the `/spas.compose` agent prompt for semantic choreography composition:
+Use the `/spas.compose` agent prompt for semantic choreography composition. The `DOMAIN:` prefix specifies which domain workspace to operate on:
 
 ```
-/spas.compose Analyze order-service and fulfillment-service contracts.
+/spas.compose DOMAIN:public Analyze order-service and fulfillment-service contracts.
 Propose topic mappings and generate transformations.
+
+/spas.compose DOMAIN:internal Review choreography.yaml and identify missing transformations.
+
+/spas.compose DOMAIN:partner Add notification-service to order-fulfillment flow.
 ```
 
 The agent will:
-1. Parse service contracts from `services/*/spas.json`
+1. Parse service contracts from `<domain-root>/{DOMAIN}/services/*/spas.json`
 2. Propose event mappings and topic routes
 3. Generate JSONata transformation files
 4. Update `choreography.yaml` with validated configuration
 
-See [.github/agents/spas-compose.md](../../.github/agents/spas-compose.md) for full agent capabilities.
+**Note:** The `DOMAIN:` prefix is required. Without it, the agent will prompt for the domain name.
+
+See [.github/agents/spas.compose.agent.md](../../.github/agents/spas.compose.agent.md) for full agent capabilities.
 
 ---
 

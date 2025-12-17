@@ -38,7 +38,7 @@ flows:
       - fulfillment-service
     events:
       - source: order-service
-        event: OrderCreated
+        event: order-created
         topic: orders
         targets:
           - service: fulfillment-service
@@ -121,7 +121,7 @@ flows:
       - only-one-service
     events:
       - source: only-one-service
-        event: MyEvent
+        event: my-event
         topic: events
         targets:
           - service: other-service
@@ -158,7 +158,7 @@ flows:
       - fulfillment-service
     events:
       - source: order-service
-        event: OrderCreated
+        event: order-created
         topic: orders
         targets:
           - service: fulfillment-service

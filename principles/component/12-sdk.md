@@ -17,7 +17,8 @@ Events Boundary
 Event Publishing Contract (SDK → Sidecar)
 
 - **Transport**: HTTP POST to sidecar endpoint `/publish`
-- **Topic Resolution**: Sidecar uses `x-event-type` header to lookup target topic from routing configuration
+- **Type Construction**: Sidecar constructs full CloudEvents type from `x-service-name` and `x-event-name` headers
+- **Topic Resolution**: Sidecar uses constructed type to lookup target topic from routing configuration
 - **Payload**: Raw JSON domain data in HTTP body (NOT wrapped in CloudEvents)
 - **Metadata Propagation**: HTTP headers carry CloudEvents metadata for sidecar envelope construction
 
@@ -25,13 +26,15 @@ Required Headers:
 
 - `traceparent`: W3C Trace Context (format: `00-{trace-id}-{span-id}-{flags}`)
 - `x-service-name`: Source service name → maps to CloudEvents `source` field
-- `x-event-type`: Event type identifier → maps to CloudEvents `type` field (reverse-DNS format, e.g., `com.example.order.created`)
+- `x-event-name`: Short kebab-case event name (e.g., `order-created`) → sidecar constructs CloudEvents `type` as `com.{service-name}.{event-name}`
 - `x-correlation-id`: Correlation ID → maps to CloudEvents `correlationid` extension
 
 Optional Headers:
 
 - `x-user-id`: User identity claim → included in CloudEvents extensions
 - `x-tenant-id`: Tenant identity claim → included in CloudEvents extensions
+
+**Note**: The SDK sends only the short event name; the sidecar is responsible for constructing the full CloudEvents type. This simplifies SDK implementation and centralizes type format policy in the sidecar.
 
 Inbound Request Contract (Sidecar → SDK)
 
@@ -41,7 +44,7 @@ Inbound Request Contract (Sidecar → SDK)
 Required Headers:
 
 - `traceparent`: W3C Trace Context for distributed tracing continuity
-- `x-event-type`: Event type identifier from CloudEvents `type` field (for event-driven invocations)
+- `x-event-type`: Full CloudEvents type from CloudEvents `type` field (for event-driven invocations)
 - `x-correlation-id`: Correlation ID from originating CloudEvents message
 
 Optional Headers:

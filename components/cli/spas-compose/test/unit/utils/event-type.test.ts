@@ -64,53 +64,53 @@ describe("event-type utility", () => {
   });
 
   describe("deriveCloudEventsType", () => {
-    it("should derive correct type for order context", () => {
-      expect(deriveCloudEventsType("order", "OrderCreated")).toBe(
-        "com.order.order-created",
+    it("should derive correct type for order-service", () => {
+      expect(deriveCloudEventsType("order-service", "OrderCreated")).toBe(
+        "com.order-service.order-created",
       );
     });
 
-    it("should derive correct type for inventory context", () => {
-      expect(deriveCloudEventsType("inventory", "StockReserved")).toBe(
-        "com.inventory.stock-reserved",
+    it("should derive correct type for inventory-service", () => {
+      expect(deriveCloudEventsType("inventory-service", "StockReserved")).toBe(
+        "com.inventory-service.stock-reserved",
       );
     });
 
-    it("should handle hyphenated bounded context", () => {
+    it("should handle hyphenated service name", () => {
       expect(
-        deriveCloudEventsType("order-management", "OrderCreated"),
-      ).toBe("com.order-management.order-created");
+        deriveCloudEventsType("order-management-service", "OrderCreated"),
+      ).toBe("com.order-management-service.order-created");
     });
 
-    it("should handle uppercase bounded context", () => {
-      expect(deriveCloudEventsType("ORDER", "OrderCreated")).toBe(
-        "com.order.order-created",
+    it("should handle uppercase service name", () => {
+      expect(deriveCloudEventsType("ORDER-SERVICE", "OrderCreated")).toBe(
+        "com.order-service.order-created",
       );
     });
 
-    it("should throw error for empty boundedContext", () => {
+    it("should throw error for empty serviceName", () => {
       expect(() => deriveCloudEventsType("", "OrderCreated")).toThrow(
-        "Both boundedContext and eventName are required",
+        "Both serviceName and eventName are required",
       );
     });
 
     it("should throw error for empty eventName", () => {
-      expect(() => deriveCloudEventsType("order", "")).toThrow(
-        "Both boundedContext and eventName are required",
+      expect(() => deriveCloudEventsType("order-service", "")).toThrow(
+        "Both serviceName and eventName are required",
       );
     });
 
     it("should handle multi-word event name", () => {
       expect(
-        deriveCloudEventsType("fulfillment", "OrderShipmentPrepared"),
-      ).toBe("com.fulfillment.order-shipment-prepared");
+        deriveCloudEventsType("fulfillment-service", "OrderShipmentPrepared"),
+      ).toBe("com.fulfillment-service.order-shipment-prepared");
     });
 
     it("should handle already kebab-case event name from spas.json", () => {
       // spas.json uses kebab-case (normalized by SDK)
       expect(
-        deriveCloudEventsType("order", "order-created"),
-      ).toBe("com.order.order-created");
+        deriveCloudEventsType("order-service", "order-created"),
+      ).toBe("com.order-service.order-created");
     });
   });
 });

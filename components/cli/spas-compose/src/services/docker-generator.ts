@@ -122,6 +122,8 @@ export class DockerGenerator {
         const servicePort = metadata?.network?.port || 5001 + portOffset;
         // Use fixed sidecar port from generator config (T014)
         const sidecarPort = this.generatorConfig.sidecarPort;
+        // Use fixed internal port for sidecar to call service (inside Docker network)
+        const serviceInternalPort = this.generatorConfig.serviceInternalPort;
 
         // Generate application service
         compose.services[serviceName] = this.generateService(
@@ -132,10 +134,10 @@ export class DockerGenerator {
           metadata,
         );
 
-        // Generate sidecar service
+        // Generate sidecar service - use internal port, not external mapped port
         compose.services[`${serviceName}-sidecar`] = this.generateSidecar(
           serviceName,
-          servicePort,
+          serviceInternalPort,
           sidecarPort,
           config,
         );

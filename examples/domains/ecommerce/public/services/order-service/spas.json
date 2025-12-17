@@ -11,14 +11,19 @@
   "endpoints": [],
   "events": [
     {
-      "type": "OrderCreated",
+      "type": "order-created",
       "version": "1.0",
       "schemaRef": "schemas/events/order-created.schema.json"
     },
     {
-      "type": "OrderRequested",
+      "type": "order-requested",
       "version": "1.0",
       "schemaRef": "schemas/events/order-requested.schema.json"
+    },
+    {
+      "type": "stock-reserved",
+      "version": "1.0",
+      "schemaRef": "schemas/events/stock-reserved.schema.json"
     }
   ],
   "consistency": {
@@ -43,11 +48,11 @@
     ]
   },
   "license": "MIT",
-  "publishedAt": "2025-12-15T21:04:01.290Z",
+  "publishedAt": "2025-12-17T00:52:46.489Z",
   "runtime": {
-    "digest": "sha256:b77de65f9ae48af6d70096a6f5f8f9c202a7e4c8cb988a737946949bff48fe3e",
+    "digest": "sha256:133bc66b92a17ea98876c510b25e7f51ff36efa854a5a1ead9cc1489a0754c51",
     "repository": "spas-examples/order-service",
     "tag": "1.0.0",
-    "image": "spas-examples/order-service@sha256:b77de65f9ae48af6d70096a6f5f8f9c202a7e4c8cb988a737946949bff48fe3e"
+    "image": "spas-examples/order-service@sha256:133bc66b92a17ea98876c510b25e7f51ff36efa854a5a1ead9cc1489a0754c51"
   }
 }

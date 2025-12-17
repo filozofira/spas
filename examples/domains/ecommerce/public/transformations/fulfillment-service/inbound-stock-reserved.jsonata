@@ -1,9 +1,0 @@
-/* Transform StockReserved → fulfillment-service format */
-/* Source: inventory-service.StockReserved */
-/* Target: fulfillment-service order processing */
-{
-  "orderId": orderId,
-  "reservationId": reservationId,
-  "items": items,
-  "timestamp": $now()
-}

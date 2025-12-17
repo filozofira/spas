@@ -158,7 +158,11 @@ describe("SidecarConfigGenerator", () => {
 
       // Assert
       expect(entries).toHaveLength(1);
-      expect(entries[0]).toEqual({ topic: "orders-requested" });
+      expect(entries[0]).toEqual({
+        topic: "orders-requested",
+        eventType: "com.order-service.order-created",
+        eventName: "order-created",
+      });
     });
 
     it("should return empty array for subscribing service", () => {
@@ -261,9 +265,10 @@ describe("SidecarConfigGenerator", () => {
         "fulfillment-service",
       );
 
-      // Assert - T021: Keep full path with service folder
+      // Assert - T021: Strip service folder since docker mounts per-service
+      // transformations/fulfillment-service/x.jsonata -> transformations/x.jsonata
       expect(entries[0].transform).toBe(
-        "transformations/fulfillment-service/inbound-order-created.jsonata",
+        "transformations/inbound-order-created.jsonata",
       );
     });
 
@@ -767,13 +772,13 @@ describe("SidecarConfigGenerator", () => {
       // Act
       const result = generator.generate(sampleChoreography);
 
-      // Assert - kebab-case format matches SDK: com.{context}.{event-kebab}
+      // Assert - kebab-case format matches sidecar: com.{service-name}.{event-kebab}
       expect(result.configs["order-service"].outbound[0].eventType).toBe(
-        "com.order.order-created",
+        "com.order-service.order-created",
       );
     });
 
-    it("should derive eventType from boundedContext and event name", () => {
+    it("should derive eventType from service name and event name", () => {
       // Arrange
       const servicesDir = path.join(workspacePath, "services", "order-service");
       fs.mkdirSync(servicesDir, { recursive: true });
@@ -790,41 +795,122 @@ describe("SidecarConfigGenerator", () => {
       // Act
       const result = generator.generate(sampleChoreography);
 
-      // Assert - hyphenated context preserved, event name kebab-case
+      // Assert - uses service name (not boundedContext), event name kebab-case
       expect(result.configs["order-service"].outbound[0].eventType).toBe(
-        "com.e-commerce.order-created",
+        "com.order-service.order-created",
       );
     });
 
-    it("should leave eventType undefined if service metadata not found", () => {
-      // Arrange - no spas.json for order-service
+    it("should always include eventType when event is present", () => {
+      // Arrange - no spas.json for order-service, but eventType still derived from service name
       const generator = new SidecarConfigGenerator(workspacePath);
 
       // Act
       const result = generator.generate(sampleChoreography);
 
-      // Assert
+      // Assert - eventType derived from service name even without metadata
+      expect(result.configs["order-service"].outbound[0].eventType).toBe(
+        "com.order-service.order-created",
+      );
+    });
+
+    // T023: Test eventName field in generated outbound entries
+    it("should include eventName in outbound entries with short kebab-case format", () => {
+      // Arrange
+      const servicesDir = path.join(workspacePath, "services", "order-service");
+      fs.mkdirSync(servicesDir, { recursive: true });
+      fs.writeFileSync(
+        path.join(servicesDir, "spas.json"),
+        JSON.stringify({
+          id: "order-service",
+          version: "1.0.0",
+          boundedContext: "order",
+        }),
+      );
+      const generator = new SidecarConfigGenerator(workspacePath);
+
+      // Act
+      const result = generator.generate(sampleChoreography);
+
+      // Assert - eventName is short kebab-case, eventType is full CloudEvents format
+      expect(result.configs["order-service"].outbound[0].eventName).toBe(
+        "order-created",
+      );
+      expect(result.configs["order-service"].outbound[0].eventType).toBe(
+        "com.order-service.order-created",
+      );
+    });
+
+    it("should use kebab-case eventName from choreography", () => {
+      // Arrange
+      const servicesDir = path.join(workspacePath, "services", "order-service");
+      fs.mkdirSync(servicesDir, { recursive: true });
+      fs.writeFileSync(
+        path.join(servicesDir, "spas.json"),
+        JSON.stringify({
+          id: "order-service",
+          version: "1.0.0",
+          boundedContext: "order",
+        }),
+      );
+      const choreographyWithKebab: Choreography = {
+        version: "1.0",
+        domain: "test",
+        flows: {
+          "test-flow": {
+            participants: ["order-service"],
+            events: [
+              {
+                source: "order-service",
+                event: "order-created",
+                topic: "orders-created",
+                targets: [],
+              },
+            ],
+          },
+        },
+      };
+      const generator = new SidecarConfigGenerator(workspacePath);
+
+      // Act
+      const result = generator.generate(choreographyWithKebab);
+
+      // Assert - kebab-case used directly
+      expect(result.configs["order-service"].outbound[0].eventName).toBe(
+        "order-created",
+      );
+    });
+
+    it("should always derive eventName from choreography event field", () => {
+      // Arrange - no spas.json needed, we derive from choreography directly
+      const generator = new SidecarConfigGenerator(workspacePath);
+
+      // Act
+      const result = generator.generate(sampleChoreography);
+
+      // Assert - eventName is derived from choreography event field
       expect(
-        result.configs["order-service"].outbound[0].eventType,
-      ).toBeUndefined();
+        result.configs["order-service"].outbound[0].eventName,
+      ).toBe("order-created");
     });
   });
 
   describe("transform path resolution (T017)", () => {
-    it("should keep full path with service folder for sidecar mount", () => {
+    it("should strip service folder for per-service docker mount", () => {
       // Arrange
       const generator = new SidecarConfigGenerator(workspacePath);
 
       // Act
       const result = generator.generate(sampleChoreography);
 
-      // Assert - should keep full path: transformations/fulfillment-service/inbound-order-created.jsonata
+      // Assert - should strip service folder since docker mounts per-service
+      // transformations/fulfillment-service/x.jsonata -> transformations/x.jsonata
       expect(result.configs["fulfillment-service"].inbound[0].transform).toBe(
-        "transformations/fulfillment-service/inbound-order-created.jsonata",
+        "transformations/inbound-order-created.jsonata",
       );
     });
 
-    it("should preserve absolute transform path from choreography", () => {
+    it("should strip service folder from transform path", () => {
       // Arrange
       const generator = new SidecarConfigGenerator(workspacePath);
       const choreographyWithPath: Choreography = {
@@ -853,9 +939,9 @@ describe("SidecarConfigGenerator", () => {
       // Act
       const result = generator.generate(choreographyWithPath);
 
-      // Assert - path should be preserved exactly
+      // Assert - service folder stripped for per-service docker mount
       expect(result.configs["svc-b"].inbound[0].transform).toBe(
-        "transformations/svc-b/custom-transform.jsonata",
+        "transformations/custom-transform.jsonata",
       );
     });
   });

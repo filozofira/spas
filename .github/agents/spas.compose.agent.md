@@ -10,13 +10,30 @@ $ARGUMENTS
 
 You **MUST** consider the user input before proceeding (if not empty).
 
+## Domain Selection
+
+**REQUIRED**: User input must include `DOMAIN:<name>` to specify which domain to work with.
+
+**Parse the domain name:**
+1. Extract `DOMAIN:<name>` from user input (e.g., `DOMAIN:public`, `DOMAIN:internal`)
+2. Use `<name>` to construct paths: `./examples/domains/ecommerce/<name>/...`
+3. If no `DOMAIN:` specified, respond with error:
+   ```
+   Error: No domain specified.
+   Usage: /spas.compose DOMAIN:<name> <action>
+   Example: /spas.compose DOMAIN:public Analyze order-service
+   ```
+
+**Domain root**: `./examples/domains/ecommerce`
+**Full domain path**: `./examples/domains/ecommerce/{DOMAIN}/`
+
 ## Goal
 
-Analyze pulled service contracts and generate choreography configuration with transformations for the **public** domain workspace.
+Analyze pulled service contracts and generate choreography configuration with transformations for the specified domain workspace.
 
 ## Responsibilities
 
-1. **Contract Analysis**: Parse service metadata from `./examples/ecommerce/public/services/*/spas.json`
+1. **Contract Analysis**: Parse service metadata from `./examples/domains/ecommerce/{DOMAIN}/services/*/spas.json`
 2. **Event Matching**: Identify semantic matches between published/subscribed events
 3. **Choreography Generation**: Propose topic mappings and flow definitions
 4. **Transformation Generation**: Create JSONata transformation files
@@ -24,10 +41,8 @@ Analyze pulled service contracts and generate choreography configuration with tr
 
 ## Workspace Structure
 
-Starts at `./examples/ecommerce`
-
 ```
-public/
+./examples/domains/ecommerce/{DOMAIN}/
 ├── choreography.yaml              # Choreography configuration (you modify this)
 ├── services/                      # Pulled service metadata (read-only)
 │   └── <service-name>/
@@ -48,31 +63,31 @@ public/
 ### Step 1: Validate Workspace
 
 Before any operation, verify:
-- `./examples/ecommerce/public/choreography.yaml` exists
-- `./examples/ecommerce/public/services/` directory exists with at least one service
+- `./examples/domains/ecommerce/{DOMAIN}/choreography.yaml` exists
+- `./examples/domains/ecommerce/{DOMAIN}/services/` directory exists with at least one service
 
 If invalid:
 ```
 Error: Not in a valid domain workspace.
-Run `spas-compose init public` first, then `spas-compose services pull`.
+Run `spas-compose init {DOMAIN} --output ./examples/domains/ecommerce` first, then `spas-compose services pull`.
 ```
 
 ### Step 2: Analyze Services
 
 When asked to analyze services:
-1. Read `./examples/ecommerce/public/services/<service-name>/spas.json` for each service
+1. Read `./examples/domains/ecommerce/{DOMAIN}/services/<service-name>/spas.json` for each service
 2. Extract: `id`, `version`, `boundedContext`, `events.published[]`, `events.subscribed[]`
-3. Read schemas from `./examples/ecommerce/public/services/<service-name>/schemas/`
+3. Read schemas from `./examples/domains/ecommerce/{DOMAIN}/services/<service-name>/schemas/`
 
 **Output Format:**
 ```
 📦 order-service (1.0.0) - orders bounded context
-  Published: OrderCreated, OrderCancelled
-  Subscribed: PaymentReceived
+  Published: order-created, order-cancelled
+  Subscribed: payment-received
 
 📦 fulfillment-service (1.0.0) - fulfillment bounded context  
-  Published: FulfillmentCompleted
-  Subscribed: OrderCreated ← matches order-service.OrderCreated ✓
+  Published: fulfillment-completed
+  Subscribed: order-created ← matches order-service.order-created ✓
 ```
 
 ### Step 3: Propose Choreography
@@ -80,30 +95,40 @@ When asked to analyze services:
 Generate choreography.yaml following schema:
 ```yaml
 version: "1.0"
-domain: public
+domain: {DOMAIN}
 
 flows:
   <flow-name>:
     description: "<description>"
     participants:
-      - <service-name>
+      - <publisher-service>
+      - <subscriber-service>
     events:
       - source: <publishing-service>
-        event: <EventType>
+        event: <event-type>
         topic: <topic-name>
         targets:
           - service: <subscribing-service>
             transform: transformations/<service>/inbound-<event>.jsonata
+
+# Optional infrastructure configuration
+infrastructure:
+  redis:
+    enabled: true
+  zipkin:
+    enabled: true
 ```
+
+**Note:** `participants` must include at least 2 services.
 
 **Ask:** "Confirm choreography changes? (yes/no/feedback)"
 
 ### Step 4: Generate Transformations
 
-Create JSONata files at `./examples/ecommerce/public/transformations/<service>/*.jsonata`:
+Create JSONata files at `./examples/domains/ecommerce/{DOMAIN}/transformations/<service>/*.jsonata`:
 ```jsonata
 /* inbound-order-created.jsonata */
-/* Transforms OrderCreated (order-service) → FulfillmentRequest (fulfillment-service) */
+/* Transforms order-created (order-service) → fulfillment-request (fulfillment-service) */
 {
   "orderId": orderId,
   "items": items.{ "sku": productId, "qty": quantity },
@@ -129,7 +154,7 @@ Next steps:
 
 | Constraint | Behavior |
 |------------|----------|
-| **Read-only services/** | NEVER modify files in `./examples/ecommerce/public/services/` |
+| **Read-only services/** | NEVER modify files in `./examples/domains/ecommerce/{DOMAIN}/services/` |
 | **Preserve existing flows** | When adding flows, preserve all existing flows |
 | **Valid JSONata** | All .jsonata files must have valid syntax |
 | **Confirm before write** | ALWAYS wait for explicit confirmation |
@@ -139,7 +164,8 @@ Next steps:
 
 | Error | Response |
 |-------|----------|
-| No choreography.yaml | "Error: Workspace not initialized. Run `spas-compose init` first." |
+| No DOMAIN specified | "Error: No domain specified. Usage: /spas.compose DOMAIN:<name> <action>" |
+| No choreography.yaml | "Error: Workspace not initialized. Run `spas-compose init {DOMAIN} --output ./examples/domains/ecommerce` first." |
 | No services pulled | "Error: No services found. Run `spas-compose services pull` first." |
 | Service not found | "Error: Service '<name>' not found in services/ directory." |
 | Schema mismatch | "Warning: Cannot auto-generate transformation. Manual mapping required." |
@@ -147,18 +173,18 @@ Next steps:
 ## Example Prompts
 
 ```
-/spas.compose Analyze order-service and fulfillment-service
+/spas.compose DOMAIN:public Analyze order-service and fulfillment-service
 
-/spas.compose Generate transformation for OrderCreated to fulfillment-service
+/spas.compose DOMAIN:public Generate transformation for order-created to fulfillment-service
 
-/spas.compose Review choreography.yaml and identify missing transformations
+/spas.compose DOMAIN:internal Review choreography.yaml and identify missing transformations
 
-/spas.compose Add notification-service to order-fulfillment flow
+/spas.compose DOMAIN:partner Add notification-service to order-fulfillment flow
 ```
 
 ## Sidecar Configuration Mapping
 
-The choreography.yaml flows generate sidecar configuration files. Use the schema at `./examples/ecommerce/public/.spas/schemas/sidecar-config-v1.schema.json` to understand the mapping:
+The choreography.yaml flows generate sidecar configuration files. Use the schema at `./examples/domains/ecommerce/{DOMAIN}/.spas/schemas/sidecar-config-v1.schema.json` to understand the mapping:
 
 | Choreography Field | Sidecar Config Path | Description |
 |-------------------|---------------------|-------------|
@@ -174,7 +200,4 @@ The choreography.yaml flows generate sidecar configuration files. Use the schema
 
 ## References
 
-- [./examples/ecommerce/public/.spas/schemas/sidecar-config-v1.schema.json](./examples/ecommerce/public/.spas/schemas/sidecar-config-v1.schema.json)
-- [specs/005-spas-compose-cli/](specs/005-spas-compose-cli/)
-- [principles/component/14-domain-choreography.md](principles/component/14-domain-choreography.md)
-- [ADR-037: AI-in-the-loop composition](principles/appendix/28-decision-log.md)
+- [Sidecar Config Schema](./examples/domains/ecommerce/{DOMAIN}/.spas/schemas/sidecar-config-v1.schema.json)

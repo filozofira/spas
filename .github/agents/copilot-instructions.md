@@ -244,8 +244,10 @@ Auto-generated from all feature plans. Last updated: 2025-12-12
 - Filesystem (reading/writing config files) (009-compose-generator-fixes)
 - TypeScript 5.3, Node.js 20+ + jsonata 2.1.0, express 4.18.2, redis 4.6.12 (010-sidecar-transform-loading)
 - N/A (in-memory transform cache only) (010-sidecar-transform-loading)
-- C# 12 / .NET 8.0 + Microsoft.Extensions.Configuration, Microsoft.Extensions.Logging (011-sdk-sidecar-host)
+- C# 12 / .NET 10.0 + Microsoft.Extensions.Configuration, Microsoft.Extensions.Logging (011-sdk-sidecar-host)
 - N/A (configuration only) (011-sdk-sidecar-host)
+- C# 12 / .NET 10.0 (SDK), TypeScript / Node.js 20.x (Sidecar, CLI) + Microsoft.Extensions.Http (SDK), Express.js (Sidecar), Commander (CLI) (012-cloudevents-type-refactor)
+- N/A (no persistence changes) (012-cloudevents-type-refactor)
 
 - .NET 10 (target net10.0); Microsoft.Extensions.Logging; System.Text.Json (001-dotnet-spas-sdk)
 

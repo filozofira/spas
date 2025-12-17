@@ -9,11 +9,11 @@ Modify the .NET SDK's `SpasConfiguration.GetSpasSidecarUrl()` to auto-derive sid
 
 ## Technical Context
 
-**Language/Version**: C# 12 / .NET 8.0  
+**Language/Version**: C# 12 / .NET 10.0  
 **Primary Dependencies**: Microsoft.Extensions.Configuration, Microsoft.Extensions.Logging  
 **Storage**: N/A (configuration only)  
 **Testing**: xUnit (existing SDK test project)  
-**Target Platform**: .NET 8.0 (cross-platform)
+**Target Platform**: .NET 10.0 (cross-platform)
 **Project Type**: SDK library  
 **Performance Goals**: N/A (startup configuration)  
 **Constraints**: Must be backward compatible with existing deployments  

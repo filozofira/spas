@@ -4,22 +4,22 @@
   "type": "object",
   "additionalProperties": false,
   "properties": {
-    "ProductId": {
+    "productId": {
       "type": "string"
     },
-    "OrderId": {
+    "orderId": {
       "type": "string",
       "format": "guid"
     },
-    "RequestedQuantity": {
+    "requestedQuantity": {
       "type": "integer",
       "format": "int32"
     },
-    "AvailableQuantity": {
+    "availableQuantity": {
       "type": "integer",
       "format": "int32"
     },
-    "Timestamp": {
+    "timestamp": {
       "type": "string",
       "format": "date-time"
     }

@@ -97,7 +97,7 @@ function displayResult(result: CommandResult): void {
     info(`Next steps:`);
     listItem(`cd ${result.data?.name}`);
     listItem("spas-compose services pull <service-name> <version>");
-    listItem("/spas.compose Analyze services and generate choreography");
+    listItem(`/spas.compose DOMAIN:${result.data?.name} Analyze services and generate choreography`);
   } else {
     error(result.message);
     if (result.error?.details) {

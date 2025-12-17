@@ -240,7 +240,7 @@ describe('Event Publisher', () => {
 
       const missing = validatePublishHeaders(headers);
 
-      expect(missing).toContain('x-event-type');
+      expect(missing).toContain('x-event-type or x-event-name');
       expect(missing).toContain('x-correlation-id');
       expect(missing).not.toContain('x-service-name');
     });
@@ -250,7 +250,7 @@ describe('Event Publisher', () => {
 
       expect(missing).toHaveLength(3);
       expect(missing).toContain('x-service-name');
-      expect(missing).toContain('x-event-type');
+      expect(missing).toContain('x-event-type or x-event-name');
       expect(missing).toContain('x-correlation-id');
     });
   });

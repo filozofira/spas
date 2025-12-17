@@ -158,7 +158,10 @@ describe("WorkspaceService", () => {
       expect(fs.existsSync(agentPath)).toBe(true);
       const content = fs.readFileSync(agentPath, "utf-8");
       expect(content).toContain("description:");
-      expect(content).toContain(testWorkspaceName);
+      // Should contain DOMAIN: parsing instructions
+      expect(content).toContain("DOMAIN:<name>");
+      // Should use {DOMAIN} placeholder for dynamic domain selection
+      expect(content).toContain("{DOMAIN}");
     });
 
     it("should create prompt file at parent .github/prompts/", async () => {
@@ -173,11 +176,11 @@ describe("WorkspaceService", () => {
         tempDir,
         ".github",
         "prompts",
-        "spas-compose.prompt.md",
+        "spas.compose.prompt.md",
       );
       expect(fs.existsSync(promptPath)).toBe(true);
       const content = fs.readFileSync(promptPath, "utf-8");
-      expect(content).toContain("agent: spas-compose");
+      expect(content).toContain("agent: spas.compose");
     });
 
     it("should create sidecar config schema at .spas/schemas/", async () => {
@@ -235,7 +238,7 @@ describe("WorkspaceService", () => {
       fs.rmSync(projectRoot, { recursive: true, force: true });
     });
 
-    it("should use relative path in agent file references", async () => {
+    it("should use domainRoot in agent file for DOMAIN: prefix support", async () => {
       // Arrange
       const projectRoot = fs.mkdtempSync(path.join(os.tmpdir(), "spas-project-"));
       const domainsDir = path.join(projectRoot, "domains");
@@ -249,7 +252,7 @@ describe("WorkspaceService", () => {
       // Act
       await service.create(domainPath, testWorkspaceName, false, projectRoot);
 
-      // Assert - Agent file should contain relative paths to domain
+      // Assert - Agent file should contain domainRoot (parent of domain)
       const agentPath = path.join(
         projectRoot,
         ".github",
@@ -258,9 +261,11 @@ describe("WorkspaceService", () => {
       );
       const content = fs.readFileSync(agentPath, "utf-8");
       
-      // Should reference domain files using relative path from project root
-      expect(content).toContain("domains/my-domain");
-      // Should NOT contain hardcoded paths or SPAS principles references
+      // Should reference domainRoot (the "domains" folder, not full path to domain)
+      expect(content).toContain("./domains");
+      // Should use {DOMAIN} placeholder for dynamic domain selection
+      expect(content).toContain("{DOMAIN}");
+      // Should NOT contain hardcoded SPAS principles references
       expect(content).not.toContain("principles/component/14-domain-choreography.md");
 
       // Clean up

@@ -23,7 +23,7 @@ describe("DockerGenerator", () => {
         events: [
           {
             source: "order-service",
-            event: "OrderCreated",
+            event: "order-created",
             topic: "orders",
             targets: [
               {

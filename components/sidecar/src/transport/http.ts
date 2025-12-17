@@ -36,6 +36,9 @@ export class HttpClient {
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), this.timeout);
 
+    // Debug: log outgoing payload
+    console.log(`[http] POST ${url} payload:`, JSON.stringify(body, null, 2));
+
     try {
       const response = await fetch(url, {
         method: 'POST',
@@ -54,6 +57,12 @@ export class HttpClient {
       response.headers.forEach((value, key) => {
         responseHeaders[key] = value;
       });
+
+      // Debug: log response status and body for errors
+      if (response.status >= 400) {
+        const errorBody = await response.text();
+        console.log(`[http] Error response (${response.status}):`, errorBody);
+      }
 
       // Parse response body
       let data: unknown;

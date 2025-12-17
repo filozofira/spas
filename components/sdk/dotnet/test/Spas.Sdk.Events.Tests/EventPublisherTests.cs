@@ -3,9 +3,18 @@ using System.Text.Json;
 using Spas.Sdk.Core.Context;
 using Spas.Sdk.Core.Tracing;
 using Spas.Sdk.Events.Publish;
+using Spas.Sdk.Metadata.Attributes;
 using Xunit;
 
 namespace Spas.Sdk.Events.Tests;
+
+/// <summary>
+/// Test event class for verifying generic PublishAsync behavior.
+/// </summary>
+[SpasEvent("OrderCreated", "1.0")]
+internal class TestOrderCreatedEvent
+{
+}
 
 /// <summary>
 /// Tests for EventPublisher - verifies payload publishing and header propagation to sidecar.
@@ -51,7 +60,7 @@ public class EventPublisherTests
         var testPayload = new { orderId = "123" };
 
         // Act
-        await publisher.PublishAsync("com.example.order.created", testPayload);
+        await publisher.PublishAsync("order-created", testPayload);
 
         // Assert
         var request = mockHandler.LastRequest;
@@ -71,7 +80,7 @@ public class EventPublisherTests
         var testPayload = new { orderId = "123" };
 
         // Act
-        await publisher.PublishAsync("com.example.order.created", testPayload);
+        await publisher.PublishAsync("order-created", testPayload);
 
         // Assert
         var request = mockHandler.LastRequest;
@@ -97,7 +106,7 @@ public class EventPublisherTests
         try
         {
             // Act
-            await publisher.PublishAsync("com.example.order.created", testPayload);
+            await publisher.PublishAsync("order-created", testPayload);
 
             // Assert
             var request = mockHandler.LastRequest;
@@ -128,7 +137,7 @@ public class EventPublisherTests
         try
         {
             // Act
-            await publisher.PublishAsync("com.example.order.created", testPayload);
+            await publisher.PublishAsync("order-created", testPayload);
 
             // Assert
             var request = mockHandler.LastRequest;
@@ -159,7 +168,7 @@ public class EventPublisherTests
         try
         {
             // Act
-            await publisher.PublishAsync("com.example.order.created", testPayload);
+            await publisher.PublishAsync("order-created", testPayload);
 
             // Assert
             var request = mockHandler.LastRequest;
@@ -184,7 +193,7 @@ public class EventPublisherTests
         var testPayload = new { orderId = "123", amount = 99.50 };
 
         // Act
-        await publisher.PublishAsync("com.example.order.created", testPayload);
+        await publisher.PublishAsync("order-created", testPayload);
 
         // Assert
         var request = mockHandler.LastRequest;
@@ -207,7 +216,7 @@ public class EventPublisherTests
         var testPayload = new { orderId = "123" };
 
         // Act
-        await publisher.PublishAsync("com.example.order.created", testPayload);
+        await publisher.PublishAsync("order-created", testPayload);
 
         // Assert
         var request = mockHandler.LastRequest;
@@ -226,7 +235,7 @@ public class EventPublisherTests
 
         // Act & Assert
         var exception = await Assert.ThrowsAsync<ArgumentNullException>(
-            () => publisher.PublishAsync("com.example.order.created", null!));
+            () => publisher.PublishAsync("order-created", null!));
         Assert.Equal("payload", exception.ParamName);
     }
 
@@ -241,7 +250,7 @@ public class EventPublisherTests
 
         // Act & Assert
         await Assert.ThrowsAsync<HttpRequestException>(
-            () => publisher.PublishAsync("com.example.order.created", testPayload));
+            () => publisher.PublishAsync("order-created", testPayload));
     }
 
     [Fact]
@@ -256,28 +265,66 @@ public class EventPublisherTests
         // Act & Assert
         var exception = await Assert.ThrowsAsync<ArgumentNullException>(
             () => publisher.PublishAsync(null!, testPayload));
-        Assert.Equal("eventType", exception.ParamName);
+        Assert.Equal("eventName", exception.ParamName);
     }
 
     [Fact]
-    public async Task PublishAsync_SendsEventTypeHeader()
+    public async Task PublishAsync_SendsEventNameHeader()
     {
         // Arrange
         var mockHandler = new MockHttpMessageHandler(HttpStatusCode.OK);
         using var httpClient = new HttpClient(mockHandler) { BaseAddress = new Uri("http://localhost:8080") };
         var publisher = new EventPublisher(httpClient, TestServiceName);
         var testPayload = new { orderId = "123" };
-        var testEventType = "com.example.order.created";
+        var testEventName = "order-created";
 
         // Act
-        await publisher.PublishAsync(testEventType, testPayload);
+        await publisher.PublishAsync(testEventName, testPayload);
 
         // Assert
         var request = mockHandler.LastRequest;
         Assert.NotNull(request);
-        Assert.True(request!.Headers.Contains("x-event-type"));
-        var eventType = request.Headers.GetValues("x-event-type").First();
-        Assert.Equal(testEventType, eventType);
+        Assert.True(request!.Headers.Contains("x-event-name"));
+        var eventName = request.Headers.GetValues("x-event-name").First();
+        Assert.Equal(testEventName, eventName);
+    }
+
+    [Fact]
+    public async Task PublishAsync_DoesNotSendEventTypeHeader()
+    {
+        // Arrange
+        var mockHandler = new MockHttpMessageHandler(HttpStatusCode.OK);
+        using var httpClient = new HttpClient(mockHandler) { BaseAddress = new Uri("http://localhost:8080") };
+        var publisher = new EventPublisher(httpClient, TestServiceName);
+        var testPayload = new { orderId = "123" };
+
+        // Act
+        await publisher.PublishAsync("order-created", testPayload);
+
+        // Assert - x-event-type header should NOT be present (legacy header removed)
+        var request = mockHandler.LastRequest;
+        Assert.NotNull(request);
+        Assert.False(request!.Headers.Contains("x-event-type"));
+    }
+
+    [Fact]
+    public async Task PublishAsyncGeneric_SendsKebabCaseEventName()
+    {
+        // Arrange
+        var mockHandler = new MockHttpMessageHandler(HttpStatusCode.OK);
+        using var httpClient = new HttpClient(mockHandler) { BaseAddress = new Uri("http://localhost:8080") };
+        var publisher = new EventPublisher(httpClient, TestServiceName);
+        var testPayload = new { orderId = "123", amount = 99.50 };
+
+        // Act - use the generic method with a decorated event type
+        await publisher.PublishAsync<TestOrderCreatedEvent>(testPayload);
+
+        // Assert - should send x-event-name with kebab-case value derived from attribute
+        var request = mockHandler.LastRequest;
+        Assert.NotNull(request);
+        Assert.True(request!.Headers.Contains("x-event-name"));
+        var eventName = request.Headers.GetValues("x-event-name").First();
+        Assert.Equal("order-created", eventName); // PascalCase "OrderCreated" -> kebab "order-created"
     }
 }
 

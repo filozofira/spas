@@ -105,7 +105,10 @@ export interface CloudEvent<T = unknown> {
 export interface PublishHeaders {
   traceparent?: string;
   serviceName: string;
-  eventType: string;
+  /** Full CloudEvents type from x-event-type header (legacy) */
+  eventType?: string;
+  /** Short event name from x-event-name header (new) */
+  eventName?: string;
   correlationId: string;
   userId?: string;
   tenantId?: string;

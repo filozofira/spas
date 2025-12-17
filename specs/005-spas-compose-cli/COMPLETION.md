@@ -155,6 +155,28 @@ Test the `/spas.compose` agent prompt with real services:
 
 ---
 
+## Known Limitations
+
+The following limitations were discovered during E2E testing and are tracked for future enhancement:
+
+### 1. Fixed `/incoming` Endpoint for Inbound Events
+
+**Issue**: The `sidecar-config-generator` defaults all inbound event subscriptions to `invokeEndpoint: "/incoming"`. Services that expose event-specific endpoints (e.g., `/events/stock-reserved`) require manual config modification after generation.
+
+**Workaround**: Manually edit generated `config.<service>.json` to use correct endpoint paths.
+
+**Enhancement**: Support `invokeEndpoint` override in `choreography.yaml` targets, or infer from service contract endpoints.
+
+### 2. JSONata Array Handling
+
+**Issue**: JSONata expressions like `items.{...}` return a single object when the source array has one element, causing deserialization failures in typed endpoints expecting arrays.
+
+**Workaround**: Use `$append([], items.{...})` pattern to ensure array output.
+
+**Enhancement**: Document this pattern prominently in agent prompt and consider CLI validation warning.
+
+---
+
 ## Verification Commands
 
 ```bash

@@ -275,10 +275,12 @@ Create JSONata files at \`${domainRoot}/{DOMAIN}/transformations/<service>/*.jso
 /* Transforms order-created (order-service) → fulfillment-request (fulfillment-service) */
 {
   "orderId": orderId,
-  "items": items.{ "sku": productId, "qty": quantity },
+  "items": $append([], items.{ "sku": productId, "qty": quantity }),
   "priority": priority = "express" ? "high" : "normal"
 }
 \`\`\`
+
+**IMPORTANT**: Use \`$append([], array.{...})\` pattern for array fields to ensure arrays are preserved even when the source has a single element. JSONata returns a single object (not array) when mapping over a single-element array.
 
 **Ask:** "Confirm transformation? (yes/no/feedback)"
 

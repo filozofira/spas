@@ -42,6 +42,7 @@ var identity = new ServiceIdentityBuilder()
 
 // GET /inventory - List all inventory items
 app.MapGet("/inventory",
+    [SpasQuery("ListInventory", "1.0")]
     (InventoryStore store) =>
     {
         return Results.Ok(store.GetAll());
@@ -49,6 +50,7 @@ app.MapGet("/inventory",
 
 // GET /inventory/{productId} - Get stock for specific product
 app.MapGet("/inventory/{productId}",
+    [SpasQuery("GetInventory", "1.0")]
     (string productId, InventoryStore store) =>
     {
         var item = store.Get(productId);

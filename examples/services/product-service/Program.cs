@@ -41,6 +41,7 @@ var identity = new ServiceIdentityBuilder()
 
 // GET /products - List all products
 app.MapGet("/products",
+    [SpasQuery("ListProducts", "1.0")]
     (ProductCatalog catalog, string? category = null) =>
     {
         var products = catalog.GetAll();
@@ -55,6 +56,7 @@ app.MapGet("/products",
 
 // GET /products/{id} - Get specific product
 app.MapGet("/products/{id}",
+    [SpasQuery("GetProduct", "1.0")]
     (string id, ProductCatalog catalog) =>
     {
         var product = catalog.Get(id);

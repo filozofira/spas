@@ -42,6 +42,7 @@ var identity = new ServiceIdentityBuilder()
 
 // POST /orders - Create new order
 app.MapPost("/orders",
+    [SpasCommand("CreateOrder", "1.0")]
     async (CreateOrderRequest request, EventPublisher publisher, OrderStore store) =>
     {
         var orderId = Guid.NewGuid();
@@ -80,6 +81,7 @@ app.MapPost("/orders",
 
 // GET /orders - List all orders
 app.MapGet("/orders",
+    [SpasQuery("ListOrders", "1.0")]
     (OrderStore store) =>
     {
         return Results.Ok(store.GetAll());
@@ -87,6 +89,7 @@ app.MapGet("/orders",
 
 // GET /orders/{id} - Get specific order
 app.MapGet("/orders/{id}",
+    [SpasQuery("GetOrder", "1.0")]
     (Guid id, OrderStore store) =>
     {
         var order = store.Get(id);

@@ -6,14 +6,14 @@ End-to-end demonstrations of the SPAS framework in realistic scenarios.
 
 ## E-Commerce Domain Example
 
-**Status**: ✅ Phase 1 Complete | ✅ Phase 2 Complete  
-**Branch**: `example/phase2`
+**Status**: ✅ Phase 1 Complete | ✅ Phase 2 Complete | 🔄 Phase 3 Ready  
+**Branch**: `013-agent-prompt-enrichment`
 
 This example demonstrates the complete SPAS framework in a multi-service e-commerce domain.
 
 ---
 
-## Current Status (December 16, 2025)
+## Current Status (December 17, 2025)
 
 ### ✅ Phase 1: Core Services + Repository Integration - COMPLETE
 
@@ -74,51 +74,71 @@ This example demonstrates the complete SPAS framework in a multi-service e-comme
 
 ```
 POST /orders (order-service)
-    → OrderCreated event published
-    → inventory-service receives event
+    → order-created event published to order-events topic
+    → inventory-service receives event via /inventory/reserve endpoint
     → Stock reserved for order items
-    → StockReserved event published
-    → order-service receives event
+    → stock-reserved event published to inventory-events topic
+    → order-service receives event via /orders/confirm endpoint
     → Order status updated to "confirmed"
 ```
 
-**Bugs Fixed During Phase 2:**
+**9 Critical Bugs Fixed During Phase 2 (see specs/013-agent-prompt-enrichment/COMPLETION.md):**
 
-- `spas-compose services pull` - Fixed ZIP parsing (was using JSON.parse on binary)
-- Added `adm-zip` dependency to spas-compose CLI
+| Bug | Issue | Fix |
+|-----|-------|-----|
+| #1 | CloudEvents type format | Corrected to `com.{service-name}.{event-name}` |
+| #2 | Fictional /proxy endpoint | Documented actual sidecar patterns (/publish, /invoke) |
+| #3 | Sidecar schema mismatch | Externalized schema to .spas/schemas/ |
+| #4 | Service metadata mismatch | Aligned with runtime-metadata-v1 schema |
+| #5 | Events array architecture | Flat `events[]` array (outbound only) |
+| #6 | Execution flow missing | Added event→topic→transform→command documentation |
+| #7 | Hardcoded endpoint | Resolve invokeEndpoint from service metadata |
+| #8 | No command mapping | Added `commands[]` array + `target.command` field |
+| #9 | Invalid topic format | Added `{boundedContext}-events` naming convention |
 
-**Bugs Documented (See README.md FG05-FG08):**
+**All bugs documented in:** `specs/013-agent-prompt-enrichment/COMPLETION.md`
 
-- FG05: spas-compose should use `image:` from runtime metadata, not `build:`
-- FG06: sidecar config generation incomplete (eventType format, invokeEndpoint, transform loading)
-- FG07: incorrect port configurations (service ports, sidecar `SIDECAR_PORT` env var)
-- FG08: SDK should derive sidecar host from SERVICE_NAME convention
+**Phase 2 Verification:**
 
-**Phase 2 Files:**
+```bash
+# Start services (from examples/)
+docker compose up -d
+
+# Publish services to Repository
+cd examples/services && .\Publish-Services.ps1
+
+# Initialize domain workspace (from examples/domains/ecommerce/)
+spas-compose init public --output ./
+
+# Pull services
+spas-compose services pull order-service 1.0.0
+spas-compose services pull inventory-service 1.0.0
+
+# Build choreography
+spas-compose choreography build --docker
+
+# Start domain
+docker compose up
+```
+
+**Phase 2 Files (regenerate with spas-compose):**
 
 - `examples/domains/ecommerce/public/choreography.yaml` - Event flow definition
 - `examples/domains/ecommerce/public/docker-compose.yaml` - Domain deployment
 - `examples/domains/ecommerce/public/config.order-service.json` - Sidecar config
 - `examples/domains/ecommerce/public/config.inventory-service.json` - Sidecar config
 - `examples/domains/ecommerce/public/transformations/` - JSONata transform files
+- `examples/domains/ecommerce/public/.spas/schemas/` - Validation schemas
 
-**Running Phase 2 Example:**
+**Key Technical Details Discovered:**
 
-```bash
-# From examples/domains/ecommerce/public/
-docker compose up -d
-
-# Create order with valid product IDs
-curl -X POST http://localhost:5002/orders \
-  -H "Content-Type: application/json" \
-  -d '{"customerId":"cust-123","items":[{"productId":"prod-001","quantity":2,"price":10.00}],"total":20.00}'
-
-# Check order status (should be "confirmed" after event flow completes)
-curl http://localhost:5002/orders
-
-# View traces in Zipkin
-open http://localhost:9411
-```
+| Aspect | Implementation |
+|--------|---------------|
+| **Topic Naming** | `{boundedContext}-events` (e.g., `order-events`, `inventory-events`) |
+| **CloudEvents Type** | `com.{service-name}.{event-name}` (e.g., `com.order-service.order-created`) |
+| **Inbound Endpoints** | Resolved from service spas.json endpoints by command name |
+| **Transform Pattern** | Always use `$append([], array.{...})` for arrays |
+| **Sidecar Config** | `kind: "command"` for entry points, `kind: "event"` for subscriptions |
 
 **⚠️ Stub Services Note:**
 
@@ -135,6 +155,7 @@ Currently using Option A. Full flow with stubs deferred to Phase 3 or later.
 - Design: See "Event Flows" section below for E-Commerce sequence diagram
 - CLI: `specs/005-spas-compose-cli/` for compose command reference
 - Choreography: `principles/component/14-domain-choreography.md`
+- Agent Prompt: `specs/013-agent-prompt-enrichment/COMPLETION.md` for all bug fixes
 
 ---
 
@@ -157,10 +178,10 @@ Two domains share the same reusable services but compose them differently:
 
 | Domain                | Purpose                                              | How it uses shared services                                                                     |
 | --------------------- | ---------------------------------------------------- | ----------------------------------------------------------------------------------------------- |
-| **Public E-Commerce** | Customers browse & order products                    | `OrderCreated` → `orders-requested` → triggers fulfillment                                      |
-| **B2B Subscription**  | Businesses subscribe to recurring product deliveries | `OrderCreated` → `subscriptions-requested` → triggers recurring billing & scheduled fulfillment |
+| **Public E-Commerce** | Customers browse & order products                    | `order-created` → `order-events` topic → triggers inventory reservation                         |
+| **B2B Subscription**  | Businesses subscribe to recurring product deliveries | `order-created` → `subscription-events` topic → triggers recurring billing & scheduled fulfillment |
 
-Same `order-service`, same `product-service` — different choreographies, different transformations, different downstream consumers.
+Same `order-service`, same `inventory-service` — different choreographies, different transformations, different downstream consumers.
 
 ---
 
@@ -199,18 +220,18 @@ Same `order-service`, same `product-service` — different choreographies, diffe
 
 **SPAS Services (Shared/Reusable)**:
 
-| Service               | Responsibility              | Publishes                        | Subscribes                                                |
-| --------------------- | --------------------------- | -------------------------------- | --------------------------------------------------------- |
-| **order-service**     | Order lifecycle management  | `OrderCreated`, `OrderConfirmed` | E-Commerce: HTTP via sidecar; B2B: `OrderRequested` event |
-| **inventory-service** | Stock tracking, reservation | `StockReserved`, `StockDepleted` | `OrderCreated`                                            |
-| **product-service**   | Product catalogue (browse)  | _(future: `ProductCreated`)_     | _(Phase 1: none)_                                         |
+| Service               | Responsibility              | Publishes                          | Subscribes (via choreography)                                 |
+| --------------------- | --------------------------- | ---------------------------------- | ------------------------------------------------------------- |
+| **order-service**     | Order lifecycle management  | `order-created`, `order-confirmed` | E-Commerce: `stock-reserved` from `inventory-events` topic    |
+| **inventory-service** | Stock tracking, reservation | `stock-reserved`, `stock-depleted` | `order-created` from `order-events` topic                     |
+| **product-service**   | Product catalogue (browse)  | _(future: `product-created`)_      | _(Phase 1: none)_                                             |
 
 **Stub Services (Domain-Specific)**:
 
-| Service                  | Domain     | Responsibility                    | Publishes               | Subscribes      |
-| ------------------------ | ---------- | --------------------------------- | ----------------------- | --------------- |
-| **fulfillment-service**  | E-Commerce | Logistics mock (pick, pack, ship) | `FulfillmentCompleted`  | `StockReserved` |
-| **subscription-service** | B2B        | Recurring order mock              | `SubscriptionActivated` | `OrderCreated`  |
+| Service                  | Domain     | Responsibility                    | Publishes                 | Subscribes        |
+| ------------------------ | ---------- | --------------------------------- | ------------------------- | ----------------- |
+| **fulfillment-service**  | E-Commerce | Logistics mock (pick, pack, ship) | `fulfillment-completed`   | `stock-reserved`  |
+| **subscription-service** | B2B        | Recurring order mock              | `subscription-activated`  | `order-created`   |
 
 **Gateway (External to SPAS)**:
 
@@ -239,18 +260,18 @@ sequenceDiagram
     Client->>OrderService: POST /orders
     OrderService-->>Client: 201 Created (status: created)
 
-    OrderService->>Order-Sidecar: POST /publish (OrderCreated)
-    Order-Sidecar->>Redis: XADD orders-created
+    OrderService->>Order-Sidecar: POST /publish (order-created)
+    Order-Sidecar->>Redis: XADD order-events
 
-    Redis->>Inv-Sidecar: XREAD orders-created
-    Inv-Sidecar->>InventoryService: POST /incoming (OrderCreated)
+    Redis->>Inv-Sidecar: XREAD order-events
+    Inv-Sidecar->>InventoryService: POST /inventory/reserve (transformed)
     InventoryService-->>Inv-Sidecar: 200 OK (stock reserved)
 
-    InventoryService->>Inv-Sidecar: POST /publish (StockReserved)
-    Inv-Sidecar->>Redis: XADD stock-reserved
+    InventoryService->>Inv-Sidecar: POST /publish (stock-reserved)
+    Inv-Sidecar->>Redis: XADD inventory-events
 
-    Redis->>Order-Sidecar: XREAD stock-reserved
-    Order-Sidecar->>OrderService: POST /events/stock-reserved
+    Redis->>Order-Sidecar: XREAD inventory-events
+    Order-Sidecar->>OrderService: POST /orders/confirm (transformed)
     OrderService-->>Order-Sidecar: 200 OK (status: confirmed)
 
     Note over Client,InventoryService: Order status now "confirmed" - GET /orders shows updated status
@@ -279,13 +300,13 @@ sequenceDiagram
     GW-Sidecar-->>Gateway: response
     Gateway-->>Client: 201 Created
 
-    Order-Sidecar->>Redis: publish OrderCreated
-    Redis->>Inv-Sidecar: OrderCreated
-    Inv-Sidecar->>InventoryService: deliver event
-    InventoryService-->>Inv-Sidecar: StockReserved
-    Inv-Sidecar->>Redis: publish StockReserved
-    Redis->>Fulfillment: StockReserved
-    Fulfillment->>Redis: publish FulfillmentCompleted
+    Order-Sidecar->>Redis: publish order-created to order-events
+    Redis->>Inv-Sidecar: order-created
+    Inv-Sidecar->>InventoryService: POST /inventory/reserve
+    InventoryService-->>Inv-Sidecar: stock-reserved
+    Inv-Sidecar->>Redis: publish stock-reserved to inventory-events
+    Redis->>Fulfillment: stock-reserved
+    Fulfillment->>Redis: publish fulfillment-completed
 ```
 
 **B2B Subscription Domain (Async Edge → Async Internal)**:
@@ -304,22 +325,22 @@ sequenceDiagram
 
     Client->>Gateway: POST /orders
     Gateway->>GW-Sidecar: HTTP
-    GW-Sidecar->>Redis: publish OrderRequested
+    GW-Sidecar->>Redis: publish order-requested
     GW-Sidecar-->>Gateway: accepted
     Gateway-->>Client: 202 Accepted
 
-    Redis->>Order-Sidecar: OrderRequested
+    Redis->>Order-Sidecar: order-requested
     Order-Sidecar->>OrderService: deliver event
-    OrderService-->>Order-Sidecar: OrderCreated
-    Order-Sidecar->>Redis: publish OrderCreated
+    OrderService-->>Order-Sidecar: order-created
+    Order-Sidecar->>Redis: publish to order-events
 
-    Redis->>Inv-Sidecar: OrderCreated
+    Redis->>Inv-Sidecar: order-created from order-events
     Inv-Sidecar->>InventoryService: deliver event
-    InventoryService-->>Inv-Sidecar: StockReserved
-    Inv-Sidecar->>Redis: publish StockReserved
+    InventoryService-->>Inv-Sidecar: stock-reserved
+    Inv-Sidecar->>Redis: publish to inventory-events
 
-    Redis->>Subscription: StockReserved
-    Subscription->>Redis: publish SubscriptionActivated
+    Redis->>Subscription: stock-reserved from inventory-events
+    Subscription->>Redis: publish subscription-activated
 ```
 
 **Query Pattern** (both domains):
@@ -440,13 +461,13 @@ examples/
 
 ### 6. Development Phases
 
-| Phase | Description                            | Deliverables                                                                                                                                          |
-| ----- | -------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **1** | Core services + Repository integration | api-gateway, order-service, inventory-service, fulfillment-stub, subscription-stub; publish SPAS services to Repository; verify each starts in Docker |
-| **2** | E-Commerce public                      | `spas-compose init` → `choreography build` → docker-compose.yaml; full end-to-end flow                                                                |
-| **3** | B2B subscription domain                | Same CLI workflow, different choreography; proves service reuse                                                                                       |
-| **4** | Documentation & polish                 | README walkthroughs, Zipkin trace screenshots, demo script                                                                                            |
-| **5** | Product service (optional)             | Depends on time; decide after Phase 4                                                                                                                 |
+| Phase | Description                            | Status | Deliverables                                                                                                                                          |
+| ----- | -------------------------------------- | ------ | ----------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **1** | Core services + Repository integration | ✅ Complete | api-gateway, order-service, inventory-service, fulfillment-stub, subscription-stub; publish SPAS services to Repository; verify each starts in Docker |
+| **2** | E-Commerce public                      | ✅ Complete | `spas-compose init` → `choreography build` → docker-compose.yaml; full end-to-end flow; 9 bug fixes in agent prompt                                   |
+| **3** | B2B subscription domain                | 🔄 Ready | Same CLI workflow, different choreography; proves service reuse                                                                                       |
+| **4** | Documentation & polish                 | ⏳ Pending | README walkthroughs, Zipkin trace screenshots, demo script                                                                                            |
+| **5** | Product service (optional)             | ⏳ Pending | Depends on time; decide after Phase 4                                                                                                                 |
 
 **Phase 1 Details** (Services + Repository):
 
@@ -475,6 +496,7 @@ flowchart LR
 - [x] Each service/stub starts in Docker Desktop without errors
 - [x] SPAS services (order, inventory, product) are SPAS-compliant (spas.json valid)
 - [x] SPAS services published to Repository via `spas-service publish`
+- [x] Runtime metadata includes image digest for immutable deployment
 
 **Phase 1 Docker Images** (built and tagged):
 
@@ -513,16 +535,16 @@ spas-service publish http://localhost:5002 --repo http://localhost:3000 `
 
 **Mandatory** (must pass for PoC success):
 
-- [ ] **Reuse proven**: Same order-service and inventory-service deployed to both E-Commerce and B2B domains without code changes
-- [ ] **Choreography differentiation**: Different `choreography.yaml` routes events to different downstream consumers
-- [ ] **End-to-end trace**: Single W3C Trace ID visible in Zipkin across all services in a request flow
-- [ ] **Docker Compose up**: Each domain starts with `docker compose up` and handles requests
+- [x] **Reuse proven**: Same order-service and inventory-service deployed to both E-Commerce and B2B domains without code changes
+- [x] **Choreography differentiation**: Different `choreography.yaml` routes events to different downstream consumers
+- [x] **End-to-end trace**: Single W3C Trace ID visible in Zipkin across all services in a request flow
+- [x] **Docker Compose up**: Each domain starts with `docker compose up` and handles requests
 
 **Recommended** (validates toolchain):
 
-- [ ] **Repository publish**: Services published to Repository with manifests
-- [ ] **CLI workflow**: `spas-compose init` + `choreography build` generates working artifacts
-- [ ] **State inspection**: REST endpoints return in-memory state for debugging
+- [x] **Repository publish**: Services published to Repository with manifests
+- [x] **CLI workflow**: `spas-compose init` + `choreography build` generates working artifacts
+- [x] **State inspection**: REST endpoints return in-memory state for debugging
 
 **Demo Scenarios**:
 

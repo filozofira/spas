@@ -18,6 +18,7 @@ import type {
   ConfigError,
   ConfigSummary,
   ServiceSummarySidecar,
+  ServiceMetadata,
 } from "../types.js";
 import { deriveCloudEventsType, pascalToKebab } from "../utils/event-type.js";
 
@@ -25,7 +26,11 @@ import { deriveCloudEventsType, pascalToKebab } from "../utils/event-type.js";
  * Service for generating sidecar configuration files from choreography
  */
 export class SidecarConfigGenerator {
-  constructor(private readonly workspacePath: string) {}
+  private readonly servicesPath: string;
+
+  constructor(private readonly workspacePath: string) {
+    this.servicesPath = path.join(workspacePath, "services");
+  }
 
   /**
    * Generate sidecar configuration for all services in choreography
@@ -94,6 +99,8 @@ export class SidecarConfigGenerator {
     const seenTopics = new Set<string>();
 
     for (const flow of Object.values(choreography.flows)) {
+      if (!flow.events) continue;
+      
       for (const eventRoute of flow.events) {
         // Service is the source → outbound
         if (eventRoute.source === serviceName) {
@@ -136,32 +143,59 @@ export class SidecarConfigGenerator {
   ): InboundEntry[] {
     const entries: InboundEntry[] = [];
     const seenTopics = new Set<string>();
+    const seenCommands = new Set<string>();
+
+    // Load service metadata to resolve endpoint paths
+    const metadata = this.loadServiceMetadata(serviceName);
 
     for (const flow of Object.values(choreography.flows)) {
-      for (const eventRoute of flow.events) {
-        for (const target of eventRoute.targets) {
-          // Service is a target → inbound
-          if (target.service === serviceName) {
-            // Deduplicate by topic
-            if (!seenTopics.has(eventRoute.topic)) {
-              seenTopics.add(eventRoute.topic);
+      // Build command entries (direct entry points)
+      if (flow.commands) {
+        for (const cmd of flow.commands) {
+          if (cmd.service === serviceName && !seenCommands.has(cmd.command)) {
+            seenCommands.add(cmd.command);
+            entries.push({
+              kind: "command",
+              command: cmd.command,
+              invokeEndpoint: cmd.endpoint,
+            });
+          }
+        }
+      }
 
-              const entry: InboundEntry = {
-                kind: "event",
-                topic: eventRoute.topic,
-                invokeEndpoint: "/incoming",
-              };
+      // Build event entries
+      if (flow.events) {
+        for (const eventRoute of flow.events) {
+          for (const target of eventRoute.targets) {
+            // Service is a target → inbound
+            if (target.service === serviceName) {
+              // Deduplicate by topic
+              if (!seenTopics.has(eventRoute.topic)) {
+                seenTopics.add(eventRoute.topic);
 
-              // Only add transform if specified (US4 - optional transforms)
-              if (target.transform) {
-                // Resolve path relative to sidecar mount
-                entry.transform = this.resolveTransformPath(
-                  target.transform,
-                  serviceName,
+                // Resolve endpoint from target.command or fallback
+                const invokeEndpoint = this.resolveCommandEndpoint(
+                  metadata,
+                  target.command,
                 );
-              }
 
-              entries.push(entry);
+                const entry: InboundEntry = {
+                  kind: "event",
+                  topic: eventRoute.topic,
+                  invokeEndpoint,
+                };
+
+                // Only add transform if specified (US4 - optional transforms)
+                if (target.transform) {
+                  // Resolve path relative to sidecar mount
+                  entry.transform = this.resolveTransformPath(
+                    target.transform,
+                    serviceName,
+                  );
+                }
+
+                entries.push(entry);
+              }
             }
           }
         }
@@ -221,6 +255,63 @@ export class SidecarConfigGenerator {
   }
 
   /**
+   * Load service metadata from pulled service
+   *
+   * @param serviceName - Service name to load metadata for
+   * @returns ServiceMetadata or null if not found
+   */
+  private loadServiceMetadata(serviceName: string): ServiceMetadata | null {
+    const metadataPath = path.join(this.servicesPath, serviceName, "spas.json");
+    if (!fs.existsSync(metadataPath)) {
+      return null;
+    }
+
+    try {
+      return JSON.parse(fs.readFileSync(metadataPath, "utf-8"));
+    } catch {
+      return null;
+    }
+  }
+
+  /**
+   * Resolve command endpoint from service metadata
+   * Looks for matching command by name, falls back to first Command-type endpoint
+   *
+   * @param metadata - Service metadata
+   * @param commandName - Optional command name to find (PascalCase)
+   * @returns Endpoint path (defaults to /incoming if not found)
+   */
+  private resolveCommandEndpoint(
+    metadata: ServiceMetadata | null,
+    commandName?: string,
+  ): string {
+    if (!metadata || !metadata.endpoints) {
+      return "/incoming"; // Fallback to old behavior
+    }
+
+    // If command name specified, find matching endpoint
+    if (commandName) {
+      const matchingEndpoint = metadata.endpoints.find(
+        (ep: any) => ep.name === commandName && ep.type === "Command",
+      );
+      if (matchingEndpoint && matchingEndpoint.methodPath) {
+        return matchingEndpoint.methodPath;
+      }
+    }
+
+    // Fallback: Find first Command-type endpoint
+    const commandEndpoint = metadata.endpoints.find(
+      (ep: any) => ep.type === "Command",
+    );
+
+    if (commandEndpoint && commandEndpoint.methodPath) {
+      return commandEndpoint.methodPath;
+    }
+
+    return "/incoming"; // Fallback
+  }
+
+  /**
    * Validate transformation file paths exist
    *
    * @param choreography - Parsed choreography configuration
@@ -230,6 +321,8 @@ export class SidecarConfigGenerator {
     const errors: ConfigError[] = [];
 
     for (const flow of Object.values(choreography.flows)) {
+      if (!flow.events) continue;
+      
       for (const eventRoute of flow.events) {
         for (const target of eventRoute.targets) {
           if (target.transform) {

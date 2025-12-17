@@ -16,7 +16,7 @@ You **MUST** consider the user input before proceeding (if not empty).
 
 **Parse the domain name:**
 1. Extract `DOMAIN:<name>` from user input (e.g., `DOMAIN:public`, `DOMAIN:internal`)
-2. Use `<name>` to construct paths: `./examples/domains/ecommerce/<name>/...`
+2. Use `<name>` to construct paths: `./examples/ecommerce/<name>/...`
 3. If no `DOMAIN:` specified, respond with error:
    ```
    Error: No domain specified.
@@ -24,8 +24,8 @@ You **MUST** consider the user input before proceeding (if not empty).
    Example: /spas.compose DOMAIN:public Analyze order-service
    ```
 
-**Domain root**: `./examples/domains/ecommerce`
-**Full domain path**: `./examples/domains/ecommerce/{DOMAIN}/`
+**Domain root**: `./examples/ecommerce`
+**Full domain path**: `./examples/ecommerce/{DOMAIN}/`
 
 ## Goal
 
@@ -33,7 +33,7 @@ Analyze pulled service contracts and generate choreography configuration with tr
 
 ## Responsibilities
 
-1. **Contract Analysis**: Parse service metadata from `./examples/domains/ecommerce/{DOMAIN}/services/*/spas.json`
+1. **Contract Analysis**: Parse service metadata from `./examples/ecommerce/{DOMAIN}/services/*/spas.json`
 2. **Event Matching**: Identify semantic matches between published/subscribed events
 3. **Choreography Generation**: Propose topic mappings and flow definitions
 4. **Transformation Generation**: Create JSONata transformation files
@@ -42,7 +42,7 @@ Analyze pulled service contracts and generate choreography configuration with tr
 ## Workspace Structure
 
 ```
-./examples/domains/ecommerce/{DOMAIN}/
+./examples/ecommerce/{DOMAIN}/
 ├── choreography.yaml              # Choreography configuration (you modify this)
 ├── services/                      # Pulled service metadata (read-only)
 │   └── <service-name>/
@@ -65,66 +65,63 @@ Analyze pulled service contracts and generate choreography configuration with tr
 The sidecar automatically constructs CloudEvents-compliant event envelopes. The `type` field follows this format:
 
 ```
-com.{service-name}.{event-name-kebab}
+com.{bounded-context}.{event-name-kebab}
 ```
 
 **Construction Rules:**
-1. **Service Name**: From `x-service-name` header (full service name as-is)
-   - `order-service` → `order-service`
-   - `inventory-service` → `inventory-service`
-2. **Event Name**: From `x-event-name` header (kebab-case)
-   - `order-created` → `order-created`
-   - `stock-reserved` → `stock-reserved`
+1. **Bounded Context**: Extracted from `x-service-name` by removing `-service` suffix
+   - `order-service` → `order`
+   - `inventory-service` → `inventory`
+2. **Event Name**: From `x-event-name` in choreography metadata (kebab-case)
 
 **Examples:**
 ```yaml
 # Service: order-service
 # Event: order-created
-→ CloudEvents type: com.order-service.order-created
+→ CloudEvents type: com.order.order-created
 
 # Service: inventory-service  
 # Event: stock-reserved
-→ CloudEvents type: com.inventory-service.stock-reserved
+→ CloudEvents type: com.inventory.stock-reserved
 ```
 
-**Why this matters:** Enables consistent event type format across all services and supports event filtering by service or event type.
+**Why this matters:** Enables event filtering by bounded context or specific event types in the event broker.
 
 ### Sidecar Configuration Schema
 
-Sidecar configurations define how sidecars route events and commands to service endpoints.
+When generating sidecar configurations, reference these field definitions:
 
-**Essential Structure:**
-| Field | Type | Description |
-|-------|------|-------------|
-| `inbound` | array | Event subscriptions & command handlers (sidecar → service) |
-| `outbound` | array | Event publication routing (service → topics) |
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `serviceId` | string | ✅ | Unique identifier for this service |
+| `serviceName` | string | ✅ | Human-readable name (matches x-service-name) |
+| `servicePort` | number | ✅ | Port the actual service listens on |
+| `sidecarPort` | number | ✅ | Port sidecar exposes (usually 8080) |
+| `choreographyPath` | string | ✅ | Path to choreography directory |
+| `repositoryUrl` | string | ❌ | SPAS repository URL (optional) |
+| `proxies` | object | ❌ | Map of serviceId → proxy config |
+| `proxies.*.target` | string | ✅* | Downstream service URL (required if proxy used) |
+| `proxies.*.timeout` | number | ❌ | Request timeout in ms (default: 30000) |
+| `enableHealthCheck` | boolean | ❌ | Enable /health endpoint (default: true) |
+| `healthCheckPath` | string | ❌ | Custom health check path (default: /health) |
 
-**Inbound Entry** (event or command → service invocation):
-- `kind`: `"event"` (pub/sub) or `"command"` (request-response)
-- `topic` or `command`: Subscription identifier
-- `transform`: JSONata file path (optional)
-- `invokeEndpoint`: Service HTTP path to invoke (e.g., `"/incoming"`)
-
-**Outbound Entry** (service events → topic routing):
-- `topic`: Target topic/stream name
-- `eventType`: CloudEvents type for routing (optional)
-- `transform`: JSONata file path (optional)
-
-**Complete Schema**: `${domainRoot}/{DOMAIN}/.spas/schemas/sidecar-config-v1.schema.json`
-
-**Example:**
+**Example Complete Configuration:**
 ```json
 {
-  "inbound": [{
-    "kind": "event",
-    "topic": "orders-requested",
-    "transform": "inbound-order.jsonata",
-    "invokeEndpoint": "/incoming"
-  }],
-  "outbound": [{
-    "topic": "orders-fulfilled",
-    "eventType": "com.example.order.fulfilled"
-  }]
+  "serviceId": "order-service",
+  "serviceName": "order-service",
+  "servicePort": 3000,
+  "sidecarPort": 8080,
+  "choreographyPath": "/app/choreographies",
+  "proxies": {
+    "inventory-service": {
+      "target": "http://inventory-sidecar:8080",
+      "timeout": 5000
+    },
+    "payment-service": {
+      "target": "http://payment-sidecar:8080"
+    }
+  }
 }
 ```
 
@@ -166,80 +163,36 @@ $merge([
 ])
 ```
 
-### Sidecar Communication Patterns
+### Endpoint Routing
 
-Services NEVER call other services directly - all communication via sidecars.
+All service-to-service communication goes through sidecar proxies.
 
-**Event Publishing**: Service calls `POST /publish` with headers `x-service-name`, `x-event-name`. Sidecar publishes CloudEvents type `com.{service}.{event}` to Redis. Consuming sidecar invokes target service endpoint.
+**Endpoint Format:**
+```
+http://sidecar:8080/proxy/{serviceId}/{path}
+```
 
-**Command Invocation**: Choreography uses `command: name` field. Sidecar resolves endpoint from config, transforms via `inputMapping`, invokes target service, returns response for `outputMapping`.
-
-**Common Mistake:** Direct service calls bypass sidecar (breaks tracing/policy).
-
-### Service Metadata (spas.json) Schema
-
-Service metadata files define service capabilities, contracts, and runtime configuration.
-
-**Essential Structure:**
-| Field | Type | Description |
-|-------|------|-------------|
-| `schemaVersion` | string | Schema version ("runtime-metadata-v1") |
-| `id` | string | Service identifier (kebab-case) |
-| `name` | string | Display name |
-| `version` | string | Semantic version |
-| `boundedContext` | string | Domain context name |
-| `endpoints` | array | Command/Query endpoints |
-| `events` | array | Outbound events only (published by service) |
-| `runtime` | object | Container image/digest info |
-
-**Endpoint Structure:**
-- `name`: Endpoint identifier
-- `type`: "Command" or "Query"
-- `protocol`: "Http" or "Grpc"
-- `methodPath`: "POST /api/orders"
-- `version`: Semantic version
-- `schemaRef`: Path to request/response schema
-
-**Event Structure:**
-- `type`: Event type name (PascalCase)
-- `version`: Semantic version
-- `schemaRef`: Path to event schema
-
-**Complete Schema**: `${domainRoot}/{DOMAIN}/.spas/schemas/runtime-metadata-v1.schema.json`
+**Routing Rules:**
+1. `{serviceId}` in endpoint path MUST match a key in sidecar `proxies` config
+2. `{path}` is appended to the target URL
+3. Sidecar handles service discovery within Docker network
 
 **Example:**
-```json
-{
-  "schemaVersion": "runtime-metadata-v1",
-  "id": "order-service",
-  "name": "Order Service",
-  "version": "1.0.0",
-  "boundedContext": "ecommerce",
-  "endpoints": [
-    {
-      "name": "CreateOrder",
-      "type": "Command",
-      "protocol": "Http",
-      "methodPath": "POST /api/orders",
-      "version": "1.0",
-      "schemaRef": "schemas/create-order.schema.json"
-    }
-  ],
-  "events": [
-    {
-      "type": "OrderCreated",
-      "version": "1.0",
-      "schemaRef": "schemas/order-created.schema.json"
-    }
-  ],
-  "runtime": {
-    "image": "spas/order-service",
-    "repository": "localhost:5000",
-    "tag": "1.0.0",
-    "digest": "sha256:abc123..."
-  }
-}
+```yaml
+# In choreography
+downstream:
+  endpoint: http://sidecar:8080/proxy/inventory-service/stock
+
+# In sidecar config.json
+proxies:
+  inventory-service:
+    target: http://inventory-service:3000
+
+# Actual HTTP call made by sidecar:
+# POST http://inventory-service:3000/stock
 ```
+
+**Common Mistake:** Using wrong serviceId results in `404 from sidecar proxy`.
 
 ### Field Naming Conventions
 
@@ -268,95 +221,75 @@ inputMapping:
 
 ### Choreography → Sidecar Config Mapping
 
-The choreography.yaml flows generate sidecar configuration files. Use the schema at `./examples/domains/ecommerce/{DOMAIN}/.spas/schemas/sidecar-config-v1.schema.json` to understand the mapping:
+The choreography.yaml flows generate sidecar configuration files. Use the schema at `./examples/ecommerce/{DOMAIN}/.spas/schemas/sidecar-config-v1.schema.json` to understand the mapping:
 
 | Choreography Field | Sidecar Config Path | Description |
 |-------------------|---------------------|-------------|
-| `flows.*.commands[]` | `inbound[].kind="command"` | Entry point command registration |
 | `flows.*.events[].topic` | `inbound[].topic` | Topic name for event subscription |
-| `flows.*.events[].targets[].command` | (endpoint lookup) | Resolves invokeEndpoint from spas.json |
 | `flows.*.events[].targets[].transform` | `inbound[].transform` | JSONata file path |
 | `flows.*.events[].targets[].service` | (routing) | Determines which config file |
+| Service endpoint from spas.json | `inbound[].invokeEndpoint` | HTTP path on target service |
 | `flows.*.events[].source` + event | `outbound[].topic` + `eventType` | Publishing config |
 
 **InboundEntry kinds:**
 - `kind: "event"` - Pub/sub subscription (requires `topic`)
-- `kind: "command"` - Request-response entry point (requires `command`)
+- `kind: "command"` - Request-response (requires `command`)
 
 ### Choreography YAML Schema
 
-Choreography files define event-driven workflows and service interactions between services.
+Choreography files define event-driven workflows and service interactions.
 
-**Execution Flow**: Event → Topic → Transform → Command
-1. **Service A publishes event**: Uses SDK EventPublisher to emit domain event
-2. **Sidecar forwards to topic**: Routes event to configured message topic (Redis/Kafka)
-3. **Service B's sidecar subscribes**: Listens to topic based on choreography configuration
-4. **Transform event → command**: Applies JSONata transformation (event payload → command request DTO)
-5. **Invoke command endpoint**: HTTP POST to Service B's command endpoint
-6. **Service B processes**: Executes command logic, may publish new events
-
-This pattern enables **loose coupling**: Services never call each other directly. Choreography defines the "wiring" between services through topics and transformations.
-
-**Essential Structure:**
-| Field | Type | Description |
-|-------|------|-------------|
-| `version` | string | Schema version ("1.0") |
-| `domain` | string | Domain context name |
-| `flows` | object | Named choreography flows (key = flow name) |
-
-**Flow Definition:**
-- `participants`: Array of service names (minimum 2)
-- `commands`: Entry point commands (optional)
-  - `service`, `command` (PascalCase), `endpoint`
-- `events`: Event routing rules (optional if only commands)
-  - `source`: Publishing service (owns the event)
-  - `event`: Event type (kebab-case)
-  - `topic`: Message topic name
-  - `targets`: Subscribing services
-    - `service`: Subscriber name
-    - `command`: Command to invoke (PascalCase)
-    - `transform`: JSONata file path (optional)
-
-**Commands vs Events**: Commands = entry points (single target, no transform). Events = coordination (multiple targets, with transform).
-
-**How Topics Work:**
-- Topics decouple publishers from subscribers
-- One event type → one topic (configured in choreography)
-- Multiple services can subscribe to same topic
-- Each subscriber's sidecar: receives event → transforms → invokes local service command
-
-**Complete Schema**: `${domainRoot}/{DOMAIN}/.spas/schemas/choreography-v1.schema.json`
-
-**Example:**
+**Structure:**
 ```yaml
-version: "1.0"
-domain: "e-commerce"
-flows:
-  order-fulfillment:
-    participants:
-      - order-service
-      - fulfillment-service
-    commands:
-      - service: order-service
-        command: CreateOrder
-        endpoint: /orders
-    events:
-      - source: order-service
-        event: order-created
-        topic: orders
-        targets:
-          - service: fulfillment-service
-            command: ProcessOrder
-            transform: transformations/fulfillment-service/inbound-order.jsonata
+openapi: 3.1.0
+info:
+  title: "Choreography Title"
+  version: "1.0.0"
+  x-service-name: "<service-name>"        # Service that owns this choreography
+  x-event-name: "<event-name>"            # Event that triggers this flow
+  x-choreography-type: "event-outbound"   # Type: event-outbound | event-inbound
+
+x-spas-choreography:
+  trigger:
+    type: event                            # event | http
+    source: internal                       # internal | external
+    eventType: "<EventType>"              # Event type in PascalCase
+  
+  steps:
+    - name: "step-name"
+      type: downstream                     # downstream | emit | parallel
+      downstream:
+        endpoint: "http://sidecar:8080/proxy/{serviceId}/{path}"
+        method: POST                       # GET | POST | PUT | DELETE
+        inputMapping:                      # JSONata expressions
+          field1: $.source.field
+          field2: $.source.field
+        outputMapping:                     # Map response to context
+          resultField: $.responseField
+        onSuccess:                         # Optional success handler
+          emit:
+            eventType: "SuccessEvent"
+            payload:
+              field: $.value
+        onFailure:                         # Optional failure handler
+          emit:
+            eventType: "FailureEvent"
+            payload:
+              error: $.error.message
 ```
 
-**Key Concept**: The `transform` path points to a JSONata file that maps the `order-created` event payload to the command request DTO expected by fulfillment-service's ProcessOrder endpoint.
+**Step Types:**
+- **downstream**: HTTP call to another service (uses endpoint, method, inputMapping)
+- **emit**: Publish event (uses eventType, payload)
+- **parallel**: Execute multiple steps concurrently (uses branches array)
+
+**Trigger Types:**
+- **event**: Triggered by incoming event (requires source, eventType)
+- **http**: Triggered by HTTP request (requires path, method)
 
 ### Service Metadata (spas.json) Schema
 
-Service metadata files declare service identity, endpoints, and event contracts.
-
-**Architecture Principle**: Services expose Commands/Queries via endpoints and publish Events (outbound only). Services do NOT subscribe to events directly - the sidecar handles event subscriptions based on choreography configuration and invokes service commands.
+Service metadata files declare service identity and event contracts.
 
 **Required Fields:**
 ```json
@@ -364,46 +297,43 @@ Service metadata files declare service identity, endpoints, and event contracts.
   "id": "order-service",                  // Unique service identifier
   "version": "1.0.0",                      // Semantic version
   "boundedContext": "orders",             // Domain context
-  "endpoints": [                           // Commands and Queries
+  "events": {
+    "published": [                         // Events this service emits
+      {
+        "name": "order-created",
+        "x-event-name": "order-created",   // REQUIRED: Event identifier
+        "schema": "./schemas/order-created.schema.json"
+      },
+      {
+        "name": "order-cancelled",
+        "x-event-name": "order-cancelled",
+        "schema": "./schemas/order-cancelled.schema.json"
+      }
+    ],
+    "subscribed": [                        // Events this service listens to
+      {
+        "name": "payment-received",
+        "x-event-name": "payment-received",
+        "schema": "./schemas/payment-received.schema.json"
+      }
+    ]
+  },
+  "endpoints": [                           // HTTP endpoints exposed
     {
-      "name": "CreateOrder",
-      "type": "Command",
-      "protocol": "Http",
-      "methodPath": "/orders",
-      "version": "1.0",
-      "schemaRef": "schemas/endpoints/create-order.schema.json"
-    },
-    {
-      "name": "GetOrder",
-      "type": "Query",
-      "protocol": "Http",
-      "methodPath": "/orders/{id}",
-      "version": "1.0",
-      "schemaRef": "schemas/endpoints/get-order.schema.json"
-    }
-  ],
-  "events": [                              // Outbound events only
-    {
-      "type": "order-created",
-      "version": "1.0",
-      "schemaRef": "schemas/events/order-created.schema.json"
-    },
-    {
-      "type": "order-cancelled",
-      "version": "1.0",
-      "schemaRef": "schemas/events/order-cancelled.schema.json"
+      "path": "/orders",
+      "method": "POST",
+      "x-service-name": "order-service"   // REQUIRED: Service identifier
     }
   ]
 }
 ```
 
-**Critical Architecture Points:**
-- **events[]**: Flat array containing ONLY events published by this service (outbound). Services do NOT declare subscribed events.
-- **Choreography defines subscriptions**: Event subscriptions are declared in choreography.yaml, not service metadata.
-- **Sidecar pattern**: Sidecar subscribes to events → transforms → invokes service command endpoint.
-- **Service purity**: Services are pure HTTP APIs, testable without event infrastructure.
+**Critical Fields:**
+- **x-service-name**: REQUIRED in endpoints. Used for sidecar routing and CloudEvents source.
+- **x-event-name**: REQUIRED in events. Used for CloudEvents type construction.
+- **boundedContext**: Used to derive CloudEvents type prefix (`com.{boundedContext}.{event}`).
 
-**Complete Schema**: `${domainRoot}/{DOMAIN}/.spas/schemas/runtime-metadata-v1.schema.json`
+**Common Mistake**: Omitting `x-service-name` or `x-event-name` causes choreography loading failures.
 
 ## Workflow
 
@@ -415,14 +345,14 @@ Follow this 5-phase workflow with validation checkpoints at each stage.
 
 **Actions:**
 1. **Validate Workspace**
-   - Verify `./examples/domains/ecommerce/{DOMAIN}/choreography.yaml` exists
-   - Verify `./examples/domains/ecommerce/{DOMAIN}/services/` directory exists with at least one service
-   - If invalid: Show error and suggest `spas-compose init {DOMAIN} --output ./examples/domains/ecommerce`, then `spas-compose services pull`
+   - Verify `./examples/ecommerce/{DOMAIN}/choreography.yaml` exists
+   - Verify `./examples/ecommerce/{DOMAIN}/services/` directory exists with at least one service
+   - If invalid: Show error and suggest `spas-compose init {DOMAIN} --output ./examples/ecommerce`, then `spas-compose services pull`
 
 2. **Read Service Contracts**
-   - Read `./examples/domains/ecommerce/{DOMAIN}/services/<service-name>/spas.json` for each service
-   - Extract: `id`, `version`, `boundedContext`, `endpoints[]`, `events[]` (outbound only)
-   - Read schemas from `./examples/domains/ecommerce/{DOMAIN}/services/<service-name>/schemas/`
+   - Read `./examples/ecommerce/{DOMAIN}/services/<service-name>/spas.json` for each service
+   - Extract: `id`, `version`, `boundedContext`, `events.published[]`, `events.subscribed[]`
+   - Read schemas from `./examples/ecommerce/{DOMAIN}/services/<service-name>/schemas/`
 
 3. **Identify Relationships**
    - Match published events to subscribed events across services
@@ -494,10 +424,18 @@ flows:
         targets:
           - service: <subscribing-service>
             transform: transformations/<service>/inbound-<event>.jsonata
+
+# Optional infrastructure configuration
+infrastructure:
+  redis:
+    enabled: true
+  zipkin:
+    enabled: true
 ```
 
 **Requirements:**
 - `participants` must include at least 2 services
+- Topic names follow pattern: `{domain}.{bounded-context}.{event-type}`
 - Transformation paths: `transformations/{service}/inbound-{event}.jsonata`
 
 **Exit Criteria:** User confirms design with "yes" or provides feedback
@@ -520,7 +458,7 @@ Do you want me to proceed with generating the choreographies? (yes/no/feedback)
 
 **Actions:**
 1. **Create Transformation Files**
-   - Generate JSONata files at `./examples/domains/ecommerce/{DOMAIN}/transformations/<service>/*.jsonata`
+   - Generate JSONata files at `./examples/ecommerce/{DOMAIN}/transformations/<service>/*.jsonata`
    - Follow CloudEvents type format (camelCase for data fields)
    - Use `$append([], array.{...})` pattern for array transformations
    - Add header comments documenting source → target mapping
@@ -630,43 +568,107 @@ Next steps:
 - **Validate → Build**: Only after all validation checks pass
 - **Failure Handling**: If validation fails, return to appropriate phase (syntax errors → Generate, schema mismatches → Propose)
 
-## Known Pitfalls
+## Complete Examples
 
-| Pitfall | Symptom | Fix |
-|---------|---------|-----|
-| **Missing $append for Arrays** | JSONata evaluation error | Always use `$append([], array)` pattern. JSONata returns single object (not array) for single-element arrays. |
-| **Wrong Command Name** | Choreography execution failure | `command` field must match invocation config. Sidecar resolves target endpoint from command name. |
-| **Inconsistent Field Casing** | `null`/`undefined` values | Match exact field names from service schemas (camelCase vs snake_case). |
-| **Missing x-service-name** | Choreography not loaded | Add `x-service-name` to all endpoints in spas.json (REQUIRED field). |
-| **Circular Event Dependencies** | Infinite event loop | Design acyclic flows. Validate no event chain creates a loop. |
-| **Empty outputMapping** | Empty payload downstream | Test JSONata with sample data. Use `$exists(field)` or fallback values. |
+### Example 1: Order → Inventory (Reserve Stock)
 
-## Troubleshooting
+```mermaid
+sequenceDiagram
+    participant OrderService
+    participant OrderSidecar
+    participant InventorySidecar
+    participant InventoryService
 
-| Error | Solution |
-|-------|----------|
-| **400 on /incoming** | Check service endpoint expects transformed payload format. Verify inputMapping produces valid schema. |
-| **Transform failures** | Test JSONata with sample data. Use `$exists(field)` checks. Verify field name casing. |
-| **Events not routing** | Check CloudEvents type follows `com.<service-name>.<event>` format. Verify `x-event-name` matches. |
-| **Connection refused** | Verify target service running (`docker ps`). Check invocation config has correct endpoint URL. |
-| **Choreography not loaded** | Validate YAML syntax. Ensure `x-service-name` in info section matches service identity. |
-| **Empty payload** | Use fallback values in JSONata. Test outputMapping with actual response data. |
+    OrderService->>OrderSidecar: ReserveInventory
+    OrderSidecar->>InventorySidecar: POST /proxy/inventory-service/reserve
+    InventorySidecar->>InventoryService: POST /reserve
+    InventoryService-->>InventorySidecar: 200 {reservationId}
+    InventorySidecar-->>OrderSidecar: 200
+    OrderSidecar->>OrderSidecar: Emit InventoryReserved
+```
 
-**Debug**: `docker compose logs -f spas-sidecar-<service>` | Validate YAML online | Test JSONata at try.jsonata.org
+**Choreography YAML**:
+```yaml
+openapi: 3.1.0
+info:
+  title: Reserve Inventory
+  x-service-name: order-service
+  x-event-name: inventory-reserve-requested
 
-## Known Limitations
+x-spas-choreography:
+  trigger:
+    type: event
+    eventType: ReserveInventory
+  steps:
+    - name: reserve-stock
+      type: downstream
+      downstream:
+        endpoint: http://sidecar:8080/proxy/inventory-service/reserve
+        method: POST
+        inputMapping:
+          orderId: $.orderId
+          items: $append([], $.items.{"sku": sku, "quantity": quantity})
+        onSuccess:
+          emit:
+            eventType: InventoryReserved
+            payload: {orderId: $.orderId, reservationId: $.reservationId}
+```
 
-- **/incoming endpoint**: Cannot customize path. Expects CloudEvents format.
-- **Array handling**: JSONata returns object (not array) for single elements. Use `$append`.
-- **Single bounded context**: Each service belongs to one context only.
-- **Choreography naming**: Must follow pattern in `choreographies/` directory.
-- **Transformation paths**: Must be relative to domain root. No absolute paths.
+**Key**: `$append` for arrays, endpoint matches proxies config, onSuccess emits event.
+
+---
+
+### Example 2: Inventory → Order (Fulfillment)
+
+```mermaid
+sequenceDiagram
+    participant InventoryService
+    participant InventorySidecar
+    participant OrderSidecar
+    participant OrderService
+
+    InventoryService->>InventorySidecar: FulfillmentComplete
+    InventorySidecar->>OrderSidecar: POST /proxy/order-service/fulfillment
+    OrderSidecar->>OrderService: POST /fulfillment
+    OrderService-->>OrderSidecar: 200
+    InventorySidecar->>InventorySidecar: Emit OrderFulfilled
+```
+
+**Choreography YAML**:
+```yaml
+openapi: 3.1.0
+info:
+  title: Order Fulfillment
+  x-service-name: inventory-service
+  x-event-name: fulfillment-complete
+
+x-spas-choreography:
+  trigger:
+    type: event
+    eventType: FulfillmentComplete
+  steps:
+    - name: notify-order
+      type: downstream
+      downstream:
+        endpoint: http://sidecar:8080/proxy/order-service/fulfillment
+        method: POST
+        inputMapping:
+          orderId: $.orderId
+          shippedItems: $append([], $.items.{"sku": sku, "qty": quantity})
+          shippedAt: $now()
+        onSuccess:
+          emit:
+            eventType: OrderFulfilled
+            payload: {orderId: $.orderId, status: "completed"}
+```
+
+**Key**: `$now()` for timestamps, field name transformation (qty), no onFailure = rely on retries.
 
 ## Constraints
 
 | Constraint | Behavior |
 |------------|----------|
-| **Read-only services/** | NEVER modify files in `./examples/domains/ecommerce/{DOMAIN}/services/` |
+| **Read-only services/** | NEVER modify files in `./examples/ecommerce/{DOMAIN}/services/` |
 | **Preserve existing flows** | When adding flows, preserve all existing flows |
 | **Valid JSONata** | All .jsonata files must have valid syntax |
 | **Confirm before write** | ALWAYS wait for explicit confirmation |
@@ -677,7 +679,7 @@ Next steps:
 | Error | Response |
 |-------|----------|
 | No DOMAIN specified | "Error: No domain specified. Usage: /spas.compose DOMAIN:<name> <action>" |
-| No choreography.yaml | "Error: Workspace not initialized. Run `spas-compose init {DOMAIN} --output ./examples/domains/ecommerce` first." |
+| No choreography.yaml | "Error: Workspace not initialized. Run `spas-compose init {DOMAIN} --output ./examples/ecommerce` first." |
 | No services pulled | "Error: No services found. Run `spas-compose services pull` first." |
 | Service not found | "Error: Service '<name>' not found in services/ directory." |
 | Schema mismatch | "Warning: Cannot auto-generate transformation. Manual mapping required." |

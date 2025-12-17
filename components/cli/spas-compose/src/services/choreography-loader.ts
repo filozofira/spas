@@ -234,6 +234,8 @@ export class ChoreographyLoader {
     const transforms = new Set<string>();
 
     for (const flow of Object.values(choreography.flows)) {
+      if (!flow.events) continue;
+      
       for (const event of flow.events) {
         for (const target of event.targets) {
           if (target.transform) {

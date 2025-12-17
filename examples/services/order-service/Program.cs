@@ -42,7 +42,8 @@ var identity = new ServiceIdentityBuilder()
 
 // POST /orders - Create new order
 app.MapPost("/orders",
-    async (CreateOrderRequest request, EventPublisher publisher, OrderStore store) =>
+    [SpasCommand("CreateOrder", "1.0")]
+async (CreateOrderRequest request, EventPublisher publisher, OrderStore store) =>
     {
         var orderId = Guid.NewGuid();
         var order = new Order(
@@ -80,77 +81,41 @@ app.MapPost("/orders",
 
 // GET /orders - List all orders
 app.MapGet("/orders",
-    (OrderStore store) =>
+    [SpasQuery("ListOrders", "1.0")]
+(OrderStore store) =>
     {
         return Results.Ok(store.GetAll());
     });
 
 // GET /orders/{id} - Get specific order
 app.MapGet("/orders/{id}",
-    (Guid id, OrderStore store) =>
+    [SpasQuery("GetOrder", "1.0")]
+(Guid id, OrderStore store) =>
     {
         var order = store.Get(id);
         return order != null ? Results.Ok(order) : Results.NotFound();
     });
 
-// POST /incoming - Receive events from sidecar (e.g., OrderRequested in B2B)
-app.MapPost("/incoming",
-    async (OrderRequestedEvent request, EventPublisher publisher, OrderStore store) =>
+// POST /orders/confirm - Confirm order after stock reservation
+app.MapPost("/orders/confirm",
+    [SpasCommand("ConfirmOrder", "1.0")]
+(ConfirmOrderRequest request, OrderStore store) =>
     {
-        // B2B subscription scenario: OrderRequested → create order → publish OrderCreated
-        var orderId = Guid.NewGuid();
-        var order = new Order(
-            orderId,
-            request.CustomerId,
-            request.Items,
-            request.Total,
-            "created",
-            DateTime.UtcNow
-        );
+        Console.WriteLine($"[order-service] Confirming order {request.OrderId} with {request.ReservedItems.Count} items reserved");
 
-        store.Add(order);
-
-        // Publish OrderCreated
-        var eventPayload = new
-        {
-            orderId,
-            customerId = request.CustomerId,
-            items = request.Items,
-            total = request.Total,
-            createdAt = order.CreatedAt
-        };
-
-        try
-        {
-            await publisher.PublishAsync<OrderCreatedEvent>(payload: eventPayload);
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"Failed to publish OrderCreated event: {ex.Message}");
-        }
-
-        return Results.Ok(new { orderId, status = "created" });
-    });
-
-// POST /events/stock-reserved - Receive StockReserved events from inventory-service
-app.MapPost("/events/stock-reserved",
-    (StockReservedEvent stockEvent, OrderStore store) =>
-    {
-        Console.WriteLine($"[order-service] Received StockReserved for order {stockEvent.OrderId}");
-        
-        var order = store.Get(stockEvent.OrderId);
+        var order = store.Get(request.OrderId);
         if (order == null)
         {
-            Console.WriteLine($"[order-service] Order {stockEvent.OrderId} not found");
-            return Results.NotFound(new { error = $"Order {stockEvent.OrderId} not found" });
+            Console.WriteLine($"[order-service] Order {request.OrderId} not found");
+            return Results.NotFound(new { error = $"Order {request.OrderId} not found" });
         }
 
         // Update order status to confirmed
-        var updatedOrder = order with { Status = "confirmed" };
-        store.Add(updatedOrder);
-        
-        Console.WriteLine($"[order-service] Order {stockEvent.OrderId} status updated to 'confirmed'");
-        return Results.Ok(new { orderId = stockEvent.OrderId, status = "confirmed" });
+        var confirmedOrder = order with { Status = "confirmed" };
+        store.Add(confirmedOrder);
+
+        Console.WriteLine($"[order-service] Order {request.OrderId} status updated to 'confirmed'");
+        return Results.Ok(new { orderId = request.OrderId, status = "confirmed", reservedItems = request.ReservedItems });
     });
 
 // Discover contracts
@@ -192,23 +157,19 @@ public record CreateOrderRequest(string CustomerId, List<OrderItem> Items, decim
 
 public record CreateOrderResponse(Guid OrderId, string Status);
 
+[SpasCommand("ConfirmOrder", "1.0")]
+public record ConfirmOrderRequest(Guid OrderId, List<ReservedItem> ReservedItems);
+
 public record OrderItem(string ProductId, int Quantity, decimal Price);
+
+public record ReservedItem(string ProductId, int Quantity);
 
 // Domain models
 public record Order(Guid OrderId, string CustomerId, List<OrderItem> Items, decimal Total, string Status, DateTime CreatedAt);
 
-// Events
+// Events (outbound only)
 [SpasEvent("OrderCreated", "1.0", EventType = "com.ecommerce.order.created")]
 public record OrderCreatedEvent(Guid OrderId, string CustomerId, List<OrderItem> Items, decimal Total, DateTime CreatedAt);
-
-[SpasEvent("OrderRequested", "1.0", EventType = "com.b2b.order.requested")]
-public record OrderRequestedEvent(string CustomerId, List<OrderItem> Items, decimal Total);
-
-// Inbound events (subscribed)
-[SpasEvent("StockReserved", "1.0", EventType = "com.inventory.stock.reserved")]
-public record StockReservedEvent(Guid OrderId, List<ReservedItem> ReservedItems, DateTime ReservedAt);
-
-public record ReservedItem(string ProductId, int Quantity);
 
 // In-memory store
 public class OrderStore

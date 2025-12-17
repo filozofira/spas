@@ -42,6 +42,7 @@ var identity = new ServiceIdentityBuilder()
 
 // GET /inventory - List all inventory items
 app.MapGet("/inventory",
+    [SpasQuery("ListInventory", "1.0")]
     (InventoryStore store) =>
     {
         return Results.Ok(store.GetAll());
@@ -49,20 +50,24 @@ app.MapGet("/inventory",
 
 // GET /inventory/{productId} - Get stock for specific product
 app.MapGet("/inventory/{productId}",
+    [SpasQuery("GetInventory", "1.0")]
     (string productId, InventoryStore store) =>
     {
         var item = store.Get(productId);
         return item != null ? Results.Ok(item) : Results.NotFound();
     });
 
-// POST /incoming - Receive events from sidecar (OrderCreated)
-app.MapPost("/incoming",
-    async (OrderCreatedEvent orderEvent, EventPublisher publisher, InventoryStore store) =>
+// POST /inventory/reserve - Reserve stock for order
+app.MapPost("/inventory/reserve",
+    [SpasCommand("ReserveStock", "1.0")]
+    async (ReserveStockRequest request, EventPublisher publisher, InventoryStore store) =>
     {
+        Console.WriteLine($"[inventory-service] Reserving stock for order {request.OrderId}");
+        
         // Reserve stock for each item in the order
         var reservations = new List<StockReservation>();
         
-        foreach (var item in orderEvent.Items)
+        foreach (var item in request.Items)
         {
             var inventoryItem = store.Get(item.ProductId);
             
@@ -72,7 +77,7 @@ app.MapPost("/incoming",
                 var depletedPayload = new
                 {
                     productId = item.ProductId,
-                    orderId = orderEvent.OrderId,
+                    orderId = request.OrderId,
                     requestedQuantity = item.Quantity,
                     availableQuantity = inventoryItem?.AvailableQuantity ?? 0,
                     timestamp = DateTime.UtcNow
@@ -105,7 +110,7 @@ app.MapPost("/incoming",
         {
             var reservedPayload = new
             {
-                orderId = orderEvent.OrderId,
+                orderId = request.OrderId,
                 reservations = reservations.Select(r => new
                 {
                     productId = r.ProductId,
@@ -160,16 +165,17 @@ app.MapGet("/health", () => new { status = "healthy", service = "inventory-servi
 
 app.Run();
 
+// Request/Response types
+[SpasCommand("ReserveStock", "1.0")]
+public record ReserveStockRequest(Guid OrderId, List<OrderItem> Items);
+
+public record OrderItem(string ProductId, int Quantity);
+
 // Domain models
 public record InventoryItem(string ProductId, int AvailableQuantity, int ReservedQuantity);
 public record StockReservation(string ProductId, int Quantity, DateTime ReservedAt);
-public record OrderItem(string ProductId, int Quantity, decimal Price);
 
-// Events subscribed
-[SpasEvent("OrderCreated", "1.0", EventType = "com.ecommerce.order.created")]
-public record OrderCreatedEvent(Guid OrderId, string CustomerId, List<OrderItem> Items, decimal Total, DateTime CreatedAt);
-
-// Events published
+// Events (outbound only)
 [SpasEvent("StockReserved", "1.0", EventType = "com.inventory.stock.reserved")]
 public record StockReservedEvent(Guid OrderId, List<StockReservation> Reservations, DateTime Timestamp);
 

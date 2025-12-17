@@ -2,7 +2,7 @@
  * WorkspaceService - Domain workspace operations
  */
 
-import { existsSync, mkdirSync, writeFileSync, rmSync, statSync } from "fs";
+import { existsSync, mkdirSync, writeFileSync, readFileSync, rmSync, statSync } from "fs";
 import { join, relative } from "path";
 import type { CommandResult } from "../types.js";
 import {
@@ -11,6 +11,7 @@ import {
   generateAgentFile,
   generatePromptFile,
   generateSidecarConfigSchema,
+  generateChoreographySchema,
 } from "../utils/templates.js";
 
 /**
@@ -113,17 +114,44 @@ export class WorkspaceService {
         "utf-8",
       );
 
-      // Create sidecar config schema for AI agent reference
-      // Schema is placed in .spas/schemas/ so AI can understand choreography → sidecar config mapping
+      // Create schema files for AI agent reference
+      // Schemas are placed in .spas/schemas/ so AI can understand choreography structure and sidecar config mapping
       const schemasDir = join(workspacePath, ".spas", "schemas");
       mkdirSync(schemasDir, { recursive: true });
 
-      const schemaContent = generateSidecarConfigSchema();
+      const sidecarSchemaContent = generateSidecarConfigSchema();
       writeFileSync(
         join(schemasDir, "sidecar-config-v1.schema.json"),
-        schemaContent,
+        sidecarSchemaContent,
         "utf-8",
       );
+
+      const choreographySchemaContent = generateChoreographySchema();
+      writeFileSync(
+        join(schemasDir, "choreography-v1.schema.json"),
+        choreographySchemaContent,
+        "utf-8",
+      );
+
+      // Copy runtime metadata schema from repository component
+      const runtimeMetadataSchemaPath = join(
+        process.cwd(),
+        "components",
+        "repository",
+        "schemas",
+        "runtime-metadata-v1.schema.json",
+      );
+      if (existsSync(runtimeMetadataSchemaPath)) {
+        const runtimeMetadataSchema = readFileSync(
+          runtimeMetadataSchemaPath,
+          "utf-8",
+        );
+        writeFileSync(
+          join(schemasDir, "runtime-metadata-v1.schema.json"),
+          runtimeMetadataSchema,
+          "utf-8",
+        );
+      }
 
       // Calculate relative agent file path for display
       const agentRelativePath = projectRoot
@@ -145,6 +173,8 @@ export class WorkspaceService {
             "services/",
             "transformations/",
             ".spas/schemas/sidecar-config-v1.schema.json",
+            ".spas/schemas/choreography-v1.schema.json",
+            ".spas/schemas/runtime-metadata-v1.schema.json",
             agentRelativePath,
             promptRelativePath,
           ],

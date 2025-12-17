@@ -41,8 +41,23 @@ export interface Flow {
   description?: string;
   /** Service names participating in this flow */
   participants: string[];
+  /** Command entry points that initiate flows */
+  commands?: CommandEntry[];
   /** Event routing definitions */
-  events: EventRoute[];
+  events?: EventRoute[];
+}
+
+/**
+ * Command Entry
+ * Entry point that can initiate a flow
+ */
+export interface CommandEntry {
+  /** Service exposing the command */
+  service: string;
+  /** Command name (PascalCase) */
+  command: string;
+  /** HTTP endpoint path */
+  endpoint: string;
 }
 
 /**
@@ -67,6 +82,8 @@ export interface EventRoute {
 export interface Target {
   /** Subscribing service name */
   service: string;
+  /** Target command name to invoke (PascalCase) */
+  command?: string;
   /** Path to JSONata transformation file (relative to workspace root) */
   transform?: string;
 }
@@ -117,6 +134,12 @@ export interface ServiceMetadata {
   version: string;
   /** Bounded context name */
   boundedContext: string;
+  /** Service endpoints (Commands/Queries) */
+  endpoints?: Array<{
+    name: string;
+    type: string;
+    methodPath: string;
+  }>;
   /** Event definitions */
   events: {
     published: EventDefinition[];

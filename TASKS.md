@@ -57,20 +57,12 @@ This section documents the latest actions, any issues encountered, and the exact
 
 ### Precise Next Steps (Pick and execute IN ORDER)
 
-1. **Merge current branch** — `fix_issues_found_during_example_choreography` has all E2E fixes ready for PR
-
-2. **Review completed specs** — Specs 009-012 completed all FG05-FG09 bug fixes:
-   - Spec 009: Image references, sidecar config generation, port configurations, init --output
-   - Spec 010: Sidecar transform file loading
-   - Spec 011: SDK sidecar host derivation
-   - Spec 012: CloudEvents type construction refactor
-
-3. **Phase 3: B2B Subscription Choreography** — Proves service reuse across domains
+1. **Phase 3: B2B Subscription Choreography** — Proves service reuse across domains
    - Use same order-service/inventory-service in different domain context
    - Create async-first choreography workflow
    - Verify services work without code changes
 
-4. **Consider remaining grooming features** — See [GROOMING.md](./GROOMING.md) for FG01-FG04
+2. **Consider remaining grooming features** — See [GROOMING.md](./GROOMING.md) for FG01-FG04
 
 ### Key Files for Context
 

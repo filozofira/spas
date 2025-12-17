@@ -181,39 +181,40 @@ com.{service-name}.{event-name-kebab}
 
 ### Sidecar Configuration Schema
 
-When generating sidecar configurations, reference these field definitions:
+Sidecar configurations define how sidecars route events and commands to service endpoints.
 
-| Field | Type | Required | Description |
-|-------|------|----------|-------------|
-| \`serviceId\` | string | ✅ | Unique identifier for this service |
-| \`serviceName\` | string | ✅ | Human-readable name (matches x-service-name) |
-| \`servicePort\` | number | ✅ | Port the actual service listens on |
-| \`sidecarPort\` | number | ✅ | Port sidecar exposes (usually 8080) |
-| \`choreographyPath\` | string | ✅ | Path to choreography directory |
-| \`repositoryUrl\` | string | ❌ | SPAS repository URL (optional) |
-| \`proxies\` | object | ❌ | Map of serviceId → proxy config |
-| \`proxies.*.target\` | string | ✅* | Downstream service URL (required if proxy used) |
-| \`proxies.*.timeout\` | number | ❌ | Request timeout in ms (default: 30000) |
-| \`enableHealthCheck\` | boolean | ❌ | Enable /health endpoint (default: true) |
-| \`healthCheckPath\` | string | ❌ | Custom health check path (default: /health) |
+**Essential Structure:**
+| Field | Type | Description |
+|-------|------|-------------|
+| \`inbound\` | array | Event subscriptions & command handlers (sidecar → service) |
+| \`outbound\` | array | Event publication routing (service → topics) |
 
-**Example Complete Configuration:**
+**Inbound Entry** (event or command → service invocation):
+- \`kind\`: \`"event"\` (pub/sub) or \`"command"\` (request-response)
+- \`topic\` or \`command\`: Subscription identifier
+- \`transform\`: JSONata file path (optional)
+- \`invokeEndpoint\`: Service HTTP path to invoke (e.g., \`"/incoming"\`)
+
+**Outbound Entry** (service events → topic routing):
+- \`topic\`: Target topic/stream name
+- \`eventType\`: CloudEvents type for routing (optional)
+- \`transform\`: JSONata file path (optional)
+
+**Complete Schema**: \`\${domainRoot}/{DOMAIN}/.spas/schemas/sidecar-config-v1.schema.json\`
+
+**Example:**
 \`\`\`json
 {
-  "serviceId": "order-service",
-  "serviceName": "order-service",
-  "servicePort": 3000,
-  "sidecarPort": 8080,
-  "choreographyPath": "/app/choreographies",
-  "proxies": {
-    "inventory-service": {
-      "target": "http://inventory-sidecar:8080",
-      "timeout": 5000
-    },
-    "payment-service": {
-      "target": "http://payment-sidecar:8080"
-    }
-  }
+  "inbound": [{
+    "kind": "event",
+    "topic": "orders-requested",
+    "transform": "inbound-order.jsonata",
+    "invokeEndpoint": "/incoming"
+  }],
+  "outbound": [{
+    "topic": "orders-fulfilled",
+    "eventType": "com.example.order.fulfilled"
+  }]
 }
 \`\`\`
 
@@ -308,55 +309,45 @@ The choreography.yaml flows generate sidecar configuration files. Use the schema
 
 ### Choreography YAML Schema
 
-Choreography files define event-driven workflows and service interactions.
+Choreography files define event-driven workflows and service interactions between services.
 
-**Structure:**
+**Essential Structure:**
+| Field | Type | Description |
+|-------|------|-------------|
+| \`version\` | string | Schema version ("1.0") |
+| \`domain\` | string | Domain context name |
+| \`flows\` | object | Named choreography flows (key = flow name) |
+| \`infrastructure\` | object | Redis/Zipkin config (optional) |
+
+**Flow Definition:**
+- \`participants\`: Array of service names (minimum 2)
+- \`events\`: Array of event routing rules
+  - \`source\`: Publishing service name
+  - \`event\`: Event type (kebab-case)
+  - \`topic\`: Message topic/stream name
+  - \`targets\`: Array of subscribing services
+    - \`service\`: Subscriber name
+    - \`transform\`: JSONata file path (optional)
+
+**Complete Schema**: \`\${domainRoot}/{DOMAIN}/.spas/schemas/choreography-v1.schema.json\`
+
+**Example:**
 \`\`\`yaml
-openapi: 3.1.0
-info:
-  title: "Choreography Title"
-  version: "1.0.0"
-  x-service-name: "<service-name>"        # Service that owns this choreography
-  x-event-name: "<event-name>"            # Event that triggers this flow
-  x-choreography-type: "event-outbound"   # Type: event-outbound | event-inbound
-
-x-spas-choreography:
-  trigger:
-    type: event                            # event | http
-    source: internal                       # internal | external
-    eventType: "<EventType>"              # Event type in PascalCase
-  
-  steps:
-    - name: "step-name"
-      type: downstream                     # downstream | emit | parallel
-      downstream:
-        command: "command-name"            # Command identifier
-        method: POST                       # GET | POST | PUT | DELETE
-        inputMapping:                      # JSONata expressions
-          field1: $.source.field
-          field2: $.source.field
-        outputMapping:                     # Map response to context
-          resultField: $.responseField
-        onSuccess:                         # Optional success handler
-          emit:
-            eventType: "SuccessEvent"
-            payload:
-              field: $.value
-        onFailure:                         # Optional failure handler
-          emit:
-            eventType: "FailureEvent"
-            payload:
-              error: $.error.message
+version: "1.0"
+domain: "e-commerce"
+flows:
+  order-fulfillment:
+    participants:
+      - order-service
+      - fulfillment-service
+    events:
+      - source: order-service
+        event: order-created
+        topic: orders
+        targets:
+          - service: fulfillment-service
+            transform: transformations/fulfillment-service/inbound-order.jsonata
 \`\`\`
-
-**Step Types:**
-- **downstream**: HTTP call to another service (uses endpoint, method, inputMapping)
-- **emit**: Publish event (uses eventType, payload)
-- **parallel**: Execute multiple steps concurrently (uses branches array)
-
-**Trigger Types:**
-- **event**: Triggered by incoming event (requires source, eventType)
-- **http**: Triggered by HTTP request (requires path, method)
 
 ### Service Metadata (spas.json) Schema
 
@@ -1108,6 +1099,205 @@ export function generateSidecarConfigSchema(): string {
               eventType: "com.example.order.fulfilled",
             },
           ],
+        },
+      ],
+    },
+    null,
+    2,
+  );
+}
+
+/**
+ * Generate choreography schema (.spas/schemas/choreography-v1.schema.json)
+ *
+ * Provides JSON Schema for choreography.yaml files to enable:
+ * - AI agent understanding of choreography structure
+ * - IDE validation and autocomplete for choreography files
+ * - CI/CD validation of choreography configurations
+ */
+export function generateChoreographySchema(): string {
+  return JSON.stringify(
+    {
+      $schema: "http://json-schema.org/draft-07/schema#",
+      $id: "https://spas.dev/schemas/choreography-v1.schema.json",
+      title: "SPAS Choreography Configuration",
+      description:
+        "Schema for domain choreography configuration defining service interactions and event routing",
+      type: "object",
+      required: ["version", "domain", "flows"],
+      additionalProperties: false,
+      properties: {
+        version: {
+          type: "string",
+          description: "Schema version",
+          enum: ["1.0"],
+        },
+        domain: {
+          type: "string",
+          description: "Domain context name",
+          pattern: "^[a-z][a-z0-9-]*[a-z0-9]$",
+          examples: ["e-commerce", "order-management"],
+        },
+        flows: {
+          type: "object",
+          description: "Named choreography flows",
+          additionalProperties: {
+            $ref: "#/definitions/Flow",
+          },
+          minProperties: 1,
+        },
+        infrastructure: {
+          $ref: "#/definitions/Infrastructure",
+        },
+      },
+      definitions: {
+        Flow: {
+          type: "object",
+          description:
+            "A named choreography flow defining event routing between services",
+          required: ["participants", "events"],
+          additionalProperties: false,
+          properties: {
+            description: {
+              type: "string",
+              description: "Human-readable description of the flow",
+            },
+            participants: {
+              type: "array",
+              description: "Service names participating in this flow",
+              items: {
+                type: "string",
+                pattern: "^[a-z][a-z0-9-]*[a-z0-9]$",
+              },
+              minItems: 2,
+              uniqueItems: true,
+            },
+            events: {
+              type: "array",
+              description: "Event routing definitions",
+              items: {
+                $ref: "#/definitions/EventRoute",
+              },
+              minItems: 1,
+            },
+          },
+        },
+        EventRoute: {
+          type: "object",
+          description: "Defines how an event is routed from source to targets",
+          required: ["source", "event", "topic", "targets"],
+          additionalProperties: false,
+          properties: {
+            source: {
+              type: "string",
+              description: "Publishing service name",
+              pattern: "^[a-z][a-z0-9-]*[a-z0-9]$",
+            },
+            event: {
+              type: "string",
+              description: "Event type name (kebab-case)",
+              pattern: "^[a-z][a-z0-9]*(-[a-z0-9]+)*$",
+              examples: ["order-created", "fulfillment-completed"],
+            },
+            topic: {
+              type: "string",
+              description: "Message topic/stream name",
+              pattern: "^[a-z][a-z0-9-]*[a-z0-9]$",
+              examples: ["orders", "fulfillment"],
+            },
+            targets: {
+              type: "array",
+              description: "Subscribing services and their transformations",
+              items: {
+                $ref: "#/definitions/Target",
+              },
+              minItems: 1,
+            },
+          },
+        },
+        Target: {
+          type: "object",
+          description: "A subscribing service and optional transformation",
+          required: ["service"],
+          additionalProperties: false,
+          properties: {
+            service: {
+              type: "string",
+              description: "Subscribing service name",
+              pattern: "^[a-z][a-z0-9-]*[a-z0-9]$",
+            },
+            transform: {
+              type: "string",
+              description: "Relative path to JSONata transformation file",
+              pattern:
+                "^transformations/[a-z][a-z0-9-]*[a-z0-9]/[a-z0-9-]+\\.jsonata$",
+              examples: [
+                "transformations/fulfillment-service/inbound-order-created.jsonata",
+              ],
+            },
+          },
+        },
+        Infrastructure: {
+          type: "object",
+          description: "Infrastructure component configuration",
+          additionalProperties: false,
+          properties: {
+            redis: {
+              $ref: "#/definitions/InfraComponent",
+            },
+            zipkin: {
+              $ref: "#/definitions/InfraComponent",
+            },
+          },
+        },
+        InfraComponent: {
+          type: "object",
+          additionalProperties: false,
+          properties: {
+            enabled: {
+              type: "boolean",
+              default: true,
+            },
+            port: {
+              type: "integer",
+              minimum: 1024,
+              maximum: 65535,
+            },
+          },
+        },
+      },
+      examples: [
+        {
+          version: "1.0",
+          domain: "e-commerce",
+          flows: {
+            "order-fulfillment": {
+              description: "Order to fulfillment processing flow",
+              participants: ["order-service", "fulfillment-service"],
+              events: [
+                {
+                  source: "order-service",
+                  event: "OrderCreated",
+                  topic: "orders",
+                  targets: [
+                    {
+                      service: "fulfillment-service",
+                      transform:
+                        "transformations/fulfillment-service/inbound-order-created.jsonata",
+                    },
+                  ],
+                },
+              ],
+            },
+          },
+          infrastructure: {
+            redis: {
+              enabled: true,
+            },
+            zipkin: {
+              enabled: true,
+            },
+          },
         },
       ],
     },

@@ -11,6 +11,7 @@ import {
   generateAgentFile,
   generatePromptFile,
   generateSidecarConfigSchema,
+  generateChoreographySchema,
 } from "../utils/templates.js";
 
 /**
@@ -113,15 +114,22 @@ export class WorkspaceService {
         "utf-8",
       );
 
-      // Create sidecar config schema for AI agent reference
-      // Schema is placed in .spas/schemas/ so AI can understand choreography → sidecar config mapping
+      // Create schema files for AI agent reference
+      // Schemas are placed in .spas/schemas/ so AI can understand choreography structure and sidecar config mapping
       const schemasDir = join(workspacePath, ".spas", "schemas");
       mkdirSync(schemasDir, { recursive: true });
 
-      const schemaContent = generateSidecarConfigSchema();
+      const sidecarSchemaContent = generateSidecarConfigSchema();
       writeFileSync(
         join(schemasDir, "sidecar-config-v1.schema.json"),
-        schemaContent,
+        sidecarSchemaContent,
+        "utf-8",
+      );
+
+      const choreographySchemaContent = generateChoreographySchema();
+      writeFileSync(
+        join(schemasDir, "choreography-v1.schema.json"),
+        choreographySchemaContent,
         "utf-8",
       );
 
@@ -145,6 +153,7 @@ export class WorkspaceService {
             "services/",
             "transformations/",
             ".spas/schemas/sidecar-config-v1.schema.json",
+            ".spas/schemas/choreography-v1.schema.json",
             agentRelativePath,
             promptRelativePath,
           ],

@@ -24,16 +24,16 @@ describe("generateAgentFile", () => {
       expect(content).toContain("CloudEvents Type Format");
     });
 
-    it("should contain complete sidecar config schema documentation", () => {
+    it("should contain sidecar config schema reference", () => {
       const content = generateAgentFile("./examples/ecommerce");
 
-      // FR-002: Sidecar config schema
+      // FR-002: Sidecar config schema (condensed with file reference)
       expect(content).toContain("Sidecar Configuration Schema");
-      expect(content).toContain("serviceId");
-      expect(content).toContain("serviceName");
-      expect(content).toContain("sidecarPort");
-      expect(content).toContain("choreographyPath");
-      expect(content).toContain("proxies");
+      expect(content).toContain("inbound");
+      expect(content).toContain("outbound");
+      expect(content).toContain("kind");
+      expect(content).toContain("invokeEndpoint");
+      expect(content).toContain("sidecar-config-v1.schema.json");
     });
 
     it("should contain JSONata transformation patterns", () => {
@@ -223,14 +223,14 @@ describe("generateAgentFile", () => {
     it("should contain choreography YAML schema documentation", () => {
       const content = generateAgentFile("./examples/ecommerce");
 
-      // FR-014: Choreography schema
+      // FR-014: Choreography schema (condensed with file reference)
       expect(content).toContain("### Choreography YAML Schema");
-      expect(content).toContain("x-spas-choreography");
-      expect(content).toContain("trigger");
-      expect(content).toContain("steps");
-      expect(content).toContain("type: downstream");
-      expect(content).toContain("**downstream**:");
-      expect(content).toContain("**emit**:");
+      expect(content).toContain("version");
+      expect(content).toContain("domain");
+      expect(content).toContain("flows");
+      expect(content).toContain("participants");
+      expect(content).toContain("events");
+      expect(content).toContain("choreography-v1.schema.json");
     });
 
     it("should contain service metadata (spas.json) schema documentation", () => {
@@ -281,29 +281,29 @@ describe("generateAgentFile", () => {
       expect(examplesSection).toContain("$append");
     });
 
-    it("should document step types in choreography schema", () => {
+    it("should reference choreography schema file", () => {
       const content = generateAgentFile("./examples/ecommerce");
 
-      expect(content).toContain("**Step Types:**");
-      expect(content).toContain("**downstream**:");
-      expect(content).toContain("**emit**:");
-      expect(content).toContain("**parallel**:");
+      expect(content).toContain("### Choreography YAML Schema");
+      expect(content).toContain("choreography-v1.schema.json");
+      expect(content).toContain("participants");
+      expect(content).toContain("events");
     });
 
-    it("should document trigger types in choreography schema", () => {
+    it("should reference sidecar config schema file", () => {
       const content = generateAgentFile("./examples/ecommerce");
 
-      expect(content).toContain("**Trigger Types:**");
-      expect(content).toContain("**event**:");
-      expect(content).toContain("**http**:");
+      expect(content).toContain("### Sidecar Configuration Schema");
+      expect(content).toContain("sidecar-config-v1.schema.json");
+      expect(content).toContain("inbound");
+      expect(content).toContain("outbound");
     });
 
-    it("should emphasize critical fields in spas.json schema", () => {
+    it("should include schema file paths with domain root placeholder", () => {
       const content = generateAgentFile("./examples/ecommerce");
 
-      expect(content).toContain("**Critical Fields:**");
-      expect(content).toContain("**x-service-name**: REQUIRED");
-      expect(content).toContain("**x-event-name**: REQUIRED");
+      expect(content).toContain("${domainRoot}/{DOMAIN}/.spas/schemas/sidecar-config-v1.schema.json");
+      expect(content).toContain("${domainRoot}/{DOMAIN}/.spas/schemas/choreography-v1.schema.json");
     });
   });
 

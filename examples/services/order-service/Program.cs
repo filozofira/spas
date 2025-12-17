@@ -96,6 +96,15 @@ app.MapGet("/orders/{id}",
         return order != null ? Results.Ok(order) : Results.NotFound();
     });
 
+// GET /orders- Get all orders
+app.MapGet("/orders/",
+    [SpasQuery("GetOrders", "1.0")]
+    (OrderStore store) =>
+    {
+        var orders = store.GetAll();
+        return Results.Ok(orders);
+    });
+
 // POST /orders/confirm - Confirm order after stock reservation
 app.MapPost("/orders/confirm",
     [SpasCommand("ConfirmOrder", "1.0")]

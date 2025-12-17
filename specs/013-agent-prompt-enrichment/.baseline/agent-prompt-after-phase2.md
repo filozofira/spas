@@ -43,19 +43,19 @@ Analyze pulled service contracts and generate choreography configuration with tr
 
 ```
 ./examples/ecommerce/{DOMAIN}/
-Γö£ΓöÇΓöÇ choreography.yaml              # Choreography configuration (you modify this)
-Γö£ΓöÇΓöÇ services/                      # Pulled service metadata (read-only)
-Γöé   ΓööΓöÇΓöÇ <service-name>/
-Γöé       Γö£ΓöÇΓöÇ spas.json              # Service contract
-Γöé       ΓööΓöÇΓöÇ schemas/               # Schemas (preserves archive structure)
-Γöé           Γö£ΓöÇΓöÇ endpoints/         # Endpoint request/response schemas
-Γöé           Γöé   ΓööΓöÇΓöÇ <endpoint>.schema.json
-Γöé           ΓööΓöÇΓöÇ events/            # Event payload schemas
-Γöé               ΓööΓöÇΓöÇ <event-type>.schema.json
-ΓööΓöÇΓöÇ transformations/               # JSONata files (you create these)
-    ΓööΓöÇΓöÇ <service-name>/
-        Γö£ΓöÇΓöÇ inbound-<event>.jsonata
-        ΓööΓöÇΓöÇ outbound-<event>.jsonata
+├── choreography.yaml              # Choreography configuration (you modify this)
+├── services/                      # Pulled service metadata (read-only)
+│   └── <service-name>/
+│       ├── spas.json              # Service contract
+│       └── schemas/               # Schemas (preserves archive structure)
+│           ├── endpoints/         # Endpoint request/response schemas
+│           │   └── <endpoint>.schema.json
+│           └── events/            # Event payload schemas
+│               └── <event-type>.schema.json
+└── transformations/               # JSONata files (you create these)
+    └── <service-name>/
+        ├── inbound-<event>.jsonata
+        └── outbound-<event>.jsonata
 ```
 
 ## Technical Reference
@@ -99,13 +99,13 @@ When asked to analyze services:
 
 **Output Format:**
 ```
-≡ƒôª order-service (1.0.0) - orders bounded context
+📦 order-service (1.0.0) - orders bounded context
   Published: order-created, order-cancelled
   Subscribed: payment-received
 
-≡ƒôª fulfillment-service (1.0.0) - fulfillment bounded context  
+📦 fulfillment-service (1.0.0) - fulfillment bounded context  
   Published: fulfillment-completed
-  Subscribed: order-created ΓåÉ matches order-service.order-created Γ£ô
+  Subscribed: order-created ← matches order-service.order-created ✓
 ```
 
 ### Step 3: Propose Choreography
@@ -146,7 +146,7 @@ infrastructure:
 Create JSONata files at `./examples/ecommerce/{DOMAIN}/transformations/<service>/*.jsonata`:
 ```jsonata
 /* inbound-order-created.jsonata */
-/* Transforms order-created (order-service) ΓåÆ fulfillment-request (fulfillment-service) */
+/* Transforms order-created (order-service) → fulfillment-request (fulfillment-service) */
 {
   "orderId": orderId,
   "items": $append([], items.{ "sku": productId, "qty": quantity }),
@@ -162,12 +162,12 @@ Create JSONata files at `./examples/ecommerce/{DOMAIN}/transformations/<service>
 
 After completion, suggest:
 ```
-Γ£ô Choreography complete
+✓ Choreography complete
 
 Next steps:
-  ΓÇó Validate: spas-compose choreography build --dry-run
-  ΓÇó Build: spas-compose choreography build --docker  
-  ΓÇó Run: docker compose up
+  • Validate: spas-compose choreography build --dry-run
+  • Build: spas-compose choreography build --docker  
+  • Run: docker compose up
 ```
 
 ## Constraints
@@ -201,4 +201,3 @@ Next steps:
 
 /spas.compose DOMAIN:partner Add notification-service to order-fulfillment flow
 ```
-

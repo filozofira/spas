@@ -96,26 +96,26 @@ app.MapGet("/orders/{id}",
         return order != null ? Results.Ok(order) : Results.NotFound();
     });
 
-// POST /orders/{id}/confirm - Confirm order after stock reservation
-app.MapPost("/orders/{id}/confirm",
+// POST /orders/confirm - Confirm order after stock reservation
+app.MapPost("/orders/confirm",
     [SpasCommand("ConfirmOrder", "1.0")]
-    (Guid id, ConfirmOrderRequest request, OrderStore store) =>
+    (ConfirmOrderRequest request, OrderStore store) =>
     {
-        Console.WriteLine($"[order-service] Confirming order {id} with {request.ReservedItems.Count} items reserved");
+        Console.WriteLine($"[order-service] Confirming order {request.OrderId} with {request.ReservedItems.Count} items reserved");
         
-        var order = store.Get(id);
+        var order = store.Get(request.OrderId);
         if (order == null)
         {
-            Console.WriteLine($"[order-service] Order {id} not found");
-            return Results.NotFound(new { error = $"Order {id} not found" });
+            Console.WriteLine($"[order-service] Order {request.OrderId} not found");
+            return Results.NotFound(new { error = $"Order {request.OrderId} not found" });
         }
 
         // Update order status to confirmed
         var confirmedOrder = order with { Status = "confirmed" };
         store.Add(confirmedOrder);
         
-        Console.WriteLine($"[order-service] Order {id} status updated to 'confirmed'");
-        return Results.Ok(new { orderId = id, status = "confirmed", reservedItems = request.ReservedItems });
+        Console.WriteLine($"[order-service] Order {request.OrderId} status updated to 'confirmed'");
+        return Results.Ok(new { orderId = request.OrderId, status = "confirmed", reservedItems = request.ReservedItems });
     });
 
 // Discover contracts
@@ -158,7 +158,7 @@ public record CreateOrderRequest(string CustomerId, List<OrderItem> Items, decim
 public record CreateOrderResponse(Guid OrderId, string Status);
 
 [SpasCommand("ConfirmOrder", "1.0")]
-public record ConfirmOrderRequest(List<ReservedItem> ReservedItems);
+public record ConfirmOrderRequest(Guid OrderId, List<ReservedItem> ReservedItems);
 
 public record OrderItem(string ProductId, int Quantity, decimal Price);
 

@@ -117,6 +117,12 @@ export interface ServiceMetadata {
   version: string;
   /** Bounded context name */
   boundedContext: string;
+  /** Service endpoints (Commands/Queries) */
+  endpoints?: Array<{
+    name: string;
+    type: string;
+    methodPath: string;
+  }>;
   /** Event definitions */
   events: {
     published: EventDefinition[];

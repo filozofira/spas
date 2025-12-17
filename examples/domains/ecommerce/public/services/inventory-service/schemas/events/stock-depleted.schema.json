@@ -1,0 +1,27 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "StockDepletedEvent",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "productId": {
+      "type": "string"
+    },
+    "orderId": {
+      "type": "string",
+      "format": "guid"
+    },
+    "requestedQuantity": {
+      "type": "integer",
+      "format": "int32"
+    },
+    "availableQuantity": {
+      "type": "integer",
+      "format": "int32"
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time"
+    }
+  }
+}

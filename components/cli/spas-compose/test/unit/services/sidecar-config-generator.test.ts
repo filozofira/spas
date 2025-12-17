@@ -224,9 +224,27 @@ describe("SidecarConfigGenerator", () => {
   });
 
   describe("buildInboundEntries()", () => {
-    it("should return inbound entry for subscribing service", () => {
+    it("should resolve command endpoint from service metadata", () => {
       // Arrange
       const generator = new SidecarConfigGenerator(workspacePath);
+      
+      // Create services directory with metadata
+      const servicesDir = path.join(workspacePath, "services", "fulfillment-service");
+      fs.mkdirSync(servicesDir, { recursive: true });
+      fs.writeFileSync(
+        path.join(servicesDir, "spas.json"),
+        JSON.stringify({
+          id: "fulfillment-service",
+          version: "1.0.0",
+          endpoints: [
+            {
+              name: "ProcessOrder",
+              type: "Command",
+              methodPath: "/orders/process",
+            },
+          ],
+        }),
+      );
 
       // Act
       const entries = generator.buildInboundEntries(
@@ -238,6 +256,21 @@ describe("SidecarConfigGenerator", () => {
       expect(entries).toHaveLength(1);
       expect(entries[0].kind).toBe("event");
       expect(entries[0].topic).toBe("orders-requested");
+      expect(entries[0].invokeEndpoint).toBe("/orders/process");
+    });
+
+    it("should fallback to /incoming when service metadata not found", () => {
+      // Arrange
+      const generator = new SidecarConfigGenerator(workspacePath);
+
+      // Act
+      const entries = generator.buildInboundEntries(
+        sampleChoreography,
+        "fulfillment-service",
+      );
+
+      // Assert
+      expect(entries).toHaveLength(1);
       expect(entries[0].invokeEndpoint).toBe("/incoming");
     });
 

@@ -18,6 +18,7 @@ import type {
   ConfigError,
   ConfigSummary,
   ServiceSummarySidecar,
+  ServiceMetadata,
 } from "../types.js";
 import { deriveCloudEventsType, pascalToKebab } from "../utils/event-type.js";
 
@@ -25,7 +26,11 @@ import { deriveCloudEventsType, pascalToKebab } from "../utils/event-type.js";
  * Service for generating sidecar configuration files from choreography
  */
 export class SidecarConfigGenerator {
-  constructor(private readonly workspacePath: string) {}
+  private readonly servicesPath: string;
+
+  constructor(private readonly workspacePath: string) {
+    this.servicesPath = path.join(workspacePath, "services");
+  }
 
   /**
    * Generate sidecar configuration for all services in choreography
@@ -137,6 +142,9 @@ export class SidecarConfigGenerator {
     const entries: InboundEntry[] = [];
     const seenTopics = new Set<string>();
 
+    // Load service metadata to resolve endpoint paths
+    const metadata = this.loadServiceMetadata(serviceName);
+
     for (const flow of Object.values(choreography.flows)) {
       for (const eventRoute of flow.events) {
         for (const target of eventRoute.targets) {
@@ -146,10 +154,13 @@ export class SidecarConfigGenerator {
             if (!seenTopics.has(eventRoute.topic)) {
               seenTopics.add(eventRoute.topic);
 
+              // Resolve actual command endpoint from service metadata
+              const invokeEndpoint = this.resolveCommandEndpoint(metadata);
+
               const entry: InboundEntry = {
                 kind: "event",
                 topic: eventRoute.topic,
-                invokeEndpoint: "/incoming",
+                invokeEndpoint,
               };
 
               // Only add transform if specified (US4 - optional transforms)
@@ -218,6 +229,51 @@ export class SidecarConfigGenerator {
       totalConfigs: Object.keys(configs).length,
       services,
     };
+  }
+
+  /**
+   * Load service metadata from pulled service
+   *
+   * @param serviceName - Service name to load metadata for
+   * @returns ServiceMetadata or null if not found
+   */
+  private loadServiceMetadata(serviceName: string): ServiceMetadata | null {
+    const metadataPath = path.join(this.servicesPath, serviceName, "spas.json");
+    if (!fs.existsSync(metadataPath)) {
+      return null;
+    }
+
+    try {
+      return JSON.parse(fs.readFileSync(metadataPath, "utf-8"));
+    } catch {
+      return null;
+    }
+  }
+
+  /**
+   * Resolve command endpoint from service metadata
+   * Looks for first Command-type endpoint as convention
+   *
+   * @param metadata - Service metadata
+   * @returns Endpoint path (defaults to /incoming if not found)
+   */
+  private resolveCommandEndpoint(
+    metadata: ServiceMetadata | null,
+  ): string {
+    if (!metadata || !metadata.endpoints) {
+      return "/incoming"; // Fallback to old behavior
+    }
+
+    // Find first Command-type endpoint
+    const commandEndpoint = metadata.endpoints.find(
+      (ep: any) => ep.type === "Command",
+    );
+
+    if (commandEndpoint && commandEndpoint.methodPath) {
+      return commandEndpoint.methodPath;
+    }
+
+    return "/incoming"; // Fallback
   }
 
   /**

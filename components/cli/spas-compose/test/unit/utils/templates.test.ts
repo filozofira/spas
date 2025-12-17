@@ -279,8 +279,8 @@ describe("generateAgentFile", () => {
       expect(content).toContain("## Known Pitfalls");
       expect(content).toContain("Missing $append for Arrays");
       expect(content).toContain("Wrong Command Name");
+      expect(content).toContain("Invalid Topic Format");
       expect(content).toContain("Inconsistent Field Casing");
-      expect(content).toContain("Missing x-service-name");
       expect(content).toContain("Circular Event Dependencies");
       expect(content).toContain("Empty outputMapping");
     });
@@ -294,7 +294,7 @@ describe("generateAgentFile", () => {
     it("should document array handling pitfall", () => {
       const content = generateAgentFile("./examples/ecommerce");
       
-      expect(content).toContain("JSONata evaluation error");
+      expect(content).toContain("JSONata error");
       expect(content).toContain("$append([], array)");
     });
 
@@ -305,11 +305,11 @@ describe("generateAgentFile", () => {
       expect(content).toContain("command");
     });
 
-    it("should document metadata requirement pitfall", () => {
+    it("should document topic naming convention pitfall", () => {
       const content = generateAgentFile("./examples/ecommerce");
       
-      expect(content).toContain("x-service-name");
-      expect(content).toContain("REQUIRED field");
+      expect(content).toContain("Invalid Topic Format");
+      expect(content).toContain("{boundedContext}-events");
     });
   });
 

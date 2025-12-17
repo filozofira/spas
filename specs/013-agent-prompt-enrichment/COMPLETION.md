@@ -1137,6 +1137,82 @@ config.inventory-service.json:
 
 ---
 
+## Bug Fix #9: Topic Naming Convention (December 17, 2025)
+
+### Issue
+
+During agent prompt usability testing, agents generated invalid topic names with dot-separated hierarchical formats (e.g., `ecommerce.orders.created`) instead of the required lowercase-hyphenated format.
+
+**Error observed**: "topic must be lowercase-hyphenated"
+
+**Root Cause**: Agent prompt did not specify topic naming convention, allowing agents to invent their own formats.
+
+### Solution
+
+Added explicit topic naming convention to agent prompt:
+- **Pattern**: `{boundedContext}-events` (lowercase-hyphenated)
+- **Examples**: `order-events`, `inventory-events`
+- **Source**: Derived from service's `boundedContext` field in spas.json
+
+### Implementation
+
+1. **Agent Prompt (templates.ts)**:
+   - Added "Topic Naming" section after "How Topics Work"
+   - Updated Phase 4 validation to check `{boundedContext}-events` pattern
+   - Replaced "Missing x-service-name" pitfall with "Invalid Topic Format"
+
+2. **Choreography Schema (choreography-v1.schema.json)**:
+   - Updated topic description: "Convention: {boundedContext}-events"
+   - Updated examples: `order-events`, `inventory-events`
+
+3. **Working Example (choreography.yaml)**:
+   - Changed `topic: orders` → `topic: order-events`
+   - Changed `topic: inventory` → `topic: inventory-events`
+
+4. **Tests (templates.test.ts)**:
+   - Updated "should document array handling pitfall" assertion
+   - Changed "should document topic naming convention pitfall" test
+
+### Generated Config Verification
+
+After rebuild with `spas-compose choreography build --docker`:
+
+```json
+// config.order-service.json
+{
+  "inbound": [
+    { "kind": "event", "topic": "inventory-events", ... }  // ✅
+  ],
+  "outbound": [
+    { "topic": "order-events", "eventType": "com.order-service.order-created" }  // ✅
+  ]
+}
+
+// config.inventory-service.json  
+{
+  "inbound": [
+    { "kind": "event", "topic": "order-events", ... }  // ✅
+  ],
+  "outbound": [
+    { "topic": "inventory-events", "eventType": "com.inventory-service.stock-reserved" }  // ✅
+  ]
+}
+```
+
+**Files Modified**:
+| File | Change |
+|------|--------|
+| templates.ts | Added topic naming convention, updated pitfall |
+| templates.test.ts | Updated test assertions |
+| choreography.yaml | Updated topic names |
+| choreography-v1.schema.json | Updated topic description and examples |
+
+**Size Impact**: ~-0.09 KB (condensed pitfall descriptions to fit within 25KB)
+
+**Test Results**: 215/215 tests passing ✅
+
+---
+
 ### Summary of All Bug Fixes
 
 | Bug | Issue | Fix | Size Impact |
@@ -1149,13 +1225,14 @@ config.inventory-service.json:
 | #6 | Execution flow missing | Added event→topic→command flow | +0.90 KB |
 | #7 | Hardcoded endpoint | Resolve from service metadata | 0 KB |
 | #8 | No command mapping | Added commands array + target.command | 0 KB |
-| **Total** | 8 critical bugs | All aligned with principles | **-1.66 KB** |
+| #9 | Invalid topic format | Added `{boundedContext}-events` convention | -0.09 KB |
+| **Total** | 9 critical bugs | All aligned with principles | **-1.75 KB** |
 
 **Final Agent Prompt**:
-- **Size**: 24.45 KB (97.8% of 25 KB budget)
+- **Size**: ~24.36 KB (97.4% of 25 KB budget)
 - **Tests**: 215/215 passing ✅
 - **Alignment**: Fully consistent with SPAS principles and implementation
-- **Completeness**: Commands, events, execution flow, architecture all documented
+- **Completeness**: Commands, events, topics, execution flow, architecture all documented
 - **Quality**: Self-contained, architecturally sound, production-ready
 
 ---

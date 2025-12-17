@@ -411,9 +411,10 @@ This pattern enables **loose coupling**: Services never call each other directly
 
 **How Topics Work:**
 - Topics decouple publishers from subscribers
-- One event type → one topic (configured in choreography)
-- Multiple services can subscribe to same topic
-- Each subscriber's sidecar: receives event → transforms → invokes local service command
+- All events from a bounded context share the same topic
+- Consumers filter by CloudEvents \`type\` for specific events
+
+**Topic Naming**: \`{boundedContext}-events\` pattern, lowercase-hyphenated (e.g., \`order-events\`)
 
 **Complete Schema**: \`\${domainRoot}/{DOMAIN}/.spas/schemas/choreography-v1.schema.json\`
 
@@ -433,7 +434,7 @@ flows:
     events:
       - source: order-service
         event: order-created
-        topic: orders
+        topic: order-events  # {boundedContext}-events
         targets:
           - service: fulfillment-service
             command: ProcessOrder
@@ -682,7 +683,7 @@ Do you want me to proceed with generating the choreographies? (yes/no/feedback)
    - Verify all \`flows.*.participants\` services are in \`services/\`
    - Verify all \`flows.*.events[].source\` match a participant
    - Verify all \`flows.*.events[].targets[].service\` match a participant
-   - Check topic naming follows \`{domain}.{context}.{event}\` pattern
+   - Check topic naming follows \`{boundedContext}-events\` pattern (lowercase-hyphenated)
 
 **Validation Checklist (Phase 4):**
 - [ ] choreography.yaml is valid YAML syntax
@@ -755,12 +756,12 @@ function generateKnownPitfalls(): string {
 
 | Pitfall | Symptom | Fix |
 |---------|---------|-----|
-| **Missing $append for Arrays** | JSONata evaluation error | Always use \`$append([], array)\` pattern. JSONata returns single object (not array) for single-element arrays. |
-| **Wrong Command Name** | Choreography execution failure | \`command\` field must match invocation config. Sidecar resolves target endpoint from command name. |
-| **Inconsistent Field Casing** | \`null\`/\`undefined\` values | Match exact field names from service schemas (camelCase vs snake_case). |
-| **Missing x-service-name** | Choreography not loaded | Add \`x-service-name\` to all endpoints in spas.json (REQUIRED field). |
-| **Circular Event Dependencies** | Infinite event loop | Design acyclic flows. Validate no event chain creates a loop. |
-| **Empty outputMapping** | Empty payload downstream | Test JSONata with sample data. Use \`$exists(field)\` or fallback values. |
+| **Missing $append for Arrays** | JSONata error | Use \`$append([], array)\` pattern for arrays. |
+| **Wrong Command Name** | Execution failure | \`command\` must match service endpoint name. |
+| **Invalid Topic Format** | Validation error | Use \`{boundedContext}-events\` (lowercase-hyphenated). |
+| **Inconsistent Field Casing** | \`null\` values | Match field names from schemas (camelCase). |
+| **Circular Event Dependencies** | Infinite loop | Design acyclic flows. |
+| **Empty outputMapping** | Empty payload | Test JSONata with sample data. |
 `;
 }
 
@@ -1207,9 +1208,10 @@ export function generateChoreographySchema(): string {
             },
             topic: {
               type: "string",
-              description: "Message topic/stream name",
-              pattern: "^[a-z][a-z0-9-]*[a-z0-9]$",
-              examples: ["orders", "fulfillment"],
+              description:
+                "Message topic name. Convention: {boundedContext}-events",
+              pattern: "^[a-z][a-z0-9]*(-[a-z0-9]+)*$",
+              examples: ["order-events", "inventory-events"],
             },
             targets: {
               type: "array",

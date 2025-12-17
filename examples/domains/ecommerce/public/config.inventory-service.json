@@ -2,14 +2,14 @@
   "inbound": [
     {
       "kind": "event",
-      "topic": "orders",
+      "topic": "order-events",
       "invokeEndpoint": "/inventory/reserve",
       "transform": "transformations/inbound-order-created.jsonata"
     }
   ],
   "outbound": [
     {
-      "topic": "inventory",
+      "topic": "inventory-events",
       "eventType": "com.inventory-service.stock-reserved",
       "eventName": "stock-reserved"
     }

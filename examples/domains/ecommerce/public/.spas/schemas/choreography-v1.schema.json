@@ -100,11 +100,11 @@
         },
         "topic": {
           "type": "string",
-          "description": "Message topic/stream name",
-          "pattern": "^[a-z][a-z0-9-]*[a-z0-9]$",
+          "description": "Message topic name. Convention: {boundedContext}-events (e.g., order-events)",
+          "pattern": "^[a-z][a-z0-9]*(-[a-z0-9]+)*$",
           "examples": [
-            "orders",
-            "fulfillment"
+            "order-events",
+            "inventory-events"
           ]
         },
         "targets": {

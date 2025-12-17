@@ -6,20 +6,25 @@ domain: public
 
 # Named choreography flows
 # Use /spas.compose agent to generate flows based on service contracts
-flows: {}
-  # Example:
-  # order-fulfillment:
-  #   description: "Order to fulfillment processing flow"
-  #   participants:
-  #     - order-service
-  #     - fulfillment-service
-  #   events:
-  #     - source: order-service
-  #       event: order-created
-  #       topic: orders
-  #       targets:
-  #         - service: fulfillment-service
-#           transform: transformations/fulfillment-service/inbound-order-created.jsonata
+flows:
+  order-fulfillment:
+    description: "Order placement triggers inventory reservation"
+    participants:
+      - order-service
+      - inventory-service
+    events:
+      - source: order-service
+        event: order-created
+        topic: orders
+        targets:
+          - service: inventory-service
+            transform: transformations/inventory-service/inbound-order-created.jsonata
+      - source: inventory-service
+        event: stock-reserved
+        topic: inventory
+        targets:
+          - service: order-service
+            transform: transformations/order-service/inbound-stock-reserved.jsonata
 
 # Infrastructure components (optional)
 infrastructure:

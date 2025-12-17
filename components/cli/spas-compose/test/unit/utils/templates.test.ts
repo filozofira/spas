@@ -303,4 +303,91 @@ describe("generateAgentFile", () => {
       expect(content).toContain("**x-event-name**: REQUIRED");
     });
   });
+
+  describe("Known Pitfalls (US4)", () => {
+    it("should include all 6 documented pitfalls", () => {
+      const content = generateAgentFile("./examples/ecommerce");
+      
+      expect(content).toContain("## Known Pitfalls");
+      expect(content).toContain("Missing $append for Arrays");
+      expect(content).toContain("Wrong Endpoint Service ID");
+      expect(content).toContain("Inconsistent Field Casing");
+      expect(content).toContain("Missing x-service-name");
+      expect(content).toContain("Circular Event Dependencies");
+      expect(content).toContain("Empty outputMapping");
+    });
+
+    it("should use table format for pitfalls", () => {
+      const content = generateAgentFile("./examples/ecommerce");
+      
+      expect(content).toContain("| Pitfall | Symptom | Fix |");
+    });
+
+    it("should document array handling pitfall", () => {
+      const content = generateAgentFile("./examples/ecommerce");
+      
+      expect(content).toContain("JSONata evaluation error");
+      expect(content).toContain("$append([], array)");
+    });
+
+    it("should document endpoint routing pitfall", () => {
+      const content = generateAgentFile("./examples/ecommerce");
+      
+      expect(content).toContain("404 Not Found");
+      expect(content).toContain("/proxy/<serviceId>/<path>");
+    });
+
+    it("should document metadata requirement pitfall", () => {
+      const content = generateAgentFile("./examples/ecommerce");
+      
+      expect(content).toContain("x-service-name");
+      expect(content).toContain("REQUIRED field");
+    });
+  });
+
+  describe("Troubleshooting (US4)", () => {
+    it("should include error-solution mapping table", () => {
+      const content = generateAgentFile("./examples/ecommerce");
+      
+      expect(content).toContain("## Troubleshooting");
+      expect(content).toContain("| Error | Solution |");
+    });
+
+    it("should document common error scenarios", () => {
+      const content = generateAgentFile("./examples/ecommerce");
+      
+      expect(content).toContain("400 on /incoming");
+      expect(content).toContain("Transform failures");
+      expect(content).toContain("Events not routing");
+      expect(content).toContain("Connection refused");
+      expect(content).toContain("Choreography not loaded");
+    });
+
+    it("should provide debugging commands", () => {
+      const content = generateAgentFile("./examples/ecommerce");
+      
+      expect(content).toContain("docker compose logs");
+      expect(content).toContain("try.jsonata.org");
+    });
+  });
+
+  describe("Known Limitations (US4)", () => {
+    it("should document 5 system limitations", () => {
+      const content = generateAgentFile("./examples/ecommerce");
+      
+      expect(content).toContain("## Known Limitations");
+      expect(content).toContain("/incoming endpoint");
+      expect(content).toContain("Array handling");
+      expect(content).toContain("Single bounded context");
+      expect(content).toContain("Choreography naming");
+      expect(content).toContain("Transformation paths");
+    });
+
+    it("should explain array handling limitation", () => {
+      const content = generateAgentFile("./examples/ecommerce");
+      
+      expect(content).toContain("$append");
+      expect(content).toContain("single elements");
+    });
+  });
 });

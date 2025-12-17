@@ -688,7 +688,18 @@ Next steps:
  * - Empty outputMapping
  */
 function generateKnownPitfalls(): string {
-  return ``;
+  return `
+## Known Pitfalls
+
+| Pitfall | Symptom | Fix |
+|---------|---------|-----|
+| **Missing $append for Arrays** | JSONata evaluation error | Always use \`$append([], array)\` pattern. JSONata returns single object (not array) for single-element arrays. |
+| **Wrong Endpoint Service ID** | \`404 Not Found\` from sidecar | Endpoint \`/proxy/<serviceId>/<path>\` must match \`proxies\` config key exactly. |
+| **Inconsistent Field Casing** | \`null\`/\`undefined\` values | Match exact field names from service schemas (camelCase vs snake_case). |
+| **Missing x-service-name** | Choreography not loaded | Add \`x-service-name\` to all endpoints in spas.json (REQUIRED field). |
+| **Circular Event Dependencies** | Infinite event loop | Design acyclic flows. Validate no event chain creates a loop. |
+| **Empty outputMapping** | Empty payload downstream | Test JSONata with sample data. Use \`$exists(field)\` or fallback values. |
+`;
 }
 
 /**
@@ -701,7 +712,37 @@ function generateKnownPitfalls(): string {
  * - Connection refused
  */
 function generateTroubleshooting(): string {
-  return ``;
+  return `
+## Troubleshooting
+
+| Error | Solution |
+|-------|----------|
+| **400 on /incoming** | Verify \`endpoint\` uses \`/proxy/<serviceId>/<path>\` format. Check serviceId matches \`proxies\` key. |
+| **Transform failures** | Test JSONata with sample data. Use \`$exists(field)\` checks. Verify field name casing. |
+| **Events not routing** | Check CloudEvents type follows \`com.<context>.<event>\` format. Verify \`x-event-name\` matches. |
+| **Connection refused** | Verify service running (\`docker ps\`). Check network connectivity and proxy target URL. |
+| **Choreography not loaded** | Validate YAML syntax. Ensure \`x-service-name\` in info section matches service identity. |
+| **Empty payload** | Use fallback values in JSONata. Test outputMapping with actual response data. |
+
+**Debug**: \`docker compose logs -f spas-sidecar-<service>\` | Validate YAML online | Test JSONata at try.jsonata.org
+`;
+}
+
+/**
+ * Generate Known Limitations section for agent prompt
+ *
+ * Documents current system constraints and design decisions
+ */
+function generateKnownLimitations(): string {
+  return `
+## Known Limitations
+
+- **/incoming endpoint**: Cannot customize path. Expects CloudEvents format.
+- **Array handling**: JSONata returns object (not array) for single elements. Use \`$append\`.
+- **Single bounded context**: Each service belongs to one context only.
+- **Choreography naming**: Must follow pattern in \`choreographies/\` directory.
+- **Transformation paths**: Must be relative to domain root. No absolute paths.
+`;
 }
 
 /**
@@ -890,6 +931,7 @@ export function generateAgentFile(domainRoot: string): string {
   const workflowPhases = generateWorkflowPhases(domainRoot);
   const knownPitfalls = generateKnownPitfalls();
   const troubleshooting = generateTroubleshooting();
+  const knownLimitations = generateKnownLimitations();
   const completeExamples = generateCompleteExamples();
   const constraints = generateConstraints(domainRoot);
   const errorHandling = generateErrorHandling(domainRoot);
@@ -954,7 +996,7 @@ ${domainRoot}/{DOMAIN}/
         ├── inbound-<event>.jsonata
         └── outbound-<event>.jsonata
 \`\`\`
-${technicalReference}${workflowPhases}${knownPitfalls}${troubleshooting}${completeExamples}${constraints}${errorHandling}${examplePrompts}`;
+${technicalReference}${workflowPhases}${knownPitfalls}${troubleshooting}${knownLimitations}${completeExamples}${constraints}${errorHandling}${examplePrompts}`;
 }
 
 /**

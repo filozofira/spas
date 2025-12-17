@@ -174,7 +174,7 @@
 
 ### Implementation for User Story 4
 
-- [ ] T027 [US4] Add all 6 pitfalls from research.md to `generateKnownPitfalls()` in src/utils/templates.ts
+- [X] T027 [US4] Add all 6 pitfalls from research.md to `generateKnownPitfalls()` in src/utils/templates.ts
   - Missing $append for Arrays
   - Wrong Endpoint Service ID
   - Inconsistent Field Casing
@@ -182,22 +182,22 @@
   - Circular Event Dependencies
   - Empty outputMapping
 
-- [ ] T028 [US4] Add troubleshooting section to `generateTroubleshooting()` in src/utils/templates.ts
+- [X] T028 [US4] Add troubleshooting section to `generateTroubleshooting()` in src/utils/templates.ts
   - 400 on /incoming → endpoint routing
   - Transform failures → JSONata syntax
   - Event routing misses → eventType format
   - Connection refused → network/config
 
-- [ ] T029 [US4] Add known limitations section to agent prompt in src/utils/templates.ts
+- [X] T029 [US4] Add known limitations section to agent prompt in src/utils/templates.ts
   - /incoming endpoint default behavior
   - Array handling in JSONata
   - Single bounded context rule
 
-- [ ] T030 [US4] Add unit test for pitfalls section in test/unit/utils/templates.test.ts
+- [X] T030 [US4] Add unit test for pitfalls section in test/unit/utils/templates.test.ts
   - Assert 6 pitfalls present
   - Assert symptom/cause/fix format
 
-**Checkpoint**: User Story 4 complete - pitfalls and troubleshooting documented
+**Checkpoint**: ✅ User Story 4 complete - pitfalls and troubleshooting documented (file size: 24.62 KB, 98.5% of budget)
 
 ---
 

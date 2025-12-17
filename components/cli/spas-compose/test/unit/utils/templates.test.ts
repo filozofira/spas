@@ -20,7 +20,7 @@ describe("generateAgentFile", () => {
       const content = generateAgentFile("./examples/ecommerce");
 
       // FR-001: CloudEvents type format
-      expect(content).toContain("com.{bounded-context}.{event-name-kebab}");
+      expect(content).toContain("com.{service-name}.{event-name-kebab}");
       expect(content).toContain("CloudEvents Type Format");
     });
 

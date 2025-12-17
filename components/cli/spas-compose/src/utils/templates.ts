@@ -155,27 +155,29 @@ function generateTechnicalReference(domainRoot: string): string {
 The sidecar automatically constructs CloudEvents-compliant event envelopes. The \`type\` field follows this format:
 
 \`\`\`
-com.{bounded-context}.{event-name-kebab}
+com.{service-name}.{event-name-kebab}
 \`\`\`
 
 **Construction Rules:**
-1. **Bounded Context**: Extracted from \`x-service-name\` by removing \`-service\` suffix
-   - \`order-service\` → \`order\`
-   - \`inventory-service\` → \`inventory\`
-2. **Event Name**: From \`x-event-name\` in choreography metadata (kebab-case)
+1. **Service Name**: From \`x-service-name\` header (full service name as-is)
+   - \`order-service\` → \`order-service\`
+   - \`inventory-service\` → \`inventory-service\`
+2. **Event Name**: From \`x-event-name\` header (kebab-case)
+   - \`order-created\` → \`order-created\`
+   - \`stock-reserved\` → \`stock-reserved\`
 
 **Examples:**
 \`\`\`yaml
 # Service: order-service
 # Event: order-created
-→ CloudEvents type: com.order.order-created
+→ CloudEvents type: com.order-service.order-created
 
 # Service: inventory-service  
 # Event: stock-reserved
-→ CloudEvents type: com.inventory.stock-reserved
+→ CloudEvents type: com.inventory-service.stock-reserved
 \`\`\`
 
-**Why this matters:** Enables event filtering by bounded context or specific event types in the event broker.
+**Why this matters:** Enables consistent event type format across all services and supports event filtering by service or event type.
 
 ### Sidecar Configuration Schema
 

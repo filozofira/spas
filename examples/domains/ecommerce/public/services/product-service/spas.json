@@ -46,11 +46,11 @@
     ]
   },
   "license": "MIT",
-  "publishedAt": "2025-12-17T21:05:53.507Z",
+  "publishedAt": "2025-12-17T21:16:24.102Z",
   "runtime": {
-    "digest": "sha256:097ff2aea3eb7484fa06dc282d74a35c7556d401e0769284334c575eedf2f8f4",
+    "digest": "sha256:779b5e2393c0393db4a4f66eb84478d6ee467f669f14cfb875fc573c8a476e99",
     "repository": "spas-examples/product-service",
     "tag": "1.0.0",
-    "image": "spas-examples/product-service@sha256:097ff2aea3eb7484fa06dc282d74a35c7556d401e0769284334c575eedf2f8f4"
+    "image": "spas-examples/product-service@sha256:779b5e2393c0393db4a4f66eb84478d6ee467f669f14cfb875fc573c8a476e99"
   }
 }

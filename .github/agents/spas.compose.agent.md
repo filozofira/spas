@@ -165,36 +165,15 @@ $merge([
 ])
 ```
 
-### Endpoint Routing
+### Sidecar Communication Patterns
 
-All service-to-service communication goes through sidecar proxies.
+Services NEVER call other services directly - all communication via sidecars.
 
-**Endpoint Format:**
-```
-http://sidecar:8080/proxy/{serviceId}/{path}
-```
+**Event Publishing**: Service calls `POST /publish` with headers `x-service-name`, `x-event-name`. Sidecar publishes CloudEvents type `com.{service}.{event}` to Redis. Consuming sidecar invokes target service endpoint.
 
-**Routing Rules:**
-1. `{serviceId}` in endpoint path MUST match a key in sidecar `proxies` config
-2. `{path}` is appended to the target URL
-3. Sidecar handles service discovery within Docker network
+**Command Invocation**: Choreography uses `command: name` field. Sidecar resolves endpoint from config, transforms via `inputMapping`, invokes target service, returns response for `outputMapping`.
 
-**Example:**
-```yaml
-# In choreography
-downstream:
-  endpoint: http://sidecar:8080/proxy/inventory-service/stock
-
-# In sidecar config.json
-proxies:
-  inventory-service:
-    target: http://inventory-service:3000
-
-# Actual HTTP call made by sidecar:
-# POST http://inventory-service:3000/stock
-```
-
-**Common Mistake:** Using wrong serviceId results in `404 from sidecar proxy`.
+**Common Mistake:** Direct service calls bypass sidecar (breaks tracing/policy).
 
 ### Field Naming Conventions
 
@@ -261,7 +240,7 @@ x-spas-choreography:
     - name: "step-name"
       type: downstream                     # downstream | emit | parallel
       downstream:
-        endpoint: "http://sidecar:8080/proxy/{serviceId}/{path}"
+        command: "command-name"            # Command identifier
         method: POST                       # GET | POST | PUT | DELETE
         inputMapping:                      # JSONata expressions
           field1: $.source.field
@@ -575,7 +554,7 @@ Next steps:
 | Pitfall | Symptom | Fix |
 |---------|---------|-----|
 | **Missing $append for Arrays** | JSONata evaluation error | Always use `$append([], array)` pattern. JSONata returns single object (not array) for single-element arrays. |
-| **Wrong Endpoint Service ID** | `404 Not Found` from sidecar | Endpoint `/proxy/<serviceId>/<path>` must match `proxies` config key exactly. |
+| **Wrong Command Name** | Choreography execution failure | `command` field must match invocation config. Sidecar resolves target endpoint from command name. |
 | **Inconsistent Field Casing** | `null`/`undefined` values | Match exact field names from service schemas (camelCase vs snake_case). |
 | **Missing x-service-name** | Choreography not loaded | Add `x-service-name` to all endpoints in spas.json (REQUIRED field). |
 | **Circular Event Dependencies** | Infinite event loop | Design acyclic flows. Validate no event chain creates a loop. |
@@ -585,10 +564,10 @@ Next steps:
 
 | Error | Solution |
 |-------|----------|
-| **400 on /incoming** | Verify `endpoint` uses `/proxy/<serviceId>/<path>` format. Check serviceId matches `proxies` key. |
+| **400 on /incoming** | Check service endpoint expects transformed payload format. Verify inputMapping produces valid schema. |
 | **Transform failures** | Test JSONata with sample data. Use `$exists(field)` checks. Verify field name casing. |
-| **Events not routing** | Check CloudEvents type follows `com.<context>.<event>` format. Verify `x-event-name` matches. |
-| **Connection refused** | Verify service running (`docker ps`). Check network connectivity and proxy target URL. |
+| **Events not routing** | Check CloudEvents type follows `com.<service-name>.<event>` format. Verify `x-event-name` matches. |
+| **Connection refused** | Verify target service running (`docker ps`). Check invocation config has correct endpoint URL. |
 | **Choreography not loaded** | Validate YAML syntax. Ensure `x-service-name` in info section matches service identity. |
 | **Empty payload** | Use fallback values in JSONata. Test outputMapping with actual response data. |
 
@@ -606,38 +585,23 @@ Next steps:
 
 ### Example 1: Order → Inventory (Reserve Stock)
 
-```mermaid
-sequenceDiagram
-    participant OrderService
-    participant OrderSidecar
-    participant InventorySidecar
-    participant InventoryService
+**Flow**: OrderService → POST /publish → Redis (com.order-service.reserve-inventory) → InventorySidecar → InventoryService /reserve → Emit com.inventory-service.inventory-reserved
 
-    OrderService->>OrderSidecar: ReserveInventory
-    OrderSidecar->>InventorySidecar: POST /proxy/inventory-service/reserve
-    InventorySidecar->>InventoryService: POST /reserve
-    InventoryService-->>InventorySidecar: 200 {reservationId}
-    InventorySidecar-->>OrderSidecar: 200
-    OrderSidecar->>OrderSidecar: Emit InventoryReserved
-```
-
-**Choreography YAML**:
+**Choreography YAML** (Inventory Sidecar):
 ```yaml
 openapi: 3.1.0
 info:
-  title: Reserve Inventory
-  x-service-name: order-service
-  x-event-name: inventory-reserve-requested
-
+  x-service-name: inventory-service
+  x-event-name: reserve-inventory
 x-spas-choreography:
   trigger:
     type: event
-    eventType: ReserveInventory
+    eventType: com.order-service.reserve-inventory
   steps:
     - name: reserve-stock
       type: downstream
       downstream:
-        endpoint: http://sidecar:8080/proxy/inventory-service/reserve
+        command: reserve-stock
         method: POST
         inputMapping:
           orderId: $.orderId
@@ -648,43 +612,29 @@ x-spas-choreography:
             payload: {orderId: $.orderId, reservationId: $.reservationId}
 ```
 
-**Key**: `$append` for arrays, endpoint matches proxies config, onSuccess emits event.
+**Key**: `$append` for arrays, command resolves endpoint, onSuccess emits event.
 
 ---
 
 ### Example 2: Inventory → Order (Fulfillment)
 
-```mermaid
-sequenceDiagram
-    participant InventoryService
-    participant InventorySidecar
-    participant OrderSidecar
-    participant OrderService
+**Flow**: InventoryService → POST /publish → Redis (com.inventory-service.fulfillment-complete) → OrderSidecar → OrderService /fulfillment → Emit com.order-service.order-fulfilled
 
-    InventoryService->>InventorySidecar: FulfillmentComplete
-    InventorySidecar->>OrderSidecar: POST /proxy/order-service/fulfillment
-    OrderSidecar->>OrderService: POST /fulfillment
-    OrderService-->>OrderSidecar: 200
-    InventorySidecar->>InventorySidecar: Emit OrderFulfilled
-```
-
-**Choreography YAML**:
+**Choreography YAML** (Order Sidecar):
 ```yaml
 openapi: 3.1.0
 info:
-  title: Order Fulfillment
-  x-service-name: inventory-service
-  x-event-name: fulfillment-complete
-
+  x-service-name: order-service
+  x-event-name: order-fulfilled
 x-spas-choreography:
   trigger:
     type: event
-    eventType: FulfillmentComplete
+    eventType: com.inventory-service.fulfillment-complete
   steps:
     - name: notify-order
       type: downstream
       downstream:
-        endpoint: http://sidecar:8080/proxy/order-service/fulfillment
+        command: process-fulfillment
         method: POST
         inputMapping:
           orderId: $.orderId

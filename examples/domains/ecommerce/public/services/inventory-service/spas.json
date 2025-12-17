@@ -47,7 +47,7 @@
     ]
   },
   "license": "MIT",
-  "publishedAt": "2025-12-17T14:05:35.824Z",
+  "publishedAt": "2025-12-17T14:19:23.842Z",
   "runtime": {
     "digest": "sha256:25d207d85da46149b900bf529027412f2cfffb7874ba70803ee61b89233c9c2c",
     "repository": "spas-examples/inventory-service\n",

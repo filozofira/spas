@@ -224,6 +224,114 @@ describe("SidecarConfigGenerator", () => {
   });
 
   describe("buildInboundEntries()", () => {
+    it("should generate command entries from flow.commands", () => {
+      // Arrange
+      const generator = new SidecarConfigGenerator(workspacePath);
+      const choreographyWithCommands: Choreography = {
+        version: "1.0",
+        domain: "e-commerce",
+        flows: {
+          "order-flow": {
+            participants: ["order-service", "inventory-service"],
+            commands: [
+              {
+                service: "order-service",
+                command: "CreateOrder",
+                endpoint: "/orders",
+              },
+            ],
+            events: [
+              {
+                source: "order-service",
+                event: "order-created",
+                topic: "orders",
+                targets: [
+                  {
+                    service: "inventory-service",
+                    command: "ReserveStock",
+                  },
+                ],
+              },
+            ],
+          },
+        },
+      };
+
+      // Act
+      const entries = generator.buildInboundEntries(
+        choreographyWithCommands,
+        "order-service",
+      );
+
+      // Assert
+      expect(entries).toHaveLength(1);
+      expect(entries[0].kind).toBe("command");
+      expect(entries[0].command).toBe("CreateOrder");
+      expect(entries[0].invokeEndpoint).toBe("/orders");
+    });
+
+    it("should resolve endpoint from target.command", () => {
+      // Arrange
+      const generator = new SidecarConfigGenerator(workspacePath);
+
+      // Create services directory with metadata
+      const servicesDir = path.join(workspacePath, "services", "inventory-service");
+      fs.mkdirSync(servicesDir, { recursive: true });
+      fs.writeFileSync(
+        path.join(servicesDir, "spas.json"),
+        JSON.stringify({
+          id: "inventory-service",
+          version: "1.0.0",
+          endpoints: [
+            {
+              name: "ListInventory",
+              type: "Query",
+              methodPath: "/inventory",
+            },
+            {
+              name: "ReserveStock",
+              type: "Command",
+              methodPath: "/inventory/reserve",
+            },
+          ],
+        }),
+      );
+
+      const choreographyWithCommand: Choreography = {
+        version: "1.0",
+        domain: "e-commerce",
+        flows: {
+          "order-flow": {
+            participants: ["order-service", "inventory-service"],
+            events: [
+              {
+                source: "order-service",
+                event: "order-created",
+                topic: "orders",
+                targets: [
+                  {
+                    service: "inventory-service",
+                    command: "ReserveStock",
+                  },
+                ],
+              },
+            ],
+          },
+        },
+      };
+
+      // Act
+      const entries = generator.buildInboundEntries(
+        choreographyWithCommand,
+        "inventory-service",
+      );
+
+      // Assert
+      expect(entries).toHaveLength(1);
+      expect(entries[0].kind).toBe("event");
+      expect(entries[0].invokeEndpoint).toBe("/inventory/reserve");
+    });
+
     it("should resolve command endpoint from service metadata", () => {
       // Arrange
       const generator = new SidecarConfigGenerator(workspacePath);

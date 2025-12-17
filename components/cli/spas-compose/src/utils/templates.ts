@@ -362,15 +362,16 @@ The choreography.yaml flows generate sidecar configuration files. Use the schema
 
 | Choreography Field | Sidecar Config Path | Description |
 |-------------------|---------------------|-------------|
+| \`flows.*.commands[]\` | \`inbound[].kind="command"\` | Entry point command registration |
 | \`flows.*.events[].topic\` | \`inbound[].topic\` | Topic name for event subscription |
+| \`flows.*.events[].targets[].command\` | (endpoint lookup) | Resolves invokeEndpoint from spas.json |
 | \`flows.*.events[].targets[].transform\` | \`inbound[].transform\` | JSONata file path |
 | \`flows.*.events[].targets[].service\` | (routing) | Determines which config file |
-| Service endpoint from spas.json | \`inbound[].invokeEndpoint\` | HTTP path on target service |
 | \`flows.*.events[].source\` + event | \`outbound[].topic\` + \`eventType\` | Publishing config |
 
 **InboundEntry kinds:**
 - \`kind: "event"\` - Pub/sub subscription (requires \`topic\`)
-- \`kind: "command"\` - Request-response (requires \`command\`)
+- \`kind: "command"\` - Request-response entry point (requires \`command\`)
 
 ### Choreography YAML Schema
 
@@ -395,13 +396,18 @@ This pattern enables **loose coupling**: Services never call each other directly
 
 **Flow Definition:**
 - \`participants\`: Array of service names (minimum 2)
-- \`events\`: Array of event routing rules
-  - \`source\`: Publishing service name (owns the event)
-  - \`event\`: Event type (kebab-case, e.g., "order-created")
-  - \`topic\`: Message topic/stream name (event routing destination)
-  - \`targets\`: Array of subscribing services (consume event → invoke command)
-    - \`service\`: Subscriber name (which service processes this event)
-    - \`transform\`: JSONata file path mapping event → command request (optional)
+- \`commands\`: Entry point commands (optional)
+  - \`service\`, \`command\` (PascalCase), \`endpoint\`
+- \`events\`: Event routing rules (optional if only commands)
+  - \`source\`: Publishing service (owns the event)
+  - \`event\`: Event type (kebab-case)
+  - \`topic\`: Message topic name
+  - \`targets\`: Subscribing services
+    - \`service\`: Subscriber name
+    - \`command\`: Command to invoke (PascalCase)
+    - \`transform\`: JSONata file path (optional)
+
+**Commands vs Events**: Commands = entry points (single target, no transform). Events = coordination (multiple targets, with transform).
 
 **How Topics Work:**
 - Topics decouple publishers from subscribers
@@ -420,16 +426,21 @@ flows:
     participants:
       - order-service
       - fulfillment-service
+    commands:
+      - service: order-service
+        command: CreateOrder
+        endpoint: /orders
     events:
       - source: order-service
         event: order-created
         topic: orders
         targets:
           - service: fulfillment-service
+            command: ProcessOrder
             transform: transformations/fulfillment-service/inbound-order.jsonata
 \`\`\`
 
-**Key Concept**: The \`transform\` path points to a JSONata file that maps the \`order-created\` event payload to the command request DTO expected by fulfillment-service's command endpoint.
+**Key Concept**: The \`transform\` path points to a JSONata file that maps the \`order-created\` event payload to the command request DTO expected by fulfillment-service's ProcessOrder endpoint.
 
 ### Service Metadata (spas.json) Schema
 
@@ -1011,9 +1022,9 @@ export function generateSidecarConfigSchema(): string {
             },
             command: {
               type: "string",
-              pattern: "^[a-z][a-z0-9-]*[a-z0-9]$",
+              pattern: "^[A-Z][a-zA-Z0-9]*$",
               description:
-                "Command name for /invoke/{command} endpoint. Required when kind='command'.",
+                "Command name (PascalCase) for /invoke/{command} endpoint. Required when kind='command'.",
             },
             transform: {
               type: "string",

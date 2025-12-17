@@ -12,12 +12,21 @@ flows:
     participants:
       - order-service
       - inventory-service
+    
+    # Command entry points (direct invocations, single target)
+    commands:
+      - service: order-service
+        command: CreateOrder
+        endpoint: /orders
+    
+    # Event-driven flows (pub/sub, multiple targets possible)
     events:
       - source: order-service
         event: order-created
         topic: orders
         targets:
           - service: inventory-service
+            command: ReserveStock
             transform: transformations/inventory-service/inbound-order-created.jsonata
       
       - source: inventory-service
@@ -25,6 +34,7 @@ flows:
         topic: inventory
         targets:
           - service: order-service
+            command: ConfirmOrder
             transform: transformations/order-service/inbound-stock-reserved.jsonata
 
 # Infrastructure components (optional)

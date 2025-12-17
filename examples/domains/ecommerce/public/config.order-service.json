@@ -1,9 +1,14 @@
 {
   "inbound": [
     {
+      "kind": "command",
+      "command": "CreateOrder",
+      "invokeEndpoint": "/orders"
+    },
+    {
       "kind": "event",
       "topic": "inventory",
-      "invokeEndpoint": "/orders",
+      "invokeEndpoint": "/orders/confirm",
       "transform": "transformations/inbound-stock-reserved.jsonata"
     }
   ],

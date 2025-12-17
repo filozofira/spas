@@ -43,7 +43,7 @@ var identity = new ServiceIdentityBuilder()
 // POST /orders - Create new order
 app.MapPost("/orders",
     [SpasCommand("CreateOrder", "1.0")]
-    async (CreateOrderRequest request, EventPublisher publisher, OrderStore store) =>
+async (CreateOrderRequest request, EventPublisher publisher, OrderStore store) =>
     {
         var orderId = Guid.NewGuid();
         var order = new Order(
@@ -82,7 +82,7 @@ app.MapPost("/orders",
 // GET /orders - List all orders
 app.MapGet("/orders",
     [SpasQuery("ListOrders", "1.0")]
-    (OrderStore store) =>
+(OrderStore store) =>
     {
         return Results.Ok(store.GetAll());
     });
@@ -90,28 +90,19 @@ app.MapGet("/orders",
 // GET /orders/{id} - Get specific order
 app.MapGet("/orders/{id}",
     [SpasQuery("GetOrder", "1.0")]
-    (Guid id, OrderStore store) =>
+(Guid id, OrderStore store) =>
     {
         var order = store.Get(id);
         return order != null ? Results.Ok(order) : Results.NotFound();
     });
 
-// GET /orders- Get all orders
-app.MapGet("/orders/",
-    [SpasQuery("GetOrders", "1.0")]
-    (OrderStore store) =>
-    {
-        var orders = store.GetAll();
-        return Results.Ok(orders);
-    });
-
 // POST /orders/confirm - Confirm order after stock reservation
 app.MapPost("/orders/confirm",
     [SpasCommand("ConfirmOrder", "1.0")]
-    (ConfirmOrderRequest request, OrderStore store) =>
+(ConfirmOrderRequest request, OrderStore store) =>
     {
         Console.WriteLine($"[order-service] Confirming order {request.OrderId} with {request.ReservedItems.Count} items reserved");
-        
+
         var order = store.Get(request.OrderId);
         if (order == null)
         {
@@ -122,7 +113,7 @@ app.MapPost("/orders/confirm",
         // Update order status to confirmed
         var confirmedOrder = order with { Status = "confirmed" };
         store.Add(confirmedOrder);
-        
+
         Console.WriteLine($"[order-service] Order {request.OrderId} status updated to 'confirmed'");
         return Results.Ok(new { orderId = request.OrderId, status = "confirmed", reservedItems = request.ReservedItems });
     });

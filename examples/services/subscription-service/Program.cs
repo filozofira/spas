@@ -101,41 +101,24 @@ app.MapGet("/subscriptions/{id}",
         return subscription != null ? Results.Ok(subscription) : Results.NotFound();
     });
 
-// POST /subscriptions/process - Create order from subscription (triggered by subscription-created event in choreography)
-app.MapPost("/subscriptions/process",
-    [SpasCommand("CreateOrderFromSubscription", "1.0")]
-async (CreateOrderFromSubscriptionRequest request, EventPublisher publisher, SubscriptionStore store) =>
-    {
-        Console.WriteLine($"[subscription-service] Processing subscription {request.SubscriptionId}");
-
-        var subscription = store.Get(request.SubscriptionId);
-        if (subscription == null)
-        {
-            Console.WriteLine($"[subscription-service] Subscription {request.SubscriptionId} not found");
-            return Results.NotFound(new { error = $"Subscription {request.SubscriptionId} not found" });
-        }
-
-        // Update subscription status to processing
-        var processingSubscription = subscription with { Status = "processing" };
-        store.Add(processingSubscription);
-
-        Console.WriteLine($"[subscription-service] Subscription {request.SubscriptionId} status updated to 'processing'");
-        return Results.Ok(new { subscriptionId = request.SubscriptionId, status = "processing" });
-    });
-
 // POST /subscriptions/activate - Activate subscription after order confirmation
 app.MapPost("/subscriptions/activate",
     [SpasCommand("ActivateSubscription", "1.0")]
 async (ActivateSubscriptionRequest request, EventPublisher publisher, SubscriptionStore store) =>
     {
-        Console.WriteLine($"[subscription-service] Activating subscription for order {request.OrderId}");
+        Console.WriteLine($"[subscription-service] Activating subscription for order {request.OrderId}, referenceId: {request.ReferenceId}");
 
-        // Find subscription by matching the related order
-        var subscription = store.GetAll().FirstOrDefault(s => s.Status == "processing");
+        // Find subscription by referenceId (correlation pattern)
+        Subscription? subscription = null;
+        if (!string.IsNullOrEmpty(request.ReferenceId) && Guid.TryParse(request.ReferenceId, out var subscriptionId))
+        {
+            subscription = store.Get(subscriptionId);
+        }
+        
         if (subscription == null)
         {
-            Console.WriteLine($"[subscription-service] No processing subscription found for order {request.OrderId}");
-            return Results.NotFound(new { error = "No processing subscription found" });
+            Console.WriteLine($"[subscription-service] Subscription not found for referenceId: {request.ReferenceId}");
+            return Results.NotFound(new { error = "Subscription not found", referenceId = request.ReferenceId });
         }
 
         // Update subscription status to active
@@ -208,11 +191,8 @@ public record CreateSubscriptionRequest(string CustomerId, string ProductId, int
 
 public record CreateSubscriptionResponse(Guid SubscriptionId, string Status);
 
-[SpasCommand("CreateOrderFromSubscription", "1.0")]
-public record CreateOrderFromSubscriptionRequest(Guid SubscriptionId, string CustomerId, string ProductId, int Quantity);
-
 [SpasCommand("ActivateSubscription", "1.0")]
-public record ActivateSubscriptionRequest(Guid OrderId, string Status);
+public record ActivateSubscriptionRequest(Guid OrderId, string Status, string? ReferenceId = null);
 
 // Domain models
 public record Subscription(Guid SubscriptionId, string CustomerId, string ProductId, int Quantity, string Frequency, string Status, DateTime CreatedAt);

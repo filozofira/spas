@@ -34,14 +34,6 @@
       "schemaRef": "schemas/endpoints/get-subscription.schema.json"
     },
     {
-      "name": "CreateOrderFromSubscription",
-      "type": "Command",
-      "protocol": "Http",
-      "methodPath": "/subscriptions/process",
-      "version": "1.0",
-      "schemaRef": "schemas/endpoints/create-order-from-subscription.schema.json"
-    },
-    {
       "name": "ActivateSubscription",
       "type": "Command",
       "protocol": "Http",
@@ -84,11 +76,11 @@
     ]
   },
   "license": "MIT",
-  "publishedAt": "2025-12-17T23:12:36.015Z",
+  "publishedAt": "2025-12-17T23:40:09.992Z",
   "runtime": {
-    "digest": "sha256:7bab4e9cf2482f1dea73bb9698f1e96c1fb629ebc6d2ad50caf67a6a07643063",
+    "digest": "sha256:e62dabd339a26d373dfa133ebf5fb9832b6a69d5019376500365a70e75f5b899",
     "repository": "spas-examples/subscription-service",
     "tag": "1.0.0",
-    "image": "spas-examples/subscription-service@sha256:7bab4e9cf2482f1dea73bb9698f1e96c1fb629ebc6d2ad50caf67a6a07643063"
+    "image": "spas-examples/subscription-service@sha256:e62dabd339a26d373dfa133ebf5fb9832b6a69d5019376500365a70e75f5b899"
   }
 }

@@ -1,5 +1,6 @@
 /* inbound-subscription-created.jsonata */
 /* Transforms subscription-created (subscription-service) → CreateOrderRequest (order-service) */
+/* Correlation: subscriptionId → referenceId */
 {
   "customerId": customerId,
   "items": $append([], {
@@ -7,5 +8,6 @@
     "quantity": quantity,
     "price": 0
   }),
-  "total": 0
+  "total": 0,
+  "referenceId": $string(subscriptionId)
 }

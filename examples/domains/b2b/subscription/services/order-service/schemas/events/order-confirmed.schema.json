@@ -16,6 +16,12 @@
       "items": {
         "$ref": "#/definitions/ReservedItem"
       }
+    },
+    "referenceId": {
+      "type": [
+        "null",
+        "string"
+      ]
     }
   },
   "definitions": {

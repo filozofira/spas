@@ -24,6 +24,12 @@
     "createdAt": {
       "type": "string",
       "format": "date-time"
+    },
+    "referenceId": {
+      "type": [
+        "null",
+        "string"
+      ]
     }
   },
   "definitions": {

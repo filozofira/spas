@@ -10,6 +10,12 @@
     },
     "status": {
       "type": "string"
+    },
+    "referenceId": {
+      "type": [
+        "null",
+        "string"
+      ]
     }
   }
 }

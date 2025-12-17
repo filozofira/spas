@@ -1,6 +1,8 @@
 /* inbound-order-confirmed.jsonata */
 /* Transforms order-confirmed (order-service) → ActivateSubscriptionRequest (subscription-service) */
+/* Correlation: referenceId → subscriptionId lookup */
 {
   "orderId": orderId,
-  "status": status
+  "status": status,
+  "referenceId": referenceId
 }

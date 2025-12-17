@@ -16,6 +16,12 @@
     "total": {
       "type": "number",
       "format": "decimal"
+    },
+    "referenceId": {
+      "type": [
+        "null",
+        "string"
+      ]
     }
   },
   "definitions": {

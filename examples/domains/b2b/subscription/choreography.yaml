@@ -6,7 +6,7 @@ domain: subscription
 
 flows:
   subscription-fulfillment:
-    description: "B2B subscription creation and fulfillment workflow"
+    description: "B2B subscription creation and fulfillment with correlation pattern"
     participants:
       - subscription-service
       - order-service
@@ -22,9 +22,6 @@ flows:
         event: subscription-created
         topic: subscription-events
         targets:
-          - service: subscription-service
-            command: CreateOrderFromSubscription
-            transform: transformations/subscription-service/inbound-subscription-created.jsonata
           - service: order-service
             command: CreateOrder
             transform: transformations/order-service/inbound-subscription-created.jsonata

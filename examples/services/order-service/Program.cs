@@ -52,7 +52,8 @@ async (CreateOrderRequest request, EventPublisher publisher, OrderStore store) =
             request.Items,
             request.Total,
             "created",
-            DateTime.UtcNow
+            DateTime.UtcNow,
+            request.ReferenceId
         );
 
         store.Add(order);
@@ -64,7 +65,8 @@ async (CreateOrderRequest request, EventPublisher publisher, OrderStore store) =
             customerId = request.CustomerId,
             items = request.Items,
             total = request.Total,
-            createdAt = order.CreatedAt
+            createdAt = order.CreatedAt,
+            referenceId = request.ReferenceId
         };
 
         try
@@ -121,7 +123,8 @@ async (ConfirmOrderRequest request, EventPublisher publisher, OrderStore store) 
         {
             orderId = request.OrderId,
             status = "confirmed",
-            reservedItems = request.ReservedItems
+            reservedItems = request.ReservedItems,
+            referenceId = order.ReferenceId
         };
 
         try
@@ -172,7 +175,7 @@ app.Run();
 
 // Request/Response types
 [SpasCommand("CreateOrder", "1.0")]
-public record CreateOrderRequest(string CustomerId, List<OrderItem> Items, decimal Total);
+public record CreateOrderRequest(string CustomerId, List<OrderItem> Items, decimal Total, string? ReferenceId = null);
 
 public record CreateOrderResponse(Guid OrderId, string Status);
 
@@ -184,14 +187,14 @@ public record OrderItem(string ProductId, int Quantity, decimal Price);
 public record ReservedItem(string ProductId, int Quantity);
 
 // Domain models
-public record Order(Guid OrderId, string CustomerId, List<OrderItem> Items, decimal Total, string Status, DateTime CreatedAt);
+public record Order(Guid OrderId, string CustomerId, List<OrderItem> Items, decimal Total, string Status, DateTime CreatedAt, string? ReferenceId = null);
 
 // Events (outbound only)
 [SpasEvent("OrderCreated", "1.0", EventType = "com.ecommerce.order.created")]
-public record OrderCreatedEvent(Guid OrderId, string CustomerId, List<OrderItem> Items, decimal Total, DateTime CreatedAt);
+public record OrderCreatedEvent(Guid OrderId, string CustomerId, List<OrderItem> Items, decimal Total, DateTime CreatedAt, string? ReferenceId = null);
 
 [SpasEvent("OrderConfirmed", "1.0", EventType = "com.order.order-confirmed")]
-public record OrderConfirmedEvent(Guid OrderId, string Status, List<ReservedItem> ReservedItems);
+public record OrderConfirmedEvent(Guid OrderId, string Status, List<ReservedItem> ReservedItems, string? ReferenceId = null);
 
 // In-memory store
 public class OrderStore

@@ -238,47 +238,12 @@ describe("generateAgentFile", () => {
 
       // FR-015: Service metadata schema
       expect(content).toContain("### Service Metadata (spas.json) Schema");
-      expect(content).toContain("x-service-name");
-      expect(content).toContain("x-event-name");
       expect(content).toContain("boundedContext");
-      expect(content).toContain("events.published");
-      expect(content).toContain("events.subscribed");
-    });
-
-    it("should contain complete working examples", () => {
-      const content = generateAgentFile("./examples/ecommerce");
-
-      // FR-016: Complete examples
-      expect(content).toContain("## Complete Examples");
-      expect(content).toContain("### Example 1");
-      expect(content).toContain("### Example 2");
-    });
-
-    it("should contain flow descriptions in examples", () => {
-      const content = generateAgentFile("./examples/ecommerce");
-
-      const examplesSection = content.substring(
-        content.indexOf("## Complete Examples")
-      );
-
-      // Check for flow descriptions (replaced mermaid diagrams for space)
-      expect(examplesSection).toContain("**Flow**:");
-      expect(examplesSection).toContain("POST /publish");
-      expect(examplesSection).toContain("Redis");
-    });
-
-    it("should contain choreography YAML in examples", () => {
-      const content = generateAgentFile("./examples/ecommerce");
-
-      const examplesSection = content.substring(
-        content.indexOf("## Complete Examples")
-      );
-
-      // Check for YAML code blocks
-      expect(examplesSection).toContain("```yaml");
-      expect(examplesSection).toContain("x-spas-choreography:");
-      expect(examplesSection).toContain("inputMapping:");
-      expect(examplesSection).toContain("$append");
+      expect(content).toContain("runtime-metadata-v1");
+      expect(content).toContain(".spas/schemas/runtime-metadata-v1.schema.json");
+      expect(content).toContain("endpoints");
+      expect(content).toContain("events");
+      expect(content).toContain("runtime");
     });
 
     it("should reference choreography schema file", () => {

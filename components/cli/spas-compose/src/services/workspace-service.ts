@@ -2,7 +2,7 @@
  * WorkspaceService - Domain workspace operations
  */
 
-import { existsSync, mkdirSync, writeFileSync, rmSync, statSync } from "fs";
+import { existsSync, mkdirSync, writeFileSync, readFileSync, rmSync, statSync } from "fs";
 import { join, relative } from "path";
 import type { CommandResult } from "../types.js";
 import {
@@ -133,6 +133,26 @@ export class WorkspaceService {
         "utf-8",
       );
 
+      // Copy runtime metadata schema from repository component
+      const runtimeMetadataSchemaPath = join(
+        process.cwd(),
+        "components",
+        "repository",
+        "schemas",
+        "runtime-metadata-v1.schema.json",
+      );
+      if (existsSync(runtimeMetadataSchemaPath)) {
+        const runtimeMetadataSchema = readFileSync(
+          runtimeMetadataSchemaPath,
+          "utf-8",
+        );
+        writeFileSync(
+          join(schemasDir, "runtime-metadata-v1.schema.json"),
+          runtimeMetadataSchema,
+          "utf-8",
+        );
+      }
+
       // Calculate relative agent file path for display
       const agentRelativePath = projectRoot
         ? `${relative(workspacePath, effectiveProjectRoot).replace(/\\/g, "/")}/.github/agents/spas.compose.agent.md`
@@ -154,6 +174,7 @@ export class WorkspaceService {
             "transformations/",
             ".spas/schemas/sidecar-config-v1.schema.json",
             ".spas/schemas/choreography-v1.schema.json",
+            ".spas/schemas/runtime-metadata-v1.schema.json",
             agentRelativePath,
             promptRelativePath,
           ],

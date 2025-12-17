@@ -176,6 +176,71 @@ Services NEVER call other services directly - all communication via sidecars.
 
 **Common Mistake:** Direct service calls bypass sidecar (breaks tracing/policy).
 
+### Service Metadata (spas.json) Schema
+
+Service metadata files define service capabilities, contracts, and runtime configuration.
+
+**Essential Structure:**
+| Field | Type | Description |
+|-------|------|-------------|
+| `schemaVersion` | string | Schema version ("runtime-metadata-v1") |
+| `id` | string | Service identifier (kebab-case) |
+| `name` | string | Display name |
+| `version` | string | Semantic version |
+| `boundedContext` | string | Domain context name |
+| `endpoints` | array | Command/Query endpoints |
+| `events` | array | Event types published |
+| `runtime` | object | Container image/digest info |
+
+**Endpoint Structure:**
+- `name`: Endpoint identifier
+- `type`: "Command" or "Query"
+- `protocol`: "Http" or "Grpc"
+- `methodPath`: "POST /api/orders"
+- `version`: Semantic version
+- `schemaRef`: Path to request/response schema
+
+**Event Structure:**
+- `type`: Event type name (PascalCase)
+- `version`: Semantic version
+- `schemaRef`: Path to event schema
+
+**Complete Schema**: `${domainRoot}/{DOMAIN}/.spas/schemas/runtime-metadata-v1.schema.json`
+
+**Example:**
+```json
+{
+  "schemaVersion": "runtime-metadata-v1",
+  "id": "order-service",
+  "name": "Order Service",
+  "version": "1.0.0",
+  "boundedContext": "ecommerce",
+  "endpoints": [
+    {
+      "name": "CreateOrder",
+      "type": "Command",
+      "protocol": "Http",
+      "methodPath": "POST /api/orders",
+      "version": "1.0",
+      "schemaRef": "schemas/create-order.schema.json"
+    }
+  ],
+  "events": [
+    {
+      "type": "OrderCreated",
+      "version": "1.0",
+      "schemaRef": "schemas/order-created.schema.json"
+    }
+  ],
+  "runtime": {
+    "image": "spas/order-service",
+    "repository": "localhost:5000",
+    "tag": "1.0.0",
+    "digest": "sha256:abc123..."
+  }
+}
+```
+
 ### Field Naming Conventions
 
 **REQUIRED**: All field names MUST use camelCase.
@@ -571,73 +636,6 @@ Next steps:
 - **Single bounded context**: Each service belongs to one context only.
 - **Choreography naming**: Must follow pattern in `choreographies/` directory.
 - **Transformation paths**: Must be relative to domain root. No absolute paths.
-
-## Complete Examples
-
-### Example 1: Order → Inventory (Reserve Stock)
-
-**Flow**: OrderService → POST /publish → Redis (com.order-service.reserve-inventory) → InventorySidecar → InventoryService /reserve → Emit com.inventory-service.inventory-reserved
-
-**Choreography YAML** (Inventory Sidecar):
-```yaml
-openapi: 3.1.0
-info:
-  x-service-name: inventory-service
-  x-event-name: reserve-inventory
-x-spas-choreography:
-  trigger:
-    type: event
-    eventType: com.order-service.reserve-inventory
-  steps:
-    - name: reserve-stock
-      type: downstream
-      downstream:
-        command: reserve-stock
-        method: POST
-        inputMapping:
-          orderId: $.orderId
-          items: $append([], $.items.{"sku": sku, "quantity": quantity})
-        onSuccess:
-          emit:
-            eventType: InventoryReserved
-            payload: {orderId: $.orderId, reservationId: $.reservationId}
-```
-
-**Key**: `$append` for arrays, command resolves endpoint, onSuccess emits event.
-
----
-
-### Example 2: Inventory → Order (Fulfillment)
-
-**Flow**: InventoryService → POST /publish → Redis (com.inventory-service.fulfillment-complete) → OrderSidecar → OrderService /fulfillment → Emit com.order-service.order-fulfilled
-
-**Choreography YAML** (Order Sidecar):
-```yaml
-openapi: 3.1.0
-info:
-  x-service-name: order-service
-  x-event-name: order-fulfilled
-x-spas-choreography:
-  trigger:
-    type: event
-    eventType: com.inventory-service.fulfillment-complete
-  steps:
-    - name: notify-order
-      type: downstream
-      downstream:
-        command: process-fulfillment
-        method: POST
-        inputMapping:
-          orderId: $.orderId
-          shippedItems: $append([], $.items.{"sku": sku, "qty": quantity})
-          shippedAt: $now()
-        onSuccess:
-          emit:
-            eventType: OrderFulfilled
-            payload: {orderId: $.orderId, status: "completed"}
-```
-
-**Key**: `$now()` for timestamps, field name transformation (qty), no onFailure = rely on retries.
 
 ## Constraints
 

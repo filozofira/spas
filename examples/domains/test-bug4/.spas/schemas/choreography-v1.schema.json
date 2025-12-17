@@ -1,0 +1,208 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://spas.dev/schemas/choreography-v1.schema.json",
+  "title": "SPAS Choreography Configuration",
+  "description": "Schema for domain choreography configuration defining service interactions and event routing",
+  "type": "object",
+  "required": [
+    "version",
+    "domain",
+    "flows"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "version": {
+      "type": "string",
+      "description": "Schema version",
+      "enum": [
+        "1.0"
+      ]
+    },
+    "domain": {
+      "type": "string",
+      "description": "Domain context name",
+      "pattern": "^[a-z][a-z0-9-]*[a-z0-9]$",
+      "examples": [
+        "e-commerce",
+        "order-management"
+      ]
+    },
+    "flows": {
+      "type": "object",
+      "description": "Named choreography flows",
+      "additionalProperties": {
+        "$ref": "#/definitions/Flow"
+      },
+      "minProperties": 1
+    },
+    "infrastructure": {
+      "$ref": "#/definitions/Infrastructure"
+    }
+  },
+  "definitions": {
+    "Flow": {
+      "type": "object",
+      "description": "A named choreography flow defining event routing between services",
+      "required": [
+        "participants",
+        "events"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "description": {
+          "type": "string",
+          "description": "Human-readable description of the flow"
+        },
+        "participants": {
+          "type": "array",
+          "description": "Service names participating in this flow",
+          "items": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9-]*[a-z0-9]$"
+          },
+          "minItems": 2,
+          "uniqueItems": true
+        },
+        "events": {
+          "type": "array",
+          "description": "Event routing definitions",
+          "items": {
+            "$ref": "#/definitions/EventRoute"
+          },
+          "minItems": 1
+        }
+      }
+    },
+    "EventRoute": {
+      "type": "object",
+      "description": "Defines how an event is routed from source to targets",
+      "required": [
+        "source",
+        "event",
+        "topic",
+        "targets"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "source": {
+          "type": "string",
+          "description": "Publishing service name",
+          "pattern": "^[a-z][a-z0-9-]*[a-z0-9]$"
+        },
+        "event": {
+          "type": "string",
+          "description": "Event type name (kebab-case)",
+          "pattern": "^[a-z][a-z0-9]*(-[a-z0-9]+)*$",
+          "examples": [
+            "order-created",
+            "fulfillment-completed"
+          ]
+        },
+        "topic": {
+          "type": "string",
+          "description": "Message topic/stream name",
+          "pattern": "^[a-z][a-z0-9-]*[a-z0-9]$",
+          "examples": [
+            "orders",
+            "fulfillment"
+          ]
+        },
+        "targets": {
+          "type": "array",
+          "description": "Subscribing services and their transformations",
+          "items": {
+            "$ref": "#/definitions/Target"
+          },
+          "minItems": 1
+        }
+      }
+    },
+    "Target": {
+      "type": "object",
+      "description": "A subscribing service and optional transformation",
+      "required": [
+        "service"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "service": {
+          "type": "string",
+          "description": "Subscribing service name",
+          "pattern": "^[a-z][a-z0-9-]*[a-z0-9]$"
+        },
+        "transform": {
+          "type": "string",
+          "description": "Relative path to JSONata transformation file",
+          "pattern": "^transformations/[a-z][a-z0-9-]*[a-z0-9]/[a-z0-9-]+\\.jsonata$",
+          "examples": [
+            "transformations/fulfillment-service/inbound-order-created.jsonata"
+          ]
+        }
+      }
+    },
+    "Infrastructure": {
+      "type": "object",
+      "description": "Infrastructure component configuration",
+      "additionalProperties": false,
+      "properties": {
+        "redis": {
+          "$ref": "#/definitions/InfraComponent"
+        },
+        "zipkin": {
+          "$ref": "#/definitions/InfraComponent"
+        }
+      }
+    },
+    "InfraComponent": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "default": true
+        },
+        "port": {
+          "type": "integer",
+          "minimum": 1024,
+          "maximum": 65535
+        }
+      }
+    }
+  },
+  "examples": [
+    {
+      "version": "1.0",
+      "domain": "e-commerce",
+      "flows": {
+        "order-fulfillment": {
+          "description": "Order to fulfillment processing flow",
+          "participants": [
+            "order-service",
+            "fulfillment-service"
+          ],
+          "events": [
+            {
+              "source": "order-service",
+              "event": "OrderCreated",
+              "topic": "orders",
+              "targets": [
+                {
+                  "service": "fulfillment-service",
+                  "transform": "transformations/fulfillment-service/inbound-order-created.jsonata"
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "infrastructure": {
+        "redis": {
+          "enabled": true
+        },
+        "zipkin": {
+          "enabled": true
+        }
+      }
+    }
+  ]
+}

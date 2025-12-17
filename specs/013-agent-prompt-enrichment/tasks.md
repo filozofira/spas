@@ -139,26 +139,26 @@
 
 ### Implementation for User Story 3
 
-- [ ] T022 [US3] Add choreography.yaml schema documentation to `generateTechnicalReference()` in src/utils/templates.ts
+- [X] T022 [US3] Add choreography.yaml schema documentation to `generateTechnicalReference()` in src/utils/templates.ts
   - x-spas-choreography structure
   - Trigger types (event, http)
   - Step types (downstream, emit)
 
-- [ ] T023 [US3] Add service metadata (spas.json) documentation to `generateTechnicalReference()` in src/utils/templates.ts
+- [X] T023 [US3] Add service metadata (spas.json) documentation to `generateTechnicalReference()` in src/utils/templates.ts
   - Required fields
   - x-service-name, x-event-name usage
 
-- [ ] T024 [US3] Add first complete example (order→inventory) to `generateCompleteExamples()` in src/utils/templates.ts
+- [X] T024 [US3] Add first complete example (order→inventory) to `generateCompleteExamples()` in src/utils/templates.ts
   - Full choreography YAML
   - Matching sidecar config
   - Mermaid diagram
 
-- [ ] T025 [US3] Add second complete example (inventory→order confirmation) to `generateCompleteExamples()` in src/utils/templates.ts
+- [X] T025 [US3] Add second complete example (inventory→order confirmation) to `generateCompleteExamples()` in src/utils/templates.ts
   - Full choreography YAML
   - Matching sidecar config
   - Mermaid diagram
 
-- [ ] T026 [US3] Add unit test for technical reference completeness in test/unit/utils/templates.test.ts
+- [X] T026 [US3] Add unit test for technical reference completeness in test/unit/utils/templates.test.ts
   - Assert all schema sections present
   - Assert 2+ complete examples included
 

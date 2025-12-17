@@ -217,4 +217,90 @@ describe("generateAgentFile", () => {
       expect(phase5Section).toContain("docker compose up");
     });
   });
+
+  describe("comprehensive technical reference (US3)", () => {
+    it("should contain choreography YAML schema documentation", () => {
+      const content = generateAgentFile("./examples/ecommerce");
+
+      // FR-014: Choreography schema
+      expect(content).toContain("### Choreography YAML Schema");
+      expect(content).toContain("x-spas-choreography");
+      expect(content).toContain("trigger");
+      expect(content).toContain("steps");
+      expect(content).toContain("type: downstream");
+      expect(content).toContain("**downstream**:");
+      expect(content).toContain("**emit**:");
+    });
+
+    it("should contain service metadata (spas.json) schema documentation", () => {
+      const content = generateAgentFile("./examples/ecommerce");
+
+      // FR-015: Service metadata schema
+      expect(content).toContain("### Service Metadata (spas.json) Schema");
+      expect(content).toContain("x-service-name");
+      expect(content).toContain("x-event-name");
+      expect(content).toContain("boundedContext");
+      expect(content).toContain("events.published");
+      expect(content).toContain("events.subscribed");
+    });
+
+    it("should contain complete working examples", () => {
+      const content = generateAgentFile("./examples/ecommerce");
+
+      // FR-016: Complete examples
+      expect(content).toContain("## Complete Examples");
+      expect(content).toContain("### Example 1");
+      expect(content).toContain("### Example 2");
+    });
+
+    it("should contain at least 2 Mermaid diagrams in examples", () => {
+      const content = generateAgentFile("./examples/ecommerce");
+
+      const examplesSection = content.substring(
+        content.indexOf("## Complete Examples")
+      );
+
+      const mermaidCount = (examplesSection.match(/```mermaid/g) || []).length;
+      expect(mermaidCount).toBeGreaterThanOrEqual(2);
+    });
+
+    it("should contain choreography YAML in examples", () => {
+      const content = generateAgentFile("./examples/ecommerce");
+
+      const examplesSection = content.substring(
+        content.indexOf("## Complete Examples")
+      );
+
+      // Check for YAML code blocks
+      expect(examplesSection).toContain("```yaml");
+      expect(examplesSection).toContain("x-spas-choreography:");
+      expect(examplesSection).toContain("inputMapping:");
+      expect(examplesSection).toContain("$append");
+    });
+
+    it("should document step types in choreography schema", () => {
+      const content = generateAgentFile("./examples/ecommerce");
+
+      expect(content).toContain("**Step Types:**");
+      expect(content).toContain("**downstream**:");
+      expect(content).toContain("**emit**:");
+      expect(content).toContain("**parallel**:");
+    });
+
+    it("should document trigger types in choreography schema", () => {
+      const content = generateAgentFile("./examples/ecommerce");
+
+      expect(content).toContain("**Trigger Types:**");
+      expect(content).toContain("**event**:");
+      expect(content).toContain("**http**:");
+    });
+
+    it("should emphasize critical fields in spas.json schema", () => {
+      const content = generateAgentFile("./examples/ecommerce");
+
+      expect(content).toContain("**Critical Fields:**");
+      expect(content).toContain("**x-service-name**: REQUIRED");
+      expect(content).toContain("**x-event-name**: REQUIRED");
+    });
+  });
 });

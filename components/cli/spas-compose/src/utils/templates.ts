@@ -324,6 +324,106 @@ The choreography.yaml flows generate sidecar configuration files. Use the schema
 **InboundEntry kinds:**
 - \`kind: "event"\` - Pub/sub subscription (requires \`topic\`)
 - \`kind: "command"\` - Request-response (requires \`command\`)
+
+### Choreography YAML Schema
+
+Choreography files define event-driven workflows and service interactions.
+
+**Structure:**
+\`\`\`yaml
+openapi: 3.1.0
+info:
+  title: "Choreography Title"
+  version: "1.0.0"
+  x-service-name: "<service-name>"        # Service that owns this choreography
+  x-event-name: "<event-name>"            # Event that triggers this flow
+  x-choreography-type: "event-outbound"   # Type: event-outbound | event-inbound
+
+x-spas-choreography:
+  trigger:
+    type: event                            # event | http
+    source: internal                       # internal | external
+    eventType: "<EventType>"              # Event type in PascalCase
+  
+  steps:
+    - name: "step-name"
+      type: downstream                     # downstream | emit | parallel
+      downstream:
+        endpoint: "http://sidecar:8080/proxy/{serviceId}/{path}"
+        method: POST                       # GET | POST | PUT | DELETE
+        inputMapping:                      # JSONata expressions
+          field1: $.source.field
+          field2: $.source.field
+        outputMapping:                     # Map response to context
+          resultField: $.responseField
+        onSuccess:                         # Optional success handler
+          emit:
+            eventType: "SuccessEvent"
+            payload:
+              field: $.value
+        onFailure:                         # Optional failure handler
+          emit:
+            eventType: "FailureEvent"
+            payload:
+              error: $.error.message
+\`\`\`
+
+**Step Types:**
+- **downstream**: HTTP call to another service (uses endpoint, method, inputMapping)
+- **emit**: Publish event (uses eventType, payload)
+- **parallel**: Execute multiple steps concurrently (uses branches array)
+
+**Trigger Types:**
+- **event**: Triggered by incoming event (requires source, eventType)
+- **http**: Triggered by HTTP request (requires path, method)
+
+### Service Metadata (spas.json) Schema
+
+Service metadata files declare service identity and event contracts.
+
+**Required Fields:**
+\`\`\`json
+{
+  "id": "order-service",                  // Unique service identifier
+  "version": "1.0.0",                      // Semantic version
+  "boundedContext": "orders",             // Domain context
+  "events": {
+    "published": [                         // Events this service emits
+      {
+        "name": "order-created",
+        "x-event-name": "order-created",   // REQUIRED: Event identifier
+        "schema": "./schemas/order-created.schema.json"
+      },
+      {
+        "name": "order-cancelled",
+        "x-event-name": "order-cancelled",
+        "schema": "./schemas/order-cancelled.schema.json"
+      }
+    ],
+    "subscribed": [                        // Events this service listens to
+      {
+        "name": "payment-received",
+        "x-event-name": "payment-received",
+        "schema": "./schemas/payment-received.schema.json"
+      }
+    ]
+  },
+  "endpoints": [                           // HTTP endpoints exposed
+    {
+      "path": "/orders",
+      "method": "POST",
+      "x-service-name": "order-service"   // REQUIRED: Service identifier
+    }
+  ]
+}
+\`\`\`
+
+**Critical Fields:**
+- **x-service-name**: REQUIRED in endpoints. Used for sidecar routing and CloudEvents source.
+- **x-event-name**: REQUIRED in events. Used for CloudEvents type construction.
+- **boundedContext**: Used to derive CloudEvents type prefix (\`com.{boundedContext}.{event}\`).
+
+**Common Mistake**: Omitting \`x-service-name\` or \`x-event-name\` causes choreography loading failures.
 `;
 }
 
@@ -611,8 +711,109 @@ function generateTroubleshooting(): string {
  * 1. Order→Inventory reserve flow
  * 2. Inventory→Order confirmation flow
  */
+/**
+ * Generate Complete Examples section for agent prompt
+ *
+ * Provides two fully-worked choreography examples with diagrams
+ */
 function generateCompleteExamples(): string {
-  return ``;
+  return `
+## Complete Examples
+
+### Example 1: Order → Inventory (Reserve Stock)
+
+\`\`\`mermaid
+sequenceDiagram
+    participant OrderService
+    participant OrderSidecar
+    participant InventorySidecar
+    participant InventoryService
+
+    OrderService->>OrderSidecar: ReserveInventory
+    OrderSidecar->>InventorySidecar: POST /proxy/inventory-service/reserve
+    InventorySidecar->>InventoryService: POST /reserve
+    InventoryService-->>InventorySidecar: 200 {reservationId}
+    InventorySidecar-->>OrderSidecar: 200
+    OrderSidecar->>OrderSidecar: Emit InventoryReserved
+\`\`\`
+
+**Choreography YAML**:
+\`\`\`yaml
+openapi: 3.1.0
+info:
+  title: Reserve Inventory
+  x-service-name: order-service
+  x-event-name: inventory-reserve-requested
+
+x-spas-choreography:
+  trigger:
+    type: event
+    eventType: ReserveInventory
+  steps:
+    - name: reserve-stock
+      type: downstream
+      downstream:
+        endpoint: http://sidecar:8080/proxy/inventory-service/reserve
+        method: POST
+        inputMapping:
+          orderId: $.orderId
+          items: $append([], $.items.{"sku": sku, "quantity": quantity})
+        onSuccess:
+          emit:
+            eventType: InventoryReserved
+            payload: {orderId: $.orderId, reservationId: $.reservationId}
+\`\`\`
+
+**Key**: \`$append\` for arrays, endpoint matches proxies config, onSuccess emits event.
+
+---
+
+### Example 2: Inventory → Order (Fulfillment)
+
+\`\`\`mermaid
+sequenceDiagram
+    participant InventoryService
+    participant InventorySidecar
+    participant OrderSidecar
+    participant OrderService
+
+    InventoryService->>InventorySidecar: FulfillmentComplete
+    InventorySidecar->>OrderSidecar: POST /proxy/order-service/fulfillment
+    OrderSidecar->>OrderService: POST /fulfillment
+    OrderService-->>OrderSidecar: 200
+    InventorySidecar->>InventorySidecar: Emit OrderFulfilled
+\`\`\`
+
+**Choreography YAML**:
+\`\`\`yaml
+openapi: 3.1.0
+info:
+  title: Order Fulfillment
+  x-service-name: inventory-service
+  x-event-name: fulfillment-complete
+
+x-spas-choreography:
+  trigger:
+    type: event
+    eventType: FulfillmentComplete
+  steps:
+    - name: notify-order
+      type: downstream
+      downstream:
+        endpoint: http://sidecar:8080/proxy/order-service/fulfillment
+        method: POST
+        inputMapping:
+          orderId: $.orderId
+          shippedItems: $append([], $.items.{"sku": sku, "qty": quantity})
+          shippedAt: $now()
+        onSuccess:
+          emit:
+            eventType: OrderFulfilled
+            payload: {orderId: $.orderId, status: "completed"}
+\`\`\`
+
+**Key**: \`$now()\` for timestamps, field name transformation (qty), no onFailure = rely on retries.
+`;
 }
 
 /**

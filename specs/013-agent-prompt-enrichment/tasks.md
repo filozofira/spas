@@ -102,27 +102,27 @@
 
 ### Implementation for User Story 2
 
-- [ ] T017 [US2] Restructure workflow to 5 explicit phases in `generateWorkflowPhases()` in src/utils/templates.ts
+- [X] T017 [US2] Restructure workflow to 5 explicit phases in `generateWorkflowPhases()` in src/utils/templates.ts
   - Phase 1: Analyze (entry: request received, exit: understanding confirmed)
   - Phase 2: Propose (includes diagram, confirmation prompt)
   - Phase 3: Generate (create artifacts)
   - Phase 4: Validate (check artifacts)
   - Phase 5: Build (deployment)
 
-- [ ] T018 [US2] Add Mermaid sequence diagram template to Phase 2 in src/utils/templates.ts
+- [X] T018 [US2] Add Mermaid sequence diagram template to Phase 2 in src/utils/templates.ts
   - Participant naming convention
   - Request/response arrows
   - Event emission notation
 
-- [ ] T019 [US2] Add confirmation prompts between phases in `generateWorkflowPhases()` in src/utils/templates.ts
+- [X] T019 [US2] Add confirmation prompts between phases in `generateWorkflowPhases()` in src/utils/templates.ts
   - "Do you want me to proceed with generating the choreographies?"
   - Summary of what was completed before each prompt
 
-- [ ] T020 [US2] Add validation checklist per phase in `generateWorkflowPhases()` in src/utils/templates.ts
+- [X] T020 [US2] Add validation checklist per phase in `generateWorkflowPhases()` in src/utils/templates.ts
   - Phase 3: YAML syntax, field names, endpoint format
   - Phase 4: JSONata syntax, referenced services, schema match
 
-- [ ] T021 [US2] Add unit test for workflow phases in test/unit/utils/templates.test.ts
+- [X] T021 [US2] Add unit test for workflow phases in test/unit/utils/templates.test.ts
   - Assert 5 phases present
   - Assert diagram template in Phase 2
   - Assert confirmation prompt exists

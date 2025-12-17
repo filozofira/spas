@@ -330,12 +330,12 @@ The choreography.yaml flows generate sidecar configuration files. Use the schema
 /**
  * Generate Workflow Phases section for agent prompt
  *
- * Defines the 5-phase workflow:
- * 1. Analyze - Parse service contracts
- * 2. Propose - Generate diagram and get confirmation
- * 3. Generate - Create artifacts
- * 4. Validate - Check generated files
- * 5. Build - Deployment preparation
+ * Defines the 5-phase workflow with validation checkpoints:
+ * 1. Analyze - Parse service contracts and validate workspace
+ * 2. Propose - Generate sequence diagram and choreography design
+ * 3. Generate - Create transformation artifacts
+ * 4. Validate - Verify generated files for correctness
+ * 5. Build - Prepare for deployment
  *
  * @param domainRoot Relative path from project root to domain parent
  */
@@ -343,26 +343,29 @@ function generateWorkflowPhases(domainRoot: string): string {
   return `
 ## Workflow
 
-### Step 1: Validate Workspace
+Follow this 5-phase workflow with validation checkpoints at each stage.
 
-Before any operation, verify:
-- \`${domainRoot}/{DOMAIN}/choreography.yaml\` exists
-- \`${domainRoot}/{DOMAIN}/services/\` directory exists with at least one service
+### Phase 1: Analyze
 
-If invalid:
-\`\`\`
-Error: Not in a valid domain workspace.
-Run \`spas-compose init {DOMAIN} --output ${domainRoot}\` first, then \`spas-compose services pull\`.
-\`\`\`
+**Entry Criteria:** User request received to analyze services or create choreography
 
-### Step 2: Analyze Services
+**Actions:**
+1. **Validate Workspace**
+   - Verify \`${domainRoot}/{DOMAIN}/choreography.yaml\` exists
+   - Verify \`${domainRoot}/{DOMAIN}/services/\` directory exists with at least one service
+   - If invalid: Show error and suggest \`spas-compose init {DOMAIN} --output ${domainRoot}\`, then \`spas-compose services pull\`
 
-When asked to analyze services:
-1. Read \`${domainRoot}/{DOMAIN}/services/<service-name>/spas.json\` for each service
-2. Extract: \`id\`, \`version\`, \`boundedContext\`, \`events.published[]\`, \`events.subscribed[]\`
-3. Read schemas from \`${domainRoot}/{DOMAIN}/services/<service-name>/schemas/\`
+2. **Read Service Contracts**
+   - Read \`${domainRoot}/{DOMAIN}/services/<service-name>/spas.json\` for each service
+   - Extract: \`id\`, \`version\`, \`boundedContext\`, \`events.published[]\`, \`events.subscribed[]\`
+   - Read schemas from \`${domainRoot}/{DOMAIN}/services/<service-name>/schemas/\`
 
-**Output Format:**
+3. **Identify Relationships**
+   - Match published events to subscribed events across services
+   - Identify bounded context boundaries
+   - Flag missing schemas or mismatched event names
+
+**Output Example:**
 \`\`\`
 📦 order-service (1.0.0) - orders bounded context
   Published: order-created, order-cancelled
@@ -373,9 +376,43 @@ When asked to analyze services:
   Subscribed: order-created ← matches order-service.order-created ✓
 \`\`\`
 
-### Step 3: Propose Choreography
+**Exit Criteria:** All services analyzed, relationships identified, understanding confirmed by user
 
-Generate choreography.yaml following schema:
+---
+
+### Phase 2: Propose
+
+**Entry Criteria:** Analysis complete, user ready to design choreography
+
+**Actions:**
+1. **Generate Sequence Diagram**
+   - Create Mermaid diagram showing service interactions
+   - Include all participants, request/response flows, event emissions
+
+2. **Design Choreography**
+   - Create choreography.yaml structure with flows, participants, events
+   - Propose transformation file paths following naming convention
+
+3. **Present Design**
+   - Show Mermaid diagram
+   - Show choreography.yaml proposal
+   - List transformation files to be created
+
+**Mermaid Diagram Template:**
+\`\`\`mermaid
+sequenceDiagram
+    participant OrderService as order-service
+    participant FulfillmentService as fulfillment-service
+    participant PaymentService as payment-service
+
+    Note over OrderService: Order Created
+    OrderService->>FulfillmentService: order-created event
+    Note over FulfillmentService: Process Fulfillment
+    FulfillmentService->>PaymentService: fulfillment-completed event
+    Note over PaymentService: Payment Processing
+\`\`\`
+
+**Choreography Schema:**
 \`\`\`yaml
 version: "1.0"
 domain: {DOMAIN}
@@ -402,13 +439,41 @@ infrastructure:
     enabled: true
 \`\`\`
 
-**Note:** \`participants\` must include at least 2 services.
+**Requirements:**
+- \`participants\` must include at least 2 services
+- Topic names follow pattern: \`{domain}.{bounded-context}.{event-type}\`
+- Transformation paths: \`transformations/{service}/inbound-{event}.jsonata\`
 
-**Ask:** "Confirm choreography changes? (yes/no/feedback)"
+**Exit Criteria:** User confirms design with "yes" or provides feedback
 
-### Step 4: Generate Transformations
+**Confirmation Prompt:**
+\`\`\`
+I've proposed the choreography design above with:
+  • {N} flows defined
+  • {N} services participating
+  • {N} transformation files to create
 
-Create JSONata files at \`${domainRoot}/{DOMAIN}/transformations/<service>/*.jsonata\`:
+Do you want me to proceed with generating the choreographies? (yes/no/feedback)
+\`\`\`
+
+---
+
+### Phase 3: Generate
+
+**Entry Criteria:** User confirmed design, ready to create artifacts
+
+**Actions:**
+1. **Create Transformation Files**
+   - Generate JSONata files at \`${domainRoot}/{DOMAIN}/transformations/<service>/*.jsonata\`
+   - Follow CloudEvents type format (camelCase for data fields)
+   - Use \`$append([], array.{...})\` pattern for array transformations
+   - Add header comments documenting source → target mapping
+
+2. **Update choreography.yaml**
+   - Add or modify flows as designed
+   - Ensure all referenced transformation files are created
+
+**JSONata Template:**
 \`\`\`jsonata
 /* inbound-order-created.jsonata */
 /* Transforms order-created (order-service) → fulfillment-request (fulfillment-service) */
@@ -419,13 +484,74 @@ Create JSONata files at \`${domainRoot}/{DOMAIN}/transformations/<service>/*.jso
 }
 \`\`\`
 
-**IMPORTANT**: Use \`$append([], array.{...})\` pattern for array fields to ensure arrays are preserved even when the source has a single element. JSONata returns a single object (not array) when mapping over a single-element array.
+**Critical Patterns:**
+- Array fields: Always use \`$append([], array.{...})\` to preserve arrays even for single elements
+- Field casing: Match target schema (usually camelCase for CloudEvents data)
+- Null handling: Use \`field ? field : "default"\` or \`$exists(field) ? field : null\`
 
-**Ask:** "Confirm transformation? (yes/no/feedback)"
+**Validation Checklist (Phase 3):**
+- [ ] All transformation files created in correct directories
+- [ ] File names match \`inbound-{event}.jsonata\` or \`outbound-{event}.jsonata\` pattern
+- [ ] Header comments document source and target schemas
+- [ ] Array transformations use \`$append\` pattern
+- [ ] Field names match target schema casing
+- [ ] choreography.yaml references all created transformations
 
-### Step 5: Next Steps
+**Exit Criteria:** All artifacts created, checklist validated
 
-After completion, suggest:
+---
+
+### Phase 4: Validate
+
+**Entry Criteria:** All artifacts generated, ready for verification
+
+**Actions:**
+1. **Syntax Validation**
+   - Check choreography.yaml is valid YAML
+   - Check JSONata files have valid syntax
+   - Verify file paths match choreography.yaml references
+
+2. **Schema Validation**
+   - Verify referenced services exist in \`services/\` directory
+   - Check transformation input schemas match event publisher schemas
+   - Check transformation output schemas match event subscriber schemas
+
+3. **Consistency Checks**
+   - Verify all \`flows.*.participants\` services are in \`services/\`
+   - Verify all \`flows.*.events[].source\` match a participant
+   - Verify all \`flows.*.events[].targets[].service\` match a participant
+   - Check topic naming follows \`{domain}.{context}.{event}\` pattern
+
+**Validation Checklist (Phase 4):**
+- [ ] choreography.yaml is valid YAML syntax
+- [ ] All JSONata files have valid syntax
+- [ ] All referenced services exist in services/ directory
+- [ ] All transformation paths in choreography.yaml match created files
+- [ ] Event source services publish the referenced events
+- [ ] Target services subscribe to the referenced events
+- [ ] Topic names follow naming convention
+- [ ] Field names in transformations match target schemas
+
+**Exit Criteria:** All validations pass, artifacts ready for deployment
+
+---
+
+### Phase 5: Build
+
+**Entry Criteria:** Validation complete, ready for deployment preparation
+
+**Actions:**
+1. **Suggest Build Commands**
+   - Dry-run validation: \`spas-compose choreography build --dry-run\`
+   - Docker build: \`spas-compose choreography build --docker\`
+   - Local run: \`docker compose up\`
+
+2. **Next Steps Guidance**
+   - Review generated sidecar configurations
+   - Test event flow with sample payloads
+   - Monitor logs for transformation errors
+
+**Output:**
 \`\`\`
 ✓ Choreography complete
 
@@ -433,7 +559,20 @@ Next steps:
   • Validate: spas-compose choreography build --dry-run
   • Build: spas-compose choreography build --docker  
   • Run: docker compose up
+  • Monitor: docker compose logs -f spas-sidecar-{service}
 \`\`\`
+
+**Exit Criteria:** User has clear next steps, workflow complete
+
+---
+
+### Phase Transition Rules
+
+- **Analyze → Propose**: Only after user confirms understanding of service analysis
+- **Propose → Generate**: Only after user explicitly confirms with "yes" or provides feedback and confirms
+- **Generate → Validate**: Automatic, but report what was created before validating
+- **Validate → Build**: Only after all validation checks pass
+- **Failure Handling**: If validation fails, return to appropriate phase (syntax errors → Generate, schema mismatches → Propose)
 `;
 }
 

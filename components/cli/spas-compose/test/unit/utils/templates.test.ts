@@ -95,4 +95,126 @@ describe("generateAgentFile", () => {
       expect(content2).toContain("./examples/ecommerce/{DOMAIN}/services");
     });
   });
+
+  describe("phased workflow with validation (US2)", () => {
+    it("should contain 5 explicit phases", () => {
+      const content = generateAgentFile("./examples/ecommerce");
+
+      // FR-008: 5 phases present
+      expect(content).toContain("### Phase 1: Analyze");
+      expect(content).toContain("### Phase 2: Propose");
+      expect(content).toContain("### Phase 3: Generate");
+      expect(content).toContain("### Phase 4: Validate");
+      expect(content).toContain("### Phase 5: Build");
+    });
+
+    it("should have entry/exit criteria for each phase", () => {
+      const content = generateAgentFile("./examples/ecommerce");
+
+      // FR-008: Entry/exit criteria
+      expect(content).toContain("**Entry Criteria:**");
+      expect(content).toContain("**Exit Criteria:**");
+      
+      // Count should be at least 5 pairs (one per phase)
+      const entryCriteriaCount = (content.match(/\*\*Entry Criteria:\*\*/g) || []).length;
+      const exitCriteriaCount = (content.match(/\*\*Exit Criteria:\*\*/g) || []).length;
+      
+      expect(entryCriteriaCount).toBeGreaterThanOrEqual(5);
+      expect(exitCriteriaCount).toBeGreaterThanOrEqual(5);
+    });
+
+    it("should contain Mermaid sequence diagram template in Phase 2", () => {
+      const content = generateAgentFile("./examples/ecommerce");
+
+      // FR-009: Mermaid diagram in Propose phase
+      expect(content).toContain("**Mermaid Diagram Template:**");
+      expect(content).toContain("```mermaid");
+      expect(content).toContain("sequenceDiagram");
+      expect(content).toContain("participant");
+      
+      // Verify it's in Phase 2 section
+      const phase2Start = content.indexOf("### Phase 2: Propose");
+      const phase3Start = content.indexOf("### Phase 3: Generate");
+      const mermaidPos = content.indexOf("```mermaid");
+      
+      expect(phase2Start).toBeGreaterThan(0);
+      expect(phase3Start).toBeGreaterThan(phase2Start);
+      expect(mermaidPos).toBeGreaterThan(phase2Start);
+      expect(mermaidPos).toBeLessThan(phase3Start);
+    });
+
+    it("should contain confirmation prompt between Propose and Generate", () => {
+      const content = generateAgentFile("./examples/ecommerce");
+
+      // FR-010: Confirmation prompt
+      expect(content).toContain("Do you want me to proceed with generating the choreographies?");
+      expect(content).toContain("**Confirmation Prompt:**");
+      expect(content).toContain("(yes/no/feedback)");
+    });
+
+    it("should contain validation checklists for Phase 3 and Phase 4", () => {
+      const content = generateAgentFile("./examples/ecommerce");
+
+      // FR-011: Validation checklists
+      expect(content).toContain("**Validation Checklist (Phase 3):**");
+      expect(content).toContain("**Validation Checklist (Phase 4):**");
+      
+      // Check for checkbox format
+      expect(content).toMatch(/- \[ \] All transformation files created/);
+      expect(content).toMatch(/- \[ \] choreography\.yaml is valid YAML syntax/);
+    });
+
+    it("should have phase transition rules", () => {
+      const content = generateAgentFile("./examples/ecommerce");
+
+      // FR-012: Phase transition rules
+      expect(content).toContain("### Phase Transition Rules");
+      expect(content).toContain("Analyze → Propose");
+      expect(content).toContain("Propose → Generate");
+      expect(content).toContain("Generate → Validate");
+      expect(content).toContain("Validate → Build");
+    });
+
+    it("should require user confirmation to proceed from Propose phase", () => {
+      const content = generateAgentFile("./examples/ecommerce");
+
+      // Verify explicit confirmation requirement
+      const phase2ExitSection = content.substring(
+        content.indexOf("### Phase 2: Propose"),
+        content.indexOf("### Phase 3: Generate")
+      );
+      
+      expect(phase2ExitSection).toContain('User confirms design with "yes"');
+      expect(phase2ExitSection).toContain("**Exit Criteria:**");
+    });
+
+    it("should include validation actions in Phase 4", () => {
+      const content = generateAgentFile("./examples/ecommerce");
+
+      const phase4Section = content.substring(
+        content.indexOf("### Phase 4: Validate"),
+        content.indexOf("### Phase 5: Build")
+      );
+
+      // FR-011: Validation actions
+      expect(phase4Section).toContain("**Syntax Validation**");
+      expect(phase4Section).toContain("**Schema Validation**");
+      expect(phase4Section).toContain("**Consistency Checks**");
+      expect(phase4Section).toContain("Check choreography.yaml is valid YAML");
+      expect(phase4Section).toContain("Check JSONata files have valid syntax");
+    });
+
+    it("should provide clear next steps in Phase 5", () => {
+      const content = generateAgentFile("./examples/ecommerce");
+
+      const phase5Section = content.substring(
+        content.indexOf("### Phase 5: Build")
+      );
+
+      // FR-013: Build phase guidance
+      expect(phase5Section).toContain("spas-compose choreography build --dry-run");
+      expect(phase5Section).toContain("spas-compose choreography build --docker");
+      expect(phase5Section).toContain("docker compose up");
+    });
+  });
 });

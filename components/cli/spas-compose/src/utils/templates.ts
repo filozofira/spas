@@ -150,7 +150,166 @@ function generateTechnicalReference(domainRoot: string): string {
   return `
 ## Technical Reference
 
-### Sidecar Configuration Mapping
+### CloudEvents Type Format
+
+The sidecar automatically constructs CloudEvents-compliant event envelopes. The \`type\` field follows this format:
+
+\`\`\`
+com.{bounded-context}.{event-name-kebab}
+\`\`\`
+
+**Construction Rules:**
+1. **Bounded Context**: Extracted from \`x-service-name\` by removing \`-service\` suffix
+   - \`order-service\` → \`order\`
+   - \`inventory-service\` → \`inventory\`
+2. **Event Name**: From \`x-event-name\` in choreography metadata (kebab-case)
+
+**Examples:**
+\`\`\`yaml
+# Service: order-service
+# Event: order-created
+→ CloudEvents type: com.order.order-created
+
+# Service: inventory-service  
+# Event: stock-reserved
+→ CloudEvents type: com.inventory.stock-reserved
+\`\`\`
+
+**Why this matters:** Enables event filtering by bounded context or specific event types in the event broker.
+
+### Sidecar Configuration Schema
+
+When generating sidecar configurations, reference these field definitions:
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| \`serviceId\` | string | ✅ | Unique identifier for this service |
+| \`serviceName\` | string | ✅ | Human-readable name (matches x-service-name) |
+| \`servicePort\` | number | ✅ | Port the actual service listens on |
+| \`sidecarPort\` | number | ✅ | Port sidecar exposes (usually 8080) |
+| \`choreographyPath\` | string | ✅ | Path to choreography directory |
+| \`repositoryUrl\` | string | ❌ | SPAS repository URL (optional) |
+| \`proxies\` | object | ❌ | Map of serviceId → proxy config |
+| \`proxies.*.target\` | string | ✅* | Downstream service URL (required if proxy used) |
+| \`proxies.*.timeout\` | number | ❌ | Request timeout in ms (default: 30000) |
+| \`enableHealthCheck\` | boolean | ❌ | Enable /health endpoint (default: true) |
+| \`healthCheckPath\` | string | ❌ | Custom health check path (default: /health) |
+
+**Example Complete Configuration:**
+\`\`\`json
+{
+  "serviceId": "order-service",
+  "serviceName": "order-service",
+  "servicePort": 3000,
+  "sidecarPort": 8080,
+  "choreographyPath": "/app/choreographies",
+  "proxies": {
+    "inventory-service": {
+      "target": "http://inventory-sidecar:8080",
+      "timeout": 5000
+    },
+    "payment-service": {
+      "target": "http://payment-sidecar:8080"
+    }
+  }
+}
+\`\`\`
+
+### JSONata Transformation Patterns
+
+**CRITICAL**: JSONata has specific array handling requirements. Follow these patterns:
+
+**Pattern 1: Array Construction (REQUIRED)**
+\`\`\`jsonata
+// ❌ WRONG - fails when source array has single element
+[item1, item2, item3]
+
+// ✅ CORRECT - always use $append
+$append($append([], item1), item2)
+
+// ✅ CORRECT - single item
+$append([], singleItem)
+
+// ✅ CORRECT - mapping arrays
+$append([], items.{"sku": sku, "quantity": quantity})
+\`\`\`
+
+**Why**: JSONata returns a single object (not array) when mapping over a single-element array. \`$append([], ...)\` ensures array output.
+
+**Pattern 2: Object Construction**
+\`\`\`jsonata
+{
+  "orderId": orderId,
+  "items": $append([], items.{"sku": productId, "qty": quantity}),
+  "timestamp": $now()
+}
+\`\`\`
+
+**Pattern 3: Conditional Fields**
+\`\`\`jsonata
+$merge([
+  {"required": value},
+  source.optional ? {"optional": source.optional} : {}
+])
+\`\`\`
+
+### Endpoint Routing
+
+All service-to-service communication goes through sidecar proxies.
+
+**Endpoint Format:**
+\`\`\`
+http://sidecar:8080/proxy/{serviceId}/{path}
+\`\`\`
+
+**Routing Rules:**
+1. \`{serviceId}\` in endpoint path MUST match a key in sidecar \`proxies\` config
+2. \`{path}\` is appended to the target URL
+3. Sidecar handles service discovery within Docker network
+
+**Example:**
+\`\`\`yaml
+# In choreography
+downstream:
+  endpoint: http://sidecar:8080/proxy/inventory-service/stock
+
+# In sidecar config.json
+proxies:
+  inventory-service:
+    target: http://inventory-service:3000
+
+# Actual HTTP call made by sidecar:
+# POST http://inventory-service:3000/stock
+\`\`\`
+
+**Common Mistake:** Using wrong serviceId results in \`404 from sidecar proxy\`.
+
+### Field Naming Conventions
+
+**REQUIRED**: All field names MUST use camelCase.
+
+\`\`\`yaml
+# ✅ CORRECT
+inputMapping:
+  orderId: $.order.orderId
+  customerEmail: $.customer.email
+  itemCount: $.items.length
+
+# ❌ WRONG - will cause null/undefined values
+inputMapping:
+  order_id: $.order.order_id
+  customer-email: $.customer.email
+  item_count: $.items.length
+\`\`\`
+
+**Consistency Rule**: Match field names across:
+1. Service request/response schemas
+2. Event payloads  
+3. JSONata expressions
+
+**Why**: JavaScript/TypeScript ecosystem convention. Ensures SDK serialization works correctly.
+
+### Choreography → Sidecar Config Mapping
 
 The choreography.yaml flows generate sidecar configuration files. Use the schema at \`${domainRoot}/{DOMAIN}/.spas/schemas/sidecar-config-v1.schema.json\` to understand the mapping:
 

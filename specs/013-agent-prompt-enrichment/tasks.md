@@ -44,7 +44,7 @@
 
 ---
 
-## Phase 3: User Story 1 - Self-Contained Agent Prompt (Priority: P1) 🎯 MVP
+## Phase 3: User Story 1 - Self-Contained Agent Prompt (Priority: P1) 🎯 MVP ✅ COMPLETE
 
 **Goal**: Agent prompt contains all information needed for autonomous composition without external references
 
@@ -52,39 +52,45 @@
 
 ### Implementation for User Story 1
 
-- [ ] T010 [US1] Add CloudEvents type format documentation to `generateTechnicalReference()` in src/utils/templates.ts
+- [X] T010 [US1] Add CloudEvents type format documentation to `generateTechnicalReference()` in src/utils/templates.ts
   - Format: `com.{bounded-context}.{event-name-kebab}`
   - Include bounded context derivation rules
   - Add examples from research.md
 
-- [ ] T011 [US1] Add complete sidecar config schema documentation to `generateTechnicalReference()` in src/utils/templates.ts
+- [X] T011 [US1] Add complete sidecar config schema documentation to `generateTechnicalReference()` in src/utils/templates.ts
   - All fields from research.md Section 6
   - Required vs optional markers
   - Complete example config
 
-- [ ] T012 [US1] Add JSONata transformation patterns to `generateTechnicalReference()` in src/utils/templates.ts
+- [X] T012 [US1] Add JSONata transformation patterns to `generateTechnicalReference()` in src/utils/templates.ts
   - `$append([], ...)` array pattern with ✅/❌ examples
   - Object construction pattern
   - Conditional fields pattern
 
-- [ ] T013 [US1] Add endpoint routing documentation to `generateTechnicalReference()` in src/utils/templates.ts
+- [X] T013 [US1] Add endpoint routing documentation to `generateTechnicalReference()` in src/utils/templates.ts
   - `/proxy/{serviceId}/{path}` format
   - Mapping to proxies config
   - Docker network resolution
 
-- [ ] T014 [US1] Add field naming conventions (camelCase) to `generateTechnicalReference()` in src/utils/templates.ts
+- [X] T014 [US1] Add field naming conventions (camelCase) to `generateTechnicalReference()` in src/utils/templates.ts
   - Correct/incorrect examples
   - Consistency rule across schemas, payloads, JSONata
 
-- [ ] T015 [US1] Remove all SPAS repo path references from agent prompt generation in src/utils/templates.ts
-  - Audit for `principles/`, `specs/`, `components/` references
-  - Replace with domain-relative paths or inline content
+- [X] T015 [US1] Remove all SPAS repo path references from agent prompt generation in src/utils/templates.ts
+  - Audited for `principles/`, `specs/`, `components/` references
+  - No external refs found in agent prompt ✅
 
-- [ ] T016 [US1] Add unit test for self-contained prompt in test/unit/utils/templates.test.ts
-  - Assert no external repo path references
-  - Assert all required sections present
+- [X] T016 [US1] Add unit test for self-contained prompt in test/unit/utils/templates.test.ts
+  - Assert no external repo path references ✅
+  - Assert all required sections present ✅
+  - 9 tests created, all passing
 
-**Checkpoint**: User Story 1 complete - agent prompt is self-contained
+**Results**:
+- File size: 11,637 bytes (~11.4KB, well under 25KB limit)
+- All 181 tests pass (9 new + 172 existing)
+- Baseline saved: `.baseline/agent-prompt-after-phase3.md`
+
+**Checkpoint**: ✅ User Story 1 complete - agent prompt is self-contained with comprehensive technical reference
 
 ---
 

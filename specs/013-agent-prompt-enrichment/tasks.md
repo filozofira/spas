@@ -230,11 +230,13 @@
 
 **Purpose**: Final validation and documentation
 
-- [ ] T034 Measure generated agent prompt file size (must be <25KB per SC-005)
-- [ ] T035 [P] Run full CLI test suite to ensure no regressions
-- [ ] T036 [P] Update README.md with agent prompt enrichment feature notes
-- [ ] T037 Perform quickstart.md validation workflow
-- [ ] T038 Update COMPLETION.md with feature completion status
+- [X] T034 Measure generated agent prompt file size (must be <25KB per SC-005)
+- [X] T035 [P] Run full CLI test suite to ensure no regressions
+- [X] T036 [P] Update README.md with agent prompt enrichment feature notes
+- [X] T037 Perform quickstart.md validation workflow
+- [X] T038 Update COMPLETION.md with feature completion status
+
+**Checkpoint**: ✅ Phase 8 complete - all validation and documentation tasks finished
 
 ---
 

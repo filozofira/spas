@@ -5,11 +5,11 @@
 {
   "orderId": orderId,
   "customerId": customerId,
-  "items": items.{
+  "items": $append([], items.{
     "productId": productId,
     "quantity": quantity,
     "price": price
-  },
+  }),
   "total": total,
   "createdAt": createdAt
 }

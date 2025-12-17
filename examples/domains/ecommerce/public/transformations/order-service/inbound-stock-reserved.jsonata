@@ -1,14 +1,13 @@
 /* inbound-stock-reserved.jsonata */
 /* Transforms stock-reserved (inventory-service) → order-service format */
 /* Source: inventory-service.stock-reserved */
-/* Target: order-service */
+/* Target: order-service StockReservedEvent(OrderId, ReservedItems, ReservedAt) */
 {
   "orderId": orderId,
-  "reservations": reservations.{
+  "reservedItems": $append([], reservations.{
     "productId": productId,
     "quantity": quantity,
     "reservedAt": reservedAt
-  },
-  "completedAt": timestamp,
-  "status": "inventory-reserved"
+  }),
+  "reservedAt": timestamp
 }

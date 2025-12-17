@@ -3,7 +3,7 @@
     {
       "kind": "event",
       "topic": "inventory",
-      "invokeEndpoint": "/incoming",
+      "invokeEndpoint": "/events/stock-reserved",
       "transform": "transformations/inbound-stock-reserved.jsonata"
     }
   ],

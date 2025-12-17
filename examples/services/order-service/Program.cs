@@ -99,7 +99,7 @@ app.MapGet("/orders/{id}",
 // POST /orders/confirm - Confirm order after stock reservation
 app.MapPost("/orders/confirm",
     [SpasCommand("ConfirmOrder", "1.0")]
-(ConfirmOrderRequest request, OrderStore store) =>
+async (ConfirmOrderRequest request, EventPublisher publisher, OrderStore store) =>
     {
         Console.WriteLine($"[order-service] Confirming order {request.OrderId} with {request.ReservedItems.Count} items reserved");
 
@@ -115,6 +115,25 @@ app.MapPost("/orders/confirm",
         store.Add(confirmedOrder);
 
         Console.WriteLine($"[order-service] Order {request.OrderId} status updated to 'confirmed'");
+        
+        // Publish OrderConfirmed event
+        var eventPayload = new
+        {
+            orderId = request.OrderId,
+            status = "confirmed",
+            reservedItems = request.ReservedItems
+        };
+
+        try
+        {
+            await publisher.PublishAsync<OrderConfirmedEvent>(payload: eventPayload);
+            Console.WriteLine($"[order-service] Published order-confirmed event for {request.OrderId}");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"[order-service] Failed to publish order-confirmed event: {ex.Message}");
+        }
+
         return Results.Ok(new { orderId = request.OrderId, status = "confirmed", reservedItems = request.ReservedItems });
     });
 
@@ -170,6 +189,9 @@ public record Order(Guid OrderId, string CustomerId, List<OrderItem> Items, deci
 // Events (outbound only)
 [SpasEvent("OrderCreated", "1.0", EventType = "com.ecommerce.order.created")]
 public record OrderCreatedEvent(Guid OrderId, string CustomerId, List<OrderItem> Items, decimal Total, DateTime CreatedAt);
+
+[SpasEvent("OrderConfirmed", "1.0", EventType = "com.order.order-confirmed")]
+public record OrderConfirmedEvent(Guid OrderId, string Status, List<ReservedItem> ReservedItems);
 
 // In-memory store
 public class OrderStore

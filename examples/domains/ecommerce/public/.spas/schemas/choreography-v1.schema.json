@@ -44,7 +44,8 @@
       "type": "object",
       "description": "A named choreography flow defining event routing between services",
       "required": [
-        "participants"
+        "participants",
+        "events"
       ],
       "additionalProperties": false,
       "properties": {
@@ -62,19 +63,13 @@
           "minItems": 2,
           "uniqueItems": true
         },
-        "commands": {
-          "type": "array",
-          "description": "Command entry points that initiate flows",
-          "items": {
-            "$ref": "#/definitions/CommandEntry"
-          }
-        },
         "events": {
           "type": "array",
           "description": "Event routing definitions",
           "items": {
             "$ref": "#/definitions/EventRoute"
-          }
+          },
+          "minItems": 1
         }
       }
     },
@@ -135,56 +130,12 @@
           "description": "Subscribing service name",
           "pattern": "^[a-z][a-z0-9-]*[a-z0-9]$"
         },
-        "command": {
-          "type": "string",
-          "description": "Target command name to invoke (PascalCase)",
-          "pattern": "^[A-Z][a-zA-Z0-9]*$",
-          "examples": [
-            "ReserveStock",
-            "ConfirmOrder"
-          ]
-        },
         "transform": {
           "type": "string",
           "description": "Relative path to JSONata transformation file",
           "pattern": "^transformations/[a-z][a-z0-9-]*[a-z0-9]/[a-z0-9-]+\\.jsonata$",
           "examples": [
             "transformations/fulfillment-service/inbound-order-created.jsonata"
-          ]
-        }
-      }
-    },
-    "CommandEntry": {
-      "type": "object",
-      "description": "A command entry point that can initiate a flow",
-      "required": [
-        "service",
-        "command",
-        "endpoint"
-      ],
-      "additionalProperties": false,
-      "properties": {
-        "service": {
-          "type": "string",
-          "description": "Service exposing the command",
-          "pattern": "^[a-z][a-z0-9-]*[a-z0-9]$"
-        },
-        "command": {
-          "type": "string",
-          "description": "Command name (PascalCase)",
-          "pattern": "^[A-Z][a-zA-Z0-9]*$",
-          "examples": [
-            "CreateOrder",
-            "ReserveStock"
-          ]
-        },
-        "endpoint": {
-          "type": "string",
-          "description": "HTTP endpoint path",
-          "pattern": "^/[a-z0-9/-]*$",
-          "examples": [
-            "/orders",
-            "/inventory/reserve"
           ]
         }
       }

@@ -6,36 +6,20 @@ domain: public
 
 # Named choreography flows
 # Use /spas.compose agent to generate flows based on service contracts
-flows:
-  order-fulfillment:
-    description: "Order creation triggers stock reservation and order confirmation"
-    participants:
-      - order-service
-      - inventory-service
-    
-    # Command entry points (direct invocations, single target)
-    commands:
-      - service: order-service
-        command: CreateOrder
-        endpoint: /orders
-    
-    # Event-driven flows (pub/sub, multiple targets possible)
-    events:
-      - source: order-service
-        event: order-created
-        topic: orders
-        targets:
-          - service: inventory-service
-            command: ReserveStock
-            transform: transformations/inventory-service/inbound-order-created.jsonata
-      
-      - source: inventory-service
-        event: stock-reserved
-        topic: inventory
-        targets:
-          - service: order-service
-            command: ConfirmOrder
-            transform: transformations/order-service/inbound-stock-reserved.jsonata
+flows: {}
+  # Example:
+  # order-fulfillment:
+  #   description: "Order to fulfillment processing flow"
+  #   participants:
+  #     - order-service
+  #     - fulfillment-service
+  #   events:
+  #     - source: order-service
+  #       event: order-created
+  #       topic: orders
+  #       targets:
+  #         - service: fulfillment-service
+#           transform: transformations/fulfillment-service/inbound-order-created.jsonata
 
 # Infrastructure components (optional)
 infrastructure:

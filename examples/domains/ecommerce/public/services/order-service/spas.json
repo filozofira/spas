@@ -34,14 +34,6 @@
       "schemaRef": "schemas/endpoints/get-order.schema.json"
     },
     {
-      "name": "GetOrders",
-      "type": "Query",
-      "protocol": "Http",
-      "methodPath": "/orders/",
-      "version": "1.0",
-      "schemaRef": "schemas/endpoints/get-orders.schema.json"
-    },
-    {
       "name": "ConfirmOrder",
       "type": "Command",
       "protocol": "Http",
@@ -79,7 +71,7 @@
     ]
   },
   "license": "MIT",
-  "publishedAt": "2025-12-17T20:23:33.112Z",
+  "publishedAt": "2025-12-17T21:05:52.988Z",
   "runtime": {
     "digest": "sha256:fc6d849a1aa9862168c191ae10f30a7a5eecfd75fcdb591f9e53854c9bf19fcc",
     "repository": "spas-examples/order-service",

@@ -279,7 +279,7 @@ Service metadata files define service capabilities, contracts, and runtime confi
 | \`version\` | string | Semantic version |
 | \`boundedContext\` | string | Domain context name |
 | \`endpoints\` | array | Command/Query endpoints |
-| \`events\` | array | Event types published |
+| \`events\` | array | Outbound events only (published by service) |
 | \`runtime\` | object | Container image/digest info |
 
 **Endpoint Structure:**
@@ -376,23 +376,38 @@ The choreography.yaml flows generate sidecar configuration files. Use the schema
 
 Choreography files define event-driven workflows and service interactions between services.
 
+**Execution Flow**: Event → Topic → Transform → Command
+1. **Service A publishes event**: Uses SDK EventPublisher to emit domain event
+2. **Sidecar forwards to topic**: Routes event to configured message topic (Redis/Kafka)
+3. **Service B's sidecar subscribes**: Listens to topic based on choreography configuration
+4. **Transform event → command**: Applies JSONata transformation (event payload → command request DTO)
+5. **Invoke command endpoint**: HTTP POST to Service B's command endpoint
+6. **Service B processes**: Executes command logic, may publish new events
+
+This pattern enables **loose coupling**: Services never call each other directly. Choreography defines the "wiring" between services through topics and transformations.
+
 **Essential Structure:**
 | Field | Type | Description |
 |-------|------|-------------|
 | \`version\` | string | Schema version ("1.0") |
 | \`domain\` | string | Domain context name |
 | \`flows\` | object | Named choreography flows (key = flow name) |
-| \`infrastructure\` | object | Redis/Zipkin config (optional) |
 
 **Flow Definition:**
 - \`participants\`: Array of service names (minimum 2)
 - \`events\`: Array of event routing rules
-  - \`source\`: Publishing service name
-  - \`event\`: Event type (kebab-case)
-  - \`topic\`: Message topic/stream name
-  - \`targets\`: Array of subscribing services
-    - \`service\`: Subscriber name
-    - \`transform\`: JSONata file path (optional)
+  - \`source\`: Publishing service name (owns the event)
+  - \`event\`: Event type (kebab-case, e.g., "order-created")
+  - \`topic\`: Message topic/stream name (event routing destination)
+  - \`targets\`: Array of subscribing services (consume event → invoke command)
+    - \`service\`: Subscriber name (which service processes this event)
+    - \`transform\`: JSONata file path mapping event → command request (optional)
+
+**How Topics Work:**
+- Topics decouple publishers from subscribers
+- One event type → one topic (configured in choreography)
+- Multiple services can subscribe to same topic
+- Each subscriber's sidecar: receives event → transforms → invokes local service command
 
 **Complete Schema**: \`\${domainRoot}/{DOMAIN}/.spas/schemas/choreography-v1.schema.json\`
 
@@ -414,9 +429,13 @@ flows:
             transform: transformations/fulfillment-service/inbound-order.jsonata
 \`\`\`
 
+**Key Concept**: The \`transform\` path points to a JSONata file that maps the \`order-created\` event payload to the command request DTO expected by fulfillment-service's command endpoint.
+
 ### Service Metadata (spas.json) Schema
 
-Service metadata files declare service identity and event contracts.
+Service metadata files declare service identity, endpoints, and event contracts.
+
+**Architecture Principle**: Services expose Commands/Queries via endpoints and publish Events (outbound only). Services do NOT subscribe to events directly - the sidecar handles event subscriptions based on choreography configuration and invokes service commands.
 
 **Required Fields:**
 \`\`\`json
@@ -424,43 +443,46 @@ Service metadata files declare service identity and event contracts.
   "id": "order-service",                  // Unique service identifier
   "version": "1.0.0",                      // Semantic version
   "boundedContext": "orders",             // Domain context
-  "events": {
-    "published": [                         // Events this service emits
-      {
-        "name": "order-created",
-        "x-event-name": "order-created",   // REQUIRED: Event identifier
-        "schema": "./schemas/order-created.schema.json"
-      },
-      {
-        "name": "order-cancelled",
-        "x-event-name": "order-cancelled",
-        "schema": "./schemas/order-cancelled.schema.json"
-      }
-    ],
-    "subscribed": [                        // Events this service listens to
-      {
-        "name": "payment-received",
-        "x-event-name": "payment-received",
-        "schema": "./schemas/payment-received.schema.json"
-      }
-    ]
-  },
-  "endpoints": [                           // HTTP endpoints exposed
+  "endpoints": [                           // Commands and Queries
     {
-      "path": "/orders",
-      "method": "POST",
-      "x-service-name": "order-service"   // REQUIRED: Service identifier
+      "name": "CreateOrder",
+      "type": "Command",
+      "protocol": "Http",
+      "methodPath": "/orders",
+      "version": "1.0",
+      "schemaRef": "schemas/endpoints/create-order.schema.json"
+    },
+    {
+      "name": "GetOrder",
+      "type": "Query",
+      "protocol": "Http",
+      "methodPath": "/orders/{id}",
+      "version": "1.0",
+      "schemaRef": "schemas/endpoints/get-order.schema.json"
+    }
+  ],
+  "events": [                              // Outbound events only
+    {
+      "type": "order-created",
+      "version": "1.0",
+      "schemaRef": "schemas/events/order-created.schema.json"
+    },
+    {
+      "type": "order-cancelled",
+      "version": "1.0",
+      "schemaRef": "schemas/events/order-cancelled.schema.json"
     }
   ]
 }
 \`\`\`
 
-**Critical Fields:**
-- **x-service-name**: REQUIRED in endpoints. Used for sidecar routing and CloudEvents source.
-- **x-event-name**: REQUIRED in events. Used for CloudEvents type construction.
-- **boundedContext**: Used to derive CloudEvents type prefix (\`com.{boundedContext}.{event}\`).
+**Critical Architecture Points:**
+- **events[]**: Flat array containing ONLY events published by this service (outbound). Services do NOT declare subscribed events.
+- **Choreography defines subscriptions**: Event subscriptions are declared in choreography.yaml, not service metadata.
+- **Sidecar pattern**: Sidecar subscribes to events → transforms → invokes service command endpoint.
+- **Service purity**: Services are pure HTTP APIs, testable without event infrastructure.
 
-**Common Mistake**: Omitting \`x-service-name\` or \`x-event-name\` causes choreography loading failures.
+**Complete Schema**: \`\${domainRoot}/{DOMAIN}/.spas/schemas/runtime-metadata-v1.schema.json\`
 `;
 }
 
@@ -494,7 +516,7 @@ Follow this 5-phase workflow with validation checkpoints at each stage.
 
 2. **Read Service Contracts**
    - Read \`${domainRoot}/{DOMAIN}/services/<service-name>/spas.json\` for each service
-   - Extract: \`id\`, \`version\`, \`boundedContext\`, \`events.published[]\`, \`events.subscribed[]\`
+   - Extract: \`id\`, \`version\`, \`boundedContext\`, \`endpoints[]\`, \`events[]\` (outbound only)
    - Read schemas from \`${domainRoot}/{DOMAIN}/services/<service-name>/schemas/\`
 
 3. **Identify Relationships**
@@ -567,18 +589,10 @@ flows:
         targets:
           - service: <subscribing-service>
             transform: transformations/<service>/inbound-<event>.jsonata
-
-# Optional infrastructure configuration
-infrastructure:
-  redis:
-    enabled: true
-  zipkin:
-    enabled: true
 \`\`\`
 
 **Requirements:**
 - \`participants\` must include at least 2 services
-- Topic names follow pattern: \`{domain}.{bounded-context}.{event-type}\`
 - Transformation paths: \`transformations/{service}/inbound-{event}.jsonata\`
 
 **Exit Criteria:** User confirms design with "yes" or provides feedback

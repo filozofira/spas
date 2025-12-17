@@ -3,12 +3,12 @@
 /* Source: inventory-service.stock-reserved */
 /* Target: order-service */
 {
-  "orderId": OrderId,
-  "reservations": Reservations.{
-    "productId": ProductId,
-    "quantity": Quantity,
-    "reservedAt": ReservedAt
+  "orderId": orderId,
+  "reservations": reservations.{
+    "productId": productId,
+    "quantity": quantity,
+    "reservedAt": reservedAt
   },
-  "completedAt": Timestamp,
+  "completedAt": timestamp,
   "status": "inventory-reserved"
 }

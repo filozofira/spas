@@ -38,11 +38,17 @@ export class EventPublisher {
    * @throws Error if no route found or Redis fails
    */
   async publish(payload: unknown, headers: PublishHeaders): Promise<PublishResult> {
+    // DEBUG: Log incoming headers
+    console.log('[publish] Headers received:', JSON.stringify(headers, null, 2));
+    
     // 1. Resolve event type from headers (prioritizes x-event-name over x-event-type)
     const resolvedEventType = resolveEventType(headers);
+    console.log('[publish] Resolved eventType:', resolvedEventType);
 
     // 2. Resolve topic from event type
     const route = resolveTopicFromEventType(resolvedEventType, this.config);
+    console.log('[publish] Route lookup result:', JSON.stringify(route));
+    console.log('[publish] Config outbound:', JSON.stringify(this.config.outbound));
 
     if (!route.found || !route.topic) {
       throw new Error(`No outbound route configured for event type: ${resolvedEventType}`);

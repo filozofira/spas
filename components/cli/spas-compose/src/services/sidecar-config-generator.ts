@@ -18,7 +18,6 @@ import type {
   ConfigError,
   ConfigSummary,
   ServiceSummarySidecar,
-  ServiceMetadata,
 } from "../types.js";
 import { deriveCloudEventsType, pascalToKebab } from "../utils/event-type.js";
 
@@ -94,9 +93,6 @@ export class SidecarConfigGenerator {
     const entries: OutboundEntry[] = [];
     const seenTopics = new Set<string>();
 
-    // T020: Load service metadata for boundedContext
-    const metadata = this.loadServiceMetadata(serviceName);
-
     for (const flow of Object.values(choreography.flows)) {
       for (const eventRoute of flow.events) {
         // Service is the source → outbound
@@ -107,10 +103,11 @@ export class SidecarConfigGenerator {
 
             const entry: OutboundEntry = { topic: eventRoute.topic };
 
-            // T019: Derive eventType from boundedContext and event name
-            if (metadata?.boundedContext && eventRoute.event) {
+            // T019: Derive eventType from service name and event name
+            // Uses serviceName (not boundedContext) to match sidecar runtime behavior
+            if (eventRoute.event) {
               entry.eventType = deriveCloudEventsType(
-                metadata.boundedContext,
+                serviceName,
                 eventRoute.event,
               );
               // T024/T025: Add short kebab-case eventName (sidecar uses to construct type)
@@ -176,22 +173,29 @@ export class SidecarConfigGenerator {
 
   /**
    * Resolve transformation path for sidecar config
-   * T021: Keep full path with service folder - sidecar mounts at workspace root
+   * T021: Adjust path for per-service mount
    *
-   * The sidecar mounts ./transformations:/app/transformations at the container level.
-   * The docker-compose mounts the full transformations directory, so paths should
-   * preserve the full structure including service folder.
+   * The docker-compose mounts ./transformations/{service}:/app/transformations
+   * So a choreography path like "transformations/inventory-service/inbound.jsonata"
+   * becomes "/app/transformations/inbound.jsonata" inside the container.
+   * We need to strip the service-specific prefix.
    *
-   * @param workspacePath - Path relative to workspace root
-   * @param _serviceName - Service name (unused, kept for backwards compatibility)
-   * @returns Path as-is (full path preserved)
+   * @param workspacePath - Path relative to workspace root (from choreography)
+   * @param serviceName - Service name to strip from path
+   * @returns Path relative to /app/transformations inside container
    */
   private resolveTransformPath(
     workspacePath: string,
-    _serviceName: string,
+    serviceName: string,
   ): string {
-    // T021: Return path as-is - docker-compose mounts full transformations directory
-    // e.g., "transformations/fulfillment-service/inbound-order.jsonata" stays the same
+    // Strip "transformations/{serviceName}/" prefix to get just the filename
+    // e.g., "transformations/inventory-service/inbound-order.jsonata" 
+    //    -> "transformations/inbound-order.jsonata"
+    const servicePrefix = `transformations/${serviceName}/`;
+    if (workspacePath.startsWith(servicePrefix)) {
+      return `transformations/${workspacePath.substring(servicePrefix.length)}`;
+    }
+    // Fallback: return as-is
     return workspacePath;
   }
 
@@ -243,32 +247,5 @@ export class SidecarConfigGenerator {
     }
 
     return errors;
-  }
-
-  /**
-   * Load service metadata from spas.json
-   * T020: Helper to read service metadata for boundedContext
-   *
-   * @param serviceName - Name of the service to load metadata for
-   * @returns ServiceMetadata or null if not found
-   */
-  private loadServiceMetadata(serviceName: string): ServiceMetadata | null {
-    const metadataPath = path.join(
-      this.workspacePath,
-      "services",
-      serviceName,
-      "spas.json",
-    );
-
-    try {
-      if (fs.existsSync(metadataPath)) {
-        const content = fs.readFileSync(metadataPath, "utf-8");
-        return JSON.parse(content) as ServiceMetadata;
-      }
-    } catch {
-      // Silently ignore parse errors - return null
-    }
-
-    return null;
   }
 }

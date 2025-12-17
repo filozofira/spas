@@ -40,7 +40,7 @@ Sidecar constructs the CloudEvents envelope from HTTP headers received from SDK:
 
 ### Event Type Naming Convention
 
-CloudEvents `type` field uses format: `com.{boundedContext}.{event-name-kebab}`
+CloudEvents `type` field uses format: `com.{service-name}.{event-name-kebab}`
 
 - Event names MUST be **kebab-case** (lowercase, hyphen-separated)
 - SDKs normalize native conventions to kebab-case:
@@ -49,7 +49,7 @@ CloudEvents `type` field uses format: `com.{boundedContext}.{event-name-kebab}`
   - Go/Java: Same normalization applies
 - This ensures cross-language interoperability in choreography definitions
 
-**Example**: Service with `boundedContext: "order"` publishing `OrderCreated` → `com.order.order-created`
+**Example**: Service `order-service` publishing `OrderCreated` → `com.order-service.order-created`
 
 ## Topics & Routing
 

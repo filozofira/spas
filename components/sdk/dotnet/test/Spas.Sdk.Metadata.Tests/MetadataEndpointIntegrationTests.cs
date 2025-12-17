@@ -256,8 +256,9 @@ public class MetadataEndpointIntegrationTests
         Assert.Contains("$schema", schemaContent);
         Assert.Contains("type", schemaContent);
         Assert.Contains("properties", schemaContent);
-        Assert.Contains("TestId", schemaContent);
-        Assert.Contains("Name", schemaContent);
+        // Schemas use camelCase to match runtime JSON serialization
+        Assert.Contains("testId", schemaContent);
+        Assert.Contains("name", schemaContent);
 
         // Validate event schema
         var eventSchemaEntry = archive.GetEntry("schemas/events/test-created.schema.json");
@@ -266,7 +267,8 @@ public class MetadataEndpointIntegrationTests
         using var eventSchemaReader = new StreamReader(eventSchemaEntry.Open());
         var eventSchemaContent = await eventSchemaReader.ReadToEndAsync();
         Assert.Contains("type", eventSchemaContent);
-        Assert.Contains("EventId", eventSchemaContent);
+        // Schemas use camelCase to match runtime JSON serialization
+        Assert.Contains("eventId", eventSchemaContent);
     }
 }
 

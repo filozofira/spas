@@ -4,13 +4,13 @@
       "kind": "event",
       "topic": "inventory",
       "invokeEndpoint": "/incoming",
-      "transform": "transformations/order-service/inbound-stock-reserved.jsonata"
+      "transform": "transformations/inbound-stock-reserved.jsonata"
     }
   ],
   "outbound": [
     {
       "topic": "orders",
-      "eventType": "com.order.order-created",
+      "eventType": "com.order-service.order-created",
       "eventName": "order-created"
     }
   ]

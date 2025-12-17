@@ -21,8 +21,9 @@ public class SchemaGeneratorTests
         Assert.NotNull(schema);
         Assert.Contains("\"type\":", schema);
         Assert.Contains("\"properties\":", schema);
-        Assert.Contains("\"CommandId\":", schema);
-        Assert.Contains("\"Data\":", schema);
+        // Schemas use camelCase to match runtime JSON serialization
+        Assert.Contains("\"commandId\":", schema);
+        Assert.Contains("\"data\":", schema);
     }
 
     [Fact]
@@ -40,7 +41,8 @@ public class SchemaGeneratorTests
         var schema = schemas["schemas/endpoints/test-query.schema.json"] as string;
         Assert.NotNull(schema);
         Assert.Contains("\"type\":", schema);
-        Assert.Contains("\"QueryId\":", schema);
+        // Schemas use camelCase to match runtime JSON serialization
+        Assert.Contains("\"queryId\":", schema);
     }
 
     [Fact]
@@ -58,8 +60,9 @@ public class SchemaGeneratorTests
         var schema = schemas["schemas/events/test-event.schema.json"] as string;
         Assert.NotNull(schema);
         Assert.Contains("\"type\":", schema);
-        Assert.Contains("\"EventId\":", schema);
-        Assert.Contains("\"Timestamp\":", schema);
+        // Schemas use camelCase to match runtime JSON serialization
+        Assert.Contains("\"eventId\":", schema);
+        Assert.Contains("\"timestamp\":", schema);
     }
 
     [Fact]
@@ -93,7 +96,8 @@ public class SchemaGeneratorTests
         Assert.Contains("\"$schema\":", schema);
         Assert.Contains("\"type\":", schema);
         Assert.Contains("\"properties\":", schema);
-        Assert.Contains("\"CommandId\":", schema);
+        // Schemas use camelCase to match runtime JSON serialization
+        Assert.Contains("\"commandId\":", schema);
     }
 
     [Fact]

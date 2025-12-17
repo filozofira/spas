@@ -3,10 +3,10 @@
 /* Source: order-service.order-created */
 /* Target: inventory-service */
 {
-  "orderId": OrderId,
-  "items": Items.{
-    "productId": ProductId,
-    "quantity": Quantity
+  "orderId": orderId,
+  "items": items.{
+    "productId": productId,
+    "quantity": quantity
   },
-  "requestedAt": CreatedAt
+  "requestedAt": createdAt
 }

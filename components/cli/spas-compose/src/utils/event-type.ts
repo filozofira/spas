@@ -51,32 +51,32 @@ export function pascalToLowerDot(eventName: string): string {
 }
 
 /**
- * Derive full CloudEvents type from service metadata
- * Matches SDK format: com.{boundedContext}.{event-name-kebab}
+ * Derive full CloudEvents type from service name and event name
+ * Matches sidecar format: com.{service-name}.{event-name-kebab}
  *
  * @example
- * deriveCloudEventsType("order", "OrderCreated") → "com.order.order-created"
- * deriveCloudEventsType("inventory", "StockReserved") → "com.inventory.stock-reserved"
- * deriveCloudEventsType("order", "order-created") → "com.order.order-created"
+ * deriveCloudEventsType("order-service", "OrderCreated") → "com.order-service.order-created"
+ * deriveCloudEventsType("inventory-service", "StockReserved") → "com.inventory-service.stock-reserved"
+ * deriveCloudEventsType("order-service", "order-created") → "com.order-service.order-created"
  *
- * @param boundedContext - Service bounded context (e.g., "order", "inventory")
+ * @param serviceName - Service name/ID (e.g., "order-service", "inventory-service")
  * @param eventName - PascalCase or kebab-case event name (e.g., "OrderCreated" or "order-created")
- * @returns Full CloudEvents type (e.g., "com.order.order-created")
+ * @returns Full CloudEvents type (e.g., "com.order-service.order-created")
  */
 export function deriveCloudEventsType(
-  boundedContext: string,
+  serviceName: string,
   eventName: string,
 ): string {
-  if (!boundedContext || !eventName) {
+  if (!serviceName || !eventName) {
     throw new Error(
-      "Both boundedContext and eventName are required to derive CloudEvents type",
+      "Both serviceName and eventName are required to derive CloudEvents type",
     );
   }
 
-  // Normalize bounded context (lowercase, keep hyphens)
-  const normalizedContext = boundedContext.toLowerCase();
+  // Normalize service name (lowercase, keep hyphens)
+  const normalizedService = serviceName.toLowerCase();
   // Convert event name to kebab-case (matching SDK behavior)
   const normalizedEvent = pascalToKebab(eventName);
 
-  return `com.${normalizedContext}.${normalizedEvent}`;
+  return `com.${normalizedService}.${normalizedEvent}`;
 }

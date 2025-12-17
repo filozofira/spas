@@ -38,7 +38,7 @@ These are few SPAS compliant services used to demonstrate usage of the framework
   spas-service publish --archive ./order-service-1.0.0.zip `
   --image-repository spas-examples/order-service `
   --image-tag 1.0.0 `
-  --image-digest sha256:a8045ddbf45f8f8f71afea8003a428d191499d0f2a97c65b13020ab550f2f3c7
+  --image-digest sha256:133bc66b92a17ea98876c510b25e7f51ff36efa854a5a1ead9cc1489a0754c51
   ```
 
 - Publish inventory-service
@@ -46,7 +46,7 @@ These are few SPAS compliant services used to demonstrate usage of the framework
   ```powershell
   spas-service publish --archive ./inventory-service-1.0.0.zip `  --image-repository spas-examples/inventory-service`
   --image-tag 1.0.0 `
-  --image-digest sha256:999d034e18ce205d99d78431039c2a583f2480408b1c9f9d784a8c5b56b693d7
+  --image-digest sha256:25d207d85da46149b900bf529027412f2cfffb7874ba70803ee61b89233c9c2c
   ```
 
 - Publish product-service
@@ -54,5 +54,5 @@ These are few SPAS compliant services used to demonstrate usage of the framework
   ```powershell
   spas-service publish --archive ./product-service-1.0.0.zip `  --image-repository spas-examples/product-service`
   --image-tag 1.0.0 `
-  --image-digest sha256:71998525c7bbcce72e2e463ac1f0d67b18a2fc6938eee5a35a9d02a09558eb8d
+  --image-digest sha256:e702d86306dadeb503acd46cc8684d01f229ea44ae5625ce762be58685ffde35
   ```

@@ -4,24 +4,24 @@
   "type": "object",
   "additionalProperties": false,
   "properties": {
-    "OrderId": {
+    "orderId": {
       "type": "string",
       "format": "guid"
     },
-    "CustomerId": {
+    "customerId": {
       "type": "string"
     },
-    "Items": {
+    "items": {
       "type": "array",
       "items": {
         "$ref": "#/definitions/OrderItem"
       }
     },
-    "Total": {
+    "total": {
       "type": "number",
       "format": "decimal"
     },
-    "CreatedAt": {
+    "createdAt": {
       "type": "string",
       "format": "date-time"
     }
@@ -31,14 +31,14 @@
       "type": "object",
       "additionalProperties": false,
       "properties": {
-        "ProductId": {
+        "productId": {
           "type": "string"
         },
-        "Quantity": {
+        "quantity": {
           "type": "integer",
           "format": "int32"
         },
-        "Price": {
+        "price": {
           "type": "number",
           "format": "decimal"
         }

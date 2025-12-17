@@ -4,16 +4,16 @@
   "type": "object",
   "additionalProperties": false,
   "properties": {
-    "CustomerId": {
+    "customerId": {
       "type": "string"
     },
-    "Items": {
+    "items": {
       "type": "array",
       "items": {
         "$ref": "#/definitions/OrderItem"
       }
     },
-    "Total": {
+    "total": {
       "type": "number",
       "format": "decimal"
     }
@@ -23,14 +23,14 @@
       "type": "object",
       "additionalProperties": false,
       "properties": {
-        "ProductId": {
+        "productId": {
           "type": "string"
         },
-        "Quantity": {
+        "quantity": {
           "type": "integer",
           "format": "int32"
         },
-        "Price": {
+        "price": {
           "type": "number",
           "format": "decimal"
         }

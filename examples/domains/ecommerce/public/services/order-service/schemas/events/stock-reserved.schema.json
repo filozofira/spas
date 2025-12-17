@@ -4,17 +4,17 @@
   "type": "object",
   "additionalProperties": false,
   "properties": {
-    "OrderId": {
+    "orderId": {
       "type": "string",
       "format": "guid"
     },
-    "ReservedItems": {
+    "reservedItems": {
       "type": "array",
       "items": {
         "$ref": "#/definitions/ReservedItem"
       }
     },
-    "ReservedAt": {
+    "reservedAt": {
       "type": "string",
       "format": "date-time"
     }
@@ -24,10 +24,10 @@
       "type": "object",
       "additionalProperties": false,
       "properties": {
-        "ProductId": {
+        "productId": {
           "type": "string"
         },
-        "Quantity": {
+        "quantity": {
           "type": "integer",
           "format": "int32"
         }

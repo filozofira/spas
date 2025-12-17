@@ -4,17 +4,17 @@
   "type": "object",
   "additionalProperties": false,
   "properties": {
-    "OrderId": {
+    "orderId": {
       "type": "string",
       "format": "guid"
     },
-    "Reservations": {
+    "reservations": {
       "type": "array",
       "items": {
         "$ref": "#/definitions/StockReservation"
       }
     },
-    "Timestamp": {
+    "timestamp": {
       "type": "string",
       "format": "date-time"
     }
@@ -24,14 +24,14 @@
       "type": "object",
       "additionalProperties": false,
       "properties": {
-        "ProductId": {
+        "productId": {
           "type": "string"
         },
-        "Quantity": {
+        "quantity": {
           "type": "integer",
           "format": "int32"
         },
-        "ReservedAt": {
+        "reservedAt": {
           "type": "string",
           "format": "date-time"
         }

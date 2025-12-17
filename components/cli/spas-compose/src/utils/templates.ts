@@ -130,78 +130,58 @@ infrastructure:
 `;
 }
 
+// =============================================================================
+// Agent Prompt Helper Functions
+// =============================================================================
+
 /**
- * Generate agent file content (.github/agents/spas.compose.agent.md)
+ * Generate Technical Reference section for agent prompt
  *
- * Creates the full agent instructions at project root.
- * Follows SpecKit pattern: .github/agents/*.agent.md
+ * Includes:
+ * - CloudEvents type format
+ * - Sidecar config schema documentation
+ * - JSONata transformation patterns
+ * - Endpoint routing rules
+ * - Field naming conventions
  *
- * The agent supports multiple domains via DOMAIN: prefix in user input.
- * The domainRoot is baked in at init time from --output arg (or "." default).
- *
- * @param domainRoot Relative path from project root to domain parent (e.g., "./examples/ecommerce" or ".")
+ * @param domainRoot Relative path from project root to domain parent
  */
-export function generateAgentFile(domainRoot: string): string {
-  return `---
-description: AI-assisted choreography composition for SPAS domain workspaces
----
+function generateTechnicalReference(domainRoot: string): string {
+  return `
+## Technical Reference
 
-## User Input
+### Sidecar Configuration Mapping
 
-\`\`\`text
-$ARGUMENTS
-\`\`\`
+The choreography.yaml flows generate sidecar configuration files. Use the schema at \`${domainRoot}/{DOMAIN}/.spas/schemas/sidecar-config-v1.schema.json\` to understand the mapping:
 
-You **MUST** consider the user input before proceeding (if not empty).
+| Choreography Field | Sidecar Config Path | Description |
+|-------------------|---------------------|-------------|
+| \`flows.*.events[].topic\` | \`inbound[].topic\` | Topic name for event subscription |
+| \`flows.*.events[].targets[].transform\` | \`inbound[].transform\` | JSONata file path |
+| \`flows.*.events[].targets[].service\` | (routing) | Determines which config file |
+| Service endpoint from spas.json | \`inbound[].invokeEndpoint\` | HTTP path on target service |
+| \`flows.*.events[].source\` + event | \`outbound[].topic\` + \`eventType\` | Publishing config |
 
-## Domain Selection
+**InboundEntry kinds:**
+- \`kind: "event"\` - Pub/sub subscription (requires \`topic\`)
+- \`kind: "command"\` - Request-response (requires \`command\`)
+`;
+}
 
-**REQUIRED**: User input must include \`DOMAIN:<name>\` to specify which domain to work with.
-
-**Parse the domain name:**
-1. Extract \`DOMAIN:<name>\` from user input (e.g., \`DOMAIN:public\`, \`DOMAIN:internal\`)
-2. Use \`<name>\` to construct paths: \`${domainRoot}/<name>/...\`
-3. If no \`DOMAIN:\` specified, respond with error:
-   \`\`\`
-   Error: No domain specified.
-   Usage: /spas.compose DOMAIN:<name> <action>
-   Example: /spas.compose DOMAIN:public Analyze order-service
-   \`\`\`
-
-**Domain root**: \`${domainRoot}\`
-**Full domain path**: \`${domainRoot}/{DOMAIN}/\`
-
-## Goal
-
-Analyze pulled service contracts and generate choreography configuration with transformations for the specified domain workspace.
-
-## Responsibilities
-
-1. **Contract Analysis**: Parse service metadata from \`${domainRoot}/{DOMAIN}/services/*/spas.json\`
-2. **Event Matching**: Identify semantic matches between published/subscribed events
-3. **Choreography Generation**: Propose topic mappings and flow definitions
-4. **Transformation Generation**: Create JSONata transformation files
-5. **Iterative Refinement**: Confirm with developer, iterate based on feedback
-
-## Workspace Structure
-
-\`\`\`
-${domainRoot}/{DOMAIN}/
-├── choreography.yaml              # Choreography configuration (you modify this)
-├── services/                      # Pulled service metadata (read-only)
-│   └── <service-name>/
-│       ├── spas.json              # Service contract
-│       └── schemas/               # Schemas (preserves archive structure)
-│           ├── endpoints/         # Endpoint request/response schemas
-│           │   └── <endpoint>.schema.json
-│           └── events/            # Event payload schemas
-│               └── <event-type>.schema.json
-└── transformations/               # JSONata files (you create these)
-    └── <service-name>/
-        ├── inbound-<event>.jsonata
-        └── outbound-<event>.jsonata
-\`\`\`
-
+/**
+ * Generate Workflow Phases section for agent prompt
+ *
+ * Defines the 5-phase workflow:
+ * 1. Analyze - Parse service contracts
+ * 2. Propose - Generate diagram and get confirmation
+ * 3. Generate - Create artifacts
+ * 4. Validate - Check generated files
+ * 5. Build - Deployment preparation
+ *
+ * @param domainRoot Relative path from project root to domain parent
+ */
+function generateWorkflowPhases(domainRoot: string): string {
+  return `
 ## Workflow
 
 ### Step 1: Validate Workspace
@@ -295,7 +275,55 @@ Next steps:
   • Build: spas-compose choreography build --docker  
   • Run: docker compose up
 \`\`\`
+`;
+}
 
+/**
+ * Generate Known Pitfalls section for agent prompt
+ *
+ * Documents common mistakes discovered during E2E testing:
+ * - Missing $append for arrays
+ * - Wrong endpoint service ID
+ * - Inconsistent field casing
+ * - Missing x-service-name
+ * - Circular event dependencies
+ * - Empty outputMapping
+ */
+function generateKnownPitfalls(): string {
+  return ``;
+}
+
+/**
+ * Generate Troubleshooting section for agent prompt
+ *
+ * Maps common errors to solutions:
+ * - 400 on /incoming
+ * - Transform failures
+ * - Event routing misses
+ * - Connection refused
+ */
+function generateTroubleshooting(): string {
+  return ``;
+}
+
+/**
+ * Generate Complete Examples section for agent prompt
+ *
+ * Provides 2 working examples:
+ * 1. Order→Inventory reserve flow
+ * 2. Inventory→Order confirmation flow
+ */
+function generateCompleteExamples(): string {
+  return ``;
+}
+
+/**
+ * Generate Constraints section for agent prompt
+ *
+ * @param domainRoot Relative path from project root to domain parent
+ */
+function generateConstraints(domainRoot: string): string {
+  return `
 ## Constraints
 
 | Constraint | Behavior |
@@ -305,7 +333,16 @@ Next steps:
 | **Valid JSONata** | All .jsonata files must have valid syntax |
 | **Confirm before write** | ALWAYS wait for explicit confirmation |
 | **Kebab-case naming** | Topics and file names use lowercase-hyphenated format |
+`;
+}
 
+/**
+ * Generate Error Handling section for agent prompt
+ *
+ * @param domainRoot Relative path from project root to domain parent
+ */
+function generateErrorHandling(domainRoot: string): string {
+  return `
 ## Error Handling
 
 | Error | Response |
@@ -315,7 +352,14 @@ Next steps:
 | No services pulled | "Error: No services found. Run \`spas-compose services pull\` first." |
 | Service not found | "Error: Service '<name>' not found in services/ directory." |
 | Schema mismatch | "Warning: Cannot auto-generate transformation. Manual mapping required." |
+`;
+}
 
+/**
+ * Generate Example Prompts section for agent prompt
+ */
+function generateExamplePrompts(): string {
+  return `
 ## Example Prompts
 
 \`\`\`
@@ -327,27 +371,91 @@ Next steps:
 
 /spas.compose DOMAIN:partner Add notification-service to order-fulfillment flow
 \`\`\`
-
-## Sidecar Configuration Mapping
-
-The choreography.yaml flows generate sidecar configuration files. Use the schema at \`${domainRoot}/{DOMAIN}/.spas/schemas/sidecar-config-v1.schema.json\` to understand the mapping:
-
-| Choreography Field | Sidecar Config Path | Description |
-|-------------------|---------------------|-------------|
-| \`flows.*.events[].topic\` | \`inbound[].topic\` | Topic name for event subscription |
-| \`flows.*.events[].targets[].transform\` | \`inbound[].transform\` | JSONata file path |
-| \`flows.*.events[].targets[].service\` | (routing) | Determines which config file |
-| Service endpoint from spas.json | \`inbound[].invokeEndpoint\` | HTTP path on target service |
-| \`flows.*.events[].source\` + event | \`outbound[].topic\` + \`eventType\` | Publishing config |
-
-**InboundEntry kinds:**
-- \`kind: "event"\` - Pub/sub subscription (requires \`topic\`)
-- \`kind: "command"\` - Request-response (requires \`command\`)
-
-## References
-
-- [Sidecar Config Schema](${domainRoot}/{DOMAIN}/.spas/schemas/sidecar-config-v1.schema.json)
 `;
+}
+
+/**
+ * Generate agent file content (.github/agents/spas.compose.agent.md)
+ *
+ * Creates the full agent instructions at project root.
+ * Follows SpecKit pattern: .github/agents/*.agent.md
+ *
+ * The agent supports multiple domains via DOMAIN: prefix in user input.
+ * The domainRoot is baked in at init time from --output arg (or "." default).
+ *
+ * @param domainRoot Relative path from project root to domain parent (e.g., "./examples/ecommerce" or ".")
+ */
+export function generateAgentFile(domainRoot: string): string {
+  // Compose from helper functions for maintainability
+  const technicalReference = generateTechnicalReference(domainRoot);
+  const workflowPhases = generateWorkflowPhases(domainRoot);
+  const knownPitfalls = generateKnownPitfalls();
+  const troubleshooting = generateTroubleshooting();
+  const completeExamples = generateCompleteExamples();
+  const constraints = generateConstraints(domainRoot);
+  const errorHandling = generateErrorHandling(domainRoot);
+  const examplePrompts = generateExamplePrompts();
+
+  return `---
+description: AI-assisted choreography composition for SPAS domain workspaces
+---
+
+## User Input
+
+\`\`\`text
+$ARGUMENTS
+\`\`\`
+
+You **MUST** consider the user input before proceeding (if not empty).
+
+## Domain Selection
+
+**REQUIRED**: User input must include \`DOMAIN:<name>\` to specify which domain to work with.
+
+**Parse the domain name:**
+1. Extract \`DOMAIN:<name>\` from user input (e.g., \`DOMAIN:public\`, \`DOMAIN:internal\`)
+2. Use \`<name>\` to construct paths: \`${domainRoot}/<name>/...\`
+3. If no \`DOMAIN:\` specified, respond with error:
+   \`\`\`
+   Error: No domain specified.
+   Usage: /spas.compose DOMAIN:<name> <action>
+   Example: /spas.compose DOMAIN:public Analyze order-service
+   \`\`\`
+
+**Domain root**: \`${domainRoot}\`
+**Full domain path**: \`${domainRoot}/{DOMAIN}/\`
+
+## Goal
+
+Analyze pulled service contracts and generate choreography configuration with transformations for the specified domain workspace.
+
+## Responsibilities
+
+1. **Contract Analysis**: Parse service metadata from \`${domainRoot}/{DOMAIN}/services/*/spas.json\`
+2. **Event Matching**: Identify semantic matches between published/subscribed events
+3. **Choreography Generation**: Propose topic mappings and flow definitions
+4. **Transformation Generation**: Create JSONata transformation files
+5. **Iterative Refinement**: Confirm with developer, iterate based on feedback
+
+## Workspace Structure
+
+\`\`\`
+${domainRoot}/{DOMAIN}/
+├── choreography.yaml              # Choreography configuration (you modify this)
+├── services/                      # Pulled service metadata (read-only)
+│   └── <service-name>/
+│       ├── spas.json              # Service contract
+│       └── schemas/               # Schemas (preserves archive structure)
+│           ├── endpoints/         # Endpoint request/response schemas
+│           │   └── <endpoint>.schema.json
+│           └── events/            # Event payload schemas
+│               └── <event-type>.schema.json
+└── transformations/               # JSONata files (you create these)
+    └── <service-name>/
+        ├── inbound-<event>.jsonata
+        └── outbound-<event>.jsonata
+\`\`\`
+${technicalReference}${workflowPhases}${knownPitfalls}${troubleshooting}${completeExamples}${constraints}${errorHandling}${examplePrompts}`;
 }
 
 /**

@@ -1,0 +1,94 @@
+{
+  "schemaVersion": "design-time-metadata-v1",
+  "id": "subscription-service",
+  "name": "subscription-service",
+  "description": "B2B subscription management service",
+  "version": "1.0.0",
+  "boundedContext": "subscription",
+  "capabilities": [
+    "subscription-management"
+  ],
+  "endpoints": [
+    {
+      "name": "CreateSubscription",
+      "type": "Command",
+      "protocol": "Http",
+      "methodPath": "/subscriptions",
+      "version": "1.0",
+      "schemaRef": "schemas/endpoints/create-subscription.schema.json"
+    },
+    {
+      "name": "ListSubscriptions",
+      "type": "Query",
+      "protocol": "Http",
+      "methodPath": "/subscriptions",
+      "version": "1.0",
+      "schemaRef": "schemas/endpoints/list-subscriptions.schema.json"
+    },
+    {
+      "name": "GetSubscription",
+      "type": "Query",
+      "protocol": "Http",
+      "methodPath": "/subscriptions/{id}",
+      "version": "1.0",
+      "schemaRef": "schemas/endpoints/get-subscription.schema.json"
+    },
+    {
+      "name": "CreateOrderFromSubscription",
+      "type": "Command",
+      "protocol": "Http",
+      "methodPath": "/subscriptions/process",
+      "version": "1.0",
+      "schemaRef": "schemas/endpoints/create-order-from-subscription.schema.json"
+    },
+    {
+      "name": "ActivateSubscription",
+      "type": "Command",
+      "protocol": "Http",
+      "methodPath": "/subscriptions/activate",
+      "version": "1.0",
+      "schemaRef": "schemas/endpoints/activate-subscription.schema.json"
+    }
+  ],
+  "events": [
+    {
+      "type": "subscription-created",
+      "version": "1.0",
+      "schemaRef": "schemas/events/subscription-created.schema.json"
+    },
+    {
+      "type": "subscription-activated",
+      "version": "1.0",
+      "schemaRef": "schemas/events/subscription-activated.schema.json"
+    }
+  ],
+  "consistency": {
+    "commands": "ACID",
+    "queries": "EVENTUAL"
+  },
+  "network": {
+    "requiredEgress": [
+      "localhost:6379"
+    ]
+  },
+  "security": {
+    "authentication": {
+      "type": "jwt",
+      "requiredScopes": [
+        "subscriptions.read",
+        "subscriptions.write"
+      ]
+    },
+    "dataClassification": [
+      "internal"
+    ]
+  },
+  "license": "MIT",
+  "publishedAt": "2025-12-17T22:39:07.298Z",
+  "runtime": {
+    "digest": "sha256:7f7416d9d6d6c4fd89109c53fdd04dca6028858059e7705ebc2d42a9bec84d53",
+    "repository": "spas-examples/subscription-service",
+    "tag": "1.0.0",
+    "image": "spas-examples/subscription-service@sha256:7f7416d9d6d6c4fd89109c53fdd04dca6028858059e7705ebc2d42a9bec84d53"
+  }
+}

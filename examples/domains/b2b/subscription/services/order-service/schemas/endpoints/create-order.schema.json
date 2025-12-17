@@ -1,0 +1,40 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "CreateOrderRequest",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "customerId": {
+      "type": "string"
+    },
+    "items": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/OrderItem"
+      }
+    },
+    "total": {
+      "type": "number",
+      "format": "decimal"
+    }
+  },
+  "definitions": {
+    "OrderItem": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "productId": {
+          "type": "string"
+        },
+        "quantity": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "price": {
+          "type": "number",
+          "format": "decimal"
+        }
+      }
+    }
+  }
+}

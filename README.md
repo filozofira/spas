@@ -79,13 +79,15 @@ SPAS specifies:
   - 134 unit tests passing
   - See: `components/cli/spas-compose/README.md` and `specs/005-spas-compose-cli/COMPLETION.md`
 
-- 🚧 **SPAS Sidecar**: Production sidecar implementation in progress (48/49 tasks complete)
+- ✅ **SPAS Sidecar**: Production sidecar implementation complete (2025-12-15)
   - Event publishing via `POST /publish` with topic routing
   - Event subscription with Redis Streams delivery to service endpoints
   - Command invocation with request-response patterns
   - CloudEvents 1.0 envelope with W3C Trace Context
   - Distributed tracing with Zipkin span emission
   - Health and readiness endpoints for orchestration
+  - File-based transform loading with JSONata compilation caching
+  - 194 unit tests passing
   - See: `components/sidecar/README.md` and `specs/007-spas-sidecar/`
 
 ## Out of Scope (v1.0)

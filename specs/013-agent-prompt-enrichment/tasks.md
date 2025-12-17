@@ -11,13 +11,17 @@
 
 ---
 
-## Phase 1: Setup
+## Phase 1: Setup ✅ COMPLETE
 
 **Purpose**: Prepare development environment and understand existing code
 
-- [ ] T001 Review existing `generateAgentFile()` in src/utils/templates.ts (lines 127-434)
-- [ ] T002 [P] Create backup of current agent prompt output for comparison testing
-- [ ] T003 [P] Identify helper function extraction points in templates.ts
+- [X] T001 Review existing `generateAgentFile()` in src/utils/templates.ts (lines 137-351, ~215 lines)
+- [X] T002 [P] Create backup of current agent prompt output for comparison testing
+  - Saved to `.baseline/agent-prompt-before.md` (7,774 bytes / ~7.6KB)
+- [X] T003 [P] Identify helper function extraction points in templates.ts
+  - Workflow (lines 201-290) → `generateWorkflowPhases()`
+  - Sidecar mapping (lines 321-349) → merge into `generateTechnicalReference()`
+  - New: `generateKnownPitfalls()`, `generateTroubleshooting()`, `generateCompleteExamples()`
 
 ---
 

@@ -248,6 +248,8 @@ Auto-generated from all feature plans. Last updated: 2025-12-12
 - N/A (configuration only) (011-sdk-sidecar-host)
 - C# 12 / .NET 10.0 (SDK), TypeScript / Node.js 20.x (Sidecar, CLI) + Microsoft.Extensions.Http (SDK), Express.js (Sidecar), Commander (CLI) (012-cloudevents-type-refactor)
 - N/A (no persistence changes) (012-cloudevents-type-refactor)
+- TypeScript 5.3+ (Node.js 20 LTS) + Commander.js 11.x, js-yaml 4.x, JSONata 2.x (013-agent-prompt-enrichment)
+- N/A (generates static markdown file) (013-agent-prompt-enrichment)
 
 - .NET 10 (target net10.0); Microsoft.Extensions.Logging; System.Text.Json (001-dotnet-spas-sdk)
 

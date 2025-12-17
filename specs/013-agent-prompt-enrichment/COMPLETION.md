@@ -22,10 +22,11 @@ The agent prompt enrichment feature has been fully implemented with all 38 tasks
 
 ### Test Coverage
 
-- **215 tests passing** across 12 test suites
-- **43 template tests** validating agent prompt generation
+- **212 tests passing** across 12 test suites (final count after bug fixes)
+- **40 template tests** validating agent prompt generation (3 removed with Complete Examples)
 - Unit tests for all user stories (US1-US5)
 - Path resolution tests for domain-relative paths
+- Schema file reference validation tests
 
 ### Key Features
 
@@ -73,9 +74,19 @@ The agent prompt enrichment feature has been fully implemented with all 38 tasks
 ### File Size Optimization
 
 - **Target**: < 25 KB (SC-005 success criteria)
-- **Actual**: 24.70 KB (98.8% of budget)
-- **Optimization**: Condensed pitfalls/troubleshooting sections using table format
-- **Buffer**: 310 bytes remaining for future additions
+- **Final**: 23.08 KB (92.3% of budget)
+- **Optimizations**: 
+  - Condensed pitfalls/troubleshooting sections using table format
+  - Schema externalization (Bug Fix #3 & #4): 2,300 bytes saved
+  - Removed Complete Examples section: ~1,500 bytes saved
+- **Buffer**: 1.92 KB remaining (7.7% margin for future additions)
+
+### Post-Implementation
+
+- **4 critical bugs fixed** (CloudEvents format, endpoint routing, sidecar schema, service metadata)
+- **3 schemas externalized** (sidecar-config, choreography, runtime-metadata)
+- **Pattern established**: External schema files prevent documentation drift
+- **Test suite**: 212 tests passing (3 removed with Complete Examples)
 
 ---
 
@@ -441,3 +452,91 @@ After Bug Fix #2, a design improvement was identified to eliminate documentation
 - AI agents have `read_file` tool to access schema files
 - Prevents critical bugs like incorrect schema documentation
 
+---
+
+### Bug Fix #4: Service Metadata (spas.json) Schema (December 17, 2025)
+
+**Problem**: Agent prompt documented a completely fictional spas.json schema with non-existent fields:
+- `events.published[]` and `events.subscribed[]` (actual: flat `events[]` array)
+- `x-event-name` and `x-service-name` in events/endpoints (don't exist)
+- Wrong endpoint structure (missing `type`, `protocol`, `methodPath`, `schemaRef`)
+- No `runtime{}` object documentation (critical for pulled services)
+
+**Root Cause**: Fourth critical documentation bug following same pattern as Bug #3. Inline schema documentation created without referencing actual schema files. This establishes a clear pattern: inline documentation inevitably drifts from implementation.
+
+**Investigation**: Found two actual schemas in codebase:
+- `components/sdk/schemas/design-time-metadata-v1.schema.json` (SDK output)
+- `components/repository/schemas/runtime-metadata-v1.schema.json` (Repository output)
+
+**Decision**: Use `runtime-metadata-v1.schema.json` - this is what AI agents encounter when reading spas.json files from pulled services in the repository.
+
+**Solution**: Apply same schema externalization pattern as Bug Fix #3.
+
+### Changes Implemented
+
+**1. Added Runtime Metadata Schema to Workspace**
+- **Existing File**: `components/repository/schemas/runtime-metadata-v1.schema.json`
+- Modified `workspace-service.ts` to copy schema during `spas-compose init`
+- Added `readFileSync` import (previously used `require()` causing ESM error)
+- Schema now copied from repository component to workspace `.spas/schemas/`
+
+**2. Condensed Service Metadata Section**
+
+**Service Metadata Schema (before: ~70 lines, after: ~40 lines)**:
+- **Removed**: All fictional fields (`events.published/subscribed`, `x-event-name`, `x-service-name`)
+- **Replaced with**: Correct structure matching runtime-metadata-v1.schema.json:
+  - Essential fields table (`schemaVersion`, `id`, `name`, `version`, `boundedContext`, `endpoints`, `events`, `runtime`)
+  - Correct endpoint structure (`name`, `type`, `protocol`, `methodPath`, `version`, `schemaRef`)
+  - Correct event structure (`type`, `version`, `schemaRef`)
+- **Added**: File reference `${domainRoot}/{DOMAIN}/.spas/schemas/runtime-metadata-v1.schema.json`
+- **Kept**: Minimal example showing actual spas.json structure
+
+**3. Removed Complete Examples Section**
+- **Reason**: File size exceeded 25 KB limit after Service Metadata fixes
+- **Removed**: ~75 lines of two full choreography examples (Order→Inventory, Inventory→Order)
+- **Justification**: Individual sections already contain inline examples, phased workflow provides guidance
+- **Impact**: Reduces redundancy, examples still available throughout technical reference
+
+**4. Test Updates**
+- Updated service metadata test assertions to verify correct fields
+- Changed from checking fictional fields to checking schema file reference
+- Removed 3 tests for Complete Examples section (no longer present)
+- Total test count: 212 (down from 215)
+
+### Results
+
+**File Size**:
+- Before Bug Fix #4: 23.35 KB (93.4% of budget) 
+- After Bug Fix #4: **23.08 KB** (92.3% of budget)
+- **Final Savings** (Bug #3 + #4): ~2,300 bytes total
+- **Final Margin**: 1.92 KB remaining (7.7% buffer)
+
+**Schema Files Externalized** (3 total):
+1. ✅ `sidecar-config-v1.schema.json` (owned by sidecar component)
+2. ✅ `choreography-v1.schema.json` (owned by CLI component, generated inline)
+3. ✅ `runtime-metadata-v1.schema.json` (owned by repository component)
+
+**Bug Fixes**:
+- ✅ Service metadata schema now accurate (matches actual spas.json structure)
+- ✅ Correct endpoint structure documented (`Command`/`Query` types, protocol, methodPath)
+- ✅ Correct event structure documented (flat array, not published/subscribed)
+- ✅ Runtime metadata documented (`image`, `repository`, `tag`, `digest`)
+- ✅ No references to fictional `x-event-name` or `x-service-name` fields
+
+**Verification**:
+- ✅ All 212 tests passing
+- ✅ File size: 23.08 KB (under 25 KB limit with 7.7% margin)
+- ✅ `spas-compose init` creates all three schema files
+- ✅ Agent prompt references correct runtime metadata schema
+- ✅ Schema matches actual spas.json files in examples/domains/ecommerce
+
+**Pattern Established**:
+Four critical bugs discovered, all following same pattern:
+1. Bug #1: CloudEvents type format (implementation vs documentation mismatch)
+2. Bug #2: Endpoint routing (documented fictional endpoint)
+3. Bug #3: Sidecar config schema (documented fictional fields)
+4. Bug #4: Service metadata schema (documented fictional structure)
+
+**Lesson**: Inline documentation of schemas inevitably drifts. **Solution**: Externalize schemas to authoritative files, document via reference + condensed examples.
+
+---

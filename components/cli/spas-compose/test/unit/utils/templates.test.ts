@@ -46,12 +46,13 @@ describe("generateAgentFile", () => {
       expect(content).toContain("✅ CORRECT");
     });
 
-    it("should contain endpoint routing documentation", () => {
+    it("should contain sidecar communication patterns documentation", () => {
       const content = generateAgentFile("./examples/ecommerce");
 
-      // FR-004: Endpoint routing
-      expect(content).toContain("Endpoint Routing");
-      expect(content).toContain("/proxy/{serviceId}/{path}");
+      // FR-004: Sidecar communication patterns
+      expect(content).toContain("Sidecar Communication Patterns");
+      expect(content).toContain("/publish");
+      expect(content).toContain("command:");
     });
 
     it("should contain field naming conventions", () => {
@@ -69,7 +70,7 @@ describe("generateAgentFile", () => {
       expect(content).toContain("### CloudEvents Type Format");
       expect(content).toContain("### Sidecar Configuration Schema");
       expect(content).toContain("### JSONata Transformation Patterns");
-      expect(content).toContain("### Endpoint Routing");
+      expect(content).toContain("### Sidecar Communication Patterns");
       expect(content).toContain("### Field Naming Conventions");
     });
 
@@ -253,15 +254,17 @@ describe("generateAgentFile", () => {
       expect(content).toContain("### Example 2");
     });
 
-    it("should contain at least 2 Mermaid diagrams in examples", () => {
+    it("should contain flow descriptions in examples", () => {
       const content = generateAgentFile("./examples/ecommerce");
 
       const examplesSection = content.substring(
         content.indexOf("## Complete Examples")
       );
 
-      const mermaidCount = (examplesSection.match(/```mermaid/g) || []).length;
-      expect(mermaidCount).toBeGreaterThanOrEqual(2);
+      // Check for flow descriptions (replaced mermaid diagrams for space)
+      expect(examplesSection).toContain("**Flow**:");
+      expect(examplesSection).toContain("POST /publish");
+      expect(examplesSection).toContain("Redis");
     });
 
     it("should contain choreography YAML in examples", () => {
@@ -310,7 +313,7 @@ describe("generateAgentFile", () => {
       
       expect(content).toContain("## Known Pitfalls");
       expect(content).toContain("Missing $append for Arrays");
-      expect(content).toContain("Wrong Endpoint Service ID");
+      expect(content).toContain("Wrong Command Name");
       expect(content).toContain("Inconsistent Field Casing");
       expect(content).toContain("Missing x-service-name");
       expect(content).toContain("Circular Event Dependencies");
@@ -330,11 +333,11 @@ describe("generateAgentFile", () => {
       expect(content).toContain("$append([], array)");
     });
 
-    it("should document endpoint routing pitfall", () => {
+    it("should document command name pitfall", () => {
       const content = generateAgentFile("./examples/ecommerce");
       
-      expect(content).toContain("404 Not Found");
-      expect(content).toContain("/proxy/<serviceId>/<path>");
+      expect(content).toContain("Wrong Command Name");
+      expect(content).toContain("command");
     });
 
     it("should document metadata requirement pitfall", () => {

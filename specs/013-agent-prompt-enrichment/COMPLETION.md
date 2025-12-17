@@ -281,9 +281,78 @@ This feature enhances:
 
 ---
 
+## Post-Implementation Bug Fixes
+
+After initial feature completion, two critical documentation bugs were discovered in the generated agent prompt during user testing. Both bugs would have caused AI agents to generate incorrect choreography code.
+
+### Bug Fix #1: CloudEvents Type Format (December 17, 2025)
+
+**Issue**: Agent prompt incorrectly documented CloudEvents type format as `com.{bounded-context}.{event-name-kebab}` where "bounded-context" was derived by removing the `-service` suffix from the service name.
+
+**Example Error**: `order-service` → `order` → `com.order.order-created` ❌
+
+**Root Cause**: Misunderstanding of domain concept vs actual implementation. All SPAS specifications and implementations (SDK, sidecar, CLI) consistently use the full service name, not a derived "bounded context".
+
+**Fix Applied**:
+- Changed documentation to `com.{service-name}.{event-name-kebab}` using full service name
+- Updated examples: `com.order-service.order-created` ✅
+- Updated test assertions to match corrected format
+- File size after fix: 24.81 KB (99.2% of 25 KB budget)
+
+**Verification**: Checked all code (SDK .NET, sidecar TypeScript, CLI) and all specifications consistently use full service name.
+
+### Bug Fix #2: Endpoint Routing Documentation (December 17, 2025)
+
+**Issue**: Agent prompt incorrectly documented a `/proxy/{serviceId}/{path}` endpoint that doesn't exist in either the sidecar implementation or specification documents.
+
+**Root Cause**: Documentation created a fictional endpoint pattern. Actual sidecar only exposes:
+- `/publish` - Event publishing
+- `/invoke/:command` - Command invocation
+- `/health`, `/ready` - Health checks
+
+**Specification Review**:
+- `principles/component/10-sidecar-contract.md` documents actual patterns
+- No mention of `/proxy` endpoint anywhere in specifications
+- Sidecar implementation (`components/sidecar/src/index.ts`) confirms only 4 endpoints
+
+**Actual Communication Patterns**:
+1. **Event Publishing**: Service → `POST /publish` → CloudEvents to Redis → Consuming sidecar invokes target
+2. **Command Invocation**: Choreography `command:` field → Sidecar resolves endpoint from config → Invokes target service
+
+**Changes Made**:
+
+1. **templates.ts** - Fixed Communication Pattern Documentation
+   - Replaced `### Endpoint Routing` section
+   - Added `### Sidecar Communication Patterns` documenting actual patterns
+   - Removed verbose proxy examples, condensed to save space
+
+2. **templates.ts** - Fixed Example Choreographies
+   - Replaced sequence diagrams with concise flow descriptions
+   - Updated YAML: `endpoint: http://sidecar:8080/proxy/...` → `command: <name>`
+   - Saved ~800 bytes while maintaining clarity
+
+3. **templates.ts** - Fixed Pitfalls & Troubleshooting
+   - Changed "Wrong Endpoint Service ID" → "Wrong Command Name"
+   - Updated "400 on /incoming" solution to reference `inputMapping` validation
+
+4. **templates.test.ts** - Updated Test Expectations
+   - Updated test assertions to match new documentation
+   - Replaced mermaid diagram tests with flow description tests
+
+**Final Verification**:
+- ✅ All 215 tests passing (43 template tests)
+- ✅ File size: 24.17 KB (96.7% of 25 KB budget)
+- ✅ No `/proxy` references in generated prompt
+- ✅ Correct patterns documented: `POST /publish`, `command:` field
+- ✅ Matches actual sidecar implementation and specifications
+
+**Impact**: Critical documentation bugs fixed. AI agents will now generate correct choreography code using actual sidecar endpoints and proper CloudEvents type format.
+
+---
+
 ## Conclusion
 
-The agent prompt enrichment feature is complete and production-ready. All user stories have been implemented, tested, and validated. The agent prompt is self-contained, optimized for size, and provides comprehensive guidance for AI-assisted choreography composition.
+The agent prompt enrichment feature is complete and production-ready. All user stories have been implemented, tested, and validated. Post-implementation bugs have been identified and fixed. The agent prompt is self-contained, optimized for size, and provides comprehensive guidance for AI-assisted choreography composition.
 
 **Overall Assessment**: ✅ **PRODUCTION READY**
 

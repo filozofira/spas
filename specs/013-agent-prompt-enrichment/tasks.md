@@ -209,20 +209,20 @@
 
 ### Implementation for User Story 5
 
-- [ ] T031 [US5] Audit all path references in `generateAgentFile()` in src/utils/templates.ts
+- [X] T031 [US5] Audit all path references in `generateAgentFile()` in src/utils/templates.ts
   - List all hardcoded paths
   - Identify paths needing domain root substitution
 
-- [ ] T032 [US5] Update path generation to use domainRoot parameter consistently in src/utils/templates.ts
+- [X] T032 [US5] Update path generation to use domainRoot parameter consistently in src/utils/templates.ts
   - `${domainRoot}/services/*/spas.json`
   - `${domainRoot}/choreographies/*.choreography.yaml`
   - `${domainRoot}/stubs/*/spas.json`
 
-- [ ] T033 [US5] Add unit test for path resolution in test/unit/utils/templates.test.ts
+- [X] T033 [US5] Add unit test for path resolution in test/unit/utils/templates.test.ts
   - Test with various --output values
   - Assert no hardcoded paths remain
 
-**Checkpoint**: User Story 5 complete - all paths domain-relative
+**Checkpoint**: ✅ User Story 5 complete - all paths domain-relative (verified with 7 new tests)
 
 ---
 

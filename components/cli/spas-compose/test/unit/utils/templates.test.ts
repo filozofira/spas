@@ -390,4 +390,73 @@ describe("generateAgentFile", () => {
       expect(content).toContain("single elements");
     });
   });
+
+  describe("Domain-Relative Path Resolution (US5)", () => {
+    it("should use domainRoot parameter in all path references", () => {
+      const domainRoot = "./examples/test";
+      const content = generateAgentFile(domainRoot);
+
+      // Verify domainRoot is documented
+      expect(content).toContain(`**Domain root**: \`${domainRoot}\``);
+      expect(content).toContain(`**Full domain path**: \`${domainRoot}/{DOMAIN}/\``);
+    });
+
+    it("should construct paths with domainRoot prefix for services directory", () => {
+      const domainRoot = "./my-custom-path";
+      const content = generateAgentFile(domainRoot);
+
+      expect(content).toContain(`${domainRoot}/{DOMAIN}/services/*/spas.json`);
+      expect(content).toContain(`${domainRoot}/{DOMAIN}/services/`);
+    });
+
+    it("should construct paths with domainRoot prefix for transformations", () => {
+      const domainRoot = "./examples/production";
+      const content = generateAgentFile(domainRoot);
+
+      expect(content).toContain(`${domainRoot}/{DOMAIN}/transformations/`);
+    });
+
+    it("should construct paths with domainRoot prefix for schema files", () => {
+      const domainRoot = "./workspaces/dev";
+      const content = generateAgentFile(domainRoot);
+
+      expect(content).toContain(`${domainRoot}/{DOMAIN}/.spas/schemas/sidecar-config-v1.schema.json`);
+    });
+
+    it("should work with relative paths", () => {
+      const content = generateAgentFile(".");
+
+      expect(content).toContain("./{DOMAIN}/services");
+      expect(content).toContain("./{DOMAIN}/transformations");
+    });
+
+    it("should work with nested output paths", () => {
+      const content = generateAgentFile("./examples/test/nested");
+
+      expect(content).toContain("./examples/test/nested/{DOMAIN}/services");
+      expect(content).toContain("./examples/test/nested/{DOMAIN}/transformations");
+    });
+
+    it("should not contain any hardcoded absolute paths", () => {
+      const content = generateAgentFile("./custom");
+
+      // Should not contain paths that don't start with domainRoot
+      const lines = content.split('\n');
+      const pathPatterns = [
+        /^\s*-.*?\/services\/(?!.*\/custom\/)/,  // services/ without custom
+        /^\s*-.*?\/transformations\/(?!.*\/custom\/)/,  // transformations/ without custom
+      ];
+
+      lines.forEach((line, index) => {
+        pathPatterns.forEach(pattern => {
+          if (pattern.test(line) && !line.includes('{DOMAIN}') && !line.includes('choreography.yaml example')) {
+            // Allow relative paths in YAML examples
+            if (!line.includes('transform:') && !line.includes('# ')) {
+              fail(`Line ${index + 1} contains hardcoded path without domainRoot: ${line}`);
+            }
+          }
+        });
+      });
+    });
+  });
 });

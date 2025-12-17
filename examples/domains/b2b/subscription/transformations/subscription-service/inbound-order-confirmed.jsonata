@@ -1,0 +1,6 @@
+/* inbound-order-confirmed.jsonata */
+/* Transforms order-confirmed (order-service) → ActivateSubscriptionRequest (subscription-service) */
+{
+  "orderId": orderId,
+  "status": status
+}

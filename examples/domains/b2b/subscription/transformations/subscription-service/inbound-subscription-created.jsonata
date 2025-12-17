@@ -1,0 +1,8 @@
+/* inbound-subscription-created.jsonata */
+/* Transforms subscription-created → CreateOrderFromSubscriptionRequest (subscription-service) */
+{
+  "subscriptionId": subscriptionId,
+  "customerId": customerId,
+  "productId": productId,
+  "quantity": quantity
+}

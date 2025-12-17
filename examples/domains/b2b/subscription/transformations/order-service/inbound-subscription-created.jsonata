@@ -1,0 +1,11 @@
+/* inbound-subscription-created.jsonata */
+/* Transforms subscription-created (subscription-service) → CreateOrderRequest (order-service) */
+{
+  "customerId": customerId,
+  "items": $append([], {
+    "productId": productId,
+    "quantity": quantity,
+    "price": 0
+  }),
+  "total": 0
+}

@@ -1,0 +1,22 @@
+{
+  "inbound": [
+    {
+      "kind": "command",
+      "command": "CreateSubscription",
+      "invokeEndpoint": "/subscriptions"
+    },
+    {
+      "kind": "event",
+      "topic": "order-events",
+      "invokeEndpoint": "/subscriptions/activate",
+      "transform": "transformations/inbound-order-confirmed.jsonata"
+    }
+  ],
+  "outbound": [
+    {
+      "topic": "subscription-events",
+      "eventType": "com.subscription-service.subscription-created",
+      "eventName": "subscription-created"
+    }
+  ]
+}

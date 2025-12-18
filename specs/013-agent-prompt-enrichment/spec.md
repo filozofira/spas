@@ -151,3 +151,53 @@ As a domain composer using `spas-compose init --output <path>`, I want all agent
 - **SC-003**: Agent completes full workflow (analyze→build) with no more than 2 developer confirmation prompts per phase
 - **SC-004**: Zero references to SPAS repo paths in generated agent prompt
 - **SC-005**: Agent prompt file size under 25KB (prevents context window issues in AI models)
+
+## Post-PoC Enhancements
+
+### Enhancement: Dev Mode for Fast Local Iteration (Implemented 2025-12-18)
+
+**Problem**: During choreography development, every code change requires:
+1. Rebuild service image → new digest
+2. Push to repository with new digest
+3. Run `spas-compose choreography build` to fetch new digest
+4. Restart containers
+
+This round-trip is time-consuming for rapid iteration.
+
+**Solution**: Added `--dev` flag to `spas-compose choreography build`:
+
+```bash
+# Fast development workflow
+spas-compose choreography build --docker --dev
+```
+
+**Behavior in dev mode:**
+- Uses `spas-{service-name}:latest` as image reference (ignores `runtime.image` from spas.json)
+- Adds `pull_policy: never` to prevent Docker from pulling
+- Skips repository metadata resolution entirely
+
+**Generated docker-compose.yaml (dev mode):**
+```yaml
+services:
+  order-service:
+    image: spas-order-service:latest
+    pull_policy: never
+    # ... rest of config
+```
+
+**Dev workflow:**
+1. Edit service code
+2. `./Publish-Services.ps1` (builds local images)
+3. `spas-compose choreography build --docker --dev` (one-time or after choreography changes)
+4. `docker compose up` (uses local images immediately)
+
+**Production workflow (unchanged):**
+```bash
+spas-compose choreography build --docker  # Uses repository digests
+```
+
+**Implementation:**
+- Added `dev?: boolean` to `ChoreographyBuildOptions` interface
+- Added `devMode` parameter to `DockerGenerator` constructor
+- Updated `generateService()` to use local image naming convention when `devMode=true`
+- Added `pull_policy` field to Docker service definition

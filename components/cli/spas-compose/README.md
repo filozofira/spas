@@ -164,12 +164,28 @@ Build deployment configuration from choreography.yaml.
 
 **Options:**
 - `--docker` - Generate docker-compose.yaml and sidecar config files (required)
+- `--dev` - Dev mode: use local Docker images (`spas-{name}:latest`) with `pull_policy: never`
 - `--dry-run` - Validate and preview without generating files
 - `--output <file>` - Output filename (default: docker-compose.yaml)
 - `--event-backbone <image>` - Event backbone Docker image (default: redis:7-alpine)
 - `--observability-backbone <image>` - Observability backbone Docker image (default: openzipkin/zipkin:latest)
 - `--json` - Output result as JSON
 - `--verbose` - Show detailed progress
+
+**Dev Mode:**
+
+The `--dev` flag enables fast local development iteration by:
+- Using `spas-{service-name}:latest` as image references (ignores `runtime.image` from spas.json)
+- Setting `pull_policy: never` to use local Docker Desktop images directly
+- Skipping repository digest resolution
+
+```bash
+# Development workflow (fast iteration)
+spas-compose choreography build --docker --dev
+
+# Production workflow (pinned versions from repository)
+spas-compose choreography build --docker
+```
 
 **Backbone Configuration:**
 

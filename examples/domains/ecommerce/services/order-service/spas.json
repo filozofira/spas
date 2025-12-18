@@ -47,6 +47,11 @@
       "type": "order-created",
       "version": "1.0",
       "schemaRef": "schemas/events/order-created.schema.json"
+    },
+    {
+      "type": "order-confirmed",
+      "version": "1.0",
+      "schemaRef": "schemas/events/order-confirmed.schema.json"
     }
   ],
   "consistency": {
@@ -71,11 +76,11 @@
     ]
   },
   "license": "MIT",
-  "publishedAt": "2025-12-17T21:16:23.538Z",
+  "publishedAt": "2025-12-18T22:42:11.711Z",
   "runtime": {
-    "digest": "sha256:bab325ae683beacead69c21a845cac080be7b1f4447dffcd1125eb3ff6096cbb",
+    "digest": "sha256:c45c924de1ed9d31633e495430b9a4bd0525babe4703f445694789e803e751a2",
     "repository": "spas-examples/order-service",
     "tag": "1.0.0",
-    "image": "spas-examples/order-service@sha256:bab325ae683beacead69c21a845cac080be7b1f4447dffcd1125eb3ff6096cbb"
+    "image": "spas-examples/order-service@sha256:c45c924de1ed9d31633e495430b9a4bd0525babe4703f445694789e803e751a2"
   }
 }

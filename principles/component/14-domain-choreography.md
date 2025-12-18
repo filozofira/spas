@@ -13,6 +13,24 @@ Captured by domain authors; describes **what** to transform and route:
 - Service configuration overrides
 - Network policies (informative in PoC)
 
+## Terminal Events
+
+Events can have an empty `targets` array, indicating they are **terminal events** - published but with no consumers in this choreography. Use cases:
+
+- **Audit/Logging**: Events for compliance or observability (e.g., `order-confirmed`)
+- **Future Extension**: Placeholder for events that other domains may consume later
+- **Domain Boundaries**: Events that exit this bounded context
+
+```yaml
+events:
+  - source: order-service
+    event: order-confirmed
+    topic: order-events
+    targets: []  # Terminal event - no consumers in this choreography
+```
+
+Terminal events are still added to the source service's outbound config, enabling the sidecar to accept and publish them.
+
 ## Mapping Rules — Domain Composition scope
 
 - Inbound: Domain event/command → service internal schema

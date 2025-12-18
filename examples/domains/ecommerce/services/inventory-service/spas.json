@@ -67,11 +67,11 @@
     ]
   },
   "license": "MIT",
-  "publishedAt": "2025-12-17T21:16:23.857Z",
+  "publishedAt": "2025-12-18T22:42:11.959Z",
   "runtime": {
-    "digest": "sha256:4f6de5ba301c4da2570d659abca21189245e887abd539756063142007a6ce273",
+    "digest": "sha256:b2216d668e9130721dd0ab291e97a39f3de4b56e7b3451895e2422642dd80d33",
     "repository": "spas-examples/inventory-service",
     "tag": "1.0.0",
-    "image": "spas-examples/inventory-service@sha256:4f6de5ba301c4da2570d659abca21189245e887abd539756063142007a6ce273"
+    "image": "spas-examples/inventory-service@sha256:b2216d668e9130721dd0ab291e97a39f3de4b56e7b3451895e2422642dd80d33"
   }
 }

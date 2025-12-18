@@ -96,7 +96,7 @@ export class SidecarConfigGenerator {
     serviceName: string,
   ): OutboundEntry[] {
     const entries: OutboundEntry[] = [];
-    const seenTopics = new Set<string>();
+    const seenEventTypes = new Set<string>();
 
     for (const flow of Object.values(choreography.flows)) {
       if (!flow.events) continue;
@@ -104,9 +104,14 @@ export class SidecarConfigGenerator {
       for (const eventRoute of flow.events) {
         // Service is the source → outbound
         if (eventRoute.source === serviceName) {
-          // Deduplicate by topic
-          if (!seenTopics.has(eventRoute.topic)) {
-            seenTopics.add(eventRoute.topic);
+          // Derive eventType for deduplication
+          const eventType = eventRoute.event
+            ? deriveCloudEventsType(serviceName, eventRoute.event)
+            : eventRoute.topic;
+
+          // Deduplicate by eventType (not just topic - multiple events can share a topic)
+          if (!seenEventTypes.has(eventType)) {
+            seenEventTypes.add(eventType);
 
             const entry: OutboundEntry = { topic: eventRoute.topic };
 
@@ -142,7 +147,7 @@ export class SidecarConfigGenerator {
     serviceName: string,
   ): InboundEntry[] {
     const entries: InboundEntry[] = [];
-    const seenTopics = new Set<string>();
+    const seenEventTypes = new Set<string>();
     const seenCommands = new Set<string>();
 
     // Load service metadata to resolve endpoint paths
@@ -169,9 +174,15 @@ export class SidecarConfigGenerator {
           for (const target of eventRoute.targets) {
             // Service is a target → inbound
             if (target.service === serviceName) {
-              // Deduplicate by topic
-              if (!seenTopics.has(eventRoute.topic)) {
-                seenTopics.add(eventRoute.topic);
+              // Derive eventType for deduplication (multiple events can share a topic)
+              const eventType =
+                eventRoute.source && eventRoute.event
+                  ? deriveCloudEventsType(eventRoute.source, eventRoute.event)
+                  : eventRoute.topic;
+
+              // Deduplicate by eventType
+              if (!seenEventTypes.has(eventType)) {
+                seenEventTypes.add(eventType);
 
                 // Resolve endpoint from target.command or fallback
                 const invokeEndpoint = this.resolveCommandEndpoint(

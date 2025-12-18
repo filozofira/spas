@@ -1227,7 +1227,8 @@ After rebuild with `spas-compose choreography build --docker`:
 | #8 | No command mapping | Added commands array + target.command | 0 KB |
 | #9 | Invalid topic format | Added `{boundedContext}-events` convention | -0.09 KB |
 | #10 | Missing eventType filter | Added eventType generation in inbound configs | 0 KB |
-| **Total** | 10 critical bugs | All aligned with principles | **-1.75 KB** |
+| #11 | Terminal events + dedup | Allow empty targets, dedupe by eventType | 0 KB |
+| **Total** | 11 fixes/enhancements | All aligned with principles | **-1.75 KB** |
 
 **Final Agent Prompt**:
 - **Size**: ~24.36 KB (97.4% of 25 KB budget)
@@ -1336,5 +1337,61 @@ After rebuild with `spas-compose choreography build --docker --dev`:
 - **Image Naming**: Standardized on `spas-sidecar:latest` (flat naming, matches service pattern)
 
 **Test Results**: 215/215 tests passing ✅
+
+---
+
+## Enhancement #11: Terminal Events and EventType Deduplication
+
+**Date**: December 18, 2025  
+**Type**: Enhancement (new feature)
+
+### Problem
+
+1. **Terminal events not supported**: Choreography schema required `targets.minItems: 1`, preventing events with no consumers (e.g., `order-confirmed` for audit)
+2. **Wrong deduplication**: Config generator deduplicated by `topic` instead of `eventType`, causing events on same topic to be lost
+
+### Solution
+
+**1. Allow Terminal Events**
+
+Updated choreography schema and loader to accept empty targets array:
+
+```yaml
+events:
+  - source: order-service
+    event: order-confirmed
+    topic: order-events
+    targets: []  # Terminal event - published but no consumers
+```
+
+**2. Deduplicate by EventType**
+
+Changed `buildOutboundEntries()` and `buildInboundEntries()` to deduplicate by `eventType` instead of `topic`. Multiple events can share the same topic but must each have their own config entry.
+
+### Files Modified
+
+| File | Change |
+|------|--------|
+| choreography-v1.schema.json (3 files) | `targets.minItems: 0` |
+| choreography-loader.ts | Allow empty targets array |
+| sidecar-config-generator.ts | Deduplicate by eventType (inbound & outbound) |
+| sidecar-config-generator.test.ts | Updated 3 tests for new behavior |
+| templates.ts | Updated schema minItems, added terminal events docs |
+| 14-domain-choreography.md | Added Terminal Events section |
+
+### Verification
+
+After fix, `order-service` outbound now includes both events:
+
+```json
+{
+  "outbound": [
+    { "topic": "order-events", "eventType": "com.order-service.order-created", "eventName": "order-created" },
+    { "topic": "order-events", "eventType": "com.order-service.order-confirmed", "eventName": "order-confirmed" }
+  ]
+}
+```
+
+**Test Results**: 216/216 tests passing ✅
 
 ---

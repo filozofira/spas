@@ -190,9 +190,10 @@ export class ChoreographyLoader {
       );
     }
 
-    if (!route.targets || route.targets.length === 0) {
-      errors.push(`${prefix}: must have at least 1 target`);
-    } else {
+    // Targets array is required but can be empty (terminal events)
+    if (!route.targets) {
+      errors.push(`${prefix}: targets is required (use empty array for terminal events)`);
+    } else if (route.targets.length > 0) {
       for (let i = 0; i < route.targets.length; i++) {
         const target = route.targets[i];
         if (!target.service) {

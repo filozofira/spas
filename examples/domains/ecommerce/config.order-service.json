@@ -13,6 +13,11 @@
       "topic": "order-events",
       "eventType": "com.order-service.order-created",
       "eventName": "order-created"
+    },
+    {
+      "topic": "order-events",
+      "eventType": "com.order-service.order-confirmed",
+      "eventName": "order-confirmed"
     }
   ]
 }

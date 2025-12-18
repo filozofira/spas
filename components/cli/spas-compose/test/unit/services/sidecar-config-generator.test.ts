@@ -179,7 +179,7 @@ describe("SidecarConfigGenerator", () => {
       expect(entries).toEqual([]);
     });
 
-    it("should deduplicate topics across flows", () => {
+    it("should deduplicate by eventType, not just topic", () => {
       // Arrange
       const generator = new SidecarConfigGenerator(workspacePath);
       const duplicateTopicChoreography: Choreography = {
@@ -217,9 +217,11 @@ describe("SidecarConfigGenerator", () => {
         "publisher",
       );
 
-      // Assert
-      expect(entries).toHaveLength(1);
+      // Assert - different events on same topic should NOT be deduplicated
+      expect(entries).toHaveLength(2);
       expect(entries[0].topic).toBe("same-topic");
+      expect(entries[0].eventType).toBe("com.publisher.event-1");
+      expect(entries[1].eventType).toBe("com.publisher.event-2");
     });
   });
 
@@ -533,7 +535,7 @@ describe("SidecarConfigGenerator", () => {
             events: [
               {
                 source: "order-service",
-                event: "order-created",
+                event: "payment-requested",  // Different event
                 topic: "payments-requested",
                 targets: [{ service: "payment-service" }],
               },
@@ -546,7 +548,7 @@ describe("SidecarConfigGenerator", () => {
       const result = generator.generate(multiFlowChoreography);
 
       // Assert
-      // order-service publishes to both topics
+      // order-service publishes different events to different topics
       expect(result.configs["order-service"].outbound).toHaveLength(2);
       expect(result.configs["order-service"].outbound.map((e) => e.topic)).toContain("orders-requested");
       expect(result.configs["order-service"].outbound.map((e) => e.topic)).toContain("payments-requested");
@@ -803,7 +805,7 @@ describe("SidecarConfigGenerator", () => {
       expect(result.errors).toHaveLength(0);
     });
 
-    it("should deduplicate topic entries across multiple flows", () => {
+    it("should deduplicate by eventType across multiple flows", () => {
       // Arrange
       const generator = new SidecarConfigGenerator(workspacePath);
       const duplicateTopicsChoreography: Choreography = {
@@ -826,8 +828,8 @@ describe("SidecarConfigGenerator", () => {
             events: [
               {
                 source: "publisher",
-                event: "event-2",
-                topic: "shared-topic", // Same topic in different flow
+                event: "event-2",  // Different event on same topic
+                topic: "shared-topic",
                 targets: [{ service: "subscriber-a" }],
               },
             ],
@@ -838,9 +840,10 @@ describe("SidecarConfigGenerator", () => {
       // Act
       const result = generator.generate(duplicateTopicsChoreography);
 
-      // Assert - should deduplicate
-      expect(result.configs["publisher"].outbound).toHaveLength(1);
-      expect(result.configs["subscriber-a"].inbound).toHaveLength(1);
+      // Assert - different events produce different outbound entries
+      expect(result.configs["publisher"].outbound).toHaveLength(2);
+      // Inbound is deduplicated by eventType too
+      expect(result.configs["subscriber-a"].inbound).toHaveLength(2);
     });
 
     it("should handle service that only publishes", () => {

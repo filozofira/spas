@@ -27,6 +27,8 @@ export interface InboundEntry {
   command?: string;
   /** Topic to subscribe to - required when kind='event' */
   topic?: string;
+  /** Optional CloudEvents type filter - when omitted, processes all events on topic */
+  eventType?: string;
   /** Optional transform function - when omitted, passthrough (no transformation) */
   transform?: string;
   /** Service endpoint to invoke with transformed payload */

@@ -137,6 +137,12 @@ export class EventSubscriber {
     const event = parseCloudEvent(data);
     console.log(`[subscriber] Processing event ${event.id} (${event.type})`);
 
+    // Filter by eventType if specified
+    if (subscription.eventType && event.type !== subscription.eventType) {
+      console.log(`[subscriber] Skipping event - type mismatch (expected: ${subscription.eventType}, got: ${event.type})`);
+      return;
+    }
+
     // Start parent span for event processing
     const tracer = getTracer();
     const parentSpan = tracer?.startSpan('receive', event.traceparent, {

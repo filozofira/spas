@@ -48,6 +48,11 @@
           "pattern": "^[a-z][a-z0-9-]*[a-z0-9]$",
           "description": "Topic/stream name to subscribe to. Required when kind='event'."
         },
+        "eventType": {
+          "type": "string",
+          "pattern": "^com\\.[a-z][a-z0-9-]*\\.[a-z][a-z0-9-]*$",
+          "description": "Optional CloudEvents type filter (e.g., 'com.order-service.order-created'). When specified, only events matching this type are processed. When omitted, all events on the topic are processed."
+        },
         "command": {
           "type": "string",
           "pattern": "^[A-Z][a-zA-Z0-9]*$",

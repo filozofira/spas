@@ -3,6 +3,7 @@
     {
       "kind": "event",
       "topic": "order-events",
+      "eventType": "com.order-service.order-created",
       "invokeEndpoint": "/inventory/reserve",
       "transform": "transformations/inbound-order-created.jsonata"
     }

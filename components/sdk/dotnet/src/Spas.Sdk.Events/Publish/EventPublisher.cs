@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.Net.Http.Json;
 using System.Reflection;
 using System.Text.Json;
@@ -29,6 +30,7 @@ public class EventPublisher
 {
     private readonly HttpClient _httpClient;
     private readonly string _serviceName;
+    private static readonly ActivitySource ActivitySource = new("Spas.Sdk.Events", "1.0.0");
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
@@ -68,6 +70,12 @@ public class EventPublisher
         {
             throw new ArgumentNullException(nameof(payload));
         }
+
+        // Create Activity/span for distributed tracing with cloudevents.type tag
+        using var activity = ActivitySource.StartActivity("publish", ActivityKind.Producer);
+        var cloudEventsType = $"com.{_serviceName}.{eventName}";
+        activity?.SetTag("cloudevents.type", cloudEventsType);
+        activity?.SetTag("messaging.destination", "/publish");
 
         // Construct sidecar publish endpoint
         var publishUrl = "/publish";

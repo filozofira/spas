@@ -12,6 +12,7 @@ import { HttpClient } from './transport/http.js';
 import { createPublishRouter } from './handlers/publish.js';
 import { EventSubscriber } from './services/event-subscriber.js';
 import { ServiceInvoker } from './services/service-invoker.js';
+import { initTracer, getTracer } from './services/tracer.js';
 
 // =============================================================================
 // State Management
@@ -170,6 +171,24 @@ export async function start(): Promise<void> {
     throw err;
   }
 
+  // Initialize tracer (requires ZIPKIN_URL and TRACING_ENABLED=true, or just ZIPKIN_URL if TRACING_ENABLED not set)
+  const serviceName = process.env.SERVICE_NAME || 'unknown-sidecar';
+  const zipkinUrl = process.env.ZIPKIN_URL;
+  const tracingEnabled = process.env.TRACING_ENABLED?.toLowerCase();
+  const shouldTrace = zipkinUrl && (tracingEnabled === undefined || tracingEnabled === 'true');
+  
+  if (shouldTrace) {
+    initTracer({
+      serviceName: `${serviceName}-sidecar`,
+      zipkinUrl: zipkinUrl.includes('/api/v2/spans') ? zipkinUrl : `${zipkinUrl}/api/v2/spans`,
+    });
+    console.log(`[sidecar] Tracing enabled: ${zipkinUrl}`);
+  } else if (zipkinUrl && tracingEnabled === 'false') {
+    console.log('[sidecar] Tracing disabled (TRACING_ENABLED=false)');
+  } else {
+    console.log('[sidecar] Tracing disabled (ZIPKIN_URL not set)');
+  }
+
   // Connect to Redis
   setState('CONNECTING', 'Connecting to Redis');
   redis = new RedisClient(
@@ -190,7 +209,6 @@ export async function start(): Promise<void> {
   const app = createApp(redis, config);
 
   // Create service invoker for event subscription
-  const serviceName = process.env.SERVICE_NAME;
   const servicePort = process.env.SERVICE_PORT;
 
   if (serviceName && servicePort) {
@@ -221,6 +239,12 @@ export async function start(): Promise<void> {
  */
 export async function stop(): Promise<void> {
   console.log('[sidecar] Shutting down...');
+
+  // Flush any pending traces
+  const tracer = getTracer();
+  if (tracer) {
+    await tracer.shutdown();
+  }
 
   if (subscriber) {
     subscriber.stop();

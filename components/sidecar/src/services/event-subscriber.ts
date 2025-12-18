@@ -143,12 +143,16 @@ export class EventSubscriber {
       return;
     }
 
-    // Start parent span for event processing
+    // DEBUG: Log payload for troubleshooting (PoC only)
+    console.log(`[subscriber] Payload:`, JSON.stringify(event.data, null, 2));
+
+    // Start parent span for event processing with eventType tag
     const tracer = getTracer();
     const parentSpan = tracer?.startSpan('receive', event.traceparent, {
       kind: 'event',
       transport: 'redis',
       'event.topic': subscription.topic,
+      'cloudevents.type': event.type,
     } as Partial<SpanTags>);
 
     try {

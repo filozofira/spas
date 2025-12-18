@@ -45,6 +45,9 @@ export class EventPublisher {
     const resolvedEventType = resolveEventType(headers);
     console.log('[publish] Resolved eventType:', resolvedEventType);
 
+    // DEBUG: Log payload for troubleshooting (PoC only)
+    console.log('[publish] Payload:', JSON.stringify(payload, null, 2));
+
     // 2. Resolve topic from event type
     const route = resolveTopicFromEventType(resolvedEventType, this.config);
     console.log('[publish] Route lookup result:', JSON.stringify(route));
@@ -63,12 +66,13 @@ export class EventPublisher {
     // 4. Wrap in CloudEvents envelope
     const cloudEvent = wrapCloudEvent(transformedPayload, route.topic, headers);
 
-    // Start tracing span
+    // Start tracing span with eventType tag
     const tracer = getTracer();
     const span = tracer?.startSpan('publish', headers.traceparent, {
       kind: 'event',
       transport: 'redis',
       'event.topic': route.topic,
+      'cloudevents.type': resolvedEventType,
     } as Partial<SpanTags>);
 
     try {

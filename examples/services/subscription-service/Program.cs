@@ -139,15 +139,9 @@ async (ActivateSubscriptionRequest request, EventPublisher publisher, Subscripti
             activatedAt = DateTime.UtcNow
         };
 
-        try
-        {
-            await publisher.PublishAsync<SubscriptionActivatedEvent>(payload: eventPayload);
-            Console.WriteLine($"[subscription-service] Published subscription-activated event");
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"[subscription-service] Failed to publish event: {ex.Message}");
-        }
+        // NOTE: subscription-activated event removed - no consumers in choreography
+        // Publishing it causes infinite loop if sidecar eventType filtering not working
+        Console.WriteLine($"[subscription-service] Subscription {subscription.SubscriptionId} activated");
 
         return Results.Ok(new { subscriptionId = subscription.SubscriptionId, status = "active", orderId = request.OrderId });
     });

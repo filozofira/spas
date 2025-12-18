@@ -3,14 +3,12 @@
     {
       "kind": "event",
       "topic": "subscription-events",
-      "eventType": "com.subscription-service.subscription-created",
       "invokeEndpoint": "/orders",
       "transform": "transformations/inbound-subscription-created.jsonata"
     },
     {
       "kind": "event",
       "topic": "inventory-events",
-      "eventType": "com.inventory-service.stock-reserved",
       "invokeEndpoint": "/orders/confirm",
       "transform": "transformations/inbound-stock-reserved.jsonata"
     }
@@ -20,11 +18,6 @@
       "topic": "order-events",
       "eventType": "com.order-service.order-created",
       "eventName": "order-created"
-    },
-    {
-      "topic": "order-events",
-      "eventType": "com.order-service.order-confirmed",
-      "eventName": "order-confirmed"
     }
   ]
 }

@@ -8,7 +8,6 @@
     {
       "kind": "event",
       "topic": "order-events",
-      "eventType": "com.order-service.order-confirmed",
       "invokeEndpoint": "/subscriptions/activate",
       "transform": "transformations/inbound-order-confirmed.jsonata"
     }
@@ -18,11 +17,6 @@
       "topic": "subscription-events",
       "eventType": "com.subscription-service.subscription-created",
       "eventName": "subscription-created"
-    },
-    {
-      "topic": "subscription-events",
-      "eventType": "com.subscription-service.subscription-activated",
-      "eventName": "subscription-activated"
     }
   ]
 }

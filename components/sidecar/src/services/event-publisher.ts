@@ -63,29 +63,31 @@ export class EventPublisher {
       transformedPayload = await applyTransform(payload, route.transform);
     }
 
-    // 4. Wrap in CloudEvents envelope
-    const cloudEvent = wrapCloudEvent(transformedPayload, route.topic, headers);
-
-    // Start tracing span with eventType tag
+    // Start tracing span BEFORE creating CloudEvent, so we can embed the publish span's traceparent
+    // remoteServiceName is 'redis' (the message broker) for PRODUCER spans
     const tracer = getTracer();
     const span = tracer?.startSpan('publish', headers.traceparent, {
       kind: 'event',
+      spanKind: 'PRODUCER',
+      remoteServiceName: 'redis',
       transport: 'redis',
       'event.topic': route.topic,
       'cloudevents.type': resolvedEventType,
     } as Partial<SpanTags>);
 
+    // 4. Wrap in CloudEvents envelope - use publish span's traceparent for downstream linking
+    const headersWithSpanTraceparent = span 
+      ? { ...headers, traceparent: tracer?.getTraceparent(span) }
+      : headers;
+    const cloudEvent = wrapCloudEvent(transformedPayload, route.topic, headersWithSpanTraceparent);
+
+    let spanError: string | undefined;
     try {
       // 5. Serialize and publish to Redis stream
       const serialized = serializeCloudEvent(cloudEvent);
       await this.redis.xadd(route.topic, {
         data: serialized,
       });
-
-      // Finish span on success
-      if (span) {
-        tracer?.finishSpan(span);
-      }
 
       return {
         status: 'accepted',
@@ -94,13 +96,16 @@ export class EventPublisher {
         eventType: resolvedEventType,
       };
     } catch (err) {
-      // Tag error and finish span
-      if (span) {
-        const message = err instanceof Error ? err.message : 'Unknown error';
-        tracer?.tagError(span, message);
-        tracer?.finishSpan(span);
-      }
+      spanError = err instanceof Error ? err.message : 'Unknown error';
       throw err;
+    } finally {
+      // Always finish span, even on unexpected errors
+      if (span && tracer) {
+        if (spanError) {
+          tracer.tagError(span, spanError);
+        }
+        tracer.finishSpan(span);
+      }
     }
   }
 }

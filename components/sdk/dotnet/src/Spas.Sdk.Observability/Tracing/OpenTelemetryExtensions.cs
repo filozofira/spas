@@ -40,6 +40,7 @@ public static class OpenTelemetryExtensions
                         ["deployment.environment"] = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? "Development"
                     }))
                 .AddSource("Spas.Sdk.Observability") // Listen to our ActivitySource
+                .AddSource("Spas.Sdk.Events") // Listen to event publishing ActivitySource
                 .AddAspNetCoreInstrumentation(options =>
                 {
                     options.RecordException = true;
@@ -90,6 +91,7 @@ public static class OpenTelemetryExtensions
                     .AddService(serviceName));
 
                 tracing.AddSource("Spas.Sdk.Observability");
+                tracing.AddSource("Spas.Sdk.Events");
                 tracing.AddAspNetCoreInstrumentation();
                 tracing.AddHttpClientInstrumentation();
 

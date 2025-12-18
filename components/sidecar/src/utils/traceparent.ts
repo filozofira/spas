@@ -171,7 +171,10 @@ export function toMicroseconds(date: Date = new Date()): number {
 
 /**
  * Calculate duration in microseconds.
+ * Returns minimum of 1 microsecond to ensure Zipkin displays the span correctly.
  */
 export function calculateDuration(startMicros: number, endMicros: number = toMicroseconds()): number {
-  return endMicros - startMicros;
+  const duration = endMicros - startMicros;
+  // Ensure minimum duration of 1µs to avoid Zipkin treating 0 as "no duration"
+  return Math.max(duration, 1);
 }

@@ -4,6 +4,7 @@
       "kind": "event",
       "topic": "order-events",
       "invokeEndpoint": "/inventory/reserve",
+      "eventType": "com.order-service.order-created",
       "transform": "transformations/inbound-order-created.jsonata"
     }
   ],

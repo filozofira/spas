@@ -76,7 +76,7 @@
     ]
   },
   "license": "MIT",
-  "publishedAt": "2025-12-18T00:48:49.033Z",
+  "publishedAt": "2025-12-18T22:42:11.711Z",
   "runtime": {
     "digest": "sha256:c45c924de1ed9d31633e495430b9a4bd0525babe4703f445694789e803e751a2",
     "repository": "spas-examples/order-service",

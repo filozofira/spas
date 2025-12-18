@@ -24,15 +24,17 @@ export class ServiceInvoker {
    * @param endpoint - Service endpoint path (e.g., '/orders', '/notifications')
    * @param payload - Transformed payload to send
    * @param event - Source CloudEvent for header propagation
+   * @param traceparentOverride - Optional traceparent to use instead of event's traceparent (for span linking)
    * @returns Invocation result with status and response data
    */
   async invoke(
     endpoint: string,
     payload: unknown,
-    event: CloudEvent
+    event: CloudEvent,
+    traceparentOverride?: string
   ): Promise<InvocationResult> {
-    // Build headers from CloudEvent
-    const headers = this.buildHeaders(event);
+    // Build headers from CloudEvent, with optional traceparent override for proper span linking
+    const headers = this.buildHeaders(event, traceparentOverride);
 
     console.log(`[invoker] POST ${endpoint} (correlation: ${event.correlationid})`);
 
@@ -76,11 +78,13 @@ export class ServiceInvoker {
 
   /**
    * Build headers from CloudEvent for service invocation.
+   * @param event - Source CloudEvent
+   * @param traceparentOverride - Optional traceparent to use instead of event's traceparent
    */
-  private buildHeaders(event: CloudEvent): Record<string, string> {
+  private buildHeaders(event: CloudEvent, traceparentOverride?: string): Record<string, string> {
     const headers: Record<string, string> = {
       'Content-Type': 'application/json',
-      traceparent: event.traceparent,
+      traceparent: traceparentOverride ?? event.traceparent,
       'x-event-type': event.type,
       'x-event-source': event.source,
       'x-event-id': event.id,

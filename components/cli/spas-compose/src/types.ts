@@ -246,6 +246,10 @@ export interface ChoreographyBuildOptions extends CommonOptions {
   docker?: boolean;
   /** Development mode - use local images with :latest tag, skip repository */
   dev?: boolean;
+  /** Debug mode - set LOG_LEVEL=debug for sidecars */
+  debug?: boolean;
+  /** Disable sidecar tracing - set TRACING_ENABLED=false for sidecars */
+  disableSidecarTracing?: boolean;
   /** Validate without generating files */
   dryRun?: boolean;
   /** Output filename */

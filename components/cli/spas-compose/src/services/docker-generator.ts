@@ -76,17 +76,23 @@ export class DockerGenerator {
   private readonly backboneNormalizer: BackboneNormalizer;
   private readonly generatorConfig: GeneratorConfig;
   private readonly devMode: boolean;
+  private readonly debugMode: boolean;
+  private readonly disableSidecarTracing: boolean;
 
   constructor(
     private readonly workspacePath: string,
     generatorConfig?: Partial<GeneratorConfig>,
     devMode: boolean = false,
+    debugMode: boolean = false,
+    disableSidecarTracing: boolean = false,
   ) {
     this.servicesPath = path.join(workspacePath, "services");
     this.workspaceName = path.basename(workspacePath);
     this.backboneNormalizer = new BackboneNormalizer();
     this.generatorConfig = { ...DEFAULT_GENERATOR_CONFIG, ...generatorConfig };
     this.devMode = devMode;
+    this.debugMode = debugMode;
+    this.disableSidecarTracing = disableSidecarTracing;
   }
 
   /**
@@ -344,6 +350,10 @@ export class DockerGenerator {
         `SERVICE_PORT=${servicePort}`,
         `REDIS_HOST=${redisHost}`,
         `REDIS_PORT=${redisPort}`,
+        // Debug mode: verbose payload logging
+        ...(this.debugMode ? ['LOG_LEVEL=debug'] : []),
+        // Disable sidecar tracing while keeping service tracing
+        ...(this.disableSidecarTracing ? ['TRACING_ENABLED=false'] : []),
       ],
       volumes,
       networks: ["spas-network"],

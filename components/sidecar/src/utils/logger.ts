@@ -208,10 +208,10 @@ export class ContextualLogger {
 
 /**
  * Create a logger for a component.
- * Default log level is 'debug' for PoC; set LOG_LEVEL=info for production.
+ * Default log level is 'info'. Use LOG_LEVEL=debug for verbose payload logging.
  */
 export function createLogger(component: string): Logger {
-  const level = (process.env.LOG_LEVEL as LogLevel) || 'debug';
+  const level = (process.env.LOG_LEVEL as LogLevel) || 'info';
   const json = process.env.LOG_FORMAT === 'json';
   return new Logger({ component, level, json });
 }

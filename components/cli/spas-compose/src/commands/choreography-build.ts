@@ -175,10 +175,16 @@ export async function handleChoreographyBuild(
   if (options.dev) {
     output.verbose("Dev mode enabled - using local images with :latest tag", options.verbose);
   }
+  if (options.debug) {
+    output.verbose("Debug mode enabled - sidecars will use LOG_LEVEL=debug", options.verbose);
+  }
+  if (options.disableSidecarTracing) {
+    output.verbose("Sidecar tracing disabled - sidecars will use TRACING_ENABLED=false", options.verbose);
+  }
 
   // Validate services are pulled
   output.verbose("Checking for pulled services...", options.verbose);
-  const generator = new DockerGenerator(workspaceRoot, undefined, options.dev);
+  const generator = new DockerGenerator(workspaceRoot, undefined, options.dev, options.debug, options.disableSidecarTracing);
   const serviceValidation = generator.validateServices(choreography);
 
   if (!serviceValidation.isValid) {
@@ -551,6 +557,8 @@ export function createChoreographyCommand(): Command {
     .description("Build deployment artifacts from choreography")
     .option("--docker", "Generate Docker Compose deployment", false)
     .option("--dev", "Dev mode: use local images (spas-{name}:latest) with pull_policy: never", false)
+    .option("--debug", "Debug mode: set LOG_LEVEL=debug for sidecars (verbose payload logging)", false)
+    .option("--disable-sidecar-tracing", "Disable sidecar tracing (TRACING_ENABLED=false) while keeping service tracing", false)
     .option("--dry-run", "Validate without generating files", false)
     .option("--output <file>", "Output filename", "docker-compose.yaml")
     .option("--json", "Output results as JSON", false)

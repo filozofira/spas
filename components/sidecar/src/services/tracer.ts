@@ -31,6 +31,7 @@ export interface TracerConfig {
 export interface SpanContext {
   traceId: string;
   spanId: string;
+  parentSpanId?: string;
   traceparent: string;
 }
 
@@ -81,11 +82,12 @@ export class Tracer {
     if (traceparent) {
       const parsed = parseTraceparent(traceparent);
       if (parsed) {
-        // Create child span
+        // Create child span - store parent span ID for Zipkin hierarchy
         const newSpanId = generateSpanId();
         context = {
           traceId: parsed.traceId,
           spanId: newSpanId,
+          parentSpanId: parsed.parentId,  // The incoming parentId becomes our parent
           traceparent: `${parsed.version}-${parsed.traceId}-${newSpanId}-${parsed.flags}`,
         };
       } else {
@@ -146,6 +148,12 @@ export class Tracer {
 
     const duration = calculateDuration(span.startTime);
 
+    // Extract spanKind and remoteServiceName from tags for top-level Zipkin fields
+    const { spanKind, remoteServiceName, ...tagsWithoutMetadata } = span.tags as unknown as Record<string, string> & { 
+      spanKind?: string;
+      remoteServiceName?: string;
+    };
+
     const zipkinSpan: ZipkinSpan = {
       traceId: span.context.traceId,
       id: span.context.spanId,
@@ -155,11 +163,23 @@ export class Tracer {
       localEndpoint: {
         serviceName: this.config.serviceName,
       },
-      tags: span.tags as unknown as Record<string, string>,
+      tags: tagsWithoutMetadata as Record<string, string>,
     };
 
-    if (parentSpanId) {
-      zipkinSpan.parentId = parentSpanId;
+    // Set top-level kind if spanKind was specified
+    if (spanKind) {
+      zipkinSpan.kind = spanKind as 'CLIENT' | 'SERVER' | 'PRODUCER' | 'CONSUMER';
+    }
+
+    // Set remoteEndpoint for dependency graph
+    if (remoteServiceName) {
+      zipkinSpan.remoteEndpoint = { serviceName: remoteServiceName };
+    }
+
+    // Use explicit parentSpanId if provided, otherwise use context's parentSpanId
+    const effectiveParentSpanId = parentSpanId ?? span.context.parentSpanId;
+    if (effectiveParentSpanId) {
+      zipkinSpan.parentId = effectiveParentSpanId;
     }
 
     this.pendingSpans.push(zipkinSpan);

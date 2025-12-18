@@ -171,9 +171,14 @@ export async function handleChoreographyBuild(
 
   output.verbose("Choreography structure is valid", options.verbose);
 
+  // In dev mode, log that we're using local images
+  if (options.dev) {
+    output.verbose("Dev mode enabled - using local images with :latest tag", options.verbose);
+  }
+
   // Validate services are pulled
   output.verbose("Checking for pulled services...", options.verbose);
-  const generator = new DockerGenerator(workspaceRoot);
+  const generator = new DockerGenerator(workspaceRoot, undefined, options.dev);
   const serviceValidation = generator.validateServices(choreography);
 
   if (!serviceValidation.isValid) {
@@ -545,6 +550,7 @@ export function createChoreographyCommand(): Command {
     .command("build")
     .description("Build deployment artifacts from choreography")
     .option("--docker", "Generate Docker Compose deployment", false)
+    .option("--dev", "Dev mode: use local images (spas-{name}:latest) with pull_policy: never", false)
     .option("--dry-run", "Validate without generating files", false)
     .option("--output <file>", "Output filename", "docker-compose.yaml")
     .option("--json", "Output results as JSON", false)

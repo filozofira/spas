@@ -49,6 +49,7 @@ interface DockerService {
   volumes?: string[];
   depends_on?: string[];
   networks?: string[];
+  pull_policy?: "always" | "never" | "missing" | "build";
   healthcheck?: {
     test: string[];
     interval: string;
@@ -74,15 +75,18 @@ export class DockerGenerator {
   private readonly workspaceName: string;
   private readonly backboneNormalizer: BackboneNormalizer;
   private readonly generatorConfig: GeneratorConfig;
+  private readonly devMode: boolean;
 
   constructor(
     private readonly workspacePath: string,
     generatorConfig?: Partial<GeneratorConfig>,
+    devMode: boolean = false,
   ) {
     this.servicesPath = path.join(workspacePath, "services");
     this.workspaceName = path.basename(workspacePath);
     this.backboneNormalizer = new BackboneNormalizer();
     this.generatorConfig = { ...DEFAULT_GENERATOR_CONFIG, ...generatorConfig };
+    this.devMode = devMode;
   }
 
   /**
@@ -231,6 +235,7 @@ export class DockerGenerator {
    * T010: Use port 8080 as internal port
    * T011: Add SERVICE_NAME and SIDECAR_PORT=7001
    * T015: Log warning when service has no runtime metadata
+   * DEV MODE: Use spas-{service-name}:latest with pull_policy: never
    */
   private generateService(
     serviceName: string,
@@ -259,8 +264,12 @@ export class DockerGenerator {
       networks: ["spas-network"],
     };
 
-    // T009: Use image: from runtime metadata when available
-    if (metadata?.runtime) {
+    // DEV MODE: Use local images with :latest tag, skip repository metadata
+    if (this.devMode) {
+      service.image = `spas-${serviceName}:latest`;
+      service.pull_policy = "never";
+    } else if (metadata?.runtime) {
+      // T009: Use image: from runtime metadata when available
       const { repository, tag, image } = metadata.runtime;
       // Prefer full image reference if available, otherwise construct from repo:tag
       service.image = image || `${repository}:${tag}`;

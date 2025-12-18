@@ -3,14 +3,12 @@
     {
       "kind": "event",
       "topic": "subscription-events",
-      "eventType": "com.subscription-service.subscription-created",
       "invokeEndpoint": "/orders",
       "transform": "transformations/inbound-subscription-created.jsonata"
     },
     {
       "kind": "event",
       "topic": "inventory-events",
-      "eventType": "com.inventory-service.stock-reserved",
       "invokeEndpoint": "/orders/confirm",
       "transform": "transformations/inbound-stock-reserved.jsonata"
     }

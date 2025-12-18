@@ -244,6 +244,8 @@ export interface ServicesPullOptions extends CommonOptions {
 export interface ChoreographyBuildOptions extends CommonOptions {
   /** Generate docker-compose.yaml */
   docker?: boolean;
+  /** Development mode - use local images with :latest tag, skip repository */
+  dev?: boolean;
   /** Validate without generating files */
   dryRun?: boolean;
   /** Output filename */

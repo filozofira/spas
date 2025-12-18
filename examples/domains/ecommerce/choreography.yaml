@@ -27,6 +27,10 @@ flows:
           - service: order-service
             command: ConfirmOrder
             transform: transformations/order-service/inbound-stock-reserved.jsonata
+      - source: order-service
+        event: order-confirmed
+        topic: order-events
+        targets: []  # Terminal event - no consumers in this choreography
 
 # Infrastructure components (optional)
 infrastructure:

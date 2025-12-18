@@ -265,8 +265,9 @@ export class DockerGenerator {
     };
 
     // DEV MODE: Use local images with :latest tag, skip repository metadata
+    // Uses spas-examples/ namespace to match published example images
     if (this.devMode) {
-      service.image = `spas-${serviceName}:latest`;
+      service.image = `spas-examples/${serviceName}:latest`;
       service.pull_policy = "never";
     } else if (metadata?.runtime) {
       // T009: Use image: from runtime metadata when available

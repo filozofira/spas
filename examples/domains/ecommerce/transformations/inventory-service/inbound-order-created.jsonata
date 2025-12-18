@@ -1,0 +1,12 @@
+/* inbound-order-created.jsonata */
+/* Transforms order-created event (order-service) → ReserveStock command (inventory-service) */
+/* Input: OrderCreatedEvent { orderId, customerId, items[], total, createdAt } */
+/* Output: ReserveStockRequest { orderId, items[] } */
+
+{
+  "orderId": orderId,
+  "items": $append([], items.{
+    "productId": productId,
+    "quantity": quantity
+  })
+}

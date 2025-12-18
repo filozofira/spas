@@ -282,7 +282,7 @@ describe("DockerGenerator", () => {
 
       // Assert
       expect(result.success).toBe(true);
-      expect(result.content).toContain("image: spas/sidecar:latest");
+      expect(result.content).toContain("image: spas-sidecar:latest");
       expect(result.content).not.toContain("build: ./spas-sidecar");
     });
   });

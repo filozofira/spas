@@ -286,7 +286,7 @@ export class DockerGenerator {
 
   /**
    * Generate sidecar service definition
-   * T012: Use image: spas/sidecar:latest
+   * T012: Use image: spas-sidecar:latest
    * T013: Use SIDECAR_PORT env var instead of PORT
    * T014: Use fixed port 7001
    */

@@ -317,6 +317,8 @@ export interface InboundEntry {
   kind: "event" | "command";
   /** Topic name (required when kind="event") */
   topic?: string;
+  /** CloudEvents type filter for inbound events (e.g., "com.order-service.order-created") */
+  eventType?: string;
   /** Command name (required when kind="command") */
   command?: string;
   /** Path to JSONata transformation file, relative to sidecar /app/transformations mount */
@@ -463,7 +465,7 @@ export interface GeneratorConfig {
   serviceInternalPort: number;
   /** Standard sidecar port (default: 7000) */
   sidecarPort: number;
-  /** Sidecar image reference (default: "spas/sidecar:latest") */
+  /** Sidecar image reference (default: "spas-sidecar:latest") */
   sidecarImage: string;
   /** Default endpoint for inbound events (default: "/incoming") */
   defaultInvokeEndpoint: string;
@@ -475,6 +477,6 @@ export interface GeneratorConfig {
 export const DEFAULT_GENERATOR_CONFIG: GeneratorConfig = {
   serviceInternalPort: 8080,
   sidecarPort: 7000,
-  sidecarImage: "spas/sidecar:latest",
+  sidecarImage: "spas-sidecar:latest",
   defaultInvokeEndpoint: "/incoming",
 };

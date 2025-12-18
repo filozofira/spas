@@ -185,6 +185,14 @@ export class SidecarConfigGenerator {
                   invokeEndpoint,
                 };
 
+                // Derive eventType from source service and event name for filtering
+                if (eventRoute.source && eventRoute.event) {
+                  entry.eventType = deriveCloudEventsType(
+                    eventRoute.source,
+                    eventRoute.event,
+                  );
+                }
+
                 // Only add transform if specified (US4 - optional transforms)
                 if (target.transform) {
                   // Resolve path relative to sidecar mount

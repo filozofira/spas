@@ -16,7 +16,7 @@ You **MUST** consider the user input before proceeding (if not empty).
 
 **Parse the domain name:**
 1. Extract `DOMAIN:<name>` from user input (e.g., `DOMAIN:public`, `DOMAIN:internal`)
-2. Use `<name>` to construct paths: `./examples/<name>/...`
+2. Use `<name>` to construct paths: `./examples/domains/<name>/...`
 3. If no `DOMAIN:` specified, respond with error:
    ```
    Error: No domain specified.
@@ -24,8 +24,8 @@ You **MUST** consider the user input before proceeding (if not empty).
    Example: /spas.compose DOMAIN:public Analyze order-service
    ```
 
-**Domain root**: `./examples`
-**Full domain path**: `./examples/{DOMAIN}/`
+**Domain root**: `./examples/domains`
+**Full domain path**: `./examples/domains/{DOMAIN}/`
 
 ## Goal
 
@@ -33,7 +33,7 @@ Analyze pulled service contracts and generate choreography configuration with tr
 
 ## Responsibilities
 
-1. **Contract Analysis**: Parse service metadata from `./examples/{DOMAIN}/services/*/spas.json`
+1. **Contract Analysis**: Parse service metadata from `./examples/domains/{DOMAIN}/services/*/spas.json`
 2. **Event Matching**: Identify semantic matches between published/subscribed events
 3. **Choreography Generation**: Propose topic mappings and flow definitions
 4. **Transformation Generation**: Create JSONata transformation files
@@ -42,7 +42,7 @@ Analyze pulled service contracts and generate choreography configuration with tr
 ## Workspace Structure
 
 ```
-./examples/{DOMAIN}/
+./examples/domains/{DOMAIN}/
 ├── choreography.yaml              # Choreography configuration (you modify this)
 ├── services/                      # Pulled service metadata (read-only)
 │   └── <service-name>/
@@ -268,7 +268,7 @@ inputMapping:
 
 ### Choreography → Sidecar Config Mapping
 
-The choreography.yaml flows generate sidecar configuration files. Use the schema at `./examples/{DOMAIN}/.spas/schemas/sidecar-config-v1.schema.json` to understand the mapping:
+The choreography.yaml flows generate sidecar configuration files. Use the schema at `./examples/domains/{DOMAIN}/.spas/schemas/sidecar-config-v1.schema.json` to understand the mapping:
 
 | Choreography Field | Sidecar Config Path | Description |
 |-------------------|---------------------|-------------|
@@ -418,14 +418,14 @@ Follow this 5-phase workflow with validation checkpoints at each stage.
 
 **Actions:**
 1. **Validate Workspace**
-   - Verify `./examples/{DOMAIN}/choreography.yaml` exists
-   - Verify `./examples/{DOMAIN}/services/` directory exists with at least one service
-   - If invalid: Show error and suggest `spas-compose init {DOMAIN} --output ./examples`, then `spas-compose services pull`
+   - Verify `./examples/domains/{DOMAIN}/choreography.yaml` exists
+   - Verify `./examples/domains/{DOMAIN}/services/` directory exists with at least one service
+   - If invalid: Show error and suggest `spas-compose init {DOMAIN} --output ./examples/domains`, then `spas-compose services pull`
 
 2. **Read Service Contracts**
-   - Read `./examples/{DOMAIN}/services/<service-name>/spas.json` for each service
+   - Read `./examples/domains/{DOMAIN}/services/<service-name>/spas.json` for each service
    - Extract: `id`, `version`, `boundedContext`, `endpoints[]`, `events[]` (outbound only)
-   - Read schemas from `./examples/{DOMAIN}/services/<service-name>/schemas/`
+   - Read schemas from `./examples/domains/{DOMAIN}/services/<service-name>/schemas/`
 
 3. **Identify Relationships**
    - Match published events to subscribed events across services
@@ -523,7 +523,7 @@ Do you want me to proceed with generating the choreographies? (yes/no/feedback)
 
 **Actions:**
 1. **Create Transformation Files**
-   - Generate JSONata files at `./examples/{DOMAIN}/transformations/<service>/*.jsonata`
+   - Generate JSONata files at `./examples/domains/{DOMAIN}/transformations/<service>/*.jsonata`
    - Follow CloudEvents type format (camelCase for data fields)
    - Use `$append([], array.{...})` pattern for array transformations
    - Add header comments documenting source → target mapping
@@ -671,7 +671,7 @@ Next steps:
 
 | Constraint | Behavior |
 |------------|----------|
-| **Read-only services/** | NEVER modify files in `./examples/{DOMAIN}/services/` |
+| **Read-only services/** | NEVER modify files in `./examples/domains/{DOMAIN}/services/` |
 | **Preserve existing flows** | When adding flows, preserve all existing flows |
 | **Valid JSONata** | All .jsonata files must have valid syntax |
 | **Confirm before write** | ALWAYS wait for explicit confirmation |
@@ -682,7 +682,7 @@ Next steps:
 | Error | Response |
 |-------|----------|
 | No DOMAIN specified | "Error: No domain specified. Usage: /spas.compose DOMAIN:<name> <action>" |
-| No choreography.yaml | "Error: Workspace not initialized. Run `spas-compose init {DOMAIN} --output ./examples` first." |
+| No choreography.yaml | "Error: Workspace not initialized. Run `spas-compose init {DOMAIN} --output ./examples/domains` first." |
 | No services pulled | "Error: No services found. Run `spas-compose services pull` first." |
 | Service not found | "Error: Service '<name>' not found in services/ directory." |
 | Schema mismatch | "Warning: Cannot auto-generate transformation. Manual mapping required." |

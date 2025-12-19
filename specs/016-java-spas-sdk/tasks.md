@@ -215,15 +215,15 @@ components/sdk/java/           # Multi-module Maven project root
 
 ---
 
-## Phase 9: Polish & Cross-Cutting Concerns
+## Phase 9: Polish & Cross-Cutting Concerns ✅ COMPLETE
 
 **Purpose**: Documentation, validation, and cleanup
 
-- [ ] T072 [P] Ensure README documents framework-agnostic design in components/sdk/java/README.md
-- [ ] T073 [P] Add Jackson configuration for kebab-case output in components/sdk/java/spas-sdk-metadata/src/main/java/io/spas/sdk/metadata/JacksonConfiguration.java
-- [ ] T074 Run `mvn test` from components/sdk/java/ and verify all tests pass
-- [ ] T075 Run `mvn verify` to check code coverage meets 80% threshold
-- [ ] T076 Validate quickstart.md instructions work end-to-end
+- [x] T072 [P] Ensure README documents framework-agnostic design in components/sdk/java/README.md
+- [x] T073 [P] Add Jackson configuration for kebab-case output in components/sdk/java/spas-sdk-metadata/src/main/java/io/spas/sdk/metadata/JacksonConfiguration.java
+- [x] T074 Run `mvn test` from components/sdk/java/ and verify all tests pass (128 tests)
+- [x] T075 Run `mvn verify` to check code coverage meets 80% threshold (86.78% overall)
+- [x] T076 Validate quickstart.md instructions work end-to-end
 
 ---
 
@@ -318,16 +318,16 @@ T052, T053, T054, T055 (builder tests) can run in parallel
 
 | Phase | Tasks | Parallelizable |
 |-------|-------|----------------|
-| Phase 1: Setup | 9 | 6 |
-| Phase 2: Foundational | 5 | 4 |
-| Phase 3: US1 | 21 | 17 |
-| Phase 4: US2 | 11 | 8 |
-| Phase 5: US3 | 10 | 8 |
-| Phase 6: US4 | 6 | 2 |
-| Phase 7: US5 | 2 | 0 |
-| Phase 8: US6 | 7 | 4 |
-| Phase 9: Polish | 5 | 2 |
-| **Total** | **76** | **51** |
+| Phase 1: Setup ✅ | 9 | 9 |
+| Phase 2: Foundational ✅ | 5 | 5 |
+| Phase 3: US1 ✅ | 21 | 21 |
+| Phase 4: US2 ✅ | 11 | 11 |
+| Phase 5: US3 ✅ | 10 | 10 |
+| Phase 6: US4 ✅ | 6 | 6 |
+| Phase 7: US5 ✅ | 2 | 2 |
+| Phase 8: US6 ✅ | 7 | 7 |
+| Phase 9: Polish ✅ | 5 | 5 |
+| **Total** | **76** | **76** |
 
 ---
 

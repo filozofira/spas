@@ -1,8 +1,7 @@
 package io.spas.sdk.metadata.composer;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.PropertyNamingStrategies;
+import io.spas.sdk.metadata.JacksonConfiguration;
 import io.spas.sdk.metadata.builders.ServiceIdentityBuilder;
 import io.spas.sdk.metadata.model.*;
 
@@ -15,9 +14,7 @@ import java.util.List;
  */
 public final class MetadataComposer {
     private static final String SCHEMA_VERSION = "design-time-metadata-v1";
-    private static final ObjectMapper MAPPER = new ObjectMapper()
-        .setPropertyNamingStrategy(PropertyNamingStrategies.KEBAB_CASE)
-        .setSerializationInclusion(JsonInclude.Include.NON_NULL);
+    private static final ObjectMapper MAPPER = JacksonConfiguration.getObjectMapper();
     
     private ServiceIdentityBuilder.ServiceIdentity identity;
     private List<EndpointContract> endpoints;

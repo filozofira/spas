@@ -87,8 +87,13 @@ spas:
 package com.example.orders.events;
 
 import io.spas.sdk.metadata.annotations.SpasEvent;
+import java.math.BigDecimal;
 
-@SpasEvent(value = "OrderCreated", version = "1.0")
+@SpasEvent(
+    type = "OrderCreated",
+    version = "1.0",
+    schemaRef = ""
+)
 public record OrderCreatedEvent(
     String orderId,
     String customerId,
@@ -102,8 +107,13 @@ public record OrderCreatedEvent(
 package com.example.orders.api;
 
 import io.spas.sdk.metadata.annotations.SpasCommand;
+import io.spas.sdk.metadata.annotations.SpasQuery;
+import io.spas.sdk.metadata.model.EndpointType;
 import io.spas.sdk.events.EventPublisher;
+import com.example.orders.events.OrderCreatedEvent;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/orders")
@@ -115,14 +125,19 @@ public class OrderController {
         this.eventPublisher = eventPublisher;
     }
 
-    @SpasCommand(value = "CreateOrder", version = "1.0")
+    @SpasCommand(
+        name = "CreateOrder",
+        version = "1.0",
+        type = EndpointType.Http,
+        methodPath = "POST /api/orders"
+    )
     @PostMapping
     public OrderResponse createOrder(@RequestBody CreateOrderRequest request) {
         // Business logic...
         String orderId = UUID.randomUUID().toString();
         
         // Publish event (trace context automatically propagated)
-        eventPublisher.publishAsync(new OrderCreatedEvent(
+        eventPublisher.publish(new OrderCreatedEvent(
             orderId,
             request.customerId(),
             request.total()
@@ -131,7 +146,12 @@ public class OrderController {
         return new OrderResponse(orderId, "CREATED");
     }
     
-    @SpasQuery(value = "GetOrder", version = "1.0")
+    @SpasQuery(
+        name = "GetOrder",
+        version = "1.0",
+        type = EndpointType.Http,
+        methodPath = "GET /api/orders/{orderId}"
+    )
     @GetMapping("/{orderId}")
     public OrderResponse getOrder(@PathVariable String orderId) {
         // Query logic...
@@ -140,15 +160,24 @@ public class OrderController {
 }
 ```
 
-### 4. Enable SPAS (optional - auto-detected)
+### 4. Configure the Service
 
 ```java
 package com.example.orders;
 
+import io.spas.sdk.metadata.annotations.SpasService;
+import io.spas.sdk.metadata.model.Protocol;
 import io.spas.sdk.spring.EnableSpas;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
+@SpasService(
+    id = "order-service",
+    name = "Order Service",
+    version = "1.0.0",
+    boundedContext = "orders",
+    protocol = Protocol.HTTP
+)
 @SpringBootApplication
 @EnableSpas  // Optional: auto-configuration is enabled by default
 public class OrderServiceApplication {

@@ -84,8 +84,9 @@ public final class SpasTrace {
      * @return new trace context
      */
     public static SpasTrace generate() {
-        String traceId = UUID.randomUUID().toString().replace("-", "") + 
-                        UUID.randomUUID().toString().replace("-", "").substring(0, 32 - 32);
+        // W3C Trace Context spec: trace-id is 32 lowercase hex characters (16 bytes)
+        String traceId = UUID.randomUUID().toString().replace("-", "");
+        // W3C Trace Context spec: span-id is 16 lowercase hex characters (8 bytes)
         String spanId = UUID.randomUUID().toString().replace("-", "").substring(0, 16);
         
         return builder()

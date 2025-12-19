@@ -23,9 +23,12 @@ public final class EventPublisher {
     }
     
     /**
-     * Package-private constructor for testing.
+     * Constructor with explicit service name.
+     * 
+     * @param config event publisher configuration
+     * @param serviceName service name for x-service-name header
      */
-    EventPublisher(EventPublisherConfig config, String serviceName) {
+    public EventPublisher(EventPublisherConfig config, String serviceName) {
         this.sidecarClient = new SidecarClient(config.getSidecarUrl(), config.getTimeout());
         this.objectMapper = new ObjectMapper();
         this.serviceName = serviceName;
@@ -64,20 +67,29 @@ public final class EventPublisher {
         headers.put("x-service-name", serviceName);
         headers.put("x-event-name", eventName);
         
-        // Add trace context if available
+        // Add trace context (generate if not available)
         SpasTrace trace = SpasTrace.current();
         if (trace != null) {
             headers.put("traceparent", trace.toTraceparent());
             trace.getTraceState().ifPresent(state -> headers.put("tracestate", state));
+        } else {
+            // Generate new trace if not in context
+            trace = SpasTrace.generate();
+            headers.put("traceparent", trace.toTraceparent());
         }
         
-        // Add correlation context if available
+        // Add correlation context (auto-generate correlation-id if not available)
         SpasContext context = SpasContext.current();
+        String correlationId;
         if (context != null) {
-            headers.put("x-correlation-id", context.getCorrelationId());
+            correlationId = context.getCorrelationId();
             context.getUserId().ifPresent(userId -> headers.put("x-user-id", userId));
             context.getTenantId().ifPresent(tenantId -> headers.put("x-tenant-id", tenantId));
+        } else {
+            // Auto-generate correlation-id if no context (matches .NET SDK behavior)
+            correlationId = java.util.UUID.randomUUID().toString();
         }
+        headers.put("x-correlation-id", correlationId);
         
         // Publish to sidecar
         sidecarClient.postEvent(eventJson, headers);

@@ -166,17 +166,17 @@ components/sdk/java/           # Multi-module Maven project root
 
 ### Spring Integration for US4
 
-- [ ] T057 [P] [US4] Create SpasProperties configuration class in components/sdk/java/spas-sdk-spring/src/main/java/io/spas/sdk/spring/SpasProperties.java
-- [ ] T058 [US4] Implement SpasContextFilter (extracts traceparent, correlation-id) in components/sdk/java/spas-sdk-spring/src/main/java/io/spas/sdk/spring/SpasContextFilter.java
-- [ ] T059 [US4] Create SpasAutoConfiguration in components/sdk/java/spas-sdk-spring/src/main/java/io/spas/sdk/spring/SpasAutoConfiguration.java
-- [ ] T060 [US4] Create Spring Boot auto-configuration registration in components/sdk/java/spas-sdk-spring/src/main/resources/META-INF/spring/org.springframework.boot.autoconfigure.AutoConfiguration.imports
-- [ ] T061 [P] [US4] Create @EnableSpas annotation in components/sdk/java/spas-sdk-spring/src/main/java/io/spas/sdk/spring/EnableSpas.java
+- [X] T057 [P] [US4] Create SpasProperties configuration class in components/sdk/java/spas-sdk-spring/src/main/java/io/spas/sdk/spring/SpasProperties.java
+- [X] T058 [US4] Implement SpasContextFilter (extracts traceparent, correlation-id) in components/sdk/java/spas-sdk-spring/src/main/java/io/spas/sdk/spring/SpasContextFilter.java
+- [X] T059 [US4] Create SpasAutoConfiguration in components/sdk/java/spas-sdk-spring/src/main/java/io/spas/sdk/spring/SpasAutoConfiguration.java
+- [X] T060 [US4] Create Spring Boot auto-configuration registration in components/sdk/java/spas-sdk-spring/src/main/resources/META-INF/spring/org.springframework.boot.autoconfigure.AutoConfiguration.imports
+- [X] T061 [P] [US4] Create @EnableSpas annotation in components/sdk/java/spas-sdk-spring/src/main/java/io/spas/sdk/spring/EnableSpas.java
 
 ### Unit Tests for US4
 
-- [ ] T062 [US4] Add unit tests for SpasContextFilter in components/sdk/java/spas-sdk-spring/src/test/java/io/spas/sdk/spring/SpasContextFilterTest.java
+- [X] T062 [US4] Add unit tests for SpasContextFilter in components/sdk/java/spas-sdk-spring/src/test/java/io/spas/sdk/spring/SpasContextFilterTest.java
 
-**Checkpoint**: Trace context propagation working via Spring filter.
+**Checkpoint**: Trace context propagation working via Spring filter. ✅
 
 ---
 

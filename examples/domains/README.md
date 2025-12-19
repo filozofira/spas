@@ -1,172 +1,171 @@
-# Example Domains
+# SPAS Example Domains
 
 This directory contains example SPAS domain choreographies demonstrating event-driven service composition patterns.
 
-## Prerequisites
+---
 
-- Docker and Docker Compose
-- Node.js 20+ (for building CLI tools)
-- SPAS CLI tools built (`spas-compose`, `spas-service`)
-- SPAS Sidecar image built (`spas-sidecar:latest`)
+## How It Works
 
-## Quick Start
+SPAS enables service choreography through declarative YAML configuration. Each domain defines **flows** that describe how events route between services with automatic payload transformation.
+
+### Key Concepts
+
+| Concept | Description |
+|---------|-------------|
+| **Choreography** | A YAML file defining event flows between services |
+| **Flow** | A named sequence of events connecting participants |
+| **Transform** | JSONata expressions adapting payloads between services |
+| **Sidecar** | Infrastructure proxy handling routing, transformation, and tracing |
+
+### Building a Choreography
 
 ```bash
-# 1. Build the sidecar image (from components/sidecar)
+# Option 1: Use the /spas.compose agent command in VS Code
+# Describe your requirements and the agent generates choreography.yaml
+
+# Option 2: Manual workflow
+spas-compose init --domain my-domain --output examples/domains/my-domain
+spas-compose choreography build --docker --dev
+```
+
+### Running Examples
+
+```bash
+# 1. Build the sidecar image (one-time)
 cd components/sidecar
 docker build -t spas-sidecar:latest .
 
-# 2. Navigate to an example domain
+# 2. Navigate to a domain and run
 cd examples/domains/ecommerce
-
-# 3. Build and run
 docker compose up -d
 
-# 4. View traces
+# 3. View traces in Zipkin
 open http://localhost:9411
 ```
 
+### Viewing Distributed Traces
+
+All examples include Zipkin for observability:
+
+1. Open http://localhost:9411
+2. Click **Run Query** to see recent traces
+3. Click on a trace to see the full flow across services
+4. Click **Dependencies** to see the service topology graph
+
 ---
 
-## Ecommerce Domain
+## E-Commerce Domain
 
-A simple e-commerce choreography demonstrating order fulfillment with inventory reservation.
+**Location:** `examples/domains/ecommerce`
+
+A straightforward order fulfillment choreography demonstrating the core SPAS pattern: services communicate through events, with the sidecar handling routing and transformation.
+
+### What It Does
+
+A customer places an order. The order service publishes an event, inventory service reserves stock, and the order is confirmed automatically.
 
 ### Services
 
-| Service             | Description                               |
-| ------------------- | ----------------------------------------- |
-| `order-service`     | Manages order lifecycle (create, confirm) |
-| `inventory-service` | Handles stock reservation                 |
+| Service | Role | Port |
+|---------|------|------|
+| `order-service` | Manages order lifecycle | 5002 |
+| `inventory-service` | Handles stock reservation | 5001 |
 
-### Choreography Flow
+### Choreography Diagram
 
 ```mermaid
 flowchart LR
-    subgraph Order Flow
-        A[order-service] -->|order-created| B[inventory-service]
-        B -->|stock-reserved| A
-        A -->|order-confirmed| C((Terminal))
+    subgraph E-Commerce Order Fulfillment
+        OS[order-service] -->|order-created| IS[inventory-service]
+        IS -->|stock-reserved| OS
+        OS -->|order-confirmed| END((done))
     end
 ```
 
-**Flow Description:**
-
-1. **Order Created** → `order-service` publishes `order-created` event
-2. **Stock Reserved** → `inventory-service` reserves stock and publishes `stock-reserved`
-3. **Order Confirmed** → `order-service` confirms the order (terminal event)
-
-### Running the Example
+### Try It
 
 ```bash
 cd examples/domains/ecommerce
 docker compose up -d
 
-# Test the flow
+# Create an order
 curl -X POST http://localhost:5002/orders \
   -H "Content-Type: application/json" \
-  -d '{"customerId": "cust-123", "items": [{"productId": "prod-001", "quantity": 2, "price": 10}], "total": 20}'
+  -d '{
+    "customerId": "cust-123",
+    "items": [{"productId": "prod-001", "quantity": 2, "price": 10}],
+    "total": 20
+  }'
 
-# View traces
-open http://localhost:9411
+# Check traces at http://localhost:9411
 ```
-
-### Ports
-
-| Service           | Port |
-| ----------------- | ---- |
-| order-service     | 5002 |
-| inventory-service | 5001 |
-| Zipkin            | 9411 |
-| Redis             | 6379 |
 
 ---
 
 ## B2B Subscription Domain
 
-A more complex choreography demonstrating B2B subscription fulfillment with correlation across multiple services.
+**Location:** `examples/domains/b2b/subscription`
+
+A multi-service choreography demonstrating **service reuse**—the same `order-service` and `inventory-service` from e-commerce participate in a different domain context, proving SPAS portability.
+
+### What It Does
+
+A B2B customer creates a subscription. This triggers order creation, inventory reservation, order confirmation, and finally subscription activation—all through event choreography.
 
 ### Services
 
-| Service                | Description                      |
-| ---------------------- | -------------------------------- |
-| `subscription-service` | Manages subscription lifecycle   |
-| `order-service`        | Creates orders for subscriptions |
-| `inventory-service`    | Handles stock reservation        |
+| Service | Role | Port |
+|---------|------|------|
+| `subscription-service` | Manages subscription lifecycle | 5003 |
+| `order-service` | Creates orders for subscriptions | 5002 |
+| `inventory-service` | Handles stock reservation | 5001 |
 
-### Choreography Flow
+### Choreography Diagram
 
 ```mermaid
 flowchart LR
-    subgraph Subscription Flow
-        A[subscription-service] -->|subscription-created| B[order-service]
-        B -->|order-created| C[inventory-service]
-        C -->|stock-reserved| B
-        B -->|order-confirmed| A
+    subgraph B2B Subscription Fulfillment
+        SS[subscription-service] -->|subscription-created| OS[order-service]
+        OS -->|order-created| IS[inventory-service]
+        IS -->|stock-reserved| OS
+        OS -->|order-confirmed| SS
+        SS -->|subscription-activated| END((done))
     end
 ```
 
-**Flow Description:**
-
-1. **Subscription Created** → `subscription-service` publishes `subscription-created`
-2. **Order Created** → `order-service` creates an order and publishes `order-created`
-3. **Stock Reserved** → `inventory-service` reserves stock and publishes `stock-reserved`
-4. **Order Confirmed** → `order-service` confirms the order and publishes `order-confirmed`
-5. **Subscription Activated** → `subscription-service` activates the subscription
-
-### Running the Example
+### Try It
 
 ```bash
 cd examples/domains/b2b/subscription
 docker compose up -d
 
-# Test the flow
+# Create a subscription
 curl -X POST http://localhost:5003/subscriptions \
   -H "Content-Type: application/json" \
-  -d '{"customerId": "cust-456", "plan": "premium", "items": [{"productId": "prod-002", "quantity": 1}]}'
+  -d '{
+    "customerId": "cust-456",
+    "plan": "premium",
+    "items": [{"productId": "prod-002", "quantity": 1}]
+  }'
 
-# View traces
-open http://localhost:9411
+# Check traces at http://localhost:9411
 ```
-
-### Ports
-
-| Service              | Port |
-| -------------------- | ---- |
-| subscription-service | 5003 |
-| order-service        | 5002 |
-| inventory-service    | 5001 |
-| Zipkin               | 9411 |
-| Redis                | 6379 |
 
 ---
 
-## Composing New Domains
+## Infrastructure (All Examples)
 
-To create a new choreography using AI assistance:
+| Component | Port | Purpose |
+|-----------|------|---------|
+| Redis | 6379 | Event bus (pub/sub) |
+| Zipkin | 9411 | Distributed tracing UI |
+
+### Cleanup
 
 ```bash
-# 1. Initialize a new domain
-spas-compose init --domain my-domain --output examples/domains/my-domain
+# Stop and remove containers
+docker compose down
 
-# 2. Pull services from the repository
-spas-compose services pull order-service inventory-service
-
-# 3. Use AI to compose the choreography
-# In VS Code, use /spas.compose command with your requirements
-
-# 4. Build the domain artifacts
-spas-compose choreography build --docker --dev
-
-# 5. Run the domain
-docker compose up -d
+# Also remove volumes (Redis data)
+docker compose down -v
 ```
-
-## Viewing Traces
-
-All examples include Zipkin for distributed tracing. After running a domain:
-
-1. Open http://localhost:9411
-2. Click "Run Query" to see recent traces
-3. Click on a trace to see the full flow across services
-4. Click "Dependencies" to see the service topology

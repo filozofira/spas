@@ -54,7 +54,7 @@ async (CreateSubscriptionRequest request, EventPublisher publisher, Subscription
             request.Frequency,
             "pending",
             DateTime.UtcNow
-        );
+        ).WithStatus("pending", "Subscription created");
 
         store.Add(subscription);
 
@@ -98,7 +98,18 @@ app.MapGet("/subscriptions/{id}",
 (Guid id, SubscriptionStore store) =>
     {
         var subscription = store.Get(id);
-        return subscription != null ? Results.Ok(subscription) : Results.NotFound();
+        if (subscription == null) return Results.NotFound();
+        
+        return Results.Ok(new {
+            subscriptionId = subscription.SubscriptionId,
+            customerId = subscription.CustomerId,
+            productId = subscription.ProductId,
+            quantity = subscription.Quantity,
+            frequency = subscription.Frequency,
+            status = subscription.Status,
+            createdAt = subscription.CreatedAt,
+            statusHistory = subscription.StatusHistory.OrderBy(h => h.Timestamp).ToList()
+        });
     });
 
 // POST /subscriptions/activate - Activate subscription after order confirmation
@@ -122,7 +133,7 @@ async (ActivateSubscriptionRequest request, EventPublisher publisher, Subscripti
         }
 
         // Update subscription status to active
-        var activeSubscription = subscription with { Status = "active" };
+        var activeSubscription = subscription.WithStatus("active", $"Activated after order {request.OrderId} confirmation");
         store.Add(activeSubscription);
 
         Console.WriteLine($"[subscription-service] Subscription {subscription.SubscriptionId} activated");
@@ -188,8 +199,30 @@ public record CreateSubscriptionResponse(Guid SubscriptionId, string Status);
 [SpasCommand("ActivateSubscription", "1.0")]
 public record ActivateSubscriptionRequest(Guid OrderId, string Status, string? ReferenceId = null);
 
+// Status change tracking  
+public record StatusChange(string Status, DateTime Timestamp, string? Reason = null);
+
 // Domain models
-public record Subscription(Guid SubscriptionId, string CustomerId, string ProductId, int Quantity, string Frequency, string Status, DateTime CreatedAt);
+public record Subscription(
+    Guid SubscriptionId, 
+    string CustomerId, 
+    string ProductId, 
+    int Quantity, 
+    string Frequency, 
+    string Status, 
+    DateTime CreatedAt,
+    List<StatusChange> StatusHistory = null
+)
+{
+    public List<StatusChange> StatusHistory { get; init; } = StatusHistory ?? new();
+    
+    public Subscription WithStatus(string newStatus, string? reason = null)
+    {
+        var statusChange = new StatusChange(newStatus, DateTime.UtcNow, reason);
+        var updatedHistory = new List<StatusChange>(StatusHistory) { statusChange };
+        return this with { Status = newStatus, StatusHistory = updatedHistory };
+    }
+};
 
 // Events (outbound only)
 [SpasEvent("SubscriptionCreated", "1.0", EventType = "com.subscription.subscription-created")]

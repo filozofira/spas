@@ -54,7 +54,7 @@ async (CreateOrderRequest request, EventPublisher publisher, OrderStore store) =
             "created",
             DateTime.UtcNow,
             request.ReferenceId
-        );
+        ).WithStatus("created", "Order created by customer");
 
         store.Add(order);
 
@@ -95,7 +95,18 @@ app.MapGet("/orders/{id}",
 (Guid id, OrderStore store) =>
     {
         var order = store.Get(id);
-        return order != null ? Results.Ok(order) : Results.NotFound();
+        if (order == null) return Results.NotFound();
+        
+        return Results.Ok(new {
+            orderId = order.OrderId,
+            customerId = order.CustomerId,
+            items = order.Items,
+            total = order.Total,
+            status = order.Status,
+            createdAt = order.CreatedAt,
+            referenceId = order.ReferenceId,
+            statusHistory = order.StatusHistory.OrderBy(h => h.Timestamp).ToList()
+        });
     });
 
 // POST /orders/confirm - Confirm order after stock reservation
@@ -113,7 +124,7 @@ async (ConfirmOrderRequest request, EventPublisher publisher, OrderStore store) 
         }
 
         // Update order status to confirmed
-        var confirmedOrder = order with { Status = "confirmed" };
+        var confirmedOrder = order.WithStatus("confirmed", $"Confirmed with {request.ReservedItems.Count} items reserved");
         store.Add(confirmedOrder);
 
         Console.WriteLine($"[order-service] Order {request.OrderId} status updated to 'confirmed'");
@@ -186,8 +197,30 @@ public record OrderItem(string ProductId, int Quantity, decimal Price);
 
 public record ReservedItem(string ProductId, int Quantity);
 
+// Status change tracking
+public record StatusChange(string Status, DateTime Timestamp, string? Reason = null);
+
 // Domain models
-public record Order(Guid OrderId, string CustomerId, List<OrderItem> Items, decimal Total, string Status, DateTime CreatedAt, string? ReferenceId = null);
+public record Order(
+    Guid OrderId, 
+    string CustomerId, 
+    List<OrderItem> Items, 
+    decimal Total, 
+    string Status, 
+    DateTime CreatedAt, 
+    string? ReferenceId = null,
+    List<StatusChange> StatusHistory = null
+)
+{
+    public List<StatusChange> StatusHistory { get; init; } = StatusHistory ?? new();
+    
+    public Order WithStatus(string newStatus, string? reason = null)
+    {
+        var statusChange = new StatusChange(newStatus, DateTime.UtcNow, reason);
+        var updatedHistory = new List<StatusChange>(StatusHistory) { statusChange };
+        return this with { Status = newStatus, StatusHistory = updatedHistory };
+    }
+};
 
 // Events (outbound only)
 [SpasEvent("OrderCreated", "1.0", EventType = "com.ecommerce.order.created")]

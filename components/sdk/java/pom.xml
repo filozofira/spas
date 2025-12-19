@@ -26,7 +26,6 @@
         <module>spas-sdk-metadata-processor</module>
         <module>spas-sdk-events</module>
         <module>spas-sdk-spring</module>
-        <module>examples/sample-service</module>
     </modules>
 
     <properties>

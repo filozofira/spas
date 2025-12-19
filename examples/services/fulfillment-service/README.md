@@ -56,17 +56,17 @@ mvn clean package -DskipTests
 mvn spring-boot:run
 
 # Or run the JAR directly
-java -jar target/fulfillment-service-java-1.0.0-SNAPSHOT.jar
+java -jar target/fulfillment-service-1.0.0-SNAPSHOT.jar
 ```
 
 ### Run with Docker
 
 ```bash
 # Build Docker image
-docker build -t fulfillment-service-java .
+docker build -t fulfillment-service .
 
 # Run container
-docker run -p 8080:8080 fulfillment-service-java
+docker run -p 8080:8080 fulfillment-service
 ```
 
 ## API Endpoints
@@ -116,7 +116,7 @@ docker run -p 8080:8080 fulfillment-service-java
 ```yaml
 spas:
   service:
-    id: fulfillment-service-java
+    id: fulfillment-service
     bounded-context: fulfillment
   sidecar:
     url: http://localhost:8081  # Sidecar URL

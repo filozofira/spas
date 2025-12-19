@@ -135,7 +135,7 @@ flowchart LR
 
 **How It Works**:
 - `spas-compose` resolves targets based on which services are pulled during composition
-- If `fulfillment-service-java` is not pulled, the `order-confirmed → fulfillment-service-java` mapping has no resolvable target
+- If `fulfillment-service` is not pulled, the `order-confirmed → fulfillment-service` mapping has no resolvable target
 - Sidecar treats events with no routable targets as terminal events
 - No configuration changes required - graceful degradation is automatic
 
@@ -147,7 +147,7 @@ spas-compose choreography build --docker
 docker compose up  # Only order + inventory services run
 
 # With fulfillment service (extended flow)
-spas-compose services pull order-service inventory-service fulfillment-service-java
+spas-compose services pull order-service inventory-service fulfillment-service
 spas-compose choreography build --docker
 docker compose up  # All three services run with full flow
 ```
@@ -243,7 +243,7 @@ open http://localhost:9411
 
 **choreography.yaml changes**:
 - Define two separate flows: `order-fulfillment` and `shipment-completion`
-- Add event mappings for both flows: `fulfillment-service-java → order-service`
+- Add event mappings for both flows: `fulfillment-service → order-service`
 - Create transformations for `shipment-created` and `fulfillment-completed` events
 - Both events update order's shipment tracking fields (not order status)
 - `shipment-completion` flow demonstrates separate async choreography pattern
@@ -407,7 +407,7 @@ Create integration tests that verify the complete order-to-fulfillment flow with
 ### Project Structure
 
 ```
-examples/services/fulfillment-service-java/
+examples/services/fulfillment-service/
 ├── pom.xml
 ├── Dockerfile
 ├── README.md
@@ -581,7 +581,7 @@ flows:
     participants:
       - order-service
       - inventory-service
-      - fulfillment-service-java
+      - fulfillment-service
     events:
       # Step 1: Order created
       - source: order-service
@@ -606,12 +606,12 @@ flows:
         event: order-confirmed
         topic: order-events
         targets:
-          - service: fulfillment-service-java
+          - service: fulfillment-service
             command: CreateShipment
-            transform: transformations/fulfillment-service-java/inbound-order-confirmed.jsonata
+            transform: transformations/fulfillment-service/inbound-order-confirmed.jsonata
       
       # Step 4: Shipment created → Order shipment tracking
-      - source: fulfillment-service-java
+      - source: fulfillment-service
         event: shipment-created
         topic: fulfillment-events
         targets:
@@ -623,11 +623,11 @@ flows:
   shipment-status-update:
     description: "Shipment status transitions (separate async process)"
     participants:
-      - fulfillment-service-java
+      - fulfillment-service
       - order-service
     events:
       # Triggered by manual REST call or webhook
-      - source: fulfillment-service-java
+      - source: fulfillment-service
         event: shipment-status-changed
         topic: fulfillment-events
         targets:

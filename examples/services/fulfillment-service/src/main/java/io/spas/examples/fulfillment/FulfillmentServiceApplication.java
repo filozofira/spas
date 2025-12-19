@@ -13,7 +13,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
  */
 @SpringBootApplication
 @SpasService(
-    id = "fulfillment-service-java",
+    id = "fulfillment-service",
     name = "Fulfillment Service",
     boundedContext = "fulfillment",
     version = "1.0.0",

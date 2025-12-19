@@ -3,12 +3,12 @@ server:
 
 spring:
   application:
-    name: fulfillment-service-java
+    name: fulfillment-service
 
 # SPAS SDK Configuration
 spas:
   service:
-    id: fulfillment-service-java
+    id: fulfillment-service
     bounded-context: fulfillment
     version: 1.0.0
   sidecar:

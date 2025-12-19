@@ -59,7 +59,7 @@ components/sdk/java/           # Multi-module Maven project root
 
 ---
 
-## Phase 3: User Story 1 - Metadata Generation with Annotations (Priority: P1) 🎯 MVP
+## Phase 3: User Story 1 - Metadata Generation with Annotations (Priority: P1) 🎯 MVP ✅ COMPLETE
 
 **Goal**: Generate valid `spas.json` at compile time from annotations
 
@@ -67,36 +67,36 @@ components/sdk/java/           # Multi-module Maven project root
 
 ### Model Classes for US1
 
-- [ ] T015 [P] [US1] Create EndpointType enum in components/sdk/java/spas-sdk-metadata/src/main/java/io/spas/sdk/metadata/model/EndpointType.java
-- [ ] T016 [P] [US1] Create Protocol enum in components/sdk/java/spas-sdk-metadata/src/main/java/io/spas/sdk/metadata/model/Protocol.java
-- [ ] T017 [P] [US1] Create ConsistencyLevel enum in components/sdk/java/spas-sdk-metadata/src/main/java/io/spas/sdk/metadata/model/ConsistencyLevel.java
-- [ ] T018 [P] [US1] Create QueryConsistencyLevel enum in components/sdk/java/spas-sdk-metadata/src/main/java/io/spas/sdk/metadata/model/QueryConsistencyLevel.java
-- [ ] T019 [P] [US1] Create AuthType enum in components/sdk/java/spas-sdk-metadata/src/main/java/io/spas/sdk/metadata/model/AuthType.java
-- [ ] T020 [P] [US1] Create DataClassification enum in components/sdk/java/spas-sdk-metadata/src/main/java/io/spas/sdk/metadata/model/DataClassification.java
-- [ ] T021 [P] [US1] Create EndpointContract record in components/sdk/java/spas-sdk-metadata/src/main/java/io/spas/sdk/metadata/model/EndpointContract.java
-- [ ] T022 [P] [US1] Create EventContract record in components/sdk/java/spas-sdk-metadata/src/main/java/io/spas/sdk/metadata/model/EventContract.java
-- [ ] T023 [P] [US1] Create Consistency record in components/sdk/java/spas-sdk-metadata/src/main/java/io/spas/sdk/metadata/model/Consistency.java
-- [ ] T024 [P] [US1] Create Authentication record in components/sdk/java/spas-sdk-metadata/src/main/java/io/spas/sdk/metadata/model/Authentication.java
-- [ ] T025 [P] [US1] Create Security record in components/sdk/java/spas-sdk-metadata/src/main/java/io/spas/sdk/metadata/model/Security.java
-- [ ] T026 [P] [US1] Create Network record in components/sdk/java/spas-sdk-metadata/src/main/java/io/spas/sdk/metadata/model/Network.java
-- [ ] T027 [US1] Create ServiceMetadata record in components/sdk/java/spas-sdk-metadata/src/main/java/io/spas/sdk/metadata/model/ServiceMetadata.java
+- [x] T015 [P] [US1] Create EndpointType enum in components/sdk/java/spas-sdk-metadata/src/main/java/io/spas/sdk/metadata/model/EndpointType.java
+- [x] T016 [P] [US1] Create Protocol enum in components/sdk/java/spas-sdk-metadata/src/main/java/io/spas/sdk/metadata/model/Protocol.java
+- [x] T017 [P] [US1] Create ConsistencyLevel enum in components/sdk/java/spas-sdk-metadata/src/main/java/io/spas/sdk/metadata/model/ConsistencyLevel.java
+- [x] T018 [P] [US1] Create QueryConsistencyLevel enum in components/sdk/java/spas-sdk-metadata/src/main/java/io/spas/sdk/metadata/model/QueryConsistencyLevel.java
+- [x] T019 [P] [US1] Create AuthType enum in components/sdk/java/spas-sdk-metadata/src/main/java/io/spas/sdk/metadata/model/AuthType.java
+- [x] T020 [P] [US1] Create DataClassification enum in components/sdk/java/spas-sdk-metadata/src/main/java/io/spas/sdk/metadata/model/DataClassification.java
+- [x] T021 [P] [US1] Create EndpointContract record in components/sdk/java/spas-sdk-metadata/src/main/java/io/spas/sdk/metadata/model/EndpointContract.java
+- [x] T022 [P] [US1] Create EventContract record in components/sdk/java/spas-sdk-metadata/src/main/java/io/spas/sdk/metadata/model/EventContract.java
+- [x] T023 [P] [US1] Create Consistency record in components/sdk/java/spas-sdk-metadata/src/main/java/io/spas/sdk/metadata/model/Consistency.java
+- [x] T024 [P] [US1] Create Authentication record in components/sdk/java/spas-sdk-metadata/src/main/java/io/spas/sdk/metadata/model/Authentication.java
+- [x] T025 [P] [US1] Create Security record in components/sdk/java/spas-sdk-metadata/src/main/java/io/spas/sdk/metadata/model/Security.java
+- [x] T026 [P] [US1] Create Network record in components/sdk/java/spas-sdk-metadata/src/main/java/io/spas/sdk/metadata/model/Network.java
+- [x] T027 [US1] Create ServiceMetadata record in components/sdk/java/spas-sdk-metadata/src/main/java/io/spas/sdk/metadata/model/ServiceMetadata.java
 
 ### Annotations for US1
 
-- [ ] T028 [P] [US1] Create @SpasCommand annotation in components/sdk/java/spas-sdk-metadata/src/main/java/io/spas/sdk/metadata/annotations/SpasCommand.java
-- [ ] T029 [P] [US1] Create @SpasQuery annotation in components/sdk/java/spas-sdk-metadata/src/main/java/io/spas/sdk/metadata/annotations/SpasQuery.java
-- [ ] T030 [P] [US1] Create @SpasEvent annotation (RUNTIME retention) in components/sdk/java/spas-sdk-metadata/src/main/java/io/spas/sdk/metadata/annotations/SpasEvent.java
-- [ ] T031 [P] [US1] Create @SpasService annotation for service identity config in components/sdk/java/spas-sdk-metadata/src/main/java/io/spas/sdk/metadata/annotations/SpasService.java
+- [x] T028 [P] [US1] Create @SpasCommand annotation in components/sdk/java/spas-sdk-metadata/src/main/java/io/spas/sdk/metadata/annotations/SpasCommand.java
+- [x] T029 [P] [US1] Create @SpasQuery annotation in components/sdk/java/spas-sdk-metadata/src/main/java/io/spas/sdk/metadata/annotations/SpasQuery.java
+- [x] T030 [P] [US1] Create @SpasEvent annotation (RUNTIME retention) in components/sdk/java/spas-sdk-metadata/src/main/java/io/spas/sdk/metadata/annotations/SpasEvent.java
+- [x] T031 [P] [US1] Create @SpasService annotation for service identity config in components/sdk/java/spas-sdk-metadata/src/main/java/io/spas/sdk/metadata/annotations/SpasService.java
 
 ### Annotation Processor for US1
 
-- [ ] T032 [US1] Implement SpasAnnotationProcessor in components/sdk/java/spas-sdk-metadata-processor/src/main/java/io/spas/sdk/metadata/processor/SpasAnnotationProcessor.java
-- [ ] T033 [US1] Create processor registration file in components/sdk/java/spas-sdk-metadata-processor/src/main/resources/META-INF/services/javax.annotation.processing.Processor
-- [ ] T034 [US1] Add processor tests with compile-testing library in components/sdk/java/spas-sdk-metadata-processor/src/test/java/io/spas/sdk/metadata/processor/SpasAnnotationProcessorTest.java
+- [x] T032 [US1] Implement SpasAnnotationProcessor in components/sdk/java/spas-sdk-metadata-processor/src/main/java/io/spas/sdk/metadata/processor/SpasAnnotationProcessor.java
+- [x] T033 [US1] Create processor registration file in components/sdk/java/spas-sdk-metadata-processor/src/main/resources/META-INF/services/javax.annotation.processing.Processor
+- [x] T034 [US1] Add processor tests with compile-testing library in components/sdk/java/spas-sdk-metadata-processor/src/test/java/io/spas/sdk/metadata/processor/SpasAnnotationProcessorTest.java
 
 ### Unit Tests for US1
 
-- [ ] T035 [P] [US1] Add unit tests for model record serialization in components/sdk/java/spas-sdk-metadata/src/test/java/io/spas/sdk/metadata/model/ServiceMetadataTest.java
+- [x] T035 [P] [US1] Add unit tests for model record serialization in components/sdk/java/spas-sdk-metadata/src/test/java/io/spas/sdk/metadata/model/ServiceMetadataTest.java
 
 **Checkpoint**: Annotation-based metadata generation working. Run `mvn compile` to generate spas.json.
 

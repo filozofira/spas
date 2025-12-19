@@ -5,6 +5,13 @@
 **Status**: Draft  
 **Input**: User description: "Build a Java SPAS SDK equivalent to the .NET SDK in components/sdk/dotnet/. Include a SampleService for testing. Target Java 17+, Maven."
 
+## Clarifications
+
+### Session 2025-12-19
+
+- Q: When EventPublisher fails to reach the sidecar, what should the SDK's default behavior be? → A: Throw immediately (no retry) - application decides retry policy
+- Q: When SERVICE_NAME environment variable is not set and cannot be derived, what should the SDK do? → A: Fail fast at startup with clear error message requiring explicit configuration
+
 ## Overview
 
 Create a Java SDK for building SPAS (Self-contained, Portable, Adaptable Services) that mirrors the functionality of the existing .NET SDK. The Java SDK enables Java developers to build services that:
@@ -115,9 +122,10 @@ A complete working example service demonstrates all SDK features: annotations, e
 ### Edge Cases
 
 - What happens when annotation processor encounters invalid annotation values? → Build fails with descriptive error
-- How does SDK handle missing `SERVICE_NAME` environment variable? → Uses sensible default or throws at startup
+- How does SDK handle missing `SERVICE_NAME` environment variable? → Fail fast at startup with clear error message; explicit configuration required
 - What happens when sidecar URL is not configured? → Clear error at first publish attempt
 - How does SDK handle Java records vs classes for event types? → Both should be supported for payload serialization
+- What happens when sidecar is unreachable (timeout, connection refused, 5xx)? → SDK throws immediately; application decides retry policy (no built-in retry)
 
 ## Requirements *(mandatory)*
 

@@ -1,0 +1,27 @@
+# Git
+.git/
+.gitignore
+
+# Maven build output
+target/
+
+# IDE
+.idea/
+*.iml
+.vscode/
+*.swp
+
+# Testing
+*.test.java
+
+# Documentation
+*.md
+!README.md
+
+# Development files
+.env*
+*.log
+
+# OS files
+.DS_Store
+Thumbs.db

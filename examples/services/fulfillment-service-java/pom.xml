@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>io.spas.examples</groupId>
+    <artifactId>fulfillment-service-java</artifactId>
+    <version>1.0.0-SNAPSHOT</version>
+    <packaging>jar</packaging>
+
+    <name>Fulfillment Service (Java)</name>
+    <description>SPAS-compliant fulfillment service demonstrating the Java SDK in an e-commerce choreography</description>
+
+    <parent>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-parent</artifactId>
+        <version>3.4.1</version>
+        <relativePath/>
+    </parent>
+
+    <properties>
+        <java.version>17</java.version>
+        <spas-sdk.version>1.0.0-SNAPSHOT</spas-sdk.version>
+    </properties>
+
+    <dependencies>
+        <!-- SPAS SDK -->
+        <dependency>
+            <groupId>io.spas</groupId>
+            <artifactId>spas-sdk-core</artifactId>
+            <version>${spas-sdk.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.spas</groupId>
+            <artifactId>spas-sdk-metadata</artifactId>
+            <version>${spas-sdk.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.spas</groupId>
+            <artifactId>spas-sdk-events</artifactId>
+            <version>${spas-sdk.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.spas</groupId>
+            <artifactId>spas-sdk-spring</artifactId>
+            <version>${spas-sdk.version}</version>
+        </dependency>
+
+        <!-- Spring Boot -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-actuator</artifactId>
+        </dependency>
+
+        <!-- Testing -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+                <configuration>
+                    <mainClass>io.spas.examples.fulfillment.FulfillmentServiceApplication</mainClass>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.13.0</version>
+                <configuration>
+                    <source>${java.version}</source>
+                    <target>${java.version}</target>
+                    <annotationProcessorPaths>
+                        <path>
+                            <groupId>io.spas</groupId>
+                            <artifactId>spas-sdk-metadata-processor</artifactId>
+                            <version>${spas-sdk.version}</version>
+                        </path>
+                    </annotationProcessorPaths>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
+                <version>0.8.12</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>prepare-agent</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>report</id>
+                        <phase>test</phase>
+                        <goals>
+                            <goal>report</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+</project>

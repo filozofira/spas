@@ -1,0 +1,37 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: fulfillment-service-java
+
+# SPAS SDK Configuration
+spas:
+  service:
+    id: fulfillment-service-java
+    bounded-context: fulfillment
+    version: 1.0.0
+  sidecar:
+    url: http://localhost:8081
+    timeout: 5000
+  tracing:
+    enabled: true
+    propagate-context: true
+
+# Actuator endpoints for health checks
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics
+  endpoint:
+    health:
+      show-details: always
+
+# Logging configuration
+logging:
+  level:
+    io.spas: DEBUG
+    io.spas.examples.fulfillment: DEBUG
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] [%X{traceId:-}] %-5level %logger{36} - %msg%n"

@@ -27,3 +27,10 @@ spas-service publish --archive ./subscription-service-1.0.0.zip `
 --image-digest sha256:98ed8036c20440548030630b7a99d5372871f49e3bbb40d428b64404090105bb
 
 Write-Host "Published Subscription Service"
+
+spas-service publish --archive ./fulfillment-service-java-1.0.0.zip `
+--image-repository spas-examples/fulfillment-service-java `
+--image-tag 1.0.0 `
+--image-digest sha256:TODO_UPDATE_AFTER_BUILD
+
+Write-Host "Published Fulfillment Service (Java)"

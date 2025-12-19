@@ -75,6 +75,12 @@ Set repository URL via:
 - Environment: `export SPAS_REPOSITORY_URL=http://repo.example.com`
 - Default: `http://localhost:3000`
 
+## Planned Enhancements
+
+> **IN PROGRESS**: Java Fulfillment Service - See [../../FULFILLMENT-SERVICE-DESIGN.md](../../FULFILLMENT-SERVICE-DESIGN.md)
+
+_This note will be removed once the service is implemented._
+
 ## Documentation
 
 - [spas-compose CLI](../../components/cli/spas-compose/README.md)

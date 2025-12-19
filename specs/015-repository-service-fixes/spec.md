@@ -2,7 +2,8 @@
 
 **Feature Branch**: `015-repository-service-fixes`  
 **Created**: December 19, 2025  
-**Status**: Draft  
+**Completed**: 2025-12-19  
+**Status**: ✅ Complete (PoC)  
 **Input**: User description: "Extend spas repository with an endpoint to list all services without a filter. Also fix one bug where Pulled service spas.json has "schemaVersion": "design-time-metadata-v1" while it should be runtime spas.json schema."
 
 ## User Scenarios & Testing *(mandatory)*

@@ -250,6 +250,8 @@ Auto-generated from all feature plans. Last updated: 2025-12-12
 - N/A (no persistence changes) (012-cloudevents-type-refactor)
 - TypeScript 5.3+ (Node.js 20 LTS) + Commander.js 11.x, js-yaml 4.x, JSONata 2.x (013-agent-prompt-enrichment)
 - N/A (generates static markdown file) (013-agent-prompt-enrichment)
+- TypeScript 5.3+ (ES2022 target), Node.js >=20.0.0 + Commander 11 (CLI framework), js-yaml 4 (YAML parsing), chalk 4 (output formatting) (014-compose-init-fixes)
+- File system operations (generate/write schema and documentation files) (014-compose-init-fixes)
 
 - .NET 10 (target net10.0); Microsoft.Extensions.Logging; System.Text.Json (001-dotnet-spas-sdk)
 

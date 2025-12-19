@@ -16,7 +16,7 @@ You **MUST** consider the user input before proceeding (if not empty).
 
 **Parse the domain name:**
 1. Extract `DOMAIN:<name>` from user input (e.g., `DOMAIN:public`, `DOMAIN:internal`)
-2. Use `<name>` to construct paths: `./examples/domains/b2b/<name>/...`
+2. Use `<name>` to construct paths: `./examples/domains/<name>/...`
 3. If no `DOMAIN:` specified, respond with error:
    ```
    Error: No domain specified.
@@ -24,8 +24,8 @@ You **MUST** consider the user input before proceeding (if not empty).
    Example: /spas.compose DOMAIN:public Analyze order-service
    ```
 
-**Domain root**: `./examples/domains/b2b`
-**Full domain path**: `./examples/domains/b2b/{DOMAIN}/`
+**Domain root**: `./examples/domains`
+**Full domain path**: `./examples/domains/{DOMAIN}/`
 
 ## Goal
 
@@ -33,7 +33,7 @@ Analyze pulled service contracts and generate choreography configuration with tr
 
 ## Responsibilities
 
-1. **Contract Analysis**: Parse service metadata from `./examples/domains/b2b/{DOMAIN}/services/*/spas.json`
+1. **Contract Analysis**: Parse service metadata from `./examples/domains/{DOMAIN}/services/*/spas.json`
 2. **Event Matching**: Identify semantic matches between published/subscribed events
 3. **Choreography Generation**: Propose topic mappings and flow definitions
 4. **Transformation Generation**: Create JSONata transformation files
@@ -42,7 +42,7 @@ Analyze pulled service contracts and generate choreography configuration with tr
 ## Workspace Structure
 
 ```
-./examples/domains/b2b/{DOMAIN}/
+./examples/domains/{DOMAIN}/
 ├── choreography.yaml              # Choreography configuration (you modify this)
 ├── services/                      # Pulled service metadata (read-only)
 │   └── <service-name>/
@@ -268,7 +268,7 @@ inputMapping:
 
 ### Choreography → Sidecar Config Mapping
 
-The choreography.yaml flows generate sidecar configuration files. Use the schema at `./examples/domains/b2b/{DOMAIN}/.spas/schemas/sidecar-config-v1.schema.json` to understand the mapping:
+The choreography.yaml flows generate sidecar configuration files. Use the schema at `./examples/domains/{DOMAIN}/.spas/schemas/sidecar-config-v1.schema.json` to understand the mapping:
 
 | Choreography Field | Sidecar Config Path | Description |
 |-------------------|---------------------|-------------|
@@ -312,10 +312,12 @@ This pattern enables **loose coupling**: Services never call each other directly
   - `source`: Publishing service (owns the event)
   - `event`: Event type (kebab-case)
   - `topic`: Message topic name
-  - `targets`: Subscribing services
+  - `targets`: Subscribing services (empty array = terminal event)
     - `service`: Subscriber name
     - `command`: Command to invoke (PascalCase)
     - `transform`: JSONata file path (optional)
+
+**Terminal Events**: Events with `targets: []` are published but have no consumers in this choreography. Used for audit, logging, or future extension.
 
 **Commands vs Events**: Commands = entry points (single target, no transform). Events = coordination (multiple targets, with transform).
 
@@ -416,14 +418,14 @@ Follow this 5-phase workflow with validation checkpoints at each stage.
 
 **Actions:**
 1. **Validate Workspace**
-   - Verify `./examples/domains/b2b/{DOMAIN}/choreography.yaml` exists
-   - Verify `./examples/domains/b2b/{DOMAIN}/services/` directory exists with at least one service
-   - If invalid: Show error and suggest `spas-compose init {DOMAIN} --output ./examples/domains/b2b`, then `spas-compose services pull`
+   - Verify `./examples/domains/{DOMAIN}/choreography.yaml` exists
+   - Verify `./examples/domains/{DOMAIN}/services/` directory exists with at least one service
+   - If invalid: Show error and suggest `spas-compose init {DOMAIN} --output ./examples/domains`, then `spas-compose services pull`
 
 2. **Read Service Contracts**
-   - Read `./examples/domains/b2b/{DOMAIN}/services/<service-name>/spas.json` for each service
+   - Read `./examples/domains/{DOMAIN}/services/<service-name>/spas.json` for each service
    - Extract: `id`, `version`, `boundedContext`, `endpoints[]`, `events[]` (outbound only)
-   - Read schemas from `./examples/domains/b2b/{DOMAIN}/services/<service-name>/schemas/`
+   - Read schemas from `./examples/domains/{DOMAIN}/services/<service-name>/schemas/`
 
 3. **Identify Relationships**
    - Match published events to subscribed events across services
@@ -450,31 +452,31 @@ Follow this 5-phase workflow with validation checkpoints at each stage.
 **Entry Criteria:** Analysis complete, user ready to design choreography
 
 **Actions:**
-1. **Generate Sequence Diagram**
-   - Create Mermaid diagram showing service interactions
-   - Include all participants, request/response flows, event emissions
+1. **Generate Choreography Diagram (mermaid flowchart)**
+   - Create Mermaid flowchart diagram showing event flows between services
+   - Use format: `flowchart LR` with `subgraph [Domain Name]`
+   - Include all service participants and event flows
+   - Add the choreography diagram to the workspace README.md file
+   - Reference pattern from examples/domains/README.md
 
 2. **Design Choreography**
    - Create choreography.yaml structure with flows, participants, events
    - Propose transformation file paths following naming convention
 
 3. **Present Design**
-   - Show Mermaid diagram
+   - Show Mermaid flowchart diagram
    - Show choreography.yaml proposal
    - List transformation files to be created
 
-**Mermaid Diagram Template:**
+**Choreography Diagram Template:**
 ```mermaid
-sequenceDiagram
-    participant OrderService as order-service
-    participant FulfillmentService as fulfillment-service
-    participant PaymentService as payment-service
-
-    Note over OrderService: Order Created
-    OrderService->>FulfillmentService: order-created event
-    Note over FulfillmentService: Process Fulfillment
-    FulfillmentService->>PaymentService: fulfillment-completed event
-    Note over PaymentService: Payment Processing
+flowchart LR
+    subgraph Order Fulfillment Flow
+        OS[order-service] -->|order-created| FS[fulfillment-service]
+        FS -->|fulfillment-completed| PS[payment-service]
+        PS -->|payment-processed| OS
+        OS -->|order-confirmed| END((done))
+    end
 ```
 
 **Choreography Schema:**
@@ -521,7 +523,7 @@ Do you want me to proceed with generating the choreographies? (yes/no/feedback)
 
 **Actions:**
 1. **Create Transformation Files**
-   - Generate JSONata files at `./examples/domains/b2b/{DOMAIN}/transformations/<service>/*.jsonata`
+   - Generate JSONata files at `./examples/domains/{DOMAIN}/transformations/<service>/*.jsonata`
    - Follow CloudEvents type format (camelCase for data fields)
    - Use `$append([], array.{...})` pattern for array transformations
    - Add header comments documenting source → target mapping
@@ -599,8 +601,9 @@ Do you want me to proceed with generating the choreographies? (yes/no/feedback)
 
 **Actions:**
 1. **Suggest Build Commands**
-   - Dry-run validation: `spas-compose choreography build --dry-run`
-   - Docker build: `spas-compose choreography build --docker`
+   - Dry-run validation: `spas-compose choreography build --docker --dry-run`
+   - Docker dev build: `spas-compose choreography build --docker --dev`
+   - Docker prod build: `spas-compose choreography build --docker`
    - Local run: `docker compose up`
 
 2. **Next Steps Guidance**
@@ -613,8 +616,9 @@ Do you want me to proceed with generating the choreographies? (yes/no/feedback)
 ✓ Choreography complete
 
 Next steps:
-  • Validate: spas-compose choreography build --dry-run
-  • Build: spas-compose choreography build --docker  
+  • Validate: spas-compose choreography build --docker --dry-run
+  • Dev build: spas-compose choreography build --docker --dev
+  • Prod build: spas-compose choreography build --docker
   • Run: docker compose up
   • Monitor: docker compose logs -f spas-sidecar-{service}
 ```
@@ -667,7 +671,7 @@ Next steps:
 
 | Constraint | Behavior |
 |------------|----------|
-| **Read-only services/** | NEVER modify files in `./examples/domains/b2b/{DOMAIN}/services/` |
+| **Read-only services/** | NEVER modify files in `./examples/domains/{DOMAIN}/services/` |
 | **Preserve existing flows** | When adding flows, preserve all existing flows |
 | **Valid JSONata** | All .jsonata files must have valid syntax |
 | **Confirm before write** | ALWAYS wait for explicit confirmation |
@@ -678,7 +682,7 @@ Next steps:
 | Error | Response |
 |-------|----------|
 | No DOMAIN specified | "Error: No domain specified. Usage: /spas.compose DOMAIN:<name> <action>" |
-| No choreography.yaml | "Error: Workspace not initialized. Run `spas-compose init {DOMAIN} --output ./examples/domains/b2b` first." |
+| No choreography.yaml | "Error: Workspace not initialized. Run `spas-compose init {DOMAIN} --output ./examples/domains` first." |
 | No services pulled | "Error: No services found. Run `spas-compose services pull` first." |
 | Service not found | "Error: Service '<name>' not found in services/ directory." |
 | Schema mismatch | "Warning: Cannot auto-generate transformation. Manual mapping required." |

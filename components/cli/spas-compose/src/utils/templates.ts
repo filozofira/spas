@@ -22,6 +22,8 @@ ${workspaceName}/
 ├── transformations/             # JSONata transformation files
 └── .spas/
     └── schemas/                 # JSON Schemas for validation/AI
+        ├── choreography-v1.schema.json
+        ├── runtime-metadata-v1.schema.json
         └── sidecar-config-v1.schema.json
 \`\`\`
 
@@ -505,7 +507,7 @@ Service metadata files declare service identity, endpoints, and event contracts.
  *
  * Defines the 5-phase workflow with validation checkpoints:
  * 1. Analyze - Parse service contracts and validate workspace
- * 2. Propose - Generate sequence diagram and choreography design
+ * 2. Propose - Generate choreography diagram and choreography design
  * 3. Generate - Create transformation artifacts
  * 4. Validate - Verify generated files for correctness
  * 5. Build - Prepare for deployment
@@ -558,31 +560,33 @@ Follow this 5-phase workflow with validation checkpoints at each stage.
 **Entry Criteria:** Analysis complete, user ready to design choreography
 
 **Actions:**
-1. **Generate Sequence Diagram**
-   - Create Mermaid diagram showing service interactions
-   - Include all participants, request/response flows, event emissions
+1. **Generate Choreography Diagram (mermaid flowchart)**
+   - Create Mermaid flowchart diagram showing event flows between services
+   - Use format: \`flowchart LR\` with \`subgraph [Domain Name]\`
+   - Include all service participants and event flows
+   - Present diagram to user for visual review before proceeding
+   - Reference pattern from examples/domains/README.md
 
 2. **Design Choreography**
    - Create choreography.yaml structure with flows, participants, events
    - Propose transformation file paths following naming convention
 
 3. **Present Design**
-   - Show Mermaid diagram
+   - Show Mermaid flowchart diagram for user review
    - Show choreography.yaml proposal
    - List transformation files to be created
+   - Add the choreography diagram to the workspace README.md file
+   - Wait for user confirmation before proceeding to Generate phase
 
-**Mermaid Diagram Template:**
+**Choreography Diagram Template:**
 \`\`\`mermaid
-sequenceDiagram
-    participant OrderService as order-service
-    participant FulfillmentService as fulfillment-service
-    participant PaymentService as payment-service
-
-    Note over OrderService: Order Created
-    OrderService->>FulfillmentService: order-created event
-    Note over FulfillmentService: Process Fulfillment
-    FulfillmentService->>PaymentService: fulfillment-completed event
-    Note over PaymentService: Payment Processing
+flowchart LR
+    subgraph Order Fulfillment Flow
+        OS[order-service] -->|order-created| FS[fulfillment-service]
+        FS -->|fulfillment-completed| PS[payment-service]
+        PS -->|payment-processed| OS
+        OS -->|order-confirmed| END((done))
+    end
 \`\`\`
 
 **Choreography Schema:**
@@ -707,8 +711,9 @@ Do you want me to proceed with generating the choreographies? (yes/no/feedback)
 
 **Actions:**
 1. **Suggest Build Commands**
-   - Dry-run validation: \`spas-compose choreography build --dry-run\`
-   - Docker build: \`spas-compose choreography build --docker\`
+   - Dry-run validation: \`spas-compose choreography build --docker --dry-run\`
+   - Docker dev build: \`spas-compose choreography build --docker --dev\`
+   - Docker prod build: \`spas-compose choreography build --docker\`
    - Local run: \`docker compose up\`
 
 2. **Next Steps Guidance**
@@ -721,8 +726,9 @@ Do you want me to proceed with generating the choreographies? (yes/no/feedback)
 ✓ Choreography complete
 
 Next steps:
-  • Validate: spas-compose choreography build --dry-run
-  • Build: spas-compose choreography build --docker  
+  • Validate: spas-compose choreography build --docker --dry-run
+  • Dev build: spas-compose choreography build --docker --dev
+  • Prod build: spas-compose choreography build --docker
   • Run: docker compose up
   • Monitor: docker compose logs -f spas-sidecar-{service}
 \`\`\`
@@ -1310,6 +1316,255 @@ export function generateChoreographySchema(): string {
           },
         },
       ],
+    },
+    null,
+    2,
+  );
+}
+
+/**
+ * Generate runtime metadata schema (runtime-metadata-v1.schema.json)
+ *
+ * Returns the complete JSON Schema for SPAS runtime service metadata.
+ * This schema defines the structure of metadata with design-time fields
+ * enriched with runtime deployment information.
+ *
+ * @returns JSON Schema as formatted string
+ */
+export function generateRuntimeMetadataSchema(): string {
+  return JSON.stringify(
+    {
+      $schema: "http://json-schema.org/draft-07/schema#",
+      $id: "https://spas.io/schemas/runtime-metadata-v1.schema.json",
+      title: "SPAS Runtime Metadata",
+      description:
+        "Schema for SPAS runtime service metadata - Repository output with design-time metadata enriched with runtime deployment fields",
+      type: "object",
+      required: ["schemaVersion", "id", "name", "version", "boundedContext"],
+      properties: {
+        schemaVersion: {
+          type: "string",
+          const: "runtime-metadata-v1",
+          description: "Schema version identifier for runtime metadata",
+        },
+        id: {
+          type: "string",
+          description: "Unique service identifier (kebab-case recommended)",
+        },
+        name: {
+          type: "string",
+          description: "Human-readable service name",
+        },
+        description: {
+          type: "string",
+          description: "Service description",
+        },
+        version: {
+          type: "string",
+          pattern: "^\\d+\\.\\d+\\.\\d+(-[a-zA-Z0-9.-]+)?$",
+          description: "Service version (semver)",
+        },
+        boundedContext: {
+          type: "string",
+          description: "Domain bounded context (e.g., Payments, Orders)",
+        },
+        capabilities: {
+          type: "array",
+          items: {
+            type: "string",
+          },
+          description: "List of service capabilities",
+        },
+        endpoints: {
+          type: "array",
+          items: {
+            type: "object",
+            required: ["name", "type", "protocol", "methodPath", "version", "schemaRef"],
+            properties: {
+              name: {
+                type: "string",
+                description: "Endpoint name",
+              },
+              type: {
+                type: "string",
+                enum: ["Command", "Query"],
+                description: "Endpoint type: Command (write) or Query (read)",
+              },
+              protocol: {
+                type: "string",
+                enum: ["Http", "Grpc"],
+                description: "Communication protocol",
+              },
+              methodPath: {
+                type: "string",
+                description:
+                  "HTTP method and path (e.g., POST /api/orders) or gRPC method",
+              },
+              version: {
+                type: "string",
+                description: "Endpoint version",
+              },
+              schemaRef: {
+                type: "string",
+                format: "uri-reference",
+                description:
+                  "Relative or absolute URI reference to endpoint schema (e.g., schemas/create-order.schema.json)",
+              },
+            },
+          },
+          description: "Service endpoints (commands and queries)",
+        },
+        events: {
+          type: "array",
+          items: {
+            type: "object",
+            required: ["type", "version", "schemaRef"],
+            properties: {
+              type: {
+                type: "string",
+                description: "Event type identifier (e.g., OrderCreated)",
+              },
+              version: {
+                type: "string",
+                description: "Event schema version",
+              },
+              schemaRef: {
+                type: "string",
+                format: "uri-reference",
+                description: "Relative or absolute URI reference to event schema",
+              },
+            },
+          },
+          description: "Events published by this service (outbound only)",
+        },
+        consistency: {
+          type: "object",
+          properties: {
+            commands: {
+              type: "string",
+              enum: ["ACID", "EVENTUAL"],
+              description: "Consistency guarantee for command endpoints",
+            },
+            queries: {
+              type: "string",
+              enum: ["STRONG", "EVENTUAL"],
+              description: "Consistency guarantee for query endpoints",
+            },
+          },
+          description: "Consistency guarantees",
+        },
+        network: {
+          type: "object",
+          properties: {
+            requiredEgress: {
+              type: "array",
+              items: {
+                type: "string",
+              },
+              description:
+                "Required outbound network dependencies (hostnames or service IDs)",
+            },
+          },
+          description: "Network requirements",
+        },
+        security: {
+          type: "object",
+          required: ["dataClassification"],
+          properties: {
+            authentication: {
+              type: "object",
+              properties: {
+                type: {
+                  type: "string",
+                  enum: ["OAuth2", "JWT", "ApiKey", "mTLS", "None"],
+                  description: "Authentication mechanism",
+                },
+                requiredScopes: {
+                  type: "array",
+                  items: {
+                    type: "string",
+                  },
+                  description: "Required OAuth2/OIDC scopes",
+                },
+              },
+              description: "Authentication configuration (optional)",
+            },
+            dataClassification: {
+              type: "array",
+              items: {
+                type: "string",
+                enum: ["Public", "Internal", "Confidential", "Restricted"],
+              },
+              minItems: 1,
+              description:
+                "Data classification levels handled by this service",
+            },
+          },
+          description: "Security metadata",
+        },
+        license: {
+          type: "string",
+          description: "License identifier (e.g., MIT, Apache-2.0)",
+        },
+        runtime: {
+          type: "object",
+          description:
+            "Runtime deployment metadata - added by Repository at publish time",
+          properties: {
+            image: {
+              type: "string",
+              description:
+                "Full OCI image reference with digest (e.g., ghcr.io/org/service@sha256:abc123...)",
+              pattern: "^[a-zA-Z0-9][a-zA-Z0-9._/-]*@sha256:[a-fA-F0-9]{64}$",
+            },
+            repository: {
+              type: "string",
+              description: "OCI image repository (e.g., ghcr.io/org/service)",
+              pattern: "^[a-zA-Z0-9][a-zA-Z0-9._/-]*$",
+            },
+            tag: {
+              type: "string",
+              description: "Image tag (e.g., 1.0.0, latest)",
+            },
+            digest: {
+              type: "string",
+              description:
+                "SHA256 digest of the container image (e.g., sha256:abc123...)",
+              pattern: "^sha256:[a-fA-F0-9]{64}$",
+            },
+            resources: {
+              type: "object",
+              description: "Resource requirements (optional)",
+              properties: {
+                cpu: {
+                  type: "string",
+                  description: "CPU requirement (e.g., 100m, 2)",
+                  pattern: "^\\d+m?$",
+                },
+                memory: {
+                  type: "string",
+                  description: "Memory requirement (e.g., 128Mi, 2Gi)",
+                  pattern: "^\\d+(Mi|Gi|M|G)$",
+                },
+              },
+            },
+            env: {
+              type: "array",
+              items: {
+                type: "string",
+              },
+              description:
+                "Environment variable names required (values not stored for security)",
+            },
+          },
+        },
+        publishedAt: {
+          type: "string",
+          format: "date-time",
+          description:
+            "ISO 8601 timestamp when the service was published to the repository",
+        },
+      },
     },
     null,
     2,

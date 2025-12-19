@@ -140,21 +140,21 @@ components/sdk/java/           # Multi-module Maven project root
 
 ### Builders for US3
 
-- [ ] T047 [P] [US3] Implement ServiceIdentityBuilder in components/sdk/java/spas-sdk-metadata/src/main/java/io/spas/sdk/metadata/builders/ServiceIdentityBuilder.java
-- [ ] T048 [P] [US3] Implement SecurityBuilder in components/sdk/java/spas-sdk-metadata/src/main/java/io/spas/sdk/metadata/builders/SecurityBuilder.java
-- [ ] T049 [P] [US3] Implement ConsistencyBuilder in components/sdk/java/spas-sdk-metadata/src/main/java/io/spas/sdk/metadata/builders/ConsistencyBuilder.java
-- [ ] T050 [P] [US3] Implement NetworkBuilder in components/sdk/java/spas-sdk-metadata/src/main/java/io/spas/sdk/metadata/builders/NetworkBuilder.java
-- [ ] T051 [US3] Implement MetadataComposer in components/sdk/java/spas-sdk-metadata/src/main/java/io/spas/sdk/metadata/composer/MetadataComposer.java
+- [X] T047 [P] [US3] Implement ServiceIdentityBuilder in components/sdk/java/spas-sdk-metadata/src/main/java/io/spas/sdk/metadata/builders/ServiceIdentityBuilder.java
+- [X] T048 [P] [US3] Implement SecurityBuilder in components/sdk/java/spas-sdk-metadata/src/main/java/io/spas/sdk/metadata/builders/SecurityBuilder.java
+- [X] T049 [P] [US3] Implement ConsistencyBuilder in components/sdk/java/spas-sdk-metadata/src/main/java/io/spas/sdk/metadata/builders/ConsistencyBuilder.java
+- [X] T050 [P] [US3] Implement NetworkBuilder in components/sdk/java/spas-sdk-metadata/src/main/java/io/spas/sdk/metadata/builders/NetworkBuilder.java
+- [X] T051 [US3] Implement MetadataComposer in components/sdk/java/spas-sdk-metadata/src/main/java/io/spas/sdk/metadata/composer/MetadataComposer.java
 
 ### Unit Tests for US3
 
-- [ ] T052 [P] [US3] Add unit tests for ServiceIdentityBuilder in components/sdk/java/spas-sdk-metadata/src/test/java/io/spas/sdk/metadata/builders/ServiceIdentityBuilderTest.java
-- [ ] T053 [P] [US3] Add unit tests for SecurityBuilder in components/sdk/java/spas-sdk-metadata/src/test/java/io/spas/sdk/metadata/builders/SecurityBuilderTest.java
-- [ ] T054 [P] [US3] Add unit tests for ConsistencyBuilder in components/sdk/java/spas-sdk-metadata/src/test/java/io/spas/sdk/metadata/builders/ConsistencyBuilderTest.java
-- [ ] T055 [P] [US3] Add unit tests for NetworkBuilder in components/sdk/java/spas-sdk-metadata/src/test/java/io/spas/sdk/metadata/builders/NetworkBuilderTest.java
-- [ ] T056 [US3] Add unit tests for MetadataComposer in components/sdk/java/spas-sdk-metadata/src/test/java/io/spas/sdk/metadata/composer/MetadataComposerTest.java
+- [X] T052 [P] [US3] Add unit tests for ServiceIdentityBuilder in components/sdk/java/spas-sdk-metadata/src/test/java/io/spas/sdk/metadata/builders/ServiceIdentityBuilderTest.java
+- [X] T053 [P] [US3] Add unit tests for SecurityBuilder in components/sdk/java/spas-sdk-metadata/src/test/java/io/spas/sdk/metadata/builders/SecurityBuilderTest.java
+- [X] T054 [P] [US3] Add unit tests for ConsistencyBuilder in components/sdk/java/spas-sdk-metadata/src/test/java/io/spas/sdk/metadata/builders/ConsistencyBuilderTest.java
+- [X] T055 [P] [US3] Add unit tests for NetworkBuilder in components/sdk/java/spas-sdk-metadata/src/test/java/io/spas/sdk/metadata/builders/NetworkBuilderTest.java
+- [X] T056 [US3] Add unit tests for MetadataComposer in components/sdk/java/spas-sdk-metadata/src/test/java/io/spas/sdk/metadata/composer/MetadataComposerTest.java
 
-**Checkpoint**: Fluent builders working. Programmatic metadata composition available.
+**Checkpoint**: Fluent builders working. Programmatic metadata composition available. ✅
 
 ---
 

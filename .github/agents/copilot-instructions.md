@@ -254,6 +254,8 @@ Auto-generated from all feature plans. Last updated: 2025-12-12
 - File system operations (generate/write schema and documentation files) (014-compose-init-fixes)
 - TypeScript 5.9.3, Node.js ES2022 target + Fastify 5.6.2, better-sqlite3 12.5.0, ajv 8.17.1 for validation (015-repository-service-fixes)
 - SQLite database with existing schema, no migrations required (015-repository-service-fixes)
+- Java 17+ (user has Java 21) + Jackson (JSON), java.net.http.HttpClient, Spring Boot 3.x (optional integration) (016-java-spas-sdk)
+- N/A (SDK generates files, no runtime storage) (016-java-spas-sdk)
 
 - .NET 10 (target net10.0); Microsoft.Extensions.Logging; System.Text.Json (001-dotnet-spas-sdk)
 

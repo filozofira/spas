@@ -11,6 +11,7 @@
 
 - Q: When EventPublisher fails to reach the sidecar, what should the SDK's default behavior be? → A: Throw immediately (no retry) - application decides retry policy
 - Q: When SERVICE_NAME environment variable is not set and cannot be derived, what should the SDK do? → A: Fail fast at startup with clear error message requiring explicit configuration
+- Q: Is Spring Boot required for the Java SDK? → A: No. Core modules are framework-agnostic; `spas-sdk-spring` is an optional integration module. README must clearly state this.
 
 ## Overview
 

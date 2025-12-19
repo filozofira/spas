@@ -564,7 +564,7 @@ Follow this 5-phase workflow with validation checkpoints at each stage.
    - Create Mermaid flowchart diagram showing event flows between services
    - Use format: \`flowchart LR\` with \`subgraph [Domain Name]\`
    - Include all service participants and event flows
-   - Add the choreography diagram to the workspace README.md file
+   - Present diagram to user for visual review before proceeding
    - Reference pattern from examples/domains/README.md
 
 2. **Design Choreography**
@@ -572,9 +572,11 @@ Follow this 5-phase workflow with validation checkpoints at each stage.
    - Propose transformation file paths following naming convention
 
 3. **Present Design**
-   - Show Mermaid flowchart diagram
+   - Show Mermaid flowchart diagram for user review
    - Show choreography.yaml proposal
    - List transformation files to be created
+   - Add the choreography diagram to the workspace README.md file
+   - Wait for user confirmation before proceeding to Generate phase
 
 **Choreography Diagram Template:**
 \`\`\`mermaid

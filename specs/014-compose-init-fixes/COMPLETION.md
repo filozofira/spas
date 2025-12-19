@@ -121,6 +121,17 @@ README Structure section now correctly lists all three schemas:
 - Schema generation is now fully portable - works in any project, not just SPAS repository
 - All four bugs can be verified independently
 
+### Additional Fix: Diagram Timing in Phase 2
+
+**Issue**: The agent prompt originally instructed to add the mermaid diagram to README.md in step 1 (Generate Choreography Diagram), before the user could visually review it.
+
+**Fix**: Moved "Add the choreography diagram to the workspace README.md file" from step 1 to step 3 (Present Design), so the workflow is now:
+1. **Step 1**: Create diagram and present for visual review
+2. **Step 2**: Design choreography.yaml structure  
+3. **Step 3**: Show all designs, add diagram to README, wait for user confirmation
+
+This allows users to visually assess the choreography flow before confirming and proceeding to Phase 3 (Generate).
+
 ---
 
 ## Rollback

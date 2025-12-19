@@ -148,9 +148,9 @@ public class SpasProperties {
         /**
          * Restrict metadata endpoint to specific environment.
          * Set to "*" to allow all environments.
-         * Default: null (all environments allowed)
+         * Default: development (dev-only)
          */
-        private String allowedEnvironment;
+        private String allowedEnvironment = "development";
         
         /**
          * Path for the metadata endpoint.

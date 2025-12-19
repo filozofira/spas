@@ -12,8 +12,8 @@ import java.time.Instant;
  */
 @SpasEvent(
     type = "ShipmentStatusChanged",
-    version = "1.0.0",
-    schemaRef = "schemas/shipment-status-changed.json"
+    version = "1.0.0"
+    // Auto-generates: schemas/events/shipment-status-changed.schema.json
 )
 public class ShipmentStatusChangedEvent {
     

@@ -107,7 +107,7 @@ class MetadataComposerTest {
     }
     
     @Test
-    void composeJson_shouldSerializeToJsonWithKebabCase() {
+    void composeJson_shouldSerializeToJsonWithCamelCase() {
         var identity = ServiceIdentityBuilder.create()
             .withId("test-service")
             .withName("Test Service")
@@ -119,13 +119,13 @@ class MetadataComposerTest {
             .withIdentity(identity)
             .composeJson();
         
-        assertTrue(json.contains("\"schema-version\""));
+        assertTrue(json.contains("\"schemaVersion\""));
         assertTrue(json.contains("\"test-service\""));
         assertTrue(json.contains("\"Test Service\""));
         assertTrue(json.contains("\"1.0.0\""));
-        assertTrue(json.contains("\"bounded-context\""));
-        assertFalse(json.contains("schemaVersion"));  // Should be kebab-case
-        assertFalse(json.contains("boundedContext"));  // Should be kebab-case
+        assertTrue(json.contains("\"boundedContext\""));
+        assertFalse(json.contains("schema-version"));  // Should be camelCase
+        assertFalse(json.contains("bounded-context"));  // Should be camelCase
     }
     
     @Test

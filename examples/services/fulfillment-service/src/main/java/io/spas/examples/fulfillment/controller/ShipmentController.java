@@ -33,8 +33,8 @@ public class ShipmentController {
     @SpasCommand(
         name = "CreateShipment",
         version = "1.0.0",
-        methodPath = "POST /shipments",
-        schemaRef = "schemas/create-shipment-request.json"
+        path = "/shipments"
+        // Auto-generates: schemas/endpoints/create-shipment.schema.json
     )
     @PostMapping
     public ResponseEntity<ShipmentResponse> createShipment(@RequestBody CreateShipmentRequest request) {

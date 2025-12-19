@@ -13,8 +13,8 @@ import java.time.Instant;
  */
 @SpasEvent(
     type = "ShipmentCreated",
-    version = "1.0.0",
-    schemaRef = "schemas/shipment-created.json"
+    version = "1.0.0"
+    // Auto-generates: schemas/events/shipment-created.schema.json
 )
 public class ShipmentCreatedEvent {
     

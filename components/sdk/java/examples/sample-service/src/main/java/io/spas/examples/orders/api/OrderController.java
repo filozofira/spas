@@ -23,7 +23,8 @@ import java.util.concurrent.ConcurrentHashMap;
  * - No state changes
  * - Generate endpoint contracts in spas.json
  * 
- * The annotation processor extracts metadata at compile-time and generates spas.json.
+ * The /_spas/metadata endpoint generates spas.json at runtime.
+ * (Compile-time generation is optional and disabled by default.)
  * The EventPublisher automatically propagates trace context (traceparent) and identity
  * context (x-user-id, x-tenant-id, x-correlation-id) to the sidecar.
  */
@@ -45,14 +46,13 @@ public class OrderController {
      * - name: "CreateOrder"
      * - type: "command"
      * - protocol: "http"
-     * - method-path: "POST /api/orders"
+     * - methodPath: "/api/orders"
      * - version: "1.0"
      */
     @SpasCommand(
         name = "CreateOrder",
         version = "1.0",
-        methodPath = "POST /api/orders",
-        schemaRef = "#/components/schemas/CreateOrderRequest"
+        path = "/api/orders"
     )
     @PostMapping
     public OrderResponse createOrder(@RequestBody CreateOrderRequest request) {
@@ -87,14 +87,13 @@ public class OrderController {
      * - name: "GetOrder"
      * - type: "query"
      * - protocol: "http"
-     * - method-path: "GET /api/orders/{orderId}"
+     * - methodPath: "/api/orders/{orderId}"
      * - version: "1.0"
      */
     @SpasQuery(
         name = "GetOrder",
         version = "1.0",
-        methodPath = "GET /api/orders/{orderId}",
-        schemaRef = "#/components/schemas/OrderResponse"
+        path = "/api/orders/{orderId}"
     )
     @GetMapping("/{orderId}")
     public OrderResponse getOrder(@PathVariable String orderId) {
@@ -112,14 +111,13 @@ public class OrderController {
      * - name: "ListOrders"
      * - type: "query"
      * - protocol: "http"
-     * - method-path: "GET /api/orders"
+     * - methodPath: "/api/orders"
      * - version: "1.0"
      */
     @SpasQuery(
         name = "ListOrders",
         version = "1.0",
-        methodPath = "GET /api/orders",
-        schemaRef = "#/components/schemas/OrderResponse"
+        path = "/api/orders"
     )
     @GetMapping
     public Iterable<OrderResponse> listOrders() {

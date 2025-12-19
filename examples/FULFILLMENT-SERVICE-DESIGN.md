@@ -532,8 +532,7 @@ public class Address {
 @SpasQuery(
     name = "GetShipment",
     version = "1.0",
-    type = EndpointType.Http,
-    methodPath = "GET /api/fulfillments/{id}"
+    path = "/api/fulfillments/{id}"
 )
 @GetMapping("/{id}")
 public ShipmentResponse getShipment(@PathVariable String id)
@@ -541,8 +540,7 @@ public ShipmentResponse getShipment(@PathVariable String id)
 @SpasQuery(
     name = "ListShipments",
     version = "1.0",
-    type = EndpointType.Http,
-    methodPath = "GET /api/fulfillments"
+    path = "/api/fulfillments"
 )
 @GetMapping
 public List<ShipmentResponse> listShipments()
@@ -550,8 +548,7 @@ public List<ShipmentResponse> listShipments()
 @SpasCommand(
     name = "CreateShipment",
     version = "1.0",
-    type = EndpointType.Http,
-    methodPath = "POST /api/fulfillments"
+    path = "/api/fulfillments"
 )
 @PostMapping
 public ShipmentResponse createShipment(@RequestBody CreateShipmentRequest request)
@@ -559,8 +556,7 @@ public ShipmentResponse createShipment(@RequestBody CreateShipmentRequest reques
 @SpasCommand(
     name = "UpdateShipmentStatus",
     version = "1.0",
-    type = EndpointType.Http,
-    methodPath = "POST /api/fulfillments/{id}/status"
+    path = "/api/fulfillments/{id}/status"
 )
 @PostMapping("/{id}/status")
 public ShipmentResponse updateShipmentStatus(@PathVariable String id, @RequestBody UpdateStatusRequest request)

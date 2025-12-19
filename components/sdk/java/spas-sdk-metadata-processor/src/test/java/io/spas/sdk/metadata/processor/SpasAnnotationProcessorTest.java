@@ -14,6 +14,13 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class SpasAnnotationProcessorTest {
 
+    private static Compilation compileWithGenerationEnabled(JavaFileObject... sources) {
+        return javac()
+            .withOptions("-Aspas.generateSpasJson=true")
+            .withProcessors(new SpasAnnotationProcessor())
+            .compile(sources);
+    }
+
     @Test
     void processor_shouldGenerateSpasJsonForServiceWithCommandsAndEvents() throws IOException {
         JavaFileObject serviceClass = JavaFileObjects.forSourceLines(
@@ -33,19 +40,21 @@ class SpasAnnotationProcessorTest {
             "    @SpasCommand(",
             "        name = \"CreateOrder\",",
             "        version = \"1.0.0\",",
-            "        methodPath = \"POST /api/orders\",",
-            "        schemaRef = \"schemas/create-order.json\"",
+            "        path = \"/api/orders\"",
             "    )",
-            "    public void createOrder() {}",
+            "    public CreateOrderResponse createOrder(CreateOrderRequest request) { return null; }",
             "",
             "    @SpasQuery(",
             "        name = \"GetOrder\",",
             "        version = \"1.0.0\",",
-            "        methodPath = \"GET /api/orders/{id}\",",
-            "        schemaRef = \"schemas/order.json\"",
+            "        path = \"/api/orders/{id}\"",
             "    )",
-            "    public void getOrder() {}",
-            "}"
+            "    public GetOrderResponse getOrder(String id) { return null; }",
+            "}",
+            "",
+            "class CreateOrderRequest {}",
+            "class CreateOrderResponse {}",
+            "class GetOrderResponse {}"
         );
 
         JavaFileObject eventClass = JavaFileObjects.forSourceLines(
@@ -56,17 +65,14 @@ class SpasAnnotationProcessorTest {
             "",
             "@SpasEvent(",
             "    type = \"OrderCreated\",",
-            "    version = \"1.0.0\",",
-            "    schemaRef = \"schemas/order-created.json\"",
+            "    version = \"1.0.0\"",
             ")",
             "public class OrderCreatedEvent {",
             "    private String orderId;",
             "}"
         );
 
-        Compilation compilation = javac()
-            .withProcessors(new SpasAnnotationProcessor())
-            .compile(serviceClass, eventClass);
+        Compilation compilation = compileWithGenerationEnabled(serviceClass, eventClass);
 
         assertThat(compilation).succeeded();
         
@@ -74,10 +80,13 @@ class SpasAnnotationProcessorTest {
             .orElseThrow(() -> new AssertionError("spas.json was not generated"));
         String spasJson2 = new String(spasJsonFile2.openInputStream().readAllBytes(), java.nio.charset.StandardCharsets.UTF_8);
         
-        assertTrue(spasJson2.contains("\"schema-version\" : \"design-time-metadata-v1\""));
+        assertTrue(spasJson2.contains("\"schemaVersion\" : \"design-time-metadata-v1\""));
         assertTrue(spasJson2.contains("\"id\" : \"sample-service\""));
-        assertTrue(spasJson2.contains("\"create-order\""));  // kebab-case conversion
-        assertTrue(spasJson2.contains("\"order-created\""));  // kebab-case conversion
+        assertTrue(spasJson2.contains("\"create-order\""));  // kebab-case name conversion
+        assertTrue(spasJson2.contains("\"order-created\""));  // kebab-case name conversion
+        assertTrue(spasJson2.contains("schemas/endpoints/create-order-request.schema.json"));
+        assertTrue(spasJson2.contains("schemas/endpoints/get-order-response.schema.json"));
+        assertTrue(spasJson2.contains("schemas/events/order-created-event.schema.json"));
     }
 
     @Test
@@ -92,16 +101,14 @@ class SpasAnnotationProcessorTest {
             "    @SpasCommand(",
             "        name = \"Test\",",
             "        version = \"1.0.0\",",
-            "        methodPath = \"POST /test\",",
+            "        path = \"/test\",",
             "        schemaRef = \"test.json\"",
             "    )",
             "    public void test() {}",
             "}"
         );
 
-        Compilation compilation = javac()
-            .withProcessors(new SpasAnnotationProcessor())
-            .compile(commandClass);
+        Compilation compilation = compileWithGenerationEnabled(commandClass);
 
         assertThat(compilation).succeeded();
         assertThat(compilation).hadWarningContaining("No @SpasService annotation found");
@@ -141,9 +148,7 @@ class SpasAnnotationProcessorTest {
             "public class Service2 {}"
         );
 
-        Compilation compilation = javac()
-            .withProcessors(new SpasAnnotationProcessor())
-            .compile(service1, service2);
+        Compilation compilation = compileWithGenerationEnabled(service1, service2);
 
         assertThat(compilation).failed();
         assertThat(compilation).hadErrorContaining("Multiple @SpasService annotations found");
@@ -167,9 +172,7 @@ class SpasAnnotationProcessorTest {
             "public class MinimalService {}"
         );
 
-        Compilation compilation = javac()
-            .withProcessors(new SpasAnnotationProcessor())
-            .compile(serviceClass);
+        Compilation compilation = compileWithGenerationEnabled(serviceClass);
 
         assertThat(compilation).succeeded();
         
@@ -199,7 +202,7 @@ class SpasAnnotationProcessorTest {
             "    @SpasCommand(",
             "        name = \"CreateOrderItem\",",  // Should become create-order-item
             "        version = \"1.0.0\",",
-            "        methodPath = \"POST /test\",",
+            "        path = \"/test\",",
             "        schemaRef = \"test.json\"",
             "    )",
             "    public void test() {}",
@@ -220,9 +223,7 @@ class SpasAnnotationProcessorTest {
             "public class HTTPRequestReceived {}"
         );
 
-        Compilation compilation = javac()
-            .withProcessors(new SpasAnnotationProcessor())
-            .compile(serviceClass, eventClass);
+        Compilation compilation = compileWithGenerationEnabled(serviceClass, eventClass);
 
         assertThat(compilation).succeeded();
         

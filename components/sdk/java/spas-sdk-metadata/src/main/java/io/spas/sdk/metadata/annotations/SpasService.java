@@ -11,7 +11,7 @@ import java.lang.annotation.Target;
  * Marks a class as a SPAS Service and provides service-level metadata.
  * <p>
  * This annotation should be placed on the main application class or a configuration class.
- * It is processed at compile-time to generate the service identity section of spas.json.
+ * It is used at runtime by the /_spas/metadata endpoint to generate spas.json.
  * <p>
  * Example:
  * <pre>{@code
@@ -32,7 +32,7 @@ import java.lang.annotation.Target;
  * }</pre>
  */
 @Target(ElementType.TYPE)
-@Retention(RetentionPolicy.SOURCE)
+@Retention(RetentionPolicy.RUNTIME)
 public @interface SpasService {
     /**
      * Service identifier (kebab-case recommended).

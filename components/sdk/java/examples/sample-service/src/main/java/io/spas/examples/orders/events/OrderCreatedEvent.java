@@ -8,15 +8,14 @@ import java.math.BigDecimal;
  * Domain event published when a new order is created.
  * Annotated with @SpasEvent to generate event contract in spas.json.
  * 
- * The annotation processor will:
- * - Extract event name: "OrderCreated"
- * - Generate schema reference: "#/components/schemas/OrderCreatedEvent"
- * - Add to events array in spas.json
+ * The SDK will:
+ * - Extract event type: "OrderCreated" (written as kebab-case in metadata)
+ * - Auto-generate schemaRef when omitted: "schemas/events/order-created.schema.json"
+ * - Include the event contract in spas.json
  */
 @SpasEvent(
     type = "OrderCreated",
-    version = "1.0",
-    schemaRef = "#/components/schemas/OrderCreatedEvent"
+    version = "1.0"
 )
 public record OrderCreatedEvent(
     String orderId,

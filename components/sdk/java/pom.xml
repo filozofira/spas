@@ -44,6 +44,7 @@
         <mockito.version>5.11.0</mockito.version>
         <wiremock.version>3.5.4</wiremock.version>
         <compile-testing.version>0.21.0</compile-testing.version>
+        <jsonschema-generator.version>4.35.0</jsonschema-generator.version>
         
         <!-- Plugin versions -->
         <maven-compiler-plugin.version>3.12.1</maven-compiler-plugin.version>
@@ -142,6 +143,18 @@
                 <artifactId>compile-testing</artifactId>
                 <version>${compile-testing.version}</version>
                 <scope>test</scope>
+            </dependency>
+
+            <!-- JSON Schema generation -->
+            <dependency>
+                <groupId>com.github.victools</groupId>
+                <artifactId>jsonschema-generator</artifactId>
+                <version>${jsonschema-generator.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.github.victools</groupId>
+                <artifactId>jsonschema-module-jackson</artifactId>
+                <version>${jsonschema-generator.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

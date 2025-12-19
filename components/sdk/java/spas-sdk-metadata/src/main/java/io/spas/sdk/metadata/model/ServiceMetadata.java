@@ -1,7 +1,5 @@
 package io.spas.sdk.metadata.model;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-
 import java.util.List;
 
 /**
@@ -23,12 +21,12 @@ import java.util.List;
  * @param license License identifier (e.g., "MIT", "Apache-2.0")
  */
 public record ServiceMetadata(
-    @JsonProperty("schema-version") String schemaVersion,
+    String schemaVersion,
     String id,
     String name,
     String description,
     String version,
-    @JsonProperty("bounded-context") String boundedContext,
+    String boundedContext,
     List<String> capabilities,
     List<EndpointContract> endpoints,
     List<EventContract> events,

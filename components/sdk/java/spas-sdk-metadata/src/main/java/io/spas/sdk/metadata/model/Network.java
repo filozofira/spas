@@ -1,7 +1,5 @@
 package io.spas.sdk.metadata.model;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-
 import java.util.List;
 
 /**
@@ -10,6 +8,6 @@ import java.util.List;
  * @param requiredEgress List of required outbound network dependencies
  */
 public record Network(
-    @JsonProperty("required-egress") List<String> requiredEgress
+    List<String> requiredEgress
 ) {
 }

@@ -11,27 +11,35 @@ import java.lang.annotation.Target;
  * Marks a method as a SPAS Command endpoint (write operation).
  * <p>
  * Commands are operations that modify state and should be idempotent where possible.
- * This annotation is processed at compile-time to generate endpoint metadata.
+ * This annotation is used at runtime by the /_spas/metadata endpoint to generate endpoint metadata.
  * <p>
- * Example:
+ * Example with explicit schemaRef:
  * <pre>{@code
  * @SpasCommand(
  *     name = "CreateOrder",
  *     version = "1.0.0",
- *     methodPath = "POST /api/orders",
- *     schemaRef = "schemas/create-order.json",
- *     consistency = ConsistencyLevel.ACID
+ *     path = "/api/orders",
+ *     schemaRef = "schemas/endpoints/create-order.schema.json"
  * )
- * public OrderResponse createOrder(CreateOrderRequest request) {
- *     // ...
- * }
+ * public OrderResponse createOrder(CreateOrderRequest request) { ... }
+ * }</pre>
+ * <p>
+ * Example with auto-generated schemaRef (recommended):
+ * <pre>{@code
+ * @SpasCommand(
+ *     name = "CreateOrder",
+ *     version = "1.0.0",
+ *     path = "/api/orders"
+ * )
+ * public OrderResponse createOrder(CreateOrderRequest request) { ... }
+ * // Auto-generates: schemas/endpoints/create-order.schema.json
  * }</pre>
  */
 @Target(ElementType.METHOD)
-@Retention(RetentionPolicy.SOURCE)
+@Retention(RetentionPolicy.RUNTIME)
 public @interface SpasCommand {
     /**
-     * Command name (will be converted to kebab-case in metadata).
+     * Command name (will be converted to kebab-case in metadata and schema path).
      */
     String name();
     
@@ -41,14 +49,16 @@ public @interface SpasCommand {
     String version();
     
     /**
-     * HTTP method and path (e.g., "POST /api/orders") or gRPC method path.
+     * HTTP route path (e.g., "/api/orders") or gRPC method path.
+     * Do not include HTTP verb - use the appropriate HTTP mapping annotation instead.
      */
-    String methodPath();
+    String path();
     
     /**
      * URI reference to request/response schema.
+     * If empty (default), auto-generates as: schemas/endpoints/{kebab-case-name}.schema.json
      */
-    String schemaRef();
+    String schemaRef() default "";
     
     /**
      * Consistency level for this command (default: ACID).

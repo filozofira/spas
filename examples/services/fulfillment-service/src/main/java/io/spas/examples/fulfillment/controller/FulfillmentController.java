@@ -38,8 +38,8 @@ public class FulfillmentController {
     @SpasQuery(
         name = "GetShipment",
         version = "1.0.0",
-        methodPath = "GET /api/fulfillments/{id}",
-        schemaRef = "schemas/shipment.json"
+        path = "/api/fulfillments/{id}"
+        // Auto-generates: schemas/endpoints/get-shipment.schema.json
     )
     @GetMapping("/{id}")
     public ResponseEntity<ShipmentResponse> getShipment(@PathVariable String id) {
@@ -56,8 +56,8 @@ public class FulfillmentController {
     @SpasQuery(
         name = "ListShipments",
         version = "1.0.0",
-        methodPath = "GET /api/fulfillments",
-        schemaRef = "schemas/shipment-list.json"
+        path = "/api/fulfillments"
+        // Auto-generates: schemas/endpoints/list-shipments.schema.json
     )
     @GetMapping
     public ResponseEntity<List<ShipmentResponse>> listShipments() {
@@ -77,8 +77,8 @@ public class FulfillmentController {
     @SpasCommand(
         name = "UpdateShipmentStatus",
         version = "1.0.0",
-        methodPath = "POST /api/fulfillments/{id}/status",
-        schemaRef = "schemas/update-status-request.json"
+        path = "/api/fulfillments/{id}/status"
+        // Auto-generates: schemas/endpoints/update-shipment-status.schema.json
     )
     @PostMapping("/{id}/status")
     public ResponseEntity<ShipmentResponse> updateShipmentStatus(
@@ -106,8 +106,8 @@ public class FulfillmentController {
     @SpasQuery(
         name = "GetShipmentByOrderId",
         version = "1.0.0",
-        methodPath = "GET /api/fulfillments/by-order/{orderId}",
-        schemaRef = "schemas/shipment.json"
+        path = "/api/fulfillments/by-order/{orderId}"
+        // Auto-generates: schemas/endpoints/get-shipment-by-order-id.schema.json
     )
     @GetMapping("/by-order/{orderId}")
     public ResponseEntity<ShipmentResponse> getShipmentByOrderId(@PathVariable String orderId) {

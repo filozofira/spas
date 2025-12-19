@@ -5,6 +5,13 @@ import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 class SpasMetadataControllerTest {
@@ -22,22 +29,29 @@ class SpasMetadataControllerTest {
     void getMetadata_whenDisabled_returns404() {
         properties.getMetadata().setEnabled(false);
 
-        ResponseEntity<String> response = controller.getMetadata();
+        ResponseEntity<byte[]> response = controller.getMetadata();
 
         assertEquals(HttpStatus.NOT_FOUND.value(), response.getStatusCode().value());
-        assertTrue(response.getBody().contains("Metadata endpoint is disabled"));
+        String body = new String(response.getBody());
+        assertTrue(body.contains("Metadata endpoint is disabled"));
     }
 
     @Test
-    void getMetadata_whenEnabled_andNoSpasJson_returns404WithHint() {
-        // spas.json won't exist in test classpath
+    void getMetadata_whenEnabled_andServicePresent_returnsZip() throws IOException {
         properties.getMetadata().setEnabled(true);
+        properties.getMetadata().setAllowedEnvironment("*");
 
-        ResponseEntity<String> response = controller.getMetadata();
+        ResponseEntity<byte[]> response = controller.getMetadata();
 
-        assertEquals(HttpStatus.NOT_FOUND.value(), response.getStatusCode().value());
-        assertTrue(response.getBody().contains("spas.json not found"));
-        assertTrue(response.getBody().contains("@SpasService"));
+        assertEquals(HttpStatus.OK.value(), response.getStatusCode().value());
+        assertEquals("application/zip", response.getHeaders().getContentType().toString());
+        assertNotNull(response.getBody());
+
+        Set<String> entries = listZipEntries(response.getBody());
+        assertTrue(entries.contains("spas.json"));
+        assertTrue(entries.contains("schemas/endpoints/sample-request.schema.json"));
+        assertTrue(entries.contains("schemas/endpoints/sample-response.schema.json"));
+        assertTrue(entries.contains("schemas/events/sample-event.schema.json"));
     }
 
     @Test
@@ -46,10 +60,11 @@ class SpasMetadataControllerTest {
         properties.getMetadata().setAllowedEnvironment("production");
         
         // Test environment won't be "production"
-        ResponseEntity<String> response = controller.getMetadata();
+        ResponseEntity<byte[]> response = controller.getMetadata();
 
         assertEquals(HttpStatus.NOT_FOUND.value(), response.getStatusCode().value());
-        assertTrue(response.getBody().contains("not available in this environment"));
+        String body = new String(response.getBody());
+        assertTrue(body.contains("not available in this environment"));
     }
 
     @Test
@@ -57,12 +72,8 @@ class SpasMetadataControllerTest {
         properties.getMetadata().setEnabled(true);
         properties.getMetadata().setAllowedEnvironment("*");
 
-        ResponseEntity<String> response = controller.getMetadata();
-
-        // Will be 404 because spas.json doesn't exist in test classpath,
-        // but proves environment check passed
-        assertEquals(HttpStatus.NOT_FOUND.value(), response.getStatusCode().value());
-        assertTrue(response.getBody().contains("spas.json not found"));
+        ResponseEntity<byte[]> response = controller.getMetadata();
+        assertEquals(HttpStatus.OK.value(), response.getStatusCode().value());
     }
 
     @Test
@@ -70,7 +81,19 @@ class SpasMetadataControllerTest {
         SpasProperties.Metadata metadata = new SpasProperties.Metadata();
         
         assertTrue(metadata.isEnabled());
-        assertNull(metadata.getAllowedEnvironment());
+        assertEquals("development", metadata.getAllowedEnvironment());
         assertEquals("/_spas/metadata", metadata.getPath());
+    }
+
+    private static Set<String> listZipEntries(byte[] zipBytes) throws IOException {
+        Set<String> entries = new HashSet<>();
+        try (ZipInputStream zis = new ZipInputStream(new ByteArrayInputStream(zipBytes))) {
+            ZipEntry entry;
+            while ((entry = zis.getNextEntry()) != null) {
+                entries.add(entry.getName());
+                zis.closeEntry();
+            }
+        }
+        return entries;
     }
 }

@@ -1,7 +1,5 @@
 package io.spas.sdk.metadata.model;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-
 import java.util.List;
 
 /**
@@ -12,6 +10,6 @@ import java.util.List;
  */
 public record Authentication(
     AuthType type,
-    @JsonProperty("required-scopes") List<String> requiredScopes
+    List<String> requiredScopes
 ) {
 }

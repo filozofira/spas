@@ -154,7 +154,20 @@ describe('GET /services/* Integration', () => {
       expect(response.data).toHaveProperty('endpoints');
       expect(response.data).toHaveProperty('events');
     });
+    // User Story 2 - Schema Version Fix Integration Test
+    it('should return runtime metadata schema version for retrieved service', async () => {
+      const response = await axios.get(`${baseURL}/services/test-service/versions/1.0.0`, {
+        validateStatus: () => true,
+      });
 
+      expect(response.status).toBe(200);
+      expect(response.data).toHaveProperty('id', 'test-service');
+      expect(response.data).toHaveProperty('version', '1.0.0');
+      
+      // This test verifies the schema version transformation from design-time to runtime
+      // The schema version should now be transformed to 'runtime-metadata-v1'
+      expect(response.data.schemaVersion).toBe('runtime-metadata-v1');
+    });
     it('should return 404 for non-existent version', async () => {
       const response = await axios.get(`${baseURL}/services/test-service/versions/9.9.9`, {
         validateStatus: () => true,

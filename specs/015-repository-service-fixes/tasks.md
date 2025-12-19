@@ -35,9 +35,9 @@ This feature enhances an existing TypeScript/Fastify service. No new project str
 
 **Purpose**: Add storage layer support for getAllServices that both user stories depend on
 
-- [ ] T001 Add `getAllServices()` method to IStorageProvider interface in src/storage/IStorageProvider.ts
-- [ ] T002 Implement `getAllServices()` in SqliteStorageProvider in src/storage/SqliteStorageProvider.ts
-- [ ] T003 [P] Implement `getAllServices()` stub in PostgresS3StorageProvider in src/storage/PostgresS3StorageProvider.ts
+- [x] T001 Add `getAllServices()` method to IStorageProvider interface in src/storage/IStorageProvider.ts
+- [x] T002 Implement `getAllServices()` in SqliteStorageProvider in src/storage/SqliteStorageProvider.ts
+- [x] T003 [P] Implement `getAllServices()` stub in PostgresS3StorageProvider in src/storage/PostgresS3StorageProvider.ts
 
 **Checkpoint**: Storage layer ready - user story implementation can begin
 
@@ -51,14 +51,14 @@ This feature enhances an existing TypeScript/Fastify service. No new project str
 
 ### Tests for User Story 1
 
-- [ ] T004 [P] [US1] Add unit tests for SearchService.getAllServices() in test/unit/services/SearchService.test.ts
-- [ ] T005 [P] [US1] Add integration tests for unfiltered GET /services endpoint in test/integration/search.test.ts
+- [x] T004 [P] [US1] Add unit tests for SearchService.getAllServices() in test/unit/services/SearchService.test.ts
+- [x] T005 [P] [US1] Add integration tests for unfiltered GET /services endpoint in test/integration/search.test.ts
 
 ### Implementation for User Story 1
 
-- [ ] T006 [US1] Add `getAllServices()` method to SearchService in src/services/SearchService.ts
-- [ ] T007 [US1] Modify search route handler to call getAllServices() when no filters provided in src/routes/search.ts
-- [ ] T008 [US1] Update error handling to allow empty query parameters in src/routes/search.ts
+- [x] T006 [US1] Add `getAllServices()` method to SearchService in src/services/SearchService.ts
+- [x] T007 [US1] Modify search route handler to call getAllServices() when no filters provided in src/routes/search.ts
+- [x] T008 [US1] Update error handling to allow empty query parameters in src/routes/search.ts
 
 **Checkpoint**: User Story 1 complete - unfiltered service listing works independently
 

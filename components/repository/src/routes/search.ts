@@ -33,6 +33,15 @@ export async function registerSearchRoutes(
     try {
       const { capability, boundedContext } = request.query;
 
+      // Check for both parameters (not allowed)
+      if (capability !== undefined && boundedContext !== undefined) {
+        return reply.code(400).send({
+          error: 'BadRequest',
+          message: 'Either capability or boundedContext query parameter is required, not both',
+          timestamp: new Date().toISOString(),
+        });
+      }
+
       // Determine which search to perform
       if (capability !== undefined) {
         if (!capability || capability.trim() === '') {
@@ -60,12 +69,9 @@ export async function registerSearchRoutes(
         return reply.code(200).send(results);
       }
 
-      // No search parameter provided
-      return reply.code(400).send({
-        error: 'BadRequest',
-        message: 'Either capability or boundedContext query parameter is required',
-        timestamp: new Date().toISOString(),
-      });
+      // No search parameters provided - return all services (User Story 1)
+      const results = await searchService.getAllServices();
+      return reply.code(200).send(results);
     } catch (error: any) {
       fastify.log.error({ error }, 'Search failed');
       return reply.code(500).send({

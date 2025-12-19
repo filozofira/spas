@@ -2,12 +2,14 @@
  * Retrieval Service
  * 
  * Orchestrates service metadata and schema retrieval operations
+ * Includes schema version transformation for User Story 2 bug fix
  */
 
 import type { IStorageProvider } from '../storage/IStorageProvider';
 import type { ServiceMetadata, Schema, ServiceInfo } from '../models/types';
 import { ArchiveBuilder } from './ArchiveBuilder';
 import { Readable } from 'stream';
+import { transformToRuntimeMetadata } from '../utils/metadata-transformer';
 
 export interface ServiceVersionInfo {
   version: string;
@@ -59,12 +61,19 @@ export class RetrievalService {
 
   /**
    * Get complete metadata for a specific service version
+   * User Story 2: Transform schema version from design-time to runtime
    * @param serviceName - Service identifier
    * @param version - Version number
-   * @returns Service metadata or null if not found
+   * @returns Service metadata with runtime schema version or null if not found
    */
   async getMetadata(serviceName: string, version: string): Promise<ServiceMetadata | null> {
-    return this.storage.getServiceMetadata(serviceName, version);
+    const metadata = await this.storage.getServiceMetadata(serviceName, version);
+    if (!metadata) {
+      return null;
+    }
+
+    // Transform schema version from design-time to runtime
+    return transformToRuntimeMetadata(metadata);
   }
 
   /**
@@ -94,6 +103,7 @@ export class RetrievalService {
 
   /**
    * Build downloadable archive for a service version
+   * User Story 2: Transform metadata before archive creation  
    * @param serviceName - Service identifier
    * @param version - Version number
    * @returns ZIP archive stream or null if service not found
@@ -102,11 +112,13 @@ export class RetrievalService {
     serviceName: string,
     version: string
   ): Promise<Readable | null> {
-    const metadata = await this.storage.getServiceMetadata(serviceName, version);
-    if (!metadata) {
+    const rawMetadata = await this.storage.getServiceMetadata(serviceName, version);
+    if (!rawMetadata) {
       return null;
     }
 
+    // Transform schema version from design-time to runtime for download
+    const metadata = transformToRuntimeMetadata(rawMetadata);
     const schemas = await this.storage.getSchemas(serviceName, version);
 
     return this.archiveBuilder.buildArchive(metadata, schemas);

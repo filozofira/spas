@@ -305,6 +305,70 @@ export class SqliteStorageProvider implements IStorageProvider {
     });
   }
 
+  async getAllServices(): Promise<ServiceInfo[]> {
+    // Return latest version only per service using GROUP BY and MAX(version)
+    // No filtering - returns all published services
+    const stmt = this.db.prepare(`
+      SELECT 
+        service_id,
+        MAX(version) as version,
+        name,
+        description,
+        bounded_context,
+        capabilities,
+        published_at,
+        image_digest,
+        image_repository,
+        image_tag
+      FROM services
+      GROUP BY service_id
+      ORDER BY published_at DESC
+    `);
+    
+    const results = stmt.all() as Array<{
+      service_id: string;
+      version: string;
+      name: string;
+      description: string;
+      bounded_context: string;
+      capabilities: string;
+      published_at: string;
+      image_digest: string | null;
+      image_repository: string | null;
+      image_tag: string | null;
+    }>;
+
+    return results.map(r => {
+      const info: ServiceInfo = {
+        id: r.service_id,
+        name: r.name,
+        version: r.version,
+        description: r.description,
+        boundedContext: r.bounded_context,
+        capabilities: JSON.parse(r.capabilities),
+        publishedAt: r.published_at,
+      };
+
+      // Add runtime if available
+      if (r.image_digest || r.image_repository || r.image_tag) {
+        info.runtime = {
+          digest: r.image_digest || undefined,
+          repository: r.image_repository || undefined,
+          tag: r.image_tag || undefined,
+          image: r.image_repository
+            ? r.image_digest
+              ? `${r.image_repository}@${r.image_digest}`
+              : r.image_tag
+                ? `${r.image_repository}:${r.image_tag}`
+                : undefined
+            : undefined,
+        };
+      }
+
+      return info;
+    });
+  }
+
   async deleteService(name: string, version: string): Promise<void> {
     const transaction = this.db.transaction(() => {
       const deleteSchemas = this.db.prepare(

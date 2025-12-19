@@ -73,7 +73,8 @@ flowchart LR
     subgraph "Design Time"
         SDK[.NET SDK] -->|generates| Meta[Service Metadata]
         Meta -->|published via| CLI1[spas-service CLI]
-        CLI1 --> Repo[(Repository)]
+        CLI1 -->|pushes image| DockerReg[(Container Registry)]
+        CLI1 -->|pushes metadata| Repo[(SPAS Repository)]
     end
     
     subgraph "Composition Time"
@@ -86,6 +87,7 @@ flowchart LR
     subgraph "Runtime"
         DC -->|deploys| Services[Services + Sidecars]
         Choreo -->|routes| Events[Event Flows]
+        Services -->|pulls images| DockerReg
     end
 ```
 

@@ -73,6 +73,10 @@ export class PostgresS3StorageProvider implements IStorageProvider {
     throw new NotImplementedError('PostgresS3StorageProvider not implemented');
   }
 
+  async getAllServices(): Promise<ServiceInfo[]> {
+    throw new NotImplementedError('PostgresS3StorageProvider not implemented');
+  }
+
   async deleteService(_name: string, _version: string): Promise<void> {
     throw new NotImplementedError('PostgresS3StorageProvider not implemented');
   }

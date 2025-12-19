@@ -71,6 +71,13 @@ export interface IStorageProvider {
   searchByBoundedContext(context: string): Promise<ServiceInfo[]>;
 
   /**
+   * Get all services without filtering
+   * Returns latest version of each published service
+   * Per FR-001 (015-repository-service-fixes)
+   */
+  getAllServices(): Promise<ServiceInfo[]>;
+
+  /**
    * Delete a service version (cascades to schemas)
    * Must be atomic per FR-021
    */

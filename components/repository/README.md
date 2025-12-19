@@ -7,16 +7,26 @@ Repository service for the SPAS (Service Package Archive Schema) framework. Hand
 - **Publish Services**: Upload service archives with metadata and schemas
 - **Retrieve Services**: Fetch archived services by name and version
 - **Search Services**: Query available services with advanced filtering
+  - **Unfiltered Search**: List all published services without filtering (User Story 1)
+  - **Capability Search**: Find services by declared capabilities  
+  - **Bounded Context Search**: Find services within specific bounded contexts
 - **Schema Management**: Store and evolve service schemas following SPAS evolution rules
 - **Validation**: Validate schemas against SPAS specification using JSON Schema
 - **Runtime Metadata**: Enrich design-time metadata with deployment information (image digests, tags)
+- **Schema Version Transformation**: Automatically convert design-time metadata to runtime metadata format (User Story 2)
 
 ## Metadata Schemas
 
-The repository handles two types of metadata:
+The repository handles two types of metadata with automatic schema version transformation:
 
 - **Design-time Metadata** (`design-time-metadata-v1`): Authored by service developers, stored in `spas.json`
 - **Runtime Metadata** (`runtime-metadata-v1`): Repository output with design-time enriched with deployment info
+
+**Schema Version Transformation**: Services are stored with `design-time-metadata-v1` schema version but automatically transformed to `runtime-metadata-v1` when retrieved via:
+- GET `/services/{serviceName}/versions/{version}` (complete metadata)
+- GET `/services/{serviceName}/versions/{version}/download` (downloadable archives)
+
+This transformation ensures consistent runtime metadata format for consumers while preserving the original design-time authoring experience.
 
 See [schemas/runtime-metadata-v1.schema.json](./schemas/runtime-metadata-v1.schema.json) for the complete runtime metadata schema specification.
 
@@ -204,9 +214,11 @@ curl http://localhost:3000/services/order-service/versions
 GET /services/{serviceName}/versions/{version}
 ```
 
+**Description:** Returns complete service metadata with **runtime schema version** (`runtime-metadata-v1`). The metadata is automatically transformed from the stored design-time format.
+
 **Response:**
 
-- `200 OK`: Returns complete ServiceMetadata
+- `200 OK`: Returns complete ServiceMetadata with runtime schema version
 - `404 Not Found`: Service version does not exist
 
 **Example:**
@@ -214,6 +226,8 @@ GET /services/{serviceName}/versions/{version}
 ```bash
 curl http://localhost:3000/services/order-service/versions/1.0.0
 ```
+
+**Response Note:** The returned metadata will have `"schemaVersion": "runtime-metadata-v1"` regardless of how it was originally stored.
 
 #### List Service Schemas
 
@@ -276,6 +290,8 @@ curl http://localhost:3000/services/order-service/versions/1.0.0/schemas/order-c
 GET /services/{serviceName}/versions/{version}/download
 ```
 
+**Description:** Downloads a ZIP archive containing the service metadata and schemas. The `spas.json` file in the archive contains **runtime metadata** with `schemaVersion: "runtime-metadata-v1"` (transformed from the stored design-time format).
+
 **Response:**
 
 - `200 OK`: ZIP archive containing spas.json + all schemas
@@ -292,13 +308,70 @@ GET /services/{serviceName}/versions/{version}/download
 curl -O -J http://localhost:3000/services/order-service/versions/1.0.0/download
 ```
 
-**PowerShell Example:\***
+**PowerShell Example:**
 
 ```powershell
 Invoke-RestMethod -Uri "http://localhost:3000/services/test-service/versions/1.0.0/download" -OutFile "test-service-1.0.0.zip"
 ```
 
 ### Search
+
+#### List All Services (Unfiltered)
+
+```http
+GET /services
+```
+
+**Description:** Returns all published services without filtering. Shows latest version of each service.
+
+**Response:**
+
+- `200 OK`: Returns SearchResults with all published services
+
+**Example:**
+
+```bash
+curl http://localhost:3000/services
+```
+
+**Response Body:**
+
+```json
+{
+  "total": 3,
+  "limit": 3,
+  "offset": 0,
+  "results": [
+    {
+      "id": "payment-service",
+      "name": "Payment Service",
+      "version": "2.0.0",
+      "description": "Handles payments",
+      "boundedContext": "payments",
+      "capabilities": ["payment-processing", "refunds"],
+      "publishedAt": "2025-12-19T10:30:00Z"
+    },
+    {
+      "id": "order-service",
+      "name": "Order Service",
+      "version": "1.5.0",
+      "description": "Manages orders",
+      "boundedContext": "orders",
+      "capabilities": ["order-management", "payment-processing"],
+      "publishedAt": "2025-12-19T09:15:00Z"
+    },
+    {
+      "id": "inventory-service",
+      "name": "Inventory Service",
+      "version": "1.0.0",
+      "description": "Tracks inventory",
+      "boundedContext": "warehouse",
+      "capabilities": ["inventory-tracking"],
+      "publishedAt": "2025-12-19T08:00:00Z"
+    }
+  ]
+}
+```
 
 #### Search by Capability
 

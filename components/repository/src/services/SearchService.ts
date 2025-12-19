@@ -3,6 +3,9 @@
  * 
  * Orchestrates service search operations by capability and bounded context.
  * Provides consistent interface for search functionality across different queries.
+ * 
+ * Note: SearchService returns ServiceInfo objects (without schemaVersion field).
+ * For complete ServiceMetadata with schema version transformation, use RetrievalService.
  */
 
 import type { IStorageProvider } from '../storage/IStorageProvider';
@@ -42,6 +45,22 @@ export class SearchService {
     }
 
     const results = await this.storage.searchByBoundedContext(context.trim());
+
+    return {
+      total: results.length,
+      limit: results.length,
+      offset: 0,
+      results,
+    };
+  }
+
+  /**
+   * Get all services without filtering
+   * Returns latest version of each published service
+   * Per FR-001 and User Story 1
+   */
+  async getAllServices(): Promise<SearchResults> {
+    const results = await this.storage.getAllServices();
 
     return {
       total: results.length,

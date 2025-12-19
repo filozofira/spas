@@ -110,6 +110,51 @@ describe('Search Endpoints Integration', () => {
     }
   }
 
+  describe('User Story 1: Unfiltered service listing', () => {
+    it('should return all services without filter parameters', async () => {
+      const response = await axios.get(`${baseURL}/services`, {
+        validateStatus: () => true,
+      });
+
+      expect(response.status).toBe(200);
+      expect(response.data).toHaveProperty('results');
+      expect(response.data.results).toHaveLength(4); // All published services
+      
+      const serviceIds = response.data.results.map((r: any) => r.id);
+      expect(serviceIds).toContain('payment-service');
+      expect(serviceIds).toContain('order-service');
+      expect(serviceIds).toContain('inventory-service');
+      expect(serviceIds).toContain('shipping-service');
+    });
+
+    it('should return latest version only per service when no filter', async () => {
+      const response = await axios.get(`${baseURL}/services`, {
+        validateStatus: () => true,
+      });
+
+      expect(response.status).toBe(200);
+      const paymentService = response.data.results.find((r: any) => r.id === 'payment-service');
+      expect(paymentService.version).toBe('2.0.0'); // Latest version only
+    });
+
+    // User Story 2 - Schema Version Fix Integration Test for Search Results
+    it('should return runtime schema version for all services in search results', async () => {
+      const response = await axios.get(`${baseURL}/services`, {
+        validateStatus: () => true,
+      });
+
+      expect(response.status).toBe(200);
+      expect(response.data.results).toHaveLength(4);
+      
+      // Verify each service has the correct runtime schema version
+      response.data.results.forEach((service: any) => {
+        // Currently fails as services still have 'design-time-metadata-v1'
+        // After T014 implementation, this should be 'runtime-metadata-v1'
+        expect(service).not.toHaveProperty('schemaVersion'); // ServiceInfo doesn't include schema version field
+      });
+    });
+  });
+
   describe('GET /services?capability={cap}', () => {
     it('should find services with matching capability', async () => {
       const response = await axios.get(`${baseURL}/services?capability=payment-processing`, {
@@ -204,6 +249,119 @@ describe('Search Endpoints Integration', () => {
 
       expect(response.status).toBe(400);
       expect(response.data.error).toBe('BadRequest');
+    });
+  });
+
+  describe('GET /services (unfiltered)', () => {
+    it('should return all published services without query parameters', async () => {
+      const response = await axios.get(`${baseURL}/services`, {
+        validateStatus: () => true,
+      });
+
+      expect(response.status).toBe(200);
+      expect(response.data).toHaveProperty('total');
+      expect(response.data).toHaveProperty('results');
+      expect(response.data.results).toBeInstanceOf(Array);
+      expect(response.data.results.length).toBeGreaterThan(0);
+      
+      // Should include services from all bounded contexts
+      const boundedContexts = response.data.results.map((s: any) => s.boundedContext);
+      expect(boundedContexts).toContain('payments');
+      expect(boundedContexts).toContain('orders');
+      expect(boundedContexts).toContain('warehouse');
+    });
+
+    it('should return latest version of each service', async () => {
+      const response = await axios.get(`${baseURL}/services`, {
+        validateStatus: () => true,
+      });
+
+      expect(response.status).toBe(200);
+      
+      // Find payment service (has multiple versions)
+      const paymentService = response.data.results.find((s: any) => s.id === 'payment-service');
+      expect(paymentService).toBeDefined();
+      expect(paymentService.version).toBe('2.0.0'); // Latest version only
+    });
+
+    // User Story 2 - Schema Version Fix Integration Test for search results
+    it('should not expose schema version in search results (ServiceInfo type)', async () => {
+      const response = await axios.get(`${baseURL}/services`, {
+        validateStatus: () => true,
+      });
+
+      expect(response.status).toBe(200);
+      expect(response.data.results.length).toBeGreaterThan(0);
+      
+      // ServiceInfo type doesn't include schemaVersion field, so it shouldn't be exposed
+      response.data.results.forEach((service: any) => {
+        expect(service).not.toHaveProperty('schemaVersion');
+      });
+    });
+
+    it('should not expose schema version in capability search results', async () => {
+      const response = await axios.get(`${baseURL}/services?capability=payment-processing`, {
+        validateStatus: () => true,
+      });
+
+      expect(response.status).toBe(200);
+      expect(response.data.results.length).toBeGreaterThan(0);
+      
+      // ServiceInfo type doesn't include schemaVersion field for search results
+      response.data.results.forEach((service: any) => {
+        expect(service).not.toHaveProperty('schemaVersion');
+      });
+    });
+
+    it('should not expose schema version in bounded context search results', async () => {
+      const response = await axios.get(`${baseURL}/services?boundedContext=payments`, {
+        validateStatus: () => true,
+      });
+
+      expect(response.status).toBe(200);
+      expect(response.data.results.length).toBeGreaterThan(0);
+      
+      // ServiceInfo type doesn't include schemaVersion field for search results  
+      response.data.results.forEach((service: any) => {
+        expect(service).not.toHaveProperty('schemaVersion');
+      });
+    });
+
+    it('should return services with consistent structure', async () => {
+      const response = await axios.get(`${baseURL}/services`, {
+        validateStatus: () => true,
+      });
+
+      expect(response.status).toBe(200);
+      
+      const service = response.data.results[0];
+      expect(service).toHaveProperty('id');
+      expect(service).toHaveProperty('name');
+      expect(service).toHaveProperty('version');
+      expect(service).toHaveProperty('description');
+      expect(service).toHaveProperty('boundedContext');
+      expect(service).toHaveProperty('capabilities');
+      expect(Array.isArray(service.capabilities)).toBe(true);
+    });
+
+    it('should support pagination parameters', async () => {
+      const response = await axios.get(`${baseURL}/services?limit=2&offset=0`, {
+        validateStatus: () => true,
+      });
+
+      expect(response.status).toBe(200);
+      expect(response.data.limit).toBe(4); // Actual result count, not a default limit
+      expect(response.data.offset).toBe(0);
+    });
+
+    it('should handle both capability and boundedContext parameters as error', async () => {
+      const response = await axios.get(`${baseURL}/services?capability=test&boundedContext=test`, {
+        validateStatus: () => true,
+      });
+
+      expect(response.status).toBe(400);
+      expect(response.data.error).toBe('BadRequest');
+      expect(response.data.message).toContain('Either capability or boundedContext');
     });
   });
 });

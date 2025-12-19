@@ -188,10 +188,10 @@ components/sdk/java/           # Multi-module Maven project root
 
 ### Implementation for US5
 
-- [ ] T063 [US5] Extend SpasContextFilter to extract x-user-id, x-tenant-id headers in components/sdk/java/spas-sdk-spring/src/main/java/io/spas/sdk/spring/SpasContextFilter.java
-- [ ] T064 [US5] Add identity header propagation tests in components/sdk/java/spas-sdk-spring/src/test/java/io/spas/sdk/spring/SpasContextFilterTest.java
+- [X] T063 [US5] Extend SpasContextFilter to extract x-user-id, x-tenant-id headers in components/sdk/java/spas-sdk-spring/src/main/java/io/spas/sdk/spring/SpasContextFilter.java
+- [X] T064 [US5] Add identity header propagation tests in components/sdk/java/spas-sdk-spring/src/test/java/io/spas/sdk/spring/SpasContextFilterTest.java
 
-**Checkpoint**: Identity context propagation working.
+**Checkpoint**: Identity context propagation working. ✅
 
 ---
 

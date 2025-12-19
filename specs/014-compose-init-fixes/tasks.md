@@ -28,7 +28,7 @@
 
 **Purpose**: Copy runtime metadata schema source for reference
 
-- [ ] T003 Extract complete runtime metadata schema from `components/repository/schemas/runtime-metadata-v1.schema.json` for inline generation
+- [x] T003 Extract complete runtime metadata schema from `components/repository/schemas/runtime-metadata-v1.schema.json` for inline generation
 
 **Checkpoint**: Schema source ready - bug fixes can now proceed in parallel
 
@@ -42,15 +42,15 @@
 
 ### Tests for User Story 1
 
-- [ ] T004 [P] [US1] Add unit test for `generateRuntimeMetadataSchema()` in `components/cli/spas-compose/test/utils/templates.test.ts`
-- [ ] T005 [P] [US1] Add integration test verifying all three schemas created in `components/cli/spas-compose/test/commands/init.test.ts`
+- [x] T004 [P] [US1] Add unit test for `generateRuntimeMetadataSchema()` in `components/cli/spas-compose/test/utils/templates.test.ts`
+- [x] T005 [P] [US1] Add integration test verifying all three schemas created in `components/cli/spas-compose/test/commands/init.test.ts`
 
 ### Implementation for User Story 1
 
-- [ ] T006 [US1] Create `generateRuntimeMetadataSchema()` function in `components/cli/spas-compose/src/utils/templates.ts`
-- [ ] T007 [US1] Update `workspace-service.ts` to call `generateRuntimeMetadataSchema()` instead of file copy in `components/cli/spas-compose/src/services/workspace-service.ts`
-- [ ] T008 [US1] Remove file copy logic (lines 146-164) in `components/cli/spas-compose/src/services/workspace-service.ts`
-- [ ] T009 [US1] Update return data to include runtime-metadata schema in success message in `components/cli/spas-compose/src/services/workspace-service.ts`
+- [x] T006 [US1] Create `generateRuntimeMetadataSchema()` function in `components/cli/spas-compose/src/utils/templates.ts`
+- [x] T007 [US1] Update `workspace-service.ts` to call `generateRuntimeMetadataSchema()` instead of file copy in `components/cli/spas-compose/src/services/workspace-service.ts`
+- [x] T008 [US1] Remove file copy logic (lines 146-164) in `components/cli/spas-compose/src/services/workspace-service.ts`
+- [x] T009 [US1] Update return data to include runtime-metadata schema in success message in `components/cli/spas-compose/src/services/workspace-service.ts`
 
 **Checkpoint**: External projects now receive all three schemas when running `spas-compose init`
 
@@ -64,11 +64,11 @@
 
 ### Tests for User Story 2
 
-- [ ] T010 [US2] Add unit test for README schema listing in `components/cli/spas-compose/test/utils/templates.test.ts`
+- [x] T010 [US2] Add unit test for README schema listing in `components/cli/spas-compose/test/utils/templates.test.ts`
 
 ### Implementation for User Story 2
 
-- [ ] T011 [US2] Update Structure section in `generateWorkspaceReadme()` to list all three schemas in `components/cli/spas-compose/src/utils/templates.ts`
+- [x] T011 [US2] Update Structure section in `generateWorkspaceReadme()` to list all three schemas in `components/cli/spas-compose/src/utils/templates.ts`
 
 **Checkpoint**: README documentation now accurately reflects all scaffolded schemas
 
@@ -82,14 +82,14 @@
 
 ### Tests for User Story 3
 
-- [ ] T012 [US3] Add unit test for choreography diagram terminology in agent file in `components/cli/spas-compose/test/utils/templates.test.ts`
-- [ ] T013 [US3] Add unit test verifying mermaid flowchart format is specified in `components/cli/spas-compose/test/utils/templates.test.ts`
+- [x] T012 [US3] Add unit test for choreography diagram terminology in agent file in `components/cli/spas-compose/test/utils/templates.test.ts`
+- [x] T013 [US3] Add unit test verifying mermaid flowchart format is specified in `components/cli/spas-compose/test/utils/templates.test.ts`
 
 ### Implementation for User Story 3
 
-- [ ] T014 [US3] Update Phase 3: Propose section to say "Choreography Diagram (mermaid flowchart)" in `components/cli/spas-compose/src/utils/templates.ts` (in `generateAgentFile()`)
-- [ ] T015 [US3] Add instruction to add diagram to workspace README.md in Phase 3 in `components/cli/spas-compose/src/utils/templates.ts`
-- [ ] T016 [US3] Add mermaid flowchart format guidance (flowchart LR with subgraph) in Phase 3 in `components/cli/spas-compose/src/utils/templates.ts`
+- [x] T014 [US3] Update Phase 3: Propose section to say "Choreography Diagram (mermaid flowchart)" in `components/cli/spas-compose/src/utils/templates.ts` (in `generateAgentFile()`)
+- [x] T015 [US3] Add instruction to add diagram to workspace README.md in Phase 3 in `components/cli/spas-compose/src/utils/templates.ts`
+- [x] T016 [US3] Add mermaid flowchart format guidance (flowchart LR with subgraph) in Phase 3 in `components/cli/spas-compose/src/utils/templates.ts`
 
 **Checkpoint**: Agent prompt now guides AI to generate correct diagram type
 
@@ -103,15 +103,15 @@
 
 ### Tests for User Story 4
 
-- [ ] T017 [US4] Add unit test for build command documentation in agent file in `components/cli/spas-compose/test/utils/templates.test.ts`
-- [ ] T018 [US4] Add unit test verifying all three command variations (dry-run, dev, prod) in `components/cli/spas-compose/test/utils/templates.test.ts`
+- [x] T017 [US4] Add unit test for build command documentation in agent file in `components/cli/spas-compose/test/utils/templates.test.ts`
+- [x] T018 [US4] Add unit test verifying all three command variations (dry-run, dev, prod) in `components/cli/spas-compose/test/utils/templates.test.ts`
 
 ### Implementation for User Story 4
 
-- [ ] T019 [US4] Update Actions section to document three build command variations in `components/cli/spas-compose/src/utils/templates.ts` (in `generateAgentFile()`)
-- [ ] T020 [US4] Ensure dry-run command includes `--docker --dry-run` flags in `components/cli/spas-compose/src/utils/templates.ts`
-- [ ] T021 [US4] Ensure dev build command includes `--docker --dev` flags in `components/cli/spas-compose/src/utils/templates.ts`
-- [ ] T022 [US4] Ensure prod build command includes `--docker` flag only in `components/cli/spas-compose/src/utils/templates.ts`
+- [x] T019 [US4] Update Actions section to document three build command variations in `components/cli/spas-compose/src/utils/templates.ts` (in `generateAgentFile()`)
+- [x] T020 [US4] Ensure dry-run command includes `--docker --dry-run` flags in `components/cli/spas-compose/src/utils/templates.ts`
+- [x] T021 [US4] Ensure dev build command includes `--docker --dev` flags in `components/cli/spas-compose/src/utils/templates.ts`
+- [x] T022 [US4] Ensure prod build command includes `--docker` flag only in `components/cli/spas-compose/src/utils/templates.ts`
 
 **Checkpoint**: Agent prompt now documents all build command variations correctly
 
@@ -121,16 +121,16 @@
 
 **Purpose**: Final validation and edge case handling
 
-- [ ] T023 [P] Run all unit tests: `npm test` in `components/cli/spas-compose/`
-- [ ] T024 [P] Run integration tests: `npm test -- init.test.ts` in `components/cli/spas-compose/`
-- [ ] T025 Test `spas-compose init` in external project (outside SPAS repo) per quickstart.md
-- [ ] T026 Test `spas-compose init` inside SPAS repository per quickstart.md
-- [ ] T027 Test `spas-compose init --force` overwrites schemas correctly per quickstart.md
-- [ ] T028 [P] Verify all three schemas are valid JSON via `jq` validation
-- [ ] T029 [P] Verify README Structure section matches actual files
-- [ ] T030 [P] Verify agent prompt Phase 3 uses choreography diagram terminology
-- [ ] T031 [P] Verify agent prompt Actions section has three build commands
-- [ ] T032 Update COMPLETION.md with verification results in `specs/014-compose-init-fixes/`
+- [x] T023 [P] Run all unit tests: `npm test` in `components/cli/spas-compose/`
+- [x] T024 [P] Run integration tests: `npm test -- init.test.ts` in `components/cli/spas-compose/`
+- [x] T025 Test `spas-compose init` in external project (outside SPAS repo) per quickstart.md
+- [x] T026 Test `spas-compose init` inside SPAS repository per quickstart.md
+- [x] T027 Test `spas-compose init --force` overwrites schemas correctly per quickstart.md
+- [x] T028 [P] Verify all three schemas are valid JSON via `jq` validation
+- [x] T029 [P] Verify README Structure section matches actual files
+- [x] T030 [P] Verify agent prompt Phase 3 uses choreography diagram terminology
+- [x] T031 [P] Verify agent prompt Actions section has three build commands
+- [x] T032 Update COMPLETION.md with verification results in `specs/014-compose-init-fixes/`
 
 ---
 

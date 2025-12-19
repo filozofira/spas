@@ -2,7 +2,7 @@
  * WorkspaceService - Domain workspace operations
  */
 
-import { existsSync, mkdirSync, writeFileSync, readFileSync, rmSync, statSync } from "fs";
+import { existsSync, mkdirSync, writeFileSync, rmSync, statSync } from "fs";
 import { join, relative } from "path";
 import type { CommandResult } from "../types.js";
 import {
@@ -12,6 +12,7 @@ import {
   generatePromptFile,
   generateSidecarConfigSchema,
   generateChoreographySchema,
+  generateRuntimeMetadataSchema,
 } from "../utils/templates.js";
 
 /**
@@ -133,25 +134,13 @@ export class WorkspaceService {
         "utf-8",
       );
 
-      // Copy runtime metadata schema from repository component
-      const runtimeMetadataSchemaPath = join(
-        process.cwd(),
-        "components",
-        "repository",
-        "schemas",
-        "runtime-metadata-v1.schema.json",
+      // Generate runtime metadata schema inline
+      const runtimeMetadataSchemaContent = generateRuntimeMetadataSchema();
+      writeFileSync(
+        join(schemasDir, "runtime-metadata-v1.schema.json"),
+        runtimeMetadataSchemaContent,
+        "utf-8",
       );
-      if (existsSync(runtimeMetadataSchemaPath)) {
-        const runtimeMetadataSchema = readFileSync(
-          runtimeMetadataSchemaPath,
-          "utf-8",
-        );
-        writeFileSync(
-          join(schemasDir, "runtime-metadata-v1.schema.json"),
-          runtimeMetadataSchema,
-          "utf-8",
-        );
-      }
 
       // Calculate relative agent file path for display
       const agentRelativePath = projectRoot

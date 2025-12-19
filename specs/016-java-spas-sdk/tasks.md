@@ -102,7 +102,7 @@ components/sdk/java/           # Multi-module Maven project root
 
 ---
 
-## Phase 4: User Story 2 - Event Publishing to Sidecar (Priority: P1) 🎯 MVP
+## Phase 4: User Story 2 - Event Publishing to Sidecar (Priority: P1) 🎯 MVP ✅ COMPLETE
 
 **Goal**: Publish events to sidecar with correct headers (traceparent, x-service-name, x-event-name, x-correlation-id)
 
@@ -110,25 +110,25 @@ components/sdk/java/           # Multi-module Maven project root
 
 ### Context Classes for US2
 
-- [ ] T036 [P] [US2] Implement SpasTrace (ThreadLocal, W3C Trace Context) in components/sdk/java/spas-sdk-core/src/main/java/io/spas/sdk/core/context/SpasTrace.java
-- [ ] T037 [P] [US2] Implement SpasContext (ThreadLocal, correlationId, userId, tenantId) in components/sdk/java/spas-sdk-core/src/main/java/io/spas/sdk/core/context/SpasContext.java
+- [x] T036 [P] [US2] Implement SpasTrace (ThreadLocal, W3C Trace Context) in components/sdk/java/spas-sdk-core/src/main/java/io/spas/sdk/core/context/SpasTrace.java
+- [x] T037 [P] [US2] Implement SpasContext (ThreadLocal, correlationId, userId, tenantId) in components/sdk/java/spas-sdk-core/src/main/java/io/spas/sdk/core/context/SpasContext.java
 
 ### Event Publishing for US2
 
-- [ ] T038 [P] [US2] Create SpasPublishException in components/sdk/java/spas-sdk-events/src/main/java/io/spas/sdk/events/SpasPublishException.java
-- [ ] T039 [P] [US2] Create SidecarUnavailableException in components/sdk/java/spas-sdk-events/src/main/java/io/spas/sdk/events/SidecarUnavailableException.java
-- [ ] T040 [P] [US2] Create EventAnnotationMissingException in components/sdk/java/spas-sdk-events/src/main/java/io/spas/sdk/events/EventAnnotationMissingException.java
-- [ ] T041 [P] [US2] Create EventPublisherConfig in components/sdk/java/spas-sdk-events/src/main/java/io/spas/sdk/events/EventPublisherConfig.java
-- [ ] T042 [US2] Implement SidecarClient (HttpClient wrapper) in components/sdk/java/spas-sdk-events/src/main/java/io/spas/sdk/events/SidecarClient.java
-- [ ] T043 [US2] Implement EventPublisher in components/sdk/java/spas-sdk-events/src/main/java/io/spas/sdk/events/EventPublisher.java
+- [x] T038 [P] [US2] Create SpasPublishException in components/sdk/java/spas-sdk-events/src/main/java/io/spas/sdk/events/SpasPublishException.java
+- [x] T039 [P] [US2] Create SidecarUnavailableException in components/sdk/java/spas-sdk-events/src/main/java/io/spas/sdk/events/SidecarUnavailableException.java
+- [x] T040 [P] [US2] Create EventAnnotationMissingException in components/sdk/java/spas-sdk-events/src/main/java/io/spas/sdk/events/EventAnnotationMissingException.java
+- [x] T041 [P] [US2] Create EventPublisherConfig in components/sdk/java/spas-sdk-events/src/main/java/io/spas/sdk/events/EventPublisherConfig.java
+- [x] T042 [US2] Implement SidecarClient (HttpClient wrapper) in components/sdk/java/spas-sdk-events/src/main/java/io/spas/sdk/events/SidecarClient.java
+- [x] T043 [US2] Implement EventPublisher in components/sdk/java/spas-sdk-events/src/main/java/io/spas/sdk/events/EventPublisher.java
 
 ### Unit Tests for US2
 
-- [ ] T044 [P] [US2] Add unit tests for SpasTrace in components/sdk/java/spas-sdk-core/src/test/java/io/spas/sdk/core/context/SpasTraceTest.java
-- [ ] T045 [P] [US2] Add unit tests for SpasContext in components/sdk/java/spas-sdk-core/src/test/java/io/spas/sdk/core/context/SpasContextTest.java
-- [ ] T046 [US2] Add unit tests for EventPublisher with WireMock in components/sdk/java/spas-sdk-events/src/test/java/io/spas/sdk/events/EventPublisherTest.java
+- [x] T044 [P] [US2] Add unit tests for SpasTrace in components/sdk/java/spas-sdk-core/src/test/java/io/spas/sdk/core/context/SpasTraceTest.java
+- [x] T045 [P] [US2] Add unit tests for SpasContext in components/sdk/java/spas-sdk-core/src/test/java/io/spas/sdk/core/context/SpasContextTest.java
+- [x] T046 [US2] Add unit tests for EventPublisher with WireMock in components/sdk/java/spas-sdk-events/src/test/java/io/spas/sdk/events/EventPublisherTest.java
 
-**Checkpoint**: Event publishing to sidecar working. MVP complete (US1 + US2).
+**Checkpoint**: Event publishing to sidecar working. MVP complete (US1 + US2). ✅
 
 ---
 

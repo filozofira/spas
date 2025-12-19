@@ -203,15 +203,15 @@ components/sdk/java/           # Multi-module Maven project root
 
 ### Sample Service Implementation
 
-- [ ] T065 [P] [US6] Create SampleServiceApplication in components/sdk/java/examples/sample-service/src/main/java/io/spas/examples/orders/SampleServiceApplication.java
-- [ ] T066 [P] [US6] Create OrderCreatedEvent in components/sdk/java/examples/sample-service/src/main/java/io/spas/examples/orders/events/OrderCreatedEvent.java
-- [ ] T067 [P] [US6] Create CreateOrderRequest in components/sdk/java/examples/sample-service/src/main/java/io/spas/examples/orders/api/CreateOrderRequest.java
-- [ ] T068 [P] [US6] Create OrderResponse in components/sdk/java/examples/sample-service/src/main/java/io/spas/examples/orders/api/OrderResponse.java
-- [ ] T069 [US6] Create OrderController with @SpasCommand/@SpasQuery in components/sdk/java/examples/sample-service/src/main/java/io/spas/examples/orders/api/OrderController.java
-- [ ] T070 [US6] Create application.yml with spas config in components/sdk/java/examples/sample-service/src/main/resources/application.yml
-- [ ] T071 [US6] Validate sample-service generates valid spas.json on compile
+- [X] T065 [P] [US6] Create SampleServiceApplication in components/sdk/java/examples/sample-service/src/main/java/io/spas/examples/orders/SampleServiceApplication.java
+- [X] T066 [P] [US6] Create OrderCreatedEvent in components/sdk/java/examples/sample-service/src/main/java/io/spas/examples/orders/events/OrderCreatedEvent.java
+- [X] T067 [P] [US6] Create CreateOrderRequest in components/sdk/java/examples/sample-service/src/main/java/io/spas/examples/orders/api/CreateOrderRequest.java
+- [X] T068 [P] [US6] Create OrderResponse in components/sdk/java/examples/sample-service/src/main/java/io/spas/examples/orders/api/OrderResponse.java
+- [X] T069 [US6] Create OrderController with @SpasCommand/@SpasQuery in components/sdk/java/examples/sample-service/src/main/java/io/spas/examples/orders/api/OrderController.java
+- [X] T070 [US6] Create application.yml with spas config in components/sdk/java/examples/sample-service/src/main/resources/application.yml
+- [X] T071 [US6] Validate sample-service generates valid spas.json on compile
 
-**Checkpoint**: SampleService complete. Reference implementation ready.
+**Checkpoint**: SampleService complete. Reference implementation ready. ✅
 
 ---
 

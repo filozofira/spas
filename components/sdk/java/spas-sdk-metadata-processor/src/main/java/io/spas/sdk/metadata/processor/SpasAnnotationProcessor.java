@@ -137,7 +137,7 @@ public class SpasAnnotationProcessor extends AbstractProcessor {
 
     private List<EventContract> processEvents(RoundEnvironment roundEnv) {
         return roundEnv.getElementsAnnotatedWith(SpasEvent.class).stream()
-            .filter(element -> element.getKind() == ElementKind.CLASS)
+            .filter(element -> element.getKind() == ElementKind.CLASS || element.getKind() == ElementKind.RECORD)
             .map(element -> {
                 SpasEvent evt = element.getAnnotation(SpasEvent.class);
                 return new EventContract(

@@ -1,0 +1,37 @@
+# Sample SPAS Service Configuration
+# Demonstrates Spring Boot integration with SPAS SDK
+
+server:
+  port: 8080
+
+spring:
+  application:
+    name: sample-service
+
+# SPAS SDK Configuration
+spas:
+  # Service identifier (required)
+  # Used in spas.json and event headers (x-service-name)
+  service-name: sample-service
+  
+  # Enable/disable SPAS SDK (default: true)
+  enabled: true
+  
+  # Sidecar connection settings
+  sidecar:
+    # Option 1: Full URL
+    url: http://localhost:8081
+    
+    # Option 2: Host and port (alternative to url)
+    # host: localhost
+    # port: 8081
+    
+    # Connection timeouts (optional, defaults shown)
+    connect-timeout-millis: 5000
+    request-timeout-millis: 30000
+
+# Logging configuration (optional)
+logging:
+  level:
+    io.spas: DEBUG
+    io.spas.examples: DEBUG

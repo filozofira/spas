@@ -1,0 +1,208 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>io.spas</groupId>
+    <artifactId>spas-sdk-parent</artifactId>
+    <version>1.0.0-SNAPSHOT</version>
+    <packaging>pom</packaging>
+
+    <name>SPAS SDK for Java</name>
+    <description>Java SDK for building SPAS (Self-contained, Portable, Adaptable Services)</description>
+    <url>https://github.com/spas-io/spas</url>
+
+    <licenses>
+        <license>
+            <name>MIT License</name>
+            <url>https://opensource.org/licenses/MIT</url>
+        </license>
+    </licenses>
+
+    <modules>
+        <module>spas-sdk-core</module>
+        <module>spas-sdk-metadata</module>
+        <module>spas-sdk-metadata-processor</module>
+        <module>spas-sdk-events</module>
+        <module>spas-sdk-spring</module>
+        <module>examples/sample-service</module>
+    </modules>
+
+    <properties>
+        <!-- Java version -->
+        <java.version>17</java.version>
+        <maven.compiler.source>${java.version}</maven.compiler.source>
+        <maven.compiler.target>${java.version}</maven.compiler.target>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+
+        <!-- Dependency versions -->
+        <jackson.version>2.17.2</jackson.version>
+        <spring-boot.version>3.2.5</spring-boot.version>
+        
+        <!-- Test dependency versions -->
+        <junit.version>5.10.2</junit.version>
+        <mockito.version>5.11.0</mockito.version>
+        <wiremock.version>3.5.4</wiremock.version>
+        <compile-testing.version>0.21.0</compile-testing.version>
+        
+        <!-- Plugin versions -->
+        <maven-compiler-plugin.version>3.12.1</maven-compiler-plugin.version>
+        <maven-surefire-plugin.version>3.2.5</maven-surefire-plugin.version>
+        <maven-enforcer-plugin.version>3.4.1</maven-enforcer-plugin.version>
+        <jacoco-maven-plugin.version>0.8.12</jacoco-maven-plugin.version>
+    </properties>
+
+    <dependencyManagement>
+        <dependencies>
+            <!-- Internal modules -->
+            <dependency>
+                <groupId>io.spas</groupId>
+                <artifactId>spas-sdk-core</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.spas</groupId>
+                <artifactId>spas-sdk-metadata</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.spas</groupId>
+                <artifactId>spas-sdk-metadata-processor</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.spas</groupId>
+                <artifactId>spas-sdk-events</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.spas</groupId>
+                <artifactId>spas-sdk-spring</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
+            <!-- Jackson -->
+            <dependency>
+                <groupId>com.fasterxml.jackson.core</groupId>
+                <artifactId>jackson-databind</artifactId>
+                <version>${jackson.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.fasterxml.jackson.datatype</groupId>
+                <artifactId>jackson-datatype-jdk8</artifactId>
+                <version>${jackson.version}</version>
+            </dependency>
+
+            <!-- Spring Boot -->
+            <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-dependencies</artifactId>
+                <version>${spring-boot.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+
+            <!-- Testing -->
+            <dependency>
+                <groupId>org.junit.jupiter</groupId>
+                <artifactId>junit-jupiter</artifactId>
+                <version>${junit.version}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.mockito</groupId>
+                <artifactId>mockito-core</artifactId>
+                <version>${mockito.version}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.mockito</groupId>
+                <artifactId>mockito-junit-jupiter</artifactId>
+                <version>${mockito.version}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.wiremock</groupId>
+                <artifactId>wiremock</artifactId>
+                <version>${wiremock.version}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>com.google.testing.compile</groupId>
+                <artifactId>compile-testing</artifactId>
+                <version>${compile-testing.version}</version>
+                <scope>test</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
+    <build>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-compiler-plugin</artifactId>
+                    <version>${maven-compiler-plugin.version}</version>
+                    <configuration>
+                        <source>${java.version}</source>
+                        <target>${java.version}</target>
+                        <compilerArgs>
+                            <arg>-parameters</arg>
+                        </compilerArgs>
+                    </configuration>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-surefire-plugin</artifactId>
+                    <version>${maven-surefire-plugin.version}</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.jacoco</groupId>
+                    <artifactId>jacoco-maven-plugin</artifactId>
+                    <version>${jacoco-maven-plugin.version}</version>
+                    <executions>
+                        <execution>
+                            <goals>
+                                <goal>prepare-agent</goal>
+                            </goals>
+                        </execution>
+                        <execution>
+                            <id>report</id>
+                            <phase>test</phase>
+                            <goals>
+                                <goal>report</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-enforcer-plugin</artifactId>
+                <version>${maven-enforcer-plugin.version}</version>
+                <executions>
+                    <execution>
+                        <id>enforce-maven</id>
+                        <goals>
+                            <goal>enforce</goal>
+                        </goals>
+                        <configuration>
+                            <rules>
+                                <requireMavenVersion>
+                                    <version>3.8.0</version>
+                                </requireMavenVersion>
+                                <requireJavaVersion>
+                                    <version>${java.version}</version>
+                                </requireJavaVersion>
+                            </rules>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+</project>

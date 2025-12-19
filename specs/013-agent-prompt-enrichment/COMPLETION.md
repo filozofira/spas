@@ -1395,3 +1395,114 @@ After fix, `order-service` outbound now includes both events:
 **Test Results**: 216/216 tests passing ✅
 
 ---
+
+## Enhancement #12: Distributed Tracing Fixes for Zipkin Dependency Graph
+
+**Date**: December 19, 2025  
+**Type**: Bug Fix (critical tracing issues)
+
+### Problem
+
+Three issues were identified in Zipkin trace visualization:
+
+1. **Missing top-level `kind` field**: Zipkin's dependency graph requires spans to have `kind` (PRODUCER, CONSUMER, CLIENT, SERVER) at the top level of the JSON, not nested in tags
+2. **Disconnected dependency graph**: Zipkin showed services as disconnected "islands" instead of a connected graph because spans lacked `remoteEndpoint` to indicate the target service
+3. **Missing SERVER span**: The sidecar's `/publish` endpoint didn't emit a SERVER span, breaking the trace link between the calling service and the sidecar
+
+### Solution
+
+**1. Top-Level SpanKind Extraction**
+
+Updated `tracer.ts` to extract `spanKind` from tags and set it as a top-level `kind` field in the Zipkin JSON:
+
+```typescript
+// Extract spanKind from tags for top-level Zipkin field
+const { spanKind, remoteServiceName, ...tagsWithoutMetadata } = span.tags;
+
+const zipkinSpan: ZipkinSpan = {
+  traceId: span.context.traceId,
+  id: span.context.spanId,
+  name: span.name,
+  // ... other fields
+};
+
+// Set top-level kind if spanKind was specified
+if (spanKind) {
+  zipkinSpan.kind = spanKind as 'CLIENT' | 'SERVER' | 'PRODUCER' | 'CONSUMER';
+}
+```
+
+**2. RemoteEndpoint for Dependency Graph**
+
+Added `remoteEndpoint` support to link services in Zipkin's dependency view:
+
+```typescript
+// Set remoteEndpoint for dependency graph
+if (remoteServiceName) {
+  zipkinSpan.remoteEndpoint = { serviceName: remoteServiceName };
+}
+```
+
+Updated span creation to include `remoteServiceName`:
+- **PRODUCER spans**: `remoteServiceName: 'redis'` (message broker)
+- **CONSUMER spans**: `remoteServiceName: 'redis'` (message broker)
+- **CLIENT spans**: `remoteServiceName: targetServiceName` (service being invoked)
+- **SERVER spans**: `remoteServiceName: headers.serviceName` (calling service)
+
+**3. SERVER Span in Publish Handler**
+
+Added SERVER span creation in `publish.ts` to bridge the service→sidecar link:
+
+```typescript
+// Start SERVER span for incoming request
+// This links the sidecar to the calling service
+if (headers.traceparent) {
+  span = tracer?.startSpan('post /publish', headers.traceparent, {
+    spanKind: 'SERVER',
+    remoteServiceName: headers.serviceName,
+    'http.method': 'POST',
+    'http.url': '/publish',
+    'http.route': '/publish'
+  } as Partial<SpanTags>);
+}
+```
+
+### Files Modified
+
+| File | Change |
+|------|--------|
+| `src/types.ts` | Added `remoteEndpoint` to `ZipkinSpan`, `remoteServiceName` to `SpanTags` |
+| `src/services/tracer.ts` | Extract `spanKind` and `remoteServiceName` from tags, set top-level `kind` and `remoteEndpoint` |
+| `src/services/event-publisher.ts` | Added `spanKind: 'PRODUCER'` and `remoteServiceName: 'redis'` to publish spans |
+| `src/services/event-subscriber.ts` | Added `spanKind: 'CONSUMER'` and `remoteServiceName: 'redis'` to receive spans; `spanKind: 'CLIENT'` and `remoteServiceName: targetServiceName` to invoke spans |
+| `src/handlers/publish.ts` | Added SERVER span with `remoteServiceName: headers.serviceName` |
+
+### Verification
+
+After fix, Zipkin dependency graph correctly shows:
+
+```
+order-service → order-service-sidecar → redis → inventory-service-sidecar → inventory-service
+```
+
+Example trace span with correct top-level fields:
+```json
+{
+  "traceId": "08bf74b9f916458bcd5333621a37749b",
+  "id": "412c622cc8c88c37",
+  "kind": "PRODUCER",
+  "name": "publish",
+  "localEndpoint": { "serviceName": "order-service-sidecar" },
+  "remoteEndpoint": { "serviceName": "redis" },
+  "tags": { "cloudevents.type": "com.order-service.order-created", ... }
+}
+```
+
+**Impact**:
+- **Fixed Zipkin Dependency Graph**: Services now show connected topology
+- **Proper Span Semantics**: PRODUCER/CONSUMER for async messaging, CLIENT/SERVER for HTTP
+- **Complete Trace Visualization**: Full trace chain visible from entry to exit
+
+**Test Results**: All sidecar tests passing ✅
+
+---

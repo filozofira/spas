@@ -22,7 +22,7 @@ The sidecar is deployed alongside each service instance and:
 - **Event Subscription**: Redis Streams XREAD with blocking for event consumption
 - **Command Invocation**: `POST /invoke/{command}` for request-response patterns
 - **CloudEvents 1.0**: Standard message envelope with trace context extensions
-- **Distributed Tracing**: Zipkin span emission with parent-child relationships
+- **Distributed Tracing**: Zipkin span emission with proper span kinds (PRODUCER/CONSUMER/CLIENT/SERVER) and dependency graph support via `remoteEndpoint`
 - **Health Endpoints**: `/health` and `/ready` for container orchestration
 
 ## 🚀 Quick Start
@@ -204,6 +204,35 @@ Body: { ... command payload ... }
 GET /health  # Liveness: 200 if running
 GET /ready   # Readiness: 200 if Redis connected
 ```
+
+## 📊 Distributed Tracing
+
+The sidecar emits Zipkin-compatible spans with proper semantics for dependency graph visualization.
+
+### Span Types
+
+| Operation | Span Kind | Remote Endpoint | Description |
+|-----------|-----------|-----------------|-------------|
+| `post /publish` | SERVER | calling service | Incoming HTTP request from service |
+| `publish` | PRODUCER | redis | Event published to Redis stream |
+| `receive` | CONSUMER | redis | Event consumed from Redis stream |
+| `invoke` | CLIENT | target service | HTTP call to service endpoint |
+| `transform` | (local) | - | JSONata transformation (internal) |
+
+### Dependency Graph
+
+With these span kinds and remote endpoints, Zipkin correctly visualizes:
+
+```
+order-service → order-service-sidecar → redis → inventory-service-sidecar → inventory-service
+```
+
+### Environment Variables
+
+| Variable | Required | Default | Description |
+|----------|----------|---------|-------------|
+| `ZIPKIN_URL` | No | - | Zipkin endpoint (e.g., `http://zipkin:9411`) |
+| `TRACING_ENABLED` | No | `true` | Set to `false` to disable tracing |
 
 ## 🧪 Testing
 

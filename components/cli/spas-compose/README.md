@@ -164,12 +164,62 @@ Build deployment configuration from choreography.yaml.
 
 **Options:**
 - `--docker` - Generate docker-compose.yaml and sidecar config files (required)
+- `--dev` - Dev mode: use local Docker images (`spas-{name}:latest`) with `pull_policy: never`
+- `--debug` - Debug mode: set `LOG_LEVEL=debug` for sidecars (verbose payload logging)
+- `--disable-sidecar-tracing` - Disable sidecar tracing while keeping service tracing
 - `--dry-run` - Validate and preview without generating files
 - `--output <file>` - Output filename (default: docker-compose.yaml)
 - `--event-backbone <image>` - Event backbone Docker image (default: redis:7-alpine)
 - `--observability-backbone <image>` - Observability backbone Docker image (default: openzipkin/zipkin:latest)
 - `--json` - Output result as JSON
 - `--verbose` - Show detailed progress
+
+**Dev Mode:**
+
+The `--dev` flag enables fast local development iteration by:
+- Using `spas-{service-name}:latest` as image references (ignores `runtime.image` from spas.json)
+- Setting `pull_policy: never` to use local Docker Desktop images directly
+- Skipping repository digest resolution
+
+```bash
+# Development workflow (fast iteration)
+spas-compose choreography build --docker --dev
+
+# Production workflow (pinned versions from repository)
+spas-compose choreography build --docker
+```
+
+**Debug Mode:**
+
+The `--debug` flag enables verbose sidecar logging for troubleshooting event flows:
+- Sets `LOG_LEVEL=debug` in sidecar environment variables
+- Enables detailed payload logging (`[publish] Payload:`, `[subscriber] Payload:`)
+- Useful for diagnosing event routing and transformation issues
+
+```bash
+# Development with debug logging
+spas-compose choreography build --docker --dev --debug
+
+# View sidecar payload logs
+docker compose up
+# Look for "[publish] Payload:" and "[subscriber] Payload:" in sidecar logs
+```
+
+**Disable Sidecar Tracing:**
+
+The `--disable-sidecar-tracing` flag disables sidecar traces while keeping service traces:
+- Sets `TRACING_ENABLED=false` in sidecar environment variables
+- Services still send traces to Zipkin (cleaner trace view)
+- Sidecars don't add publish/receive/invoke spans
+- Useful when sidecar spans clutter the trace view
+
+```bash
+# Service traces only, no sidecar spans
+spas-compose choreography build --docker --dev --disable-sidecar-tracing
+
+# Combine with debug for payload logging without sidecar traces
+spas-compose choreography build --docker --dev --debug --disable-sidecar-tracing
+```
 
 **Backbone Configuration:**
 

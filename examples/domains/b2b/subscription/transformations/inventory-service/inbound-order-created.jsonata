@@ -1,0 +1,9 @@
+/* inbound-order-created.jsonata */
+/* Transforms order-created (order-service) → ReserveStockRequest (inventory-service) */
+{
+  "orderId": orderId,
+  "items": $append([], items.{
+    "productId": productId,
+    "quantity": quantity
+  })
+}

@@ -73,25 +73,8 @@ app.MapPost("/inventory/reserve",
             
             if (inventoryItem == null || inventoryItem.AvailableQuantity < item.Quantity)
             {
-                // Stock depleted
-                var depletedPayload = new
-                {
-                    productId = item.ProductId,
-                    orderId = request.OrderId,
-                    requestedQuantity = item.Quantity,
-                    availableQuantity = inventoryItem?.AvailableQuantity ?? 0,
-                    timestamp = DateTime.UtcNow
-                };
-
-                try
-                {
-                    await publisher.PublishAsync<StockDepletedEvent>(payload: depletedPayload);
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine($"Failed to publish StockDepleted event: {ex.Message}");
-                }
-                
+                // Stock depleted - log but don't publish event (not in choreography)
+                Console.WriteLine($"[inventory-service] Stock depleted for {item.ProductId}: requested {item.Quantity}, available {inventoryItem?.AvailableQuantity ?? 0}");
                 continue;
             }
 

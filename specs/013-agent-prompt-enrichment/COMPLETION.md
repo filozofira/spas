@@ -1226,7 +1226,9 @@ After rebuild with `spas-compose choreography build --docker`:
 | #7 | Hardcoded endpoint | Resolve from service metadata | 0 KB |
 | #8 | No command mapping | Added commands array + target.command | 0 KB |
 | #9 | Invalid topic format | Added `{boundedContext}-events` convention | -0.09 KB |
-| **Total** | 9 critical bugs | All aligned with principles | **-1.75 KB** |
+| #10 | Missing eventType filter | Added eventType generation in inbound configs | 0 KB |
+| #11 | Terminal events + dedup | Allow empty targets, dedupe by eventType | 0 KB |
+| **Total** | 11 fixes/enhancements | All aligned with principles | **-1.75 KB** |
 
 **Final Agent Prompt**:
 - **Size**: ~24.36 KB (97.4% of 25 KB budget)
@@ -1234,5 +1236,273 @@ After rebuild with `spas-compose choreography build --docker`:
 - **Alignment**: Fully consistent with SPAS principles and implementation
 - **Completeness**: Commands, events, topics, execution flow, architecture all documented
 - **Quality**: Self-contained, architecturally sound, production-ready
+
+---
+
+## Bug Fix #10: Missing eventType Filter in Generated Sidecar Configs
+
+**Date**: December 18, 2025  
+**Issue**: `spas-compose choreography build` did not generate `eventType` field in inbound config entries, causing sidecars to process ALL events on a topic instead of filtering by event type.
+
+### Problem Analysis
+
+When running the ecommerce domain choreography, Zipkin traces revealed:
+- `inventory-service` was processing **both** `order-created` AND `order-confirmed` events
+- Both events are published to `order-events` topic
+- Sidecar processed ALL events without filtering, causing double invocation of `/inventory/reserve`
+
+**Root Cause**:
+- `SidecarConfigGenerator.buildInboundEntries()` only set `kind`, `topic`, `invokeEndpoint`, and `transform`
+- The `eventType` field was not being generated despite:
+  1. Sidecar schema supporting it (`sidecar-config-v1.schema.json`)
+  2. Sidecar runtime filtering by it (`event-subscriber.ts` checks `event.type !== subscription.eventType`)
+  3. InboundEntry interface allowing it (added in earlier bug fix)
+
+### Solution
+
+Added eventType derivation in `buildInboundEntries()`:
+
+*components/cli/spas-compose/src/services/sidecar-config-generator.ts*:
+```typescript
+// Build event type filter
+if (eventRoute.source && eventRoute.event) {
+  entry.eventType = deriveCloudEventsType(
+    eventRoute.source,
+    eventRoute.event,
+  );
+}
+```
+
+*components/cli/spas-compose/src/types.ts*:
+```typescript
+export interface InboundEntry {
+  kind: 'grpc' | 'event';
+  topic?: string;
+  invokeEndpoint: string;
+  transform?: string;
+  /** CloudEvents type filter for inbound events */
+  eventType?: string;  // ← Added
+}
+```
+
+### Related Fix: Sidecar Image Naming
+
+Also fixed inconsistency between README (`spas-sidecar:latest`) and CLI-generated configs (`spas/sidecar:latest`):
+
+*components/cli/spas-compose/src/types.ts*:
+```typescript
+sidecarImage: 'spas-sidecar:latest',  // Was: 'spas/sidecar:latest'
+```
+
+### Verification
+
+After rebuild with `spas-compose choreography build --docker --dev`:
+
+```json
+// config.inventory-service.json
+{
+  "inbound": [{
+    "kind": "event",
+    "topic": "order-events",
+    "invokeEndpoint": "/inventory/reserve",
+    "eventType": "com.order-service.order-created",  // ✅ Now generated
+    "transform": "transformations/inbound-order-created.jsonata"
+  }]
+}
+
+// config.order-service.json
+{
+  "inbound": [{
+    "kind": "event",
+    "topic": "inventory-events",
+    "invokeEndpoint": "/orders/confirm",
+    "eventType": "com.inventory-service.stock-reserved",  // ✅ Now generated
+    "transform": "transformations/inbound-stock-reserved.jsonata"
+  }]
+}
+```
+
+**Files Modified**:
+| File | Change |
+|------|--------|
+| types.ts | Added `eventType` to InboundEntry, standardized sidecar image |
+| sidecar-config-generator.ts | Added eventType derivation in `buildInboundEntries()` |
+| docker-generator.ts | Updated comment for image naming |
+| docker-generator.test.ts | Updated test expectation for image name |
+
+**Impact**:
+- **Critical Fix**: Sidecars now filter events by type, preventing double-processing
+- **Architecture Alignment**: Generator uses same `deriveCloudEventsType()` function as outbound entries
+- **Consistency**: Both inbound and outbound entries include eventType
+- **Image Naming**: Standardized on `spas-sidecar:latest` (flat naming, matches service pattern)
+
+**Test Results**: 215/215 tests passing ✅
+
+---
+
+## Enhancement #11: Terminal Events and EventType Deduplication
+
+**Date**: December 18, 2025  
+**Type**: Enhancement (new feature)
+
+### Problem
+
+1. **Terminal events not supported**: Choreography schema required `targets.minItems: 1`, preventing events with no consumers (e.g., `order-confirmed` for audit)
+2. **Wrong deduplication**: Config generator deduplicated by `topic` instead of `eventType`, causing events on same topic to be lost
+
+### Solution
+
+**1. Allow Terminal Events**
+
+Updated choreography schema and loader to accept empty targets array:
+
+```yaml
+events:
+  - source: order-service
+    event: order-confirmed
+    topic: order-events
+    targets: []  # Terminal event - published but no consumers
+```
+
+**2. Deduplicate by EventType**
+
+Changed `buildOutboundEntries()` and `buildInboundEntries()` to deduplicate by `eventType` instead of `topic`. Multiple events can share the same topic but must each have their own config entry.
+
+### Files Modified
+
+| File | Change |
+|------|--------|
+| choreography-v1.schema.json (3 files) | `targets.minItems: 0` |
+| choreography-loader.ts | Allow empty targets array |
+| sidecar-config-generator.ts | Deduplicate by eventType (inbound & outbound) |
+| sidecar-config-generator.test.ts | Updated 3 tests for new behavior |
+| templates.ts | Updated schema minItems, added terminal events docs |
+| 14-domain-choreography.md | Added Terminal Events section |
+
+### Verification
+
+After fix, `order-service` outbound now includes both events:
+
+```json
+{
+  "outbound": [
+    { "topic": "order-events", "eventType": "com.order-service.order-created", "eventName": "order-created" },
+    { "topic": "order-events", "eventType": "com.order-service.order-confirmed", "eventName": "order-confirmed" }
+  ]
+}
+```
+
+**Test Results**: 216/216 tests passing ✅
+
+---
+
+## Enhancement #12: Distributed Tracing Fixes for Zipkin Dependency Graph
+
+**Date**: December 19, 2025  
+**Type**: Bug Fix (critical tracing issues)
+
+### Problem
+
+Three issues were identified in Zipkin trace visualization:
+
+1. **Missing top-level `kind` field**: Zipkin's dependency graph requires spans to have `kind` (PRODUCER, CONSUMER, CLIENT, SERVER) at the top level of the JSON, not nested in tags
+2. **Disconnected dependency graph**: Zipkin showed services as disconnected "islands" instead of a connected graph because spans lacked `remoteEndpoint` to indicate the target service
+3. **Missing SERVER span**: The sidecar's `/publish` endpoint didn't emit a SERVER span, breaking the trace link between the calling service and the sidecar
+
+### Solution
+
+**1. Top-Level SpanKind Extraction**
+
+Updated `tracer.ts` to extract `spanKind` from tags and set it as a top-level `kind` field in the Zipkin JSON:
+
+```typescript
+// Extract spanKind from tags for top-level Zipkin field
+const { spanKind, remoteServiceName, ...tagsWithoutMetadata } = span.tags;
+
+const zipkinSpan: ZipkinSpan = {
+  traceId: span.context.traceId,
+  id: span.context.spanId,
+  name: span.name,
+  // ... other fields
+};
+
+// Set top-level kind if spanKind was specified
+if (spanKind) {
+  zipkinSpan.kind = spanKind as 'CLIENT' | 'SERVER' | 'PRODUCER' | 'CONSUMER';
+}
+```
+
+**2. RemoteEndpoint for Dependency Graph**
+
+Added `remoteEndpoint` support to link services in Zipkin's dependency view:
+
+```typescript
+// Set remoteEndpoint for dependency graph
+if (remoteServiceName) {
+  zipkinSpan.remoteEndpoint = { serviceName: remoteServiceName };
+}
+```
+
+Updated span creation to include `remoteServiceName`:
+- **PRODUCER spans**: `remoteServiceName: 'redis'` (message broker)
+- **CONSUMER spans**: `remoteServiceName: 'redis'` (message broker)
+- **CLIENT spans**: `remoteServiceName: targetServiceName` (service being invoked)
+- **SERVER spans**: `remoteServiceName: headers.serviceName` (calling service)
+
+**3. SERVER Span in Publish Handler**
+
+Added SERVER span creation in `publish.ts` to bridge the service→sidecar link:
+
+```typescript
+// Start SERVER span for incoming request
+// This links the sidecar to the calling service
+if (headers.traceparent) {
+  span = tracer?.startSpan('post /publish', headers.traceparent, {
+    spanKind: 'SERVER',
+    remoteServiceName: headers.serviceName,
+    'http.method': 'POST',
+    'http.url': '/publish',
+    'http.route': '/publish'
+  } as Partial<SpanTags>);
+}
+```
+
+### Files Modified
+
+| File | Change |
+|------|--------|
+| `src/types.ts` | Added `remoteEndpoint` to `ZipkinSpan`, `remoteServiceName` to `SpanTags` |
+| `src/services/tracer.ts` | Extract `spanKind` and `remoteServiceName` from tags, set top-level `kind` and `remoteEndpoint` |
+| `src/services/event-publisher.ts` | Added `spanKind: 'PRODUCER'` and `remoteServiceName: 'redis'` to publish spans |
+| `src/services/event-subscriber.ts` | Added `spanKind: 'CONSUMER'` and `remoteServiceName: 'redis'` to receive spans; `spanKind: 'CLIENT'` and `remoteServiceName: targetServiceName` to invoke spans |
+| `src/handlers/publish.ts` | Added SERVER span with `remoteServiceName: headers.serviceName` |
+
+### Verification
+
+After fix, Zipkin dependency graph correctly shows:
+
+```
+order-service → order-service-sidecar → redis → inventory-service-sidecar → inventory-service
+```
+
+Example trace span with correct top-level fields:
+```json
+{
+  "traceId": "08bf74b9f916458bcd5333621a37749b",
+  "id": "412c622cc8c88c37",
+  "kind": "PRODUCER",
+  "name": "publish",
+  "localEndpoint": { "serviceName": "order-service-sidecar" },
+  "remoteEndpoint": { "serviceName": "redis" },
+  "tags": { "cloudevents.type": "com.order-service.order-created", ... }
+}
+```
+
+**Impact**:
+- **Fixed Zipkin Dependency Graph**: Services now show connected topology
+- **Proper Span Semantics**: PRODUCER/CONSUMER for async messaging, CLIENT/SERVER for HTTP
+- **Complete Trace Visualization**: Full trace chain visible from entry to exit
+
+**Test Results**: All sidecar tests passing ✅
 
 ---

@@ -120,7 +120,8 @@ describe('Event Subscriber', () => {
       expect(mockInvoker.invoke).toHaveBeenCalledWith(
         '/orders',
         { orderId: 'order-789' },
-        expect.objectContaining({ id: 'event-123' })
+        expect.objectContaining({ id: 'event-123' }),
+        undefined  // traceparentOverride is undefined when tracer not initialized
       );
     });
 

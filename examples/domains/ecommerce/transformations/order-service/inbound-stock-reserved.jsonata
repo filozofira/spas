@@ -1,0 +1,12 @@
+/* inbound-stock-reserved.jsonata */
+/* Transforms stock-reserved event (inventory-service) → ConfirmOrder command (order-service) */
+/* Input: StockReservedEvent { orderId, reservations[], timestamp } */
+/* Output: ConfirmOrderRequest { orderId, reservedItems[] } */
+
+{
+  "orderId": orderId,
+  "reservedItems": $append([], reservations.{
+    "productId": productId,
+    "quantity": quantity
+  })
+}

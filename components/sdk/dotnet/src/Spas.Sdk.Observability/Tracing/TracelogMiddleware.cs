@@ -38,6 +38,12 @@ public class TracelogMiddleware
         activity?.SetTag("http.host", host);
         activity?.SetTag("http.scheme", context.Request.Scheme);
 
+        // Add cloudevents.type tag if this is an event callback from sidecar
+        if (context.Request.Headers.TryGetValue("ce-type", out var ceType) && !string.IsNullOrEmpty(ceType))
+        {
+            activity?.SetTag("cloudevents.type", ceType.ToString());
+        }
+
         // Add correlation context as span tags
         if (!string.IsNullOrEmpty(SpasContext.CorrelationId))
         {

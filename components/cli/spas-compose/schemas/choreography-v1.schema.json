@@ -86,11 +86,11 @@
         },
         "targets": {
           "type": "array",
-          "description": "Subscribing services and their transformations",
+          "description": "Subscribing services and their transformations. Empty array for terminal events.",
           "items": {
             "$ref": "#/definitions/Target"
           },
-          "minItems": 1
+          "minItems": 0
         }
       }
     },

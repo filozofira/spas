@@ -247,6 +247,20 @@ describe("DockerGenerator", () => {
   // ==========================================================================
 
   describe("image reference generation (T007)", () => {
+    it("should use spas-examples/{service}:latest in dev mode", () => {
+      // Arrange
+      const generator = new DockerGenerator(workspacePath, undefined, true); // devMode = true
+
+      // Act
+      const result = generator.generate(sampleChoreography);
+
+      // Assert
+      expect(result.success).toBe(true);
+      expect(result.content).toContain("image: spas-examples/order-service:latest");
+      expect(result.content).toContain("image: spas-examples/fulfillment-service:latest");
+      expect(result.content).toContain("pull_policy: never");
+    });
+
     it("should use image: from runtime metadata when available", () => {
       // Arrange
       const servicesDir = path.join(workspacePath, "services");
@@ -282,7 +296,7 @@ describe("DockerGenerator", () => {
 
       // Assert
       expect(result.success).toBe(true);
-      expect(result.content).toContain("image: spas/sidecar:latest");
+      expect(result.content).toContain("image: spas-sidecar:latest");
       expect(result.content).not.toContain("build: ./spas-sidecar");
     });
   });

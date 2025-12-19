@@ -402,10 +402,12 @@ This pattern enables **loose coupling**: Services never call each other directly
   - \`source\`: Publishing service (owns the event)
   - \`event\`: Event type (kebab-case)
   - \`topic\`: Message topic name
-  - \`targets\`: Subscribing services
+  - \`targets\`: Subscribing services (empty array = terminal event)
     - \`service\`: Subscriber name
     - \`command\`: Command to invoke (PascalCase)
     - \`transform\`: JSONata file path (optional)
+
+**Terminal Events**: Events with \`targets: []\` are published but have no consumers in this choreography. Used for audit, logging, or future extension.
 
 **Commands vs Events**: Commands = entry points (single target, no transform). Events = coordination (multiple targets, with transform).
 
@@ -1215,11 +1217,11 @@ export function generateChoreographySchema(): string {
             },
             targets: {
               type: "array",
-              description: "Subscribing services and their transformations",
+              description: "Subscribing services. Empty array for terminal events.",
               items: {
                 $ref: "#/definitions/Target",
               },
-              minItems: 1,
+              minItems: 0,
             },
           },
         },

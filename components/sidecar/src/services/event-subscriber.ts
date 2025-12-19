@@ -137,19 +137,34 @@ export class EventSubscriber {
     const event = parseCloudEvent(data);
     console.log(`[subscriber] Processing event ${event.id} (${event.type})`);
 
-    // Start parent span for event processing
+    // Filter by eventType if specified
+    if (subscription.eventType && event.type !== subscription.eventType) {
+      console.log(`[subscriber] Skipping event - type mismatch (expected: ${subscription.eventType}, got: ${event.type})`);
+      return;
+    }
+
+    // DEBUG: Log payload for troubleshooting (PoC only)
+    console.log(`[subscriber] Payload:`, JSON.stringify(event.data, null, 2));
+
+    // Start parent span for event processing with eventType tag
+    // remoteServiceName is 'redis' (the message broker) for CONSUMER spans
     const tracer = getTracer();
     const parentSpan = tracer?.startSpan('receive', event.traceparent, {
       kind: 'event',
+      spanKind: 'CONSUMER',
+      remoteServiceName: 'redis',
       transport: 'redis',
       'event.topic': subscription.topic,
+      'cloudevents.type': event.type,
+      'peer.service': event.source,
     } as Partial<SpanTags>);
 
     try {
       // Apply inbound transform with child span
       let payload = event.data;
       if (subscription.transform) {
-        const transformSpan = parentSpan ? tracer?.startChildSpan(parentSpan, 'transform', {
+        // Create local span for transformation
+        const transformSpan = parentSpan ? tracer?.startSpan('transform', parentSpan.context.traceparent, {
           'transform.function': subscription.transform,
         } as Partial<SpanTags>) : undefined;
 
@@ -161,12 +176,18 @@ export class EventSubscriber {
       }
 
       // Invoke service endpoint with child span
+      // remoteServiceName is the service being invoked (derived from SERVICE_NAME env var)
+      const targetServiceName = process.env.SERVICE_NAME || 'unknown-service';
       const invokeSpan = parentSpan ? tracer?.startChildSpan(parentSpan, 'invoke', {
         'http.url': subscription.invokeEndpoint,
         'http.method': 'POST',
+        spanKind: 'CLIENT',
+        remoteServiceName: targetServiceName,
       } as Partial<SpanTags>) : undefined;
 
-      const result = await this.invoker.invoke(subscription.invokeEndpoint, payload, event);
+      // Pass invoke span's traceparent so downstream service links to this span
+      const invokeTraceparent = invokeSpan ? tracer?.getTraceparent(invokeSpan) : undefined;
+      const result = await this.invoker.invoke(subscription.invokeEndpoint, payload, event, invokeTraceparent);
 
       if (invokeSpan) {
         tracer?.tagHttpStatus(invokeSpan, result.status);

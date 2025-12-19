@@ -44,6 +44,20 @@ services:
     networks:
       - spas-network
 
+  subscription-service:
+    build:
+      context: ..
+      dockerfile: examples/services/subscription-service/Dockerfile
+    image: spas-examples/subscription-service:1.0.0
+    container_name: subscription-service
+    ports:
+      - "5003:8080"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:8080
+    networks:
+      - spas-network
+
   # Stub Services (Node.js)
   fulfillment-service:
     build:
@@ -51,26 +65,6 @@ services:
       dockerfile: Dockerfile
     image: spas-examples/fulfillment-service:1.0.0
     container_name: fulfillment-service
-    ports:
-      - "5003:3000"
-    environment:
-      - NODE_ENV=development
-      - PORT=3000
-    healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3000/health"]
-      interval: 10s
-      timeout: 5s
-      retries: 3
-      start_period: 5s
-    networks:
-      - spas-network
-
-  subscription-service:
-    build:
-      context: ./stubs/subscription-service
-      dockerfile: Dockerfile
-    image: spas-examples/subscription-service:1.0.0
-    container_name: subscription-service
     ports:
       - "5004:3000"
     environment:
@@ -84,6 +78,12 @@ services:
       start_period: 5s
     networks:
       - spas-network
+
+  # REMOVED - subscription-service is now a SPAS service (not a stub)
+  # subscription-service:
+  #   build:
+  #     context: ./stubs/subscription-service
+  #     dockerfile: Dockerfile
 
   # Gateway (Node.js)
   api-gateway:

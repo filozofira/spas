@@ -27,6 +27,8 @@ export interface InboundEntry {
   command?: string;
   /** Topic to subscribe to - required when kind='event' */
   topic?: string;
+  /** Optional CloudEvents type filter - when omitted, processes all events on topic */
+  eventType?: string;
   /** Optional transform function - when omitted, passthrough (no transformation) */
   transform?: string;
   /** Service endpoint to invoke with transformed payload */
@@ -139,6 +141,8 @@ export interface ZipkinSpan {
   id: string;
   /** 16 hex character parent span ID (optional) */
   parentId?: string;
+  /** Span kind for Zipkin (CLIENT, SERVER, PRODUCER, CONSUMER) */
+  kind?: 'CLIENT' | 'SERVER' | 'PRODUCER' | 'CONSUMER';
   /** Operation name */
   name: string;
   /** Start timestamp in microseconds since epoch */
@@ -147,6 +151,10 @@ export interface ZipkinSpan {
   duration: number;
   /** Local endpoint information */
   localEndpoint: {
+    serviceName: string;
+  };
+  /** Remote endpoint information (for CLIENT/SERVER/PRODUCER/CONSUMER spans) */
+  remoteEndpoint?: {
     serviceName: string;
   };
   /** Span tags/attributes */
@@ -158,12 +166,17 @@ export interface ZipkinSpan {
  */
 export interface SpanTags {
   kind: 'event' | 'command';
+  /** Zipkin span kind - maps to top-level kind field */
+  spanKind?: 'CLIENT' | 'SERVER' | 'PRODUCER' | 'CONSUMER';
+  /** Remote service name for dependency graph */
+  remoteServiceName?: string;
   transport: 'redis' | 'http';
   'event.topic'?: string;
   'http.url'?: string;
   'http.method'?: string;
   'http.status_code'?: string;
   'transform.function'?: string;
+  'cloudevents.type'?: string;
   error?: string;
 }
 

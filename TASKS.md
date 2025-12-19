@@ -4,92 +4,60 @@
 
 ---
 
-## Agent Handoff Update (Dec 17, 2025)
+## Agent Handoff Update (Dec 19, 2025)
 
 This section documents the latest actions, any issues encountered, and the exact next steps so another agent can resume seamlessly.
 
-### What Was Done (Dec 17, 2025) - E2E Choreography Debugging Complete
+### What Was Done (Dec 19, 2025) - Distributed Tracing Fixes Complete
 
-**Branch:** `fix_issues_found_during_example_choreography` (ready for PR)
+**Branch:** `fix_issues_found_during_example_choreography`
 
-- **SDK camelCase Schema Fix**: 
-  - `SchemaGenerator.cs` was generating PascalCase property names while runtime serialization used camelCase
-  - Added `SystemTextJsonSchemaGeneratorSettings` with `JsonNamingPolicy.CamelCase`
-  - Updated tests to expect camelCase
-  - Documented in ADR-040
+- **Distributed Tracing Fixed for Zipkin Dependency Graph**:
 
-- **E2E Choreography Flow Fixed and Verified**:
-  - Full round-trip working: POST /orders → order-created → inventory-service → stock-reserved → order confirmed
-  - Zipkin traces showing complete W3C Trace Context propagation
+  - Fixed missing top-level `kind` field in Zipkin spans (PRODUCER/CONSUMER/CLIENT/SERVER)
+  - Added `remoteEndpoint` to spans for proper dependency graph visualization
+  - Added SERVER span in `/publish` handler to bridge service→sidecar link
+  - Zipkin now shows correct topology: `order-service → order-service-sidecar → redis → inventory-service-sidecar → inventory-service`
 
-- **Issues Fixed During E2E Testing**:
-  1. **Docker "invalid reference format"**: Newline character in inventory-service `spas.json` runtime.repository field
-  2. **JSONata single-element array bug**: `items.{...}` returns object for 1-element arrays - fixed with `$append([], items.{...})` pattern
-  3. **Wrong endpoint routing**: order-service config routed `stock-reserved` to `/incoming` instead of `/events/stock-reserved`
-  4. **Transform field mapping**: Fixed `inbound-stock-reserved.jsonata` to map `reservations` → `reservedItems`, `timestamp` → `reservedAt`
+- **E-Commerce Domain Complete and Verified**:
 
-- **Files Changed (Dec 17):**
-  - `components/sdk/dotnet/src/Spas.Sdk/SchemaGenerator.cs` - camelCase schema generation
-  - `components/sdk/dotnet/test/Spas.Sdk.Tests/SchemaGeneratorTests.cs` - Updated expectations
-  - `components/sdk/dotnet/test/Spas.Sdk.Tests/MetadataEndpointIntegrationTests.cs` - Updated expectations
-  - `examples/ecommerce/public/transformations/inventory-service/inbound-order-created.jsonata` - Array fix + required fields
-  - `examples/ecommerce/public/transformations/order-service/inbound-stock-reserved.jsonata` - Field mapping fix
-  - `examples/ecommerce/public/config.order-service.json` - Endpoint routing fix
-  - `principles/appendix/28-decision-log.md` - Added ADR-040 (camelCase schema generation)
-  - `specs/005-spas-compose-cli/COMPLETION.md` - Added Known Limitations section
-  - `components/cli/spas-compose/src/sidecar-config-generator/templates.ts` - Agent prompt with JSONata array pattern
+  - Full choreography working with 2 services (order-service, inventory-service)
+  - All traces visible in Zipkin with proper parent-child relationships
+  - Dependency graph correctly shows all service connections
 
-- **Documentation Added**:
-  - **ADR-040**: Schema property naming uses camelCase to match System.Text.Json runtime
-  - **Known Limitation 1**: `invokeEndpoint` defaults to `/incoming`, services with event-specific endpoints need manual override
-  - **Known Limitation 2**: JSONata `array.{...}` returns object for single-element arrays - use `$append([], ...)` pattern
+- **B2B Subscription Domain Complete and Verified**:
 
-- **Tests Verified**:
-  - SDK tests: All passing
-  - CLI tests: 172 passing
+  - Full 4-service choreography working (subscription-service, order-service, inventory-service, product-service)
+  - Demonstrates service reuse across domains
+  - All traces visible in Zipkin with proper parent-child relationships
 
-### What Failed / Lessons Learned
+- **Files Changed (Dec 19):**
 
-1. **SDK schema generation MUST match runtime serialization policy** - JsonSchema.Net defaults to property names, but System.Text.Json uses camelCase by default
-2. **JSONata `array.{...}` is NOT safe for arrays** - Always use `$append([], array.{...})` to preserve array type
-3. **Services may expose event-specific endpoints** - Don't assume all events go to `/incoming`
-4. **Transform field names must match target DTO exactly** - camelCase property names in JSON
+  - `components/sidecar/src/types.ts` - Added `remoteEndpoint` to ZipkinSpan, `remoteServiceName` to SpanTags
+  - `components/sidecar/src/services/tracer.ts` - Extract spanKind/remoteServiceName from tags, set top-level Zipkin fields
+  - `components/sidecar/src/services/event-publisher.ts` - Added PRODUCER spanKind and remoteServiceName
+  - `components/sidecar/src/services/event-subscriber.ts` - Added CONSUMER/CLIENT spanKind and remoteServiceName
+  - `components/sidecar/src/handlers/publish.ts` - Added SERVER span for incoming requests
+  - `components/sidecar/README.md` - Added Distributed Tracing section
+  - `examples/domains/README.md` - Complete rewrite with both examples, diagrams, running instructions
+  - `specs/013-agent-prompt-enrichment/COMPLETION.md` - Added Enhancement #12 documenting tracing fixes
+
+- **Documentation Updated**:
+  - Sidecar README with span types table and dependency graph visualization
+  - Examples domains README with Mermaid flowcharts for both choreographies
+  - COMPLETION.md with full tracing fix documentation
 
 ### Precise Next Steps (Pick and execute IN ORDER)
 
-1. **Phase 3: B2B Subscription Choreography** — Proves service reuse across domains
-   - Use same order-service/inventory-service in different domain context
-   - Create async-first choreography workflow
-   - Verify services work without code changes
-
-2. **Consider remaining grooming features** — See [GROOMING.md](./GROOMING.md) for FG01-FG04
+1. **Consider remaining grooming features** — See [GROOMING.md](./GROOMING.md) for FG01-FG04
 
 ### Key Files for Context
 
-- **[examples/README.md](./examples/README.md)** — Phase 1 & 2 complete, sequence diagrams, running instructions
-- **[GROOMING.md](./GROOMING.md)** — Remaining features to groom (FG01-FG04)
-- **[principles/appendix/28-decision-log.md](./principles/appendix/28-decision-log.md)** — ADR-040 for camelCase decision
-- **[specs/005-spas-compose-cli/COMPLETION.md](./specs/005-spas-compose-cli/COMPLETION.md)** — Known Limitations section
-- **[specs/009-compose-generator-fixes/](./specs/009-compose-generator-fixes/)** — All generator fixes completed
-- **[specs/012-cloudevents-type-refactor/](./specs/012-cloudevents-type-refactor/)** — CloudEvents type refactor complete
+- **[examples/domains/README.md](./examples/domains/README.md)** — Both examples documented with diagrams
+- **[components/sidecar/README.md](./components/sidecar/README.md)** — Distributed tracing documentation
+- **[specs/013-agent-prompt-enrichment/COMPLETION.md](./specs/013-agent-prompt-enrichment/COMPLETION.md)** — Enhancement #12 for tracing fixes
 
-### Technical Patterns Discovered
-
-```jsonata
-// ALWAYS use $append for array preservation in JSONata transforms
-{
-  "items": $append([], sourceArray.{ "field": $.value })
-}
-```
-
-```csharp
-// SDK schema generation must use camelCase to match runtime
-var settings = new SystemTextJsonSchemaGeneratorSettings {
-    SerializerOptions = new JsonSerializerOptions { 
-        PropertyNamingPolicy = JsonNamingPolicy.CamelCase 
-    }
-};
-```
+---
 
 ## 📋 Key Rules for Multi-Machine Continuity
 
@@ -120,45 +88,6 @@ framework PoC implementation. Read these context files first:
 
 Once read, answer: "What is the immediate next task and what implementation artifacts from the spec should guide it?"
 ```
-
-## Remaining Phases
-
-### Phase 5: E-Commerce End-to-End PoC ← CURRENT
-
-**Status:** 🔨 Design Complete — Implementation Phase 1 Ready
-
-**Design Document:** [examples/README.md](./examples/README.md)
-
-**Goal:** Demonstrate full SPAS framework in realistic multi-service scenario with service reuse across domains.
-
-**Implementation Phases:**
-
-| Phase  | Description                                  | Status      |
-| ------ | -------------------------------------------- | ----------- |
-| Design | Complete design document with all 7 sections | ✅ Complete |
-| 1      | Core services + Repository integration       | 🔲 Next     |
-| 2      | E-Commerce public choreography               | 🔲 Pending  |
-| 3      | B2B subscription choreography                | 🔲 Pending  |
-| 4      | Documentation & polish                       | 🔲 Pending  |
-| 5      | Product service (optional)                   | 🔲 TBD      |
-
-**Spec Cross-Reference:**
-
-- `examples/README.md` (design decisions, service portfolio, event flows)
-- `principles/02-architecture-overview.md` (architecture)
-- `principles/service/04-service-contract.md` (service contracts)
-- `principles/component/14-domain-choreography.md` (adaptation rules)
-
-**Prerequisites:** Phase 4 (Sidecar) complete ✓
-
-**Outputs:**
-
-- `examples/services/` — SPAS-compliant services (.NET + SDK)
-- `examples/stubs/` — Domain-specific stubs (Node.js)
-- `examples/gateways/` — Custom API gateway (Node.js)
-- `examples/domains/` — Domain deployments with choreography and docker-compose
-
----
 
 ## Reference Links
 

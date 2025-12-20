@@ -37,9 +37,6 @@ USER spas
 # Copy the built JAR
 COPY --from=build /app/target/*.jar app.jar
 
-# Copy the generated spas.json metadata
-COPY --from=build /app/target/classes/spas.json spas.json
-
 # Expose port
 EXPOSE 8080
 

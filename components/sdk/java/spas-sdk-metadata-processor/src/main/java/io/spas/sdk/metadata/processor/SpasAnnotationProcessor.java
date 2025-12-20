@@ -251,16 +251,13 @@ public class SpasAnnotationProcessor extends AbstractProcessor {
         // Build capabilities list
         List<String> capabilities = service.capabilities().length > 0
             ? Arrays.asList(service.capabilities())
-            : null;
+            : List.of();
 
-        // Build consistency (only if there are endpoints)
-        Consistency consistency = null;
-        if (!endpoints.isEmpty()) {
-            consistency = new Consistency(
-                ConsistencyLevel.ACID,  // Default, can be overridden in future
-                QueryConsistencyLevel.EVENTUAL
-            );
-        }
+        // Build consistency (required by repository validation)
+        Consistency consistency = new Consistency(
+            ConsistencyLevel.ACID,  // Default, can be overridden in future
+            QueryConsistencyLevel.EVENTUAL
+        );
 
         // Build security with default public classification
         Security security = new Security(
@@ -268,20 +265,26 @@ public class SpasAnnotationProcessor extends AbstractProcessor {
             List.of(DataClassification.INTERNAL)
         );
 
+        // Build network (required by repository validation)
+        Network network = new Network(List.of());
+
+        String description = service.description().isEmpty() ? "" : service.description();
+        String license = service.license().isEmpty() ? "" : service.license();
+
         return new ServiceMetadata(
             ServiceMetadata.SCHEMA_VERSION,
             service.id(),
             service.name(),
-            service.description().isEmpty() ? null : service.description(),
+            description,
             service.version(),
             service.boundedContext(),
             capabilities,
-            endpoints.isEmpty() ? null : endpoints,
-            events.isEmpty() ? null : events,
+            endpoints,
+            events,
             consistency,
             security,
-            null,  // network
-            service.license().isEmpty() ? null : service.license()
+            network,
+            license
         );
     }
 

@@ -9,11 +9,15 @@ import io.spas.sdk.metadata.model.EndpointContract;
 import io.spas.sdk.metadata.model.EndpointType;
 import io.spas.sdk.metadata.model.EventContract;
 import io.spas.sdk.metadata.model.Protocol;
+import io.spas.sdk.metadata.model.Consistency;
+import io.spas.sdk.metadata.model.ConsistencyLevel;
+import io.spas.sdk.metadata.model.QueryConsistencyLevel;
 import io.spas.sdk.metadata.model.Security;
 import io.spas.sdk.metadata.model.Authentication;
 import io.spas.sdk.metadata.model.AuthType;
 import io.spas.sdk.metadata.model.DataClassification;
 import io.spas.sdk.metadata.model.ServiceMetadata;
+import io.spas.sdk.metadata.model.Network;
 import io.spas.sdk.metadata.annotations.SpasEvent;
 import io.spas.sdk.metadata.annotations.SpasQuery;
 import io.spas.sdk.metadata.annotations.SpasService;
@@ -317,27 +321,39 @@ public class SpasMetadataController {
             List<EventContract> events = scanEvents(basePackage);
             List<EndpointContract> endpoints = scanEndpoints(basePackage, service.protocol());
 
-            List<String> capabilities = service.capabilities().length > 0 ? Arrays.asList(service.capabilities()) : null;
+            List<String> capabilities = service.capabilities().length > 0
+                ? Arrays.asList(service.capabilities())
+                : List.of();
+
+            Consistency consistency = new Consistency(
+                ConsistencyLevel.ACID,
+                QueryConsistencyLevel.EVENTUAL
+            );
 
             Security security = new Security(
                 new Authentication(AuthType.NONE, null),
                 List.of(DataClassification.INTERNAL)
             );
 
+            Network network = new Network(List.of());
+
+            String description = service.description() == null ? "" : service.description();
+            String license = service.license() == null ? "" : service.license();
+
             return new ServiceMetadata(
                 ServiceMetadata.SCHEMA_VERSION,
                 service.id(),
                 service.name(),
-                service.description().isEmpty() ? null : service.description(),
+                description.isEmpty() ? "" : description,
                 service.version(),
                 service.boundedContext(),
                 capabilities,
-                endpoints.isEmpty() ? null : endpoints,
-                events.isEmpty() ? null : events,
-                null,
+                endpoints,
+                events,
+                consistency,
                 security,
-                null,
-                service.license().isEmpty() ? null : service.license()
+                network,
+                license.isEmpty() ? "" : license
             );
         } catch (Exception e) {
             log.log(Level.WARNING, "Failed to build spas.json metadata at runtime", e);

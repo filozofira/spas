@@ -1,0 +1,32 @@
+# SPAS Choreography Configuration
+# See: specs/005-spas-compose-cli/contracts/choreography-schema.yaml
+
+version: "1.0"
+domain: fullfilment
+
+# Named choreography flows
+# Use /spas.compose agent to generate flows based on service contracts
+flows: {}
+  # Example:
+  # order-fulfillment:
+  #   description: "Order to fulfillment processing flow"
+  #   participants:
+  #     - order-service
+  #     - fulfillment-service
+  #   events:
+  #     - source: order-service
+  #       event: order-created
+  #       topic: orders
+  #       targets:
+  #         - service: fulfillment-service
+#           transform: transformations/fulfillment-service/inbound-order-created.jsonata
+
+# Infrastructure components (optional)
+infrastructure:
+  redis:
+    enabled: true
+    # host: redis
+    # port: 6379
+  zipkin:
+    enabled: true
+    # url: http://zipkin:9411

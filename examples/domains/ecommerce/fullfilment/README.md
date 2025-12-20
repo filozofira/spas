@@ -21,6 +21,22 @@ fullfilment/
 
 ## Workflow
 
+## Choreography Diagram
+
+```mermaid
+flowchart LR
+    subgraph Stock Reservation
+        OS[order-service] -->|order-created| IS[inventory-service]
+        IS -->|stock-reserved| OS
+    end
+
+    subgraph Shipment Fulfillment
+        OS -->|order-confirmed| FS[fulfillment-service]
+        FS -->|shipment-created| OS
+        FS -->|shipment-status-changed| OS
+    end
+```
+
 ### 1. Pull Services
 
 Download service metadata from SPAS Repository:

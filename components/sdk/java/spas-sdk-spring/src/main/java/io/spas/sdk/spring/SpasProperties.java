@@ -69,7 +69,7 @@ public class SpasProperties {
      */
     public static class Sidecar {
         /**
-         * Full sidecar URL (e.g., http://localhost:8080).
+         * Full sidecar URL (e.g., http://localhost:7000).
          * Takes precedence over host/port if set.
          */
         private String url;
@@ -80,9 +80,9 @@ public class SpasProperties {
         private String host;
         
         /**
-         * Sidecar port (default: 8080).
+         * Sidecar port (default: 7000).
          */
-        private Integer port = 8080;
+        private Integer port = 7000;
         
         /**
          * Connection timeout (default: 5s).

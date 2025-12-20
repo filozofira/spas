@@ -119,7 +119,6 @@ spas:
     id: fulfillment-service
     bounded-context: fulfillment
   sidecar:
-    url: http://localhost:8081  # Sidecar URL
     timeout: 5000
   tracing:
     enabled: true
@@ -130,7 +129,10 @@ spas:
 
 | Variable | Description | Default |
 |----------|-------------|---------|
-| `SPAS_SIDECAR_URL` | Sidecar URL | `http://localhost:8081` |
+| `SERVICE_NAME` | Service identifier | `unknown-service` |
+| `SIDECAR_URL` | Sidecar URL (optional override) | Derived by convention |
+| `SIDECAR_HOST` | Sidecar host (optional override) | Derived by convention |
+| `SIDECAR_PORT` | Sidecar port (optional override) | `7000` |
 | `SERVER_PORT` | Service port | `8080` |
 
 ## SPAS Metadata

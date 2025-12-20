@@ -1,6 +1,8 @@
 package io.spas.sdk.core.config;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 
 import java.net.URI;
 
@@ -9,24 +11,27 @@ import static org.junit.jupiter.api.Assertions.*;
 class SpasConfigurationTest {
 
     @Test
-    void constructor_shouldThrowWhenServiceNameIsNull() {
-        SpasConfigurationException exception = assertThrows(
-            SpasConfigurationException.class,
-            () -> new SpasConfiguration(null, null, null, null)
-        );
-        
-        assertTrue(exception.getMessage().contains("SERVICE_NAME"));
-        assertTrue(exception.getMessage().contains("required"));
+    void constructor_shouldDefaultServiceNameWhenServiceNameIsNull() {
+        SpasConfiguration config = new SpasConfiguration(null, null, null, null);
+
+        assertEquals("unknown-service", config.getServiceName());
+        assertEquals(URI.create("http://localhost:7000"), config.getSidecarUrl());
     }
 
     @Test
-    void constructor_shouldThrowWhenServiceNameIsEmpty() {
-        SpasConfigurationException exception = assertThrows(
-            SpasConfigurationException.class,
-            () -> new SpasConfiguration("  ", null, null, null)
-        );
-        
-        assertTrue(exception.getMessage().contains("SERVICE_NAME"));
+    void constructor_shouldIgnoreSidecarPortWhenServiceNameMissing() {
+        SpasConfiguration config = new SpasConfiguration(null, null, null, "9000");
+
+        assertEquals("unknown-service", config.getServiceName());
+        assertEquals(URI.create("http://localhost:7000"), config.getSidecarUrl());
+    }
+
+    @Test
+    void constructor_shouldDefaultServiceNameWhenServiceNameIsEmpty() {
+        SpasConfiguration config = new SpasConfiguration("  ", null, null, null);
+
+        assertEquals("unknown-service", config.getServiceName());
+        assertEquals(URI.create("http://localhost:7000"), config.getSidecarUrl());
     }
 
     @Test
@@ -40,7 +45,7 @@ class SpasConfigurationTest {
         SpasConfiguration config = new SpasConfiguration("my-service", null, null, null);
         
         assertEquals("my-service", config.getServiceName());
-        assertEquals(URI.create("http://localhost:3001"), config.getSidecarUrl());
+        assertEquals(URI.create("http://my-service-sidecar:7000"), config.getSidecarUrl());
     }
 
     @Test
@@ -76,7 +81,7 @@ class SpasConfigurationTest {
             null
         );
         
-        assertEquals(URI.create("http://custom-host:3001"), config.getSidecarUrl());
+        assertEquals(URI.create("http://custom-host:7000"), config.getSidecarUrl());
     }
 
     @Test
@@ -88,7 +93,7 @@ class SpasConfigurationTest {
             "5000"
         );
         
-        assertEquals(URI.create("http://localhost:5000"), config.getSidecarUrl());
+        assertEquals(URI.create("http://my-service-sidecar:5000"), config.getSidecarUrl());
     }
 
     @Test
@@ -120,7 +125,7 @@ class SpasConfigurationTest {
             "  "
         );
         
-        assertEquals(URI.create("http://localhost:3001"), config.getSidecarUrl());
+        assertEquals(URI.create("http://my-service-sidecar:7000"), config.getSidecarUrl());
     }
 
     @Test
@@ -129,7 +134,21 @@ class SpasConfigurationTest {
         String result = config.toString();
         
         assertTrue(result.contains("my-service"));
-        assertTrue(result.contains("http://localhost:3001"));
+        assertTrue(result.contains("http://my-service-sidecar:7000"));
+    }
+
+    @ParameterizedTest
+    @CsvSource({
+        "Order_Service,http://order-service-sidecar:7000",
+        "My Service,http://my-service-sidecar:7000",
+        "INVENTORY-SERVICE,http://inventory-service-sidecar:7000",
+        "api,http://api-sidecar:7000",
+        "Product__Service,http://product-service-sidecar:7000",
+        "  spaced  ,http://spaced-sidecar:7000"
+    })
+    void constructor_shouldNormalizeServiceNameForDerivedSidecarHost(String serviceName, String expectedUrl) {
+        SpasConfiguration config = new SpasConfiguration(serviceName, null, null, null);
+        assertEquals(URI.create(expectedUrl), config.getSidecarUrl());
     }
 
     @Test

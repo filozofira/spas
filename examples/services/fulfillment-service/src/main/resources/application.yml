@@ -12,7 +12,6 @@ spas:
     bounded-context: fulfillment
     version: 1.0.0
   sidecar:
-    url: http://localhost:8081
     timeout: 5000
   tracing:
     enabled: true

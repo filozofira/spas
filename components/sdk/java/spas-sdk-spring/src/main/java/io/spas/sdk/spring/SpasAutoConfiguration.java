@@ -16,7 +16,7 @@ import org.springframework.context.annotation.Bean;
  * Registers:
  * - SpasContextFilter: Extracts trace/identity context from HTTP headers
  * - SpasMetadataController: Exposes /_spas/metadata endpoint
- * - EventPublisher: Publishes events to sidecar (if sidecar URL configured)
+ * - EventPublisher: Publishes events to sidecar
  * 
  * Enabled when:
  * - SpasContext class is on classpath
@@ -46,11 +46,16 @@ public class SpasAutoConfiguration {
     }
     
     /**
-     * Registers EventPublisher bean if sidecar URL is configured.
-     * Requires either spas.sidecar.url or spas.sidecar.host to be set.
+     * Registers EventPublisher bean.
+     * <p>
+     * Sidecar URL resolution priority:
+     * <ol>
+     *   <li>spas.sidecar.url</li>
+     *   <li>spas.sidecar.host + spas.sidecar.port</li>
+     *   <li>Environment convention via {@link SpasConfiguration}</li>
+     * </ol>
      */
     @Bean
-    @ConditionalOnProperty(prefix = "spas.sidecar", name = "url")
     public EventPublisher eventPublisher(SpasProperties properties) {
         SpasConfiguration config = new SpasConfiguration();
         String serviceName = properties.getServiceName() != null 
@@ -67,18 +72,22 @@ public class SpasAutoConfiguration {
     
     /**
      * Resolves sidecar URL from properties.
-     * Priority: url > host:port > default localhost:8080
+     * Priority: url > host:port > env convention
      */
     private String resolveSidecarUrl(SpasProperties properties) {
+        SpasConfiguration config = new SpasConfiguration();
         SpasProperties.Sidecar sidecar = properties.getSidecar();
         
         if (sidecar.getUrl() != null && !sidecar.getUrl().isBlank()) {
             return sidecar.getUrl();
         }
         
-        String host = sidecar.getHost() != null ? sidecar.getHost() : "localhost";
-        int port = sidecar.getPort() != null ? sidecar.getPort() : 8080;
-        
-        return String.format("http://%s:%d", host, port);
+        if (sidecar.getHost() != null && !sidecar.getHost().isBlank()) {
+            String host = sidecar.getHost().trim();
+            int port = sidecar.getPort() != null ? sidecar.getPort() : 7000;
+            return String.format("http://%s:%d", host, port);
+        }
+
+        return config.getSidecarUrl().toString();
     }
 }

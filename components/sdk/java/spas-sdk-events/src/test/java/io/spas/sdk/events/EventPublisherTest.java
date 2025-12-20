@@ -56,14 +56,14 @@ class EventPublisherTest {
     
     @Test
     void publish_shouldSendEventToSidecar() {
-        stubFor(post(urlEqualTo("/events"))
-            .willReturn(aResponse().withStatus(200)));
+        stubFor(post(urlEqualTo("/publish"))
+            .willReturn(aResponse().withStatus(202)));
         
         TestEvent event = new TestEvent("test message");
         
         eventPublisher.publish(event);
         
-        verify(postRequestedFor(urlEqualTo("/events"))
+        verify(postRequestedFor(urlEqualTo("/publish"))
             .withHeader("Content-Type", equalTo("application/json"))
             .withHeader("x-service-name", equalTo("test-service"))
             .withHeader("x-event-name", equalTo("test-event"))
@@ -72,8 +72,8 @@ class EventPublisherTest {
     
     @Test
     void publish_shouldIncludeTraceContext() {
-        stubFor(post(urlEqualTo("/events"))
-            .willReturn(aResponse().withStatus(200)));
+        stubFor(post(urlEqualTo("/publish"))
+            .willReturn(aResponse().withStatus(202)));
         
         SpasTrace trace = SpasTrace.builder()
             .traceId("0af7651916cd43dd8448eb211c80319c")
@@ -86,14 +86,14 @@ class EventPublisherTest {
         
         eventPublisher.publish(event);
         
-        verify(postRequestedFor(urlEqualTo("/events"))
+        verify(postRequestedFor(urlEqualTo("/publish"))
             .withHeader("traceparent", equalTo("00-0af7651916cd43dd8448eb211c80319c-b7ad6b7169203331-01")));
     }
     
     @Test
     void publish_shouldIncludeCorrelationContext() {
-        stubFor(post(urlEqualTo("/events"))
-            .willReturn(aResponse().withStatus(200)));
+        stubFor(post(urlEqualTo("/publish"))
+            .willReturn(aResponse().withStatus(202)));
         
         SpasContext context = SpasContext.builder()
             .correlationId("test-correlation-id")
@@ -106,7 +106,7 @@ class EventPublisherTest {
         
         eventPublisher.publish(event);
         
-        verify(postRequestedFor(urlEqualTo("/events"))
+        verify(postRequestedFor(urlEqualTo("/publish"))
             .withHeader("x-correlation-id", equalTo("test-correlation-id"))
             .withHeader("x-user-id", equalTo("user123"))
             .withHeader("x-tenant-id", equalTo("tenant456")));
@@ -137,7 +137,7 @@ class EventPublisherTest {
     
     @Test
     void publish_shouldThrowWhenSidecarReturnsError() {
-        stubFor(post(urlEqualTo("/events"))
+        stubFor(post(urlEqualTo("/publish"))
             .willReturn(aResponse().withStatus(500).withBody("Internal Server Error")));
         
         TestEvent event = new TestEvent("test message");
@@ -151,14 +151,14 @@ class EventPublisherTest {
     
     @Test
     void publish_shouldConvertEventNameToKebabCase() {
-        stubFor(post(urlEqualTo("/events"))
-            .willReturn(aResponse().withStatus(200)));
+        stubFor(post(urlEqualTo("/publish"))
+            .willReturn(aResponse().withStatus(202)));
         
         TestEvent event = new TestEvent("test message");
         
         eventPublisher.publish(event);
         
-        verify(postRequestedFor(urlEqualTo("/events"))
+        verify(postRequestedFor(urlEqualTo("/publish"))
             .withHeader("x-event-name", equalTo("test-event")));
     }
 }

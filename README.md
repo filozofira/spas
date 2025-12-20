@@ -37,30 +37,30 @@ flowchart TB
     subgraph "North-South Traffic"
         Client[Client] --> Gateway[API Gateway]
     end
-    
+
     subgraph "Domain Context"
         Gateway --> S1[Service A]
         Gateway --> S2[Service B]
-        
+
         subgraph "Service A Pod"
             S1 <--> SC1[SPAS Sidecar]
         end
-        
+
         subgraph "Service B Pod"
             S2 <--> SC2[SPAS Sidecar]
         end
     end
-    
+
     subgraph "East-West Traffic"
         SC1 <-->|CloudEvents| EB[(Event Backbone<br/>Redis Streams)]
         SC2 <-->|CloudEvents| EB
     end
-    
+
     subgraph "Observability"
         SC1 -->|Traces| OB[Zipkin]
         SC2 -->|Traces| OB
     end
-    
+
     subgraph "Registry"
         Repo[(SPAS Repository)]
     end
@@ -76,14 +76,14 @@ flowchart LR
         CLI1 -->|pushes image| DockerReg[(Container Registry)]
         CLI1 -->|pushes metadata| Repo[(SPAS Repository)]
     end
-    
+
     subgraph "Composition Time"
         CLI2[spas-compose CLI] -->|pulls from| Repo
         CLI2 -->|generates| Choreo[choreography.yaml]
         CLI2 -->|generates| DC[docker-compose.yaml]
         CLI2 -->|generates| SC[sidecar configs]
     end
-    
+
     subgraph "Runtime"
         DC -->|deploys| Services[Services + Sidecars]
         Choreo -->|routes| Events[Event Flows]
@@ -93,12 +93,12 @@ flowchart LR
 
 ### Key Patterns
 
-| Pattern | Implementation | Purpose |
-|---------|---------------|---------|
-| **Sidecar** | SPAS Sidecar (Node.js) | Offloads networking, events, tracing |
-| **Event-first** | CloudEvents + Redis Streams | Decoupled east-west communication |
-| **Choreography** | choreography.yaml + JSONata | Domain-specific event routing |
-| **Schema-driven** | JSON Schema validation | Contract enforcement at boundaries |
+| Pattern           | Implementation              | Purpose                              |
+| ----------------- | --------------------------- | ------------------------------------ |
+| **Sidecar**       | SPAS Sidecar (Node.js)      | Offloads networking, events, tracing |
+| **Event-first**   | CloudEvents + Redis Streams | Decoupled east-west communication    |
+| **Choreography**  | choreography.yaml + JSONata | Domain-specific event routing        |
+| **Schema-driven** | JSON Schema validation      | Contract enforcement at boundaries   |
 
 ### AI-in-the-Loop Choreography
 
@@ -114,15 +114,16 @@ flowchart LR
     E --> F[5. Build]
 ```
 
-| Phase | AI Actions | Human Actions |
-|-------|-----------|---------------|
-| **Analyze** | Read service metadata, identify events/commands | Provide domain context |
-| **Propose** | Generate choreography diagram, design flows | Review diagram, provide feedback |
-| **Generate** | Create choreography.yaml, transformation files | Confirm to proceed |
-| **Validate** | Check YAML syntax, schema compliance, consistency | Review validation results |
-| **Build** | Suggest build commands | Execute deployment |
+| Phase        | AI Actions                                        | Human Actions                    |
+| ------------ | ------------------------------------------------- | -------------------------------- |
+| **Analyze**  | Read service metadata, identify events/commands   | Provide domain context           |
+| **Propose**  | Generate choreography diagram, design flows       | Review diagram, provide feedback |
+| **Generate** | Create choreography.yaml, transformation files    | Confirm to proceed               |
+| **Validate** | Check YAML syntax, schema compliance, consistency | Review validation results        |
+| **Build**    | Suggest build commands                            | Execute deployment               |
 
 **Key Benefits:**
+
 - **Visual-first design**: Mermaid diagrams let you see event flows before generating code
 - **Schema-aware**: AI uses pulled service metadata to propose valid transformations
 - **Iterative refinement**: Feedback loop between Propose and Generate phases
@@ -139,61 +140,6 @@ SPAS specifies:
 - Adaptation rules for choreography via `choreography.yaml`
 - Packaging and repository integration
 - Security, observability, and governance requirements
-
-## Current Status
-
-### PoC Phase (December 2025)
-
-- ✅ **.NET SDK**: Production-ready implementation complete (2025-12-13)
-
-  - Initial PoC (001-dotnet-spas-sdk): Metadata composition, event publishing, observability
-  - Schema Alignment (002-metadata-schema-alignment): Design-time metadata aligned with spec
-  - 60 unit tests passing, JsonSchema.Net validation
-  - Builder APIs: ServiceIdentity, Contracts, Security, Consistency, Network
-  - Schema location: `components/sdk/schemas/design-time-metadata-v1.schema.json`
-  - See: `components/sdk/dotnet/README.md` and `specs/002-metadata-schema-alignment/COMPLETION.md`
-
-- ✅ **Repository Service**: Service metadata registry complete (2025-12)
-
-  - Publish/retrieve service archives with metadata and schemas
-  - Search services with advanced filtering (name, version, tags)
-  - Schema evolution validation following SPAS evolution rules
-  - Runtime metadata enrichment (image digests, tags, repositories)
-  - SQLite storage with IStorageProvider abstraction for future backends
-  - 99 unit tests passing, 10 REST endpoints, OpenAPI contract
-  - See: `components/repository/README.md` and `specs/003-repository-service/spec.md`
-
-- ✅ **spas-service CLI**: Service publishing tooling complete (2025-01)
-
-  - Publish service metadata to Repository from running service or archive
-  - Pull service metadata archives by name and version
-  - Dry-run mode for preview without publishing
-  - CI/CD integration with `--archive` flag and runtime metadata injection
-  - 48 unit tests passing
-  - See: `components/cli/spas-service/README.md` and `specs/004-spas-service-cli/COMPLETION.md`
-
-- ✅ **spas-compose CLI**: Domain composition tooling complete (2025-12-14)
-
-  - Workspace scaffolding with `init` command
-  - Service metadata pull from Repository with `services pull` command
-  - Docker Compose deployment generation with `choreography build --docker`
-  - Sidecar config file generation (`config.{service}.json`) for runnable deployments (006-sidecar-config-generator)
-  - Custom backbone images with `--event-backbone` and `--observability-backbone` flags (008-compose-backbone-args)
-  - Backbone disable support for BYO infrastructure (`--event-backbone none`)
-  - AI-in-the-loop composition via `/spas.compose` agent prompt
-  - 134 unit tests passing
-  - See: `components/cli/spas-compose/README.md` and `specs/005-spas-compose-cli/COMPLETION.md`
-
-- ✅ **SPAS Sidecar**: Production sidecar implementation complete (2025-12-15)
-  - Event publishing via `POST /publish` with topic routing
-  - Event subscription with Redis Streams delivery to service endpoints
-  - Command invocation with request-response patterns
-  - CloudEvents 1.0 envelope with W3C Trace Context
-  - Distributed tracing with Zipkin span emission
-  - Health and readiness endpoints for orchestration
-  - File-based transform loading with JSONata compilation caching
-  - 194 unit tests passing
-  - See: `components/sidecar/README.md` and `specs/007-spas-sidecar/`
 
 ## Out of Scope (v1.0)
 

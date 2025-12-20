@@ -1,12 +1,11 @@
-
 # SPAS CLI
 
 This folder contains the command-line tooling for working with SPAS services and domain choreographies.
 
 ## Tools
 
-- [components/cli/spas-service/README.md](./spas-service/README.md): Publish/pull service metadata archives (`/_spas/metadata`) to/from a Repository.
-- [components/cli/spas-compose/README.md](./spas-compose/README.md): Initialize a domain workspace, pull service contracts, and build deployable artifacts from [choreography.yaml](./spas-compose/schemas/choreography-v1.schema.json).
+- [spas-service/README.md](./spas-service/README.md): Publish/pull service metadata archives (`/_spas/metadata`) to/from a Repository.
+- [spas-compose/README.md](./spas-compose/README.md): Initialize a domain workspace, pull service contracts, and build deployable artifacts from [choreography.yaml](./spas-compose/schemas/choreography-v1.schema.json).
 
 ## Typical workflow
 
@@ -16,7 +15,5 @@ This folder contains the command-line tooling for working with SPAS services and
 
 ## References
 
-- [CLI principles](principles/component/13-cli.md)
-- [Repository component](components/repository/README.md)
-- [Domain choreography](principles/component/14-domain-choreography.md)
-
+- [CLI principles](../../principles/component/13-cli.md)
+- [Domain choreography](../../principles/component/14-domain-choreography.md)

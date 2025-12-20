@@ -5,14 +5,14 @@ Language SDKs for building SPAS services (metadata + events + context propagatio
 
 ## Implementations
 
-- [components/sdk/dotnet/README.md](./dotnet/README.md)
-- [components/sdk/java/README.md](./java/README.md)
+- [dotnet/README.md](./dotnet/README.md)
+- [java/README.md](./java/README.md)
 
 ## Common schemas
 
 Canonical, cross-SDK JSON Schemas live in:
 
-- [components/sdk/schemas/README.md](./schemas/README.md)
+- [schemas/README.md](./schemas/README.md)
 - [design-time-metadata-v1 schema](./schemas/README.md)
 
 ## References

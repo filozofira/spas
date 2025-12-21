@@ -25,9 +25,9 @@ description: "Task list for implementing metadata descriptions"
 
 **Purpose**: Confirm inputs, locate implementation targets, and align on MVP sequence.
 
-- [ ] T001 Confirm feature requirements and acceptance scenarios in specs/017-metadata-descriptions/spec.md
-- [ ] T002 Confirm implementation targets and paths in specs/017-metadata-descriptions/plan.md
-- [ ] T003 [P] Confirm quickstart scenarios and expected outputs in specs/017-metadata-descriptions/quickstart.md
+- [X] T001 Confirm feature requirements and acceptance scenarios in specs/017-metadata-descriptions/spec.md
+- [X] T002 Confirm implementation targets and paths in specs/017-metadata-descriptions/plan.md
+- [X] T003 [P] Confirm quickstart scenarios and expected outputs in specs/017-metadata-descriptions/quickstart.md
 
 ---
 

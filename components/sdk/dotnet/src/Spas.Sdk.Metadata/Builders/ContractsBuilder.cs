@@ -10,6 +10,11 @@ public class ContractsBuilder
     private readonly List<EndpointContract> _endpoints = new();
     private readonly List<EventContract> _events = new();
 
+    private static string? TrimToNull(string? value)
+    {
+        return string.IsNullOrWhiteSpace(value) ? null : value;
+    }
+
     /// <summary>
     /// Adds an endpoint (command or query).
     /// </summary>
@@ -23,7 +28,7 @@ public class ContractsBuilder
             MethodPath = methodPath,
             Version = version,
             SchemaRef = schemaRef,
-            Description = description
+            Description = TrimToNull(description)
         });
         return this;
     }
@@ -31,13 +36,14 @@ public class ContractsBuilder
     /// <summary>
     /// Adds an event contract.
     /// </summary>
-    public ContractsBuilder AddEvent(string type, string version, string schemaRef)
+    public ContractsBuilder AddEvent(string type, string version, string schemaRef, string? description = null)
     {
         _events.Add(new EventContract
         {
             Type = type,
             Version = version,
-            SchemaRef = schemaRef
+            SchemaRef = schemaRef,
+            Description = TrimToNull(description)
         });
         return this;
     }

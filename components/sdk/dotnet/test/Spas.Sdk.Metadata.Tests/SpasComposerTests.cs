@@ -1,3 +1,4 @@
+using System.Text.Json;
 using Xunit;
 using Spas.Sdk.Metadata.Composition;
 using Spas.Sdk.Metadata.Builders;
@@ -92,6 +93,69 @@ public class SpasComposerTests
         Assert.Contains("pii", json);
         Assert.Contains("EVENTUAL", json);
         Assert.Contains("api.example.com:443", json);
+    }
+
+    [Fact]
+    public void Compose_WithEndpointDescription_IncludesDescription()
+    {
+        // Arrange
+        var composer = new SpasComposer();
+        var identity = new ServiceIdentityBuilder()
+            .WithId("test-service")
+            .WithName("test-service")
+            .WithVersion("1.0.0")
+            .WithBoundedContext("test")
+            .Build();
+        var contracts = new ContractsBuilder()
+            .AddEndpoint(
+                "CreateOrder",
+                "Command",
+                "Http",
+                "/commands/create-order",
+                "1.0",
+                "schemas/create-order.schema.json",
+                description: "Creates an order and reserves inventory")
+            .Build();
+
+        // Act
+        var json = composer.Compose(identity, contracts);
+
+        // Assert
+        using var doc = JsonDocument.Parse(json);
+        var endpoint = doc.RootElement.GetProperty("endpoints").EnumerateArray().First();
+        Assert.True(endpoint.TryGetProperty("description", out var description));
+        Assert.Equal("Creates an order and reserves inventory", description.GetString());
+    }
+
+    [Fact]
+    public void Compose_WithEmptyEndpointDescription_OmitsDescription()
+    {
+        // Arrange
+        var composer = new SpasComposer();
+        var identity = new ServiceIdentityBuilder()
+            .WithId("test-service")
+            .WithName("test-service")
+            .WithVersion("1.0.0")
+            .WithBoundedContext("test")
+            .Build();
+        var contracts = new ContractsBuilder()
+            .AddEndpoint(
+                "CreateOrder",
+                "Command",
+                "Http",
+                "/commands/create-order",
+                "1.0",
+                "schemas/create-order.schema.json",
+                description: "  ")
+            .Build();
+
+        // Act
+        var json = composer.Compose(identity, contracts);
+
+        // Assert
+        using var doc = JsonDocument.Parse(json);
+        var endpoint = doc.RootElement.GetProperty("endpoints").EnumerateArray().First();
+        Assert.False(endpoint.TryGetProperty("description", out _));
     }
 
     [Fact]

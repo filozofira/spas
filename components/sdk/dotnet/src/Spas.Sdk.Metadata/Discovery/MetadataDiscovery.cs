@@ -79,7 +79,7 @@ public class MetadataDiscovery
                         // e.g., "OrderCreated" → "order-created"
                         var normalizedName = AttributeHelpers.ToKebabCase(eventAttr.Name);
                         var schema = eventAttr.Schema ?? GenerateSchemaReference(eventAttr.Name);
-                        builder.AddEvent(normalizedName, eventAttr.Version, schema);
+                        builder.AddEvent(normalizedName, eventAttr.Version, schema, description: eventAttr.Description);
                     }
                 }
             }

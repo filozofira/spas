@@ -74,6 +74,36 @@ public class ContractsBuilderTests
     }
 
     [Fact]
+    public void AddEvent_WithDescription_PropagatesDescription()
+    {
+        // Arrange
+        var builder = new ContractsBuilder();
+
+        // Act
+        builder.AddEvent("orders.order-created.v1", "1.0", "schemas/order-created.schema.json", description: "Emitted when an order is created");
+        var contracts = builder.Build();
+
+        // Assert
+        Assert.Single(contracts.Events);
+        Assert.Equal("Emitted when an order is created", contracts.Events[0].Description);
+    }
+
+    [Fact]
+    public void AddEvent_WithEmptyDescription_OmitsDescription()
+    {
+        // Arrange
+        var builder = new ContractsBuilder();
+
+        // Act
+        builder.AddEvent("orders.order-created.v1", "1.0", "schemas/order-created.schema.json", description: " ");
+        var contracts = builder.Build();
+
+        // Assert
+        Assert.Single(contracts.Events);
+        Assert.Null(contracts.Events[0].Description);
+    }
+
+    [Fact]
     public void Build_WithMultipleContracts_ReturnsAllContracts()
     {
         // Arrange

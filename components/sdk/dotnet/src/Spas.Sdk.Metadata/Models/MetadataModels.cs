@@ -44,6 +44,7 @@ public class EventContract
     public string Type { get; set; } = string.Empty;
     public string Version { get; set; } = string.Empty;
     public string SchemaRef { get; set; } = string.Empty;
+    public string? Description { get; set; }
 }
 
 /// <summary>

@@ -72,8 +72,8 @@ public class SchemaValidationTests
             .WithAuthenticationType("OAuth2")
             .AddRequiredScope("orders.write")
             .AddRequiredScope("orders.read")
-            .AddDataClassification("Internal")
-            .AddDataClassification("Confidential")
+            .AddDataClassification("internal")
+            .AddDataClassification("confidential")
             .Build();
 
         var consistency = new ConsistencyBuilder()
@@ -117,7 +117,7 @@ public class SchemaValidationTests
             .Build();
 
         var security = new SecurityBuilder()
-            .AddDataClassification("Public")
+            .AddDataClassification("public")
             .Build();
 
         // Act
@@ -148,7 +148,7 @@ public class SchemaValidationTests
         Assert.True(securityNode.TryGetProperty("dataClassification", out var dataClassification));
         Assert.Equal(JsonValueKind.Array, dataClassification.ValueKind);
         var classifications = dataClassification.EnumerateArray().Select(c => c.GetString()).ToList();
-        Assert.Contains("Public", classifications);
+        Assert.Contains("public", classifications);
     }
 
     [Fact]

@@ -52,6 +52,32 @@ Add optional plain-text descriptions to SPAS service metadata so choreography ag
   - It uses descriptions to disambiguate similar endpoint/event names.
   - It does not invent descriptions when missing.
 
+## Verification (manual)
+
+Use these quick checks to validate the feature end-to-end.
+
+1) Confirm SDKs emit descriptions only when provided
+
+- In a Java or .NET service, set a non-empty service/endpoint/event description and regenerate `spas.json`.
+- Remove/blank out the descriptions and regenerate again.
+- Expected:
+  - When provided: `description` keys appear at the relevant levels.
+  - When blank/omitted: `description` keys are omitted (not present as empty strings).
+
+2) Confirm repository preserves and returns descriptions
+
+- Publish metadata to the repository using the existing flow.
+- Pull metadata into a domain workspace with `spas-compose services pull`.
+- Open the pulled `services/<service>/spas.json` and confirm the `description` fields match what you authored.
+
+3) Confirm agent uses descriptions safely
+
+- Run the compose agent against a domain workspace.
+- Expected:
+  - It quotes the exact `description` snippets it used to justify endpoint/event selection.
+  - If a candidate lacks `description`, it explicitly notes that and falls back to names/types/schemas.
+  - It never invents missing descriptions.
+
 ## Authoring rules
 
 - Descriptions are plain text (no Markdown semantics).

@@ -123,13 +123,15 @@ public class SpasAnnotationProcessor extends AbstractProcessor {
                 String schemaRef = cmd.schemaRef().isEmpty()
                     ? inferEndpointSchemaRefForCommand(method, kebabName)
                     : cmd.schemaRef();
+                String description = cmd.description() == null || cmd.description().isBlank() ? null : cmd.description();
                 return new EndpointContract(
                     kebabName,
                     EndpointType.COMMAND,
                     defaultProtocol,
                     cmd.path(),
                     cmd.version(),
-                    schemaRef
+                    schemaRef,
+                    description
                 );
             })
             .collect(Collectors.toList());
@@ -145,13 +147,15 @@ public class SpasAnnotationProcessor extends AbstractProcessor {
                 String schemaRef = qry.schemaRef().isEmpty()
                     ? inferEndpointSchemaRefForQuery(method, kebabName)
                     : qry.schemaRef();
+                String description = qry.description() == null || qry.description().isBlank() ? null : qry.description();
                 return new EndpointContract(
                     kebabName,
                     EndpointType.QUERY,
                     defaultProtocol,
                     qry.path(),
                     qry.version(),
-                    schemaRef
+                    schemaRef,
+                    description
                 );
             })
             .collect(Collectors.toList());
@@ -234,10 +238,12 @@ public class SpasAnnotationProcessor extends AbstractProcessor {
                 } else {
                     schemaRef = evt.schemaRef();
                 }
+                String description = evt.description() == null || evt.description().isBlank() ? null : evt.description();
                 return new EventContract(
                     kebabType,
                     evt.version(),
-                    schemaRef
+                    schemaRef,
+                    description
                 );
             })
             .collect(Collectors.toList());
@@ -268,8 +274,8 @@ public class SpasAnnotationProcessor extends AbstractProcessor {
         // Build network (required by repository validation)
         Network network = new Network(List.of());
 
-        String description = service.description().isEmpty() ? "" : service.description();
-        String license = service.license().isEmpty() ? "" : service.license();
+        String description = service.description() == null || service.description().isBlank() ? null : service.description();
+        String license = service.license() == null || service.license().isBlank() ? null : service.license();
 
         return new ServiceMetadata(
             ServiceMetadata.SCHEMA_VERSION,

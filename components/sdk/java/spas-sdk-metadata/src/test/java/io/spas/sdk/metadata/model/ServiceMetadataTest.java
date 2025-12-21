@@ -38,12 +38,14 @@ class ServiceMetadataTest {
                 Protocol.HTTP,
                 "POST /api/test",
                 "1.0.0",
-                "schemas/endpoints/test.schema.json"
+                "schemas/endpoints/test.schema.json",
+                null
             )),
             List.of(new EventContract(
                 "test-event",
                 "1.0.0",
-                "schemas/events/test-event.schema.json"
+                "schemas/events/test-event.schema.json",
+                null
             )),
             new Consistency(ConsistencyLevel.ACID, QueryConsistencyLevel.STRONG),
             new Security(
@@ -98,7 +100,7 @@ class ServiceMetadataTest {
                   "type": "JWT",
                   "requiredScopes": ["read"]
                 },
-                "dataClassification": ["Internal"]
+                                "dataClassification": ["internal"]
               }
             }
             """;
@@ -122,7 +124,8 @@ class ServiceMetadataTest {
             Protocol.HTTP,
             "/api/orders",
             "1.0.0",
-            "schemas/endpoints/create-order.schema.json"
+            "schemas/endpoints/create-order.schema.json",
+            null
         );
 
         String json = objectMapper.writeValueAsString(endpoint);
@@ -136,7 +139,8 @@ class ServiceMetadataTest {
         EventContract event = new EventContract(
             "order-created",
             "1.0.0",
-            "schemas/events/order-created.schema.json"
+            "schemas/events/order-created.schema.json",
+            null
         );
 
         String json = objectMapper.writeValueAsString(event);
@@ -165,7 +169,7 @@ class ServiceMetadataTest {
 
         String json = objectMapper.writeValueAsString(security);
 
-        assertTrue(json.contains("\"dataClassification\":[\"Confidential\",\"Internal\"]"));
+        assertTrue(json.contains("\"dataClassification\":[\"confidential\",\"internal\"]"));
     }
 
     @Test

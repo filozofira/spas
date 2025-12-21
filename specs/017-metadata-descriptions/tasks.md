@@ -78,18 +78,18 @@ description: "Task list for implementing metadata descriptions"
 
 ### Tests for User Story 2 ⚠️
 
-- [ ] T016 [P] [US2] Extend annotation processor tests for description emission/omission in components/sdk/java/spas-sdk-metadata-processor/src/test/java/io/spas/sdk/metadata/processor/SpasAnnotationProcessorTest.java
-- [ ] T017 [P] [US2] Add runtime metadata controller test coverage for descriptions in components/sdk/java/spas-sdk-spring/src/test/java/io/spas/test/samples/SampleController.java
+- [X] T016 [P] [US2] Extend annotation processor tests for description emission/omission in components/sdk/java/spas-sdk-metadata-processor/src/test/java/io/spas/sdk/metadata/processor/SpasAnnotationProcessorTest.java
+- [X] T017 [P] [US2] Add runtime metadata controller test coverage for descriptions in components/sdk/java/spas-sdk-spring/src/test/java/io/spas/test/samples/SampleController.java
 
 ### Implementation for User Story 2
 
-- [ ] T018 [P] [US2] Add optional description() to command annotation in components/sdk/java/spas-sdk-metadata/src/main/java/io/spas/sdk/metadata/annotations/SpasCommand.java
-- [ ] T019 [P] [US2] Add optional description() to query annotation in components/sdk/java/spas-sdk-metadata/src/main/java/io/spas/sdk/metadata/annotations/SpasQuery.java
-- [ ] T020 [P] [US2] Add optional description() to event annotation in components/sdk/java/spas-sdk-metadata/src/main/java/io/spas/sdk/metadata/annotations/SpasEvent.java
-- [ ] T021 [US2] Add optional description field to endpoint model in components/sdk/java/spas-sdk-metadata/src/main/java/io/spas/sdk/metadata/model/EndpointContract.java
-- [ ] T022 [US2] Add optional description field to event model in components/sdk/java/spas-sdk-metadata/src/main/java/io/spas/sdk/metadata/model/EventContract.java
-- [ ] T023 [US2] Emit descriptions from compile-time processor (omit empty string) in components/sdk/java/spas-sdk-metadata-processor/src/main/java/io/spas/sdk/metadata/processor/SpasAnnotationProcessor.java
-- [ ] T024 [US2] Include descriptions in runtime metadata ZIP generation (omit empty string) in components/sdk/java/spas-sdk-spring/src/main/java/io/spas/sdk/spring/SpasMetadataController.java
+- [X] T018 [P] [US2] Add optional description() to command annotation in components/sdk/java/spas-sdk-metadata/src/main/java/io/spas/sdk/metadata/annotations/SpasCommand.java
+- [X] T019 [P] [US2] Add optional description() to query annotation in components/sdk/java/spas-sdk-metadata/src/main/java/io/spas/sdk/metadata/annotations/SpasQuery.java
+- [X] T020 [P] [US2] Add optional description() to event annotation in components/sdk/java/spas-sdk-metadata/src/main/java/io/spas/sdk/metadata/annotations/SpasEvent.java
+- [X] T021 [US2] Add optional description field to endpoint model in components/sdk/java/spas-sdk-metadata/src/main/java/io/spas/sdk/metadata/model/EndpointContract.java
+- [X] T022 [US2] Add optional description field to event model in components/sdk/java/spas-sdk-metadata/src/main/java/io/spas/sdk/metadata/model/EventContract.java
+- [X] T023 [US2] Emit descriptions from compile-time processor (omit empty string) in components/sdk/java/spas-sdk-metadata-processor/src/main/java/io/spas/sdk/metadata/processor/SpasAnnotationProcessor.java
+- [X] T024 [US2] Include descriptions in runtime metadata ZIP generation (omit empty string) in components/sdk/java/spas-sdk-spring/src/main/java/io/spas/sdk/spring/SpasMetadataController.java
 
 **Checkpoint**: US2 complete when Java generated metadata contains `description` only when non-empty, across service/endpoints/events.
 

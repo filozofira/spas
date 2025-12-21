@@ -59,6 +59,11 @@ public @interface SpasCommand {
      * If empty (default), auto-generates as: schemas/endpoints/{kebab-case-name}.schema.json
      */
     String schemaRef() default "";
+
+    /**
+     * Optional plain-text description of the endpoint's purpose and behavior.
+     */
+    String description() default "";
     
     /**
      * Consistency level for this command (default: ACID).

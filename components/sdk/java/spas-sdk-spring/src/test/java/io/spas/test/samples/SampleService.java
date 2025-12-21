@@ -6,6 +6,7 @@ import io.spas.sdk.metadata.annotations.SpasService;
     id = "sample-service",
     name = "Sample Service",
     version = "1.0.0",
+    description = "SAMPLE_SERVICE_DESC",
     boundedContext = "test"
 )
 public class SampleService {

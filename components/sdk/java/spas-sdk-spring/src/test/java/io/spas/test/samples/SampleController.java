@@ -17,7 +17,8 @@ public class SampleController {
     @SpasCommand(
         name = "CreateOrder",
         version = "1.0.0",
-        path = "/api/orders"
+        path = "/api/orders",
+        description = "SAMPLE_COMMAND_DESC"
     )
     public SampleResponse createOrder(@RequestBody SampleRequest request) {
         return new SampleResponse();

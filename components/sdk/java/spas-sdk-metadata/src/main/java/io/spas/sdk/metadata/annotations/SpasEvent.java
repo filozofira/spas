@@ -51,4 +51,9 @@ public @interface SpasEvent {
      * (falls back to {@code type} if the payload type cannot be resolved).
      */
     String schemaRef() default "";
+
+    /**
+     * Optional plain-text description of the event's purpose and when it is emitted.
+     */
+    String description() default "";
 }

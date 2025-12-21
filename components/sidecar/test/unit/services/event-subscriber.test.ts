@@ -133,6 +133,62 @@ describe('Event Subscriber', () => {
 
       expect(mockInvoker.invoke).not.toHaveBeenCalled();
     });
+
+    it('should route events to the matching subscription when multiple subscriptions share a topic', async () => {
+      const config: SidecarConfig = {
+        inbound: [
+          {
+            kind: 'event',
+            topic: 'fulfillment-events',
+            eventType: 'com.fulfillment-service.shipment-created',
+            transform: '$',
+            invokeEndpoint: '/orders/shipment-created',
+          },
+          {
+            kind: 'event',
+            topic: 'fulfillment-events',
+            eventType: 'com.fulfillment-service.shipment-status-changed',
+            transform: '$',
+            invokeEndpoint: '/orders/shipment-status',
+          },
+        ],
+        outbound: [],
+      };
+
+      const cloudEvent: CloudEvent = {
+        specversion: '1.0',
+        type: 'com.fulfillment-service.shipment-status-changed',
+        source: 'fulfillment-service',
+        id: 'event-999',
+        time: new Date().toISOString(),
+        datacontenttype: 'application/json',
+        traceparent: '00-trace-span-01',
+        correlationid: 'corr-999',
+        data: { shipmentId: 'ship-1', status: 'DELIVERED' },
+      };
+
+      const messages = new Map([
+        [
+          'fulfillment-events',
+          [{ id: '1-0', message: { data: JSON.stringify(cloudEvent) } }],
+        ],
+      ]);
+
+      mockRedis.xread.mockResolvedValue(messages);
+      mockInvoker.invoke.mockResolvedValue({ status: 200, data: {}, headers: {} });
+
+      const subscriber = new EventSubscriber(mockRedis as never, config, mockInvoker as never);
+      await subscriber.pollOnce(subscriber.getEventSubscriptions());
+
+      // Only the matching subscription should invoke its endpoint.
+      expect(mockInvoker.invoke).toHaveBeenCalledTimes(1);
+      expect(mockInvoker.invoke).toHaveBeenCalledWith(
+        '/orders/shipment-status',
+        { shipmentId: 'ship-1', status: 'DELIVERED' },
+        expect.objectContaining({ id: 'event-999' }),
+        undefined
+      );
+    });
   });
 
   describe('processMessage', () => {

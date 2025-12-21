@@ -155,12 +155,47 @@ SPAS specifies:
 > - PoC: Local repository, no auth; metadata-only policy declarations
 > - Production: AuthN/AuthZ, signed packages, enforceable policies
 
-## Related Documents
+## Common Documentation
 
-- [Principles](./principles/README.md) - SPAS Framework guiding principles
-- [Specs](./specs/README.md) - GitHub SpecKit files
-- [Components](./components/README.md) - SPAS Framework component development
-- Prototypes
-  - [spas-sidecar](./prototypes/spas-sidecar-prototype/README.md) - SPAS Sidecar prototype
-- [Examples](./examples/README.md)
-- [Grooming](./GROOMING.md)
+- [Principles](./principles/README.md) - Framework principles, architecture overview, protocol specifications, and governance
+  - [Core Principles](./principles/01-core-principles.md) - Foundation design goals
+  - [Architecture Overview](./principles/02-architecture-overview.md) - System structure and patterns
+  - [Communication Model](./principles/protocol/07-communication-model.md) - North-south and east-west patterns
+  - [Security Model](./principles/security/19-security-model.md) - Zero-trust architecture
+  - [Versioning Strategy](./principles/governance/23-versioning-strategy.md) - Contract evolution
+- [Specs](./specs/README.md) - Component specifications and implementation guides
+- [Examples](./examples/README.md) - Sample services and domain implementations
+- [Grooming](./GROOMING.md) - Product backlog and feature planning
+
+## Component Documentation
+
+### SDKs
+Build SPAS-compliant services in your preferred language:
+
+- [SDK Overview](./components/sdk/README.md) - Language SDK comparison and guidance
+- [.NET SDK](./components/sdk/dotnet/README.md) - C# implementation with ASP.NET Core
+- [Java SDK](./components/sdk/java/README.md) - Java implementation (framework-agnostic)
+- [SDK Conventions](./components/sdk/CONVENTIONS.md) - Shared rules across all SDKs
+
+### CLI Tools
+Manage service lifecycle and compose domain contexts:
+
+- [CLI Overview](./components/cli/README.md) - Tool comparison and workflows
+- [spas-service](./components/cli/spas-service/README.md) - Publish and pull service packages
+- [spas-compose](./components/cli/spas-compose/README.md) - Generate choreography and deployment configs
+
+### Runtime Components
+Core infrastructure services:
+
+- [Repository](./components/repository/README.md) - Service metadata and package registry
+- [Sidecar](./components/sidecar/README.md) - Event routing, telemetry, and health checks
+
+## Contributing
+
+SPAS is an internal framework under active development. Component-specific contribution guides are available:
+
+- **SDK Contributors**: See language-specific CONTRIBUTING.md files in [components/sdk/dotnet](./components/sdk/dotnet/CONTRIBUTING.md) and [components/sdk/java](./components/sdk/java/CONTRIBUTING.md)
+- **CLI Contributors**: See [spas-service](./components/cli/spas-service/CONTRIBUTING.md) and [spas-compose](./components/cli/spas-compose/CONTRIBUTING.md) contributor guides
+- **Repository/Sidecar Contributors**: Development workflows documented in respective component READMEs
+
+For architectural proposals or governance changes, review the [Principles](./principles/README.md) and [Decision Log](./principles/appendix/28-decision-log.md).

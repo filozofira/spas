@@ -70,8 +70,18 @@ public final class ServiceIdentityBuilder {
             throw new IllegalArgumentException("boundedContext is required");
         }
         
-        return new ServiceIdentity(id, name, version, boundedContext, description, 
-            capabilities.isEmpty() ? null : new ArrayList<>(capabilities), license);
+        String normalizedDescription = (description == null || description.isBlank()) ? null : description;
+        String normalizedLicense = (license == null || license.isBlank()) ? null : license;
+
+        return new ServiceIdentity(
+            id,
+            name,
+            version,
+            boundedContext,
+            normalizedDescription,
+            capabilities.isEmpty() ? null : new ArrayList<>(capabilities),
+            normalizedLicense
+        );
     }
     
     /**

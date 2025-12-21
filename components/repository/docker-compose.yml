@@ -13,8 +13,8 @@ services:
       - PORT=3000
       - LOG_LEVEL=info
       - STORAGE_PROVIDER=sqlite
-      - DATABASE_URL=sqlite:////app/data/repository.db
-      - SPAS_SCHEMA_PATH=/app/node_modules/@spas/schemas/design-time-metadata-v1.schema.json
+      - SQLITE_PATH=/app/data/repository.db
+      - SPAS_SCHEMA_PATH=/app/schemas/design-time-metadata-v1.schema.json
     volumes:
       - repository-data:/app/data
       - ./src:/app/src:ro

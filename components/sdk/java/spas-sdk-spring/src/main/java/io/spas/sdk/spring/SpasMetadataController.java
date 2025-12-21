@@ -337,14 +337,18 @@ public class SpasMetadataController {
 
             Network network = new Network(List.of());
 
-            String description = service.description() == null ? "" : service.description();
-            String license = service.license() == null ? "" : service.license();
+            String description = (service.description() == null || service.description().isBlank())
+                ? null
+                : service.description();
+            String license = (service.license() == null || service.license().isBlank())
+                ? null
+                : service.license();
 
             return new ServiceMetadata(
                 ServiceMetadata.SCHEMA_VERSION,
                 service.id(),
                 service.name(),
-                description.isEmpty() ? "" : description,
+                description,
                 service.version(),
                 service.boundedContext(),
                 capabilities,
@@ -353,7 +357,7 @@ public class SpasMetadataController {
                 consistency,
                 security,
                 network,
-                license.isEmpty() ? "" : license
+                license
             );
         } catch (Exception e) {
             log.log(Level.WARNING, "Failed to build spas.json metadata at runtime", e);
@@ -395,7 +399,8 @@ public class SpasMetadataController {
                     schemaRef = evt.schemaRef();
                 }
 
-                events.add(new EventContract(kebabType, evt.version(), schemaRef));
+                String description = evt.description() == null || evt.description().isBlank() ? null : evt.description();
+                events.add(new EventContract(kebabType, evt.version(), schemaRef, description));
             }
         } catch (Exception e) {
             log.log(Level.FINE, "Failed to scan events", e);
@@ -447,6 +452,7 @@ public class SpasMetadataController {
                         String schemaRef = (cmd.schemaRef() == null || cmd.schemaRef().isBlank())
                             ? inferEndpointSchemaRef(method, kebabName)
                             : cmd.schemaRef();
+                        String description = cmd.description() == null || cmd.description().isBlank() ? null : cmd.description();
 
                         endpoints.add(new EndpointContract(
                             kebabName,
@@ -454,7 +460,8 @@ public class SpasMetadataController {
                             defaultProtocol,
                             methodPath != null ? methodPath : cmd.path(),
                             cmd.version(),
-                            schemaRef
+                            schemaRef,
+                            description
                         ));
                     }
 
@@ -463,6 +470,7 @@ public class SpasMetadataController {
                         String schemaRef = (qry.schemaRef() == null || qry.schemaRef().isBlank())
                             ? inferEndpointSchemaRef(method, kebabName)
                             : qry.schemaRef();
+                        String description = qry.description() == null || qry.description().isBlank() ? null : qry.description();
 
                         endpoints.add(new EndpointContract(
                             kebabName,
@@ -470,7 +478,8 @@ public class SpasMetadataController {
                             defaultProtocol,
                             methodPath != null ? methodPath : qry.path(),
                             qry.version(),
-                            schemaRef
+                            schemaRef,
+                            description
                         ));
                     }
                 }

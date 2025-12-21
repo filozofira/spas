@@ -49,6 +49,63 @@ describe('SpasSchemaValidator', () => {
       const invalid = { ...validMetadata, id: 'Invalid_Service' };
       expect(() => validator.validateMetadata(invalid)).toThrow(ValidationError);
     });
+
+    it('should accept metadata with optional endpoint descriptions', () => {
+      const withDescriptions = {
+        ...validMetadata,
+        endpoints: [
+          {
+            name: 'test-endpoint',
+            type: 'Command',
+            protocol: 'Http',
+            methodPath: '/api/test',
+            version: '1.0',
+            schemaRef: 'test.json',
+            description: 'This is a test endpoint description',
+          },
+        ],
+      };
+      expect(() => validator.validateMetadata(withDescriptions)).not.toThrow();
+    });
+
+    it('should accept metadata with optional event descriptions', () => {
+      const withDescriptions = {
+        ...validMetadata,
+        events: [
+          {
+            type: 'test.event',
+            version: '1.0',
+            schemaRef: 'event.json',
+            description: 'This is a test event description',
+          },
+        ],
+      };
+      expect(() => validator.validateMetadata(withDescriptions)).not.toThrow();
+    });
+
+    it('should accept metadata without optional descriptions (backward compatibility)', () => {
+      const withoutDescriptions = {
+        ...validMetadata,
+        endpoints: [
+          {
+            name: 'test-endpoint',
+            type: 'Query',
+            protocol: 'Http',
+            methodPath: '/api/test',
+            version: '1.0',
+            schemaRef: 'test.json',
+          },
+        ],
+        events: [
+          {
+            type: 'test.event',
+            version: '1.0',
+            schemaRef: 'event.json',
+          },
+        ],
+      };
+      expect(() => validator.validateMetadata(withoutDescriptions)).not.toThrow();
+    });
   });
 
   describe('validateIdentityMatch', () => {

@@ -35,6 +35,11 @@ Analyze pulled service contracts and generate choreography configuration with tr
 
 1. **Contract Analysis**: Parse service metadata from `./examples/domains/ecommerce/{DOMAIN}/services/*/spas.json`
 2. **Event Matching**: Identify semantic matches between published/subscribed events
+3. **Intent Matching (REQUIRED)**:
+  - Use `description` fields (service/endpoint/event) as the primary semantic signal, **in combination with** names, types, and schemas.
+  - When you use a description to justify a choice, quote the exact snippet you used.
+  - If `description` is missing, say so explicitly and rely more heavily on names, types, and schemas.
+  - NEVER invent or “improve” missing descriptions.
 3. **Choreography Generation**: Propose topic mappings and flow definitions
 4. **Transformation Generation**: Create JSONata transformation files
 5. **Iterative Refinement**: Confirm with developer, iterate based on feedback
@@ -186,6 +191,7 @@ Service metadata files define service capabilities, contracts, and runtime confi
 | `schemaVersion` | string | Schema version ("runtime-metadata-v1") |
 | `id` | string | Service identifier (kebab-case) |
 | `name` | string | Display name |
+| `description` | string? | Optional plain-text service description |
 | `version` | string | Semantic version |
 | `boundedContext` | string | Domain context name |
 | `endpoints` | array | Command/Query endpoints |
@@ -199,11 +205,13 @@ Service metadata files define service capabilities, contracts, and runtime confi
 - `methodPath`: "POST /api/orders"
 - `version`: Semantic version
 - `schemaRef`: Path to request/response schema
+- `description`: Optional plain-text endpoint description
 
 **Event Structure:**
 - `type`: Event type name (PascalCase)
 - `version`: Semantic version
 - `schemaRef`: Path to event schema
+- `description`: Optional plain-text event description
 
 **Complete Schema**: `${domainRoot}/{DOMAIN}/.spas/schemas/runtime-metadata-v1.schema.json`
 

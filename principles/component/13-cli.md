@@ -56,6 +56,15 @@ After pulling services, developers use the `/spas.compose` agent prompt to analy
 
 See `.github/agents/spas-compose.md` for agent prompt structure and examples.
 
+### Description-First Guidance
+
+When service metadata includes optional plain-text `description` fields (service/endpoints/events), the generated compose agent prompt SHOULD:
+
+- Treat descriptions as the primary semantic signal for intent matching.
+- Quote the exact description snippet(s) used to justify endpoint/event selection.
+- Explicitly fall back to names/types/schemas when descriptions are missing.
+- Never invent missing descriptions.
+
 ---
 
 ## Configuration Management

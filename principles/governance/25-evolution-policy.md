@@ -6,6 +6,12 @@
 - APIs: versioned endpoints (parallel support during migration)
 - Metadata: new fields optional; unknown fields ignored by consumers
 
+### Metadata Descriptions
+
+- `description` fields are optional and may be absent.
+- Tools and agents MUST tolerate missing/empty descriptions and fall back to other contract signals.
+- Descriptions are advisory and MUST NOT be treated as authoritative contract semantics.
+
 ## Forward Compatibility
 
 - Consumers must ignore unknown fields

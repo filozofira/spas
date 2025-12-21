@@ -932,6 +932,11 @@ Analyze pulled service contracts and generate choreography configuration with tr
 
 1. **Contract Analysis**: Parse service metadata from \`${domainRoot}/{DOMAIN}/services/*/spas.json\`
 2. **Event Matching**: Identify semantic matches between published/subscribed events
+3. **Intent Matching (REQUIRED)**:
+  - Use \`description\` fields (service/endpoint/event) as the primary semantic signal, **in combination with** names, types, and schemas.
+  - When you use a description to justify a choice, quote the exact snippet you used.
+  - If \`description\` is missing, say so explicitly and rely more heavily on names, types, and schemas.
+  - NEVER invent or “improve” missing descriptions.
 3. **Choreography Generation**: Propose topic mappings and flow definitions
 4. **Transformation Generation**: Create JSONata transformation files
 5. **Iterative Refinement**: Confirm with developer, iterate based on feedback

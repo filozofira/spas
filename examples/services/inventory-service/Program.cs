@@ -42,7 +42,7 @@ var identity = new ServiceIdentityBuilder()
 
 // GET /inventory - List all inventory items
 app.MapGet("/inventory",
-    [SpasQuery("ListInventory", "1.0")]
+    [SpasQuery("ListInventory", "1.0", Description = "Lists current inventory levels for all products")]
     (InventoryStore store) =>
     {
         return Results.Ok(store.GetAll());
@@ -50,7 +50,7 @@ app.MapGet("/inventory",
 
 // GET /inventory/{productId} - Get stock for specific product
 app.MapGet("/inventory/{productId}",
-    [SpasQuery("GetInventory", "1.0")]
+    [SpasQuery("GetInventory", "1.0", Description = "Returns available/reserved quantity for a specific productId")]
     (string productId, InventoryStore store) =>
     {
         var item = store.Get(productId);
@@ -59,7 +59,7 @@ app.MapGet("/inventory/{productId}",
 
 // POST /inventory/reserve - Reserve stock for order
 app.MapPost("/inventory/reserve",
-    [SpasCommand("ReserveStock", "1.0")]
+    [SpasCommand("ReserveStock", "1.0", Description = "Reserves stock for an order and publishes StockReserved for successfully reserved items")]
     async (ReserveStockRequest request, EventPublisher publisher, InventoryStore store) =>
     {
         Console.WriteLine($"[inventory-service] Reserving stock for order {request.OrderId}");
@@ -149,7 +149,7 @@ app.MapGet("/health", () => new { status = "healthy", service = "inventory-servi
 app.Run();
 
 // Request/Response types
-[SpasCommand("ReserveStock", "1.0")]
+[SpasCommand("ReserveStock", "1.0", Description = "Payload for ReserveStock: orderId and the set of product quantities to reserve")]
 public record ReserveStockRequest(Guid OrderId, List<OrderItem> Items);
 
 public record OrderItem(string ProductId, int Quantity);
@@ -159,10 +159,10 @@ public record InventoryItem(string ProductId, int AvailableQuantity, int Reserve
 public record StockReservation(string ProductId, int Quantity, DateTime ReservedAt);
 
 // Events (outbound only)
-[SpasEvent("StockReserved", "1.0", EventType = "com.inventory.stock.reserved")]
+[SpasEvent("StockReserved", "1.0", Description = "Emitted when stock is successfully reserved for one or more items in an order")]
 public record StockReservedEvent(Guid OrderId, List<StockReservation> Reservations, DateTime Timestamp);
 
-[SpasEvent("StockDepleted", "1.0", EventType = "com.inventory.stock.depleted")]
+[SpasEvent("StockDepleted", "1.0", Description = "Emitted when requested quantity exceeds available inventory for a product")]
 public record StockDepletedEvent(string ProductId, Guid OrderId, int RequestedQuantity, int AvailableQuantity, DateTime Timestamp);
 
 // In-memory store with sample data

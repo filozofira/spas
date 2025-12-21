@@ -9,6 +9,7 @@ package io.spas.sdk.metadata.model;
  * @param methodPath HTTP route path (e.g., "/api/orders") or gRPC method path
  * @param version Endpoint version (e.g., "1.0.0")
  * @param schemaRef URI reference to request/response schema
+ * @param description Optional plain-text description of the endpoint
  */
 public record EndpointContract(
     String name,
@@ -16,6 +17,7 @@ public record EndpointContract(
     Protocol protocol,
     String methodPath,
     String version,
-    String schemaRef
+    String schemaRef,
+    String description
 ) {
 }

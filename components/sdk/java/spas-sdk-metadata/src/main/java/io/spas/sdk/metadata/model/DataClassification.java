@@ -4,28 +4,28 @@ import com.fasterxml.jackson.annotation.JsonValue;
 
 /**
  * Data classification level for compliance and security.
- * Serializes as PascalCase to match design-time-metadata-v1 schema.
+ * Serializes as lowercase to match design-time-metadata-v1 schema.
  */
 public enum DataClassification {
     /**
      * Publicly available data.
      */
-    PUBLIC("Public"),
+    PUBLIC("public"),
     
     /**
      * Internal use only.
      */
-    INTERNAL("Internal"),
+    INTERNAL("internal"),
     
     /**
      * Confidential data requiring protection.
      */
-    CONFIDENTIAL("Confidential"),
+    CONFIDENTIAL("confidential"),
     
     /**
      * Restricted data with highest protection level.
      */
-    RESTRICTED("Restricted");
+    RESTRICTED("restricted");
 
     private final String value;
 

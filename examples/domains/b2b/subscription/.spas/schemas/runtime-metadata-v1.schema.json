@@ -13,6 +13,7 @@
     },
     "id": {
       "type": "string",
+      "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$",
       "description": "Unique service identifier (kebab-case recommended)"
     },
     "name": {
@@ -71,6 +72,10 @@
             "type": "string",
             "format": "uri-reference",
             "description": "Relative or absolute URI reference to endpoint schema (e.g., schemas/create-order.schema.json)"
+          },
+          "description": {
+            "type": "string",
+            "description": "Optional plain-text description of the endpoint's purpose and behavior"
           }
         }
       },
@@ -94,6 +99,10 @@
             "type": "string",
             "format": "uri-reference",
             "description": "Relative or absolute URI reference to event schema"
+          },
+          "description": {
+            "type": "string",
+            "description": "Optional plain-text description of the event's purpose and when it is emitted"
           }
         }
       },
@@ -154,7 +163,7 @@
           "type": "array",
           "items": {
             "type": "string",
-            "enum": ["Public", "Internal", "Confidential", "Restricted"]
+            "enum": ["public", "internal", "confidential", "restricted"]
           },
           "minItems": 1,
           "description": "Data classification levels handled by this service"

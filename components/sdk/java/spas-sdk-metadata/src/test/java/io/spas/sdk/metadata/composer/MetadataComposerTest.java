@@ -60,13 +60,15 @@ class MetadataComposerTest {
             Protocol.HTTP,
             "POST /orders",
             "1.0.0",
-            "schemas/create-order.json"
+            "schemas/create-order.json",
+            null
         );
         
         var event = new EventContract(
             "order-created",
             "1.0.0",
-            "schemas/order-created.json"
+            "schemas/order-created.json",
+            null
         );
         
         var security = SecurityBuilder.create()

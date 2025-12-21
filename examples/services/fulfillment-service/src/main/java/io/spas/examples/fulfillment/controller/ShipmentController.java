@@ -33,7 +33,8 @@ public class ShipmentController {
     @SpasCommand(
         name = "CreateShipment",
         version = "1.0.0",
-        path = "/shipments"
+        path = "/shipments",
+        description = "Creates a shipment for a confirmed order using the destination address; emits ShipmentCreated when successful"
         // Auto-generates: schemas/endpoints/create-shipment.schema.json
     )
     @PostMapping

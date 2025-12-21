@@ -266,6 +266,8 @@ Auto-generated from all feature plans. Last updated: 2025-12-12
 - SQLite database with existing schema, no migrations required (015-repository-service-fixes)
 - Java 17+ (user has Java 21) + Jackson (JSON), java.net.http.HttpClient, Spring Boot 3.x (optional integration) (016-java-spas-sdk)
 - N/A (SDK generates files, no runtime storage) (016-java-spas-sdk)
+- TypeScript (Node.js) + Java (Maven/Spring Boot) + .NET + JSON Schema, TypeScript toolchain (repo/sidecar), Java annotations/runtime reflection (metadata), .NET attributes + metadata composer (017-metadata-descriptions)
+- Repository persistence (existing; not changed by this feature) (017-metadata-descriptions)
 
 - .NET 10 (target net10.0); Microsoft.Extensions.Logging; System.Text.Json (001-dotnet-spas-sdk)
 

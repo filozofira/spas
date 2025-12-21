@@ -55,7 +55,7 @@ public static class WebApplicationDiscoveryExtensions
         var eventContracts = discovery.DiscoverEvents();
         foreach (var evt in eventContracts.Events)
         {
-            builder.AddEvent(evt.Type, evt.Version, evt.SchemaRef);
+            builder.AddEvent(evt.Type, evt.Version, evt.SchemaRef, description: evt.Description);
         }
 
         // Discover endpoints - access them directly from WebApplication's DataSources property
@@ -265,7 +265,8 @@ public static class WebApplicationDiscoveryExtensions
                         protocol: "Http",
                         methodPath: finalPath,
                         version: commandAttr.Version,
-                        schemaRef: schemaRef);
+                        schemaRef: schemaRef,
+                        description: commandAttr.Description);
                     return true; // Only one SPAS attribute per endpoint
                 }
 
@@ -280,7 +281,8 @@ public static class WebApplicationDiscoveryExtensions
                         protocol: "Http",
                         methodPath: finalPath,
                         version: queryAttr.Version,
-                        schemaRef: schemaRef);
+                        schemaRef: schemaRef,
+                        description: queryAttr.Description);
                     return true; // Only one SPAS attribute per endpoint
                 }
             }

@@ -95,6 +95,17 @@ describe("generateAgentFile", () => {
       expect(content1).toContain("./{DOMAIN}/services");
       expect(content2).toContain("./examples/ecommerce/{DOMAIN}/services");
     });
+
+    it("should include description-first intent matching guidance (combined with names/types/schemas)", () => {
+      const content = generateAgentFile("./examples/ecommerce");
+
+      expect(content).toContain("## Responsibilities");
+      expect(content).toContain("**Intent Matching (REQUIRED)**");
+      expect(content).toContain("primary semantic signal");
+      expect(content).toContain("in combination with");
+      expect(content).toContain("quote the exact snippet");
+      expect(content).toContain("NEVER invent");
+    });
   });
 
   describe("phased workflow with validation (US2)", () => {

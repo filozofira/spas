@@ -52,6 +52,17 @@ class SpasMetadataControllerTest {
         assertTrue(entries.contains("schemas/endpoints/sample-request.schema.json"));
         assertTrue(entries.contains("schemas/endpoints/sample-response.schema.json"));
         assertTrue(entries.contains("schemas/events/sample-event.schema.json"));
+
+        String spasJson = readZipEntryAsString(response.getBody(), "spas.json");
+        assertNotNull(spasJson);
+
+        // Service, command, and event descriptions should be included when provided
+        assertTrue(spasJson.contains("SAMPLE_SERVICE_DESC"));
+        assertTrue(spasJson.contains("SAMPLE_COMMAND_DESC"));
+        assertTrue(spasJson.contains("SAMPLE_EVENT_DESC"));
+
+        // Empty/default descriptions should be omitted (null -> omitted)
+        assertFalse(spasJson.contains("\"description\" : \"\""));
     }
 
     @Test
@@ -95,5 +106,20 @@ class SpasMetadataControllerTest {
             }
         }
         return entries;
+    }
+
+    private static String readZipEntryAsString(byte[] zipBytes, String entryName) throws IOException {
+        try (ZipInputStream zis = new ZipInputStream(new ByteArrayInputStream(zipBytes))) {
+            ZipEntry entry;
+            while ((entry = zis.getNextEntry()) != null) {
+                if (entryName.equals(entry.getName())) {
+                    byte[] bytes = zis.readAllBytes();
+                    zis.closeEntry();
+                    return new String(bytes);
+                }
+                zis.closeEntry();
+            }
+        }
+        return null;
     }
 }

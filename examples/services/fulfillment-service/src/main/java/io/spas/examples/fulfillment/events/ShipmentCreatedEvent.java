@@ -13,7 +13,8 @@ import java.time.Instant;
  */
 @SpasEvent(
     type = "ShipmentCreated",
-    version = "1.0.0"
+    version = "1.0.0",
+    description = "Emitted after a shipment is created for a confirmed order; indicates fulfillment has started"
     // Auto-generates: schemas/events/shipment-created.schema.json
 )
 public class ShipmentCreatedEvent {

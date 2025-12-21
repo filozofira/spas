@@ -2,7 +2,6 @@
 
 [![.NET](https://img.shields.io/badge/.NET-10.0-purple)](https://dotnet.microsoft.com/)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](../../../LICENSE)
-[![Tests](https://img.shields.io/badge/tests-94%20passing-success)](./test)
 
 The .NET SDK for building **SPAS (Self-contained, Portable, Adaptable Services)** - services that publish rich metadata, communicate via events, and maintain distributed trace context.
 
@@ -219,7 +218,10 @@ app.MapPost("/commands/create-order", async (CreateOrderRequest request) =>
     return Results.Ok(new { orderId = Guid.NewGuid() });
 })
 .WithMetadata(new SpasCommandAttribute("CreateOrder", "1.0",
-    schemaRef: "schemas/create-order-request.json"));
+  schemaRef: "schemas/create-order-request.json")
+{
+  Description = "Creates a new order and reserves inventory; returns the new orderId"
+});
 ```
 
 **Queries:**
@@ -236,9 +238,30 @@ app.MapGet("/queries/get-order/{id}", async (string id) =>
 **Events:**
 
 ```csharp
-[SpasEvent("OrderCreated", "1.0", schemaRef: "schemas/order-created-event.json")]
+[SpasEvent("OrderCreated", "1.0", schemaRef: "schemas/order-created-event.json",
+  Description = "Emitted after an order is successfully created and persisted")]
 public record OrderCreatedEvent(string OrderId, string CustomerId, decimal Total);
 ```
+
+## ✍️ Writing Effective Descriptions
+
+Descriptions are optional but strongly recommended for AI-assisted choreography.
+
+**Rules**:
+- Plain text only (no Markdown semantics)
+- May include newlines
+- Describe intent, not implementation details
+
+**Good examples**:
+- Service: "Order management for checkout and lifecycle updates"
+- Command: "Creates a new order and reserves inventory; returns the new orderId"
+- Query: "Returns current order state by orderId"
+- Event: "Emitted when an order transitions to paid"
+
+**Bad examples**:
+- "CreateOrder" (just restates the name)
+- "Handles orders" (too generic)
+- "Creates an order quickly" (vague/subjective)
 
 ### 2. Publish Events
 
@@ -376,20 +399,12 @@ dotnet run
 
 ## 🧪 Testing
 
-Run all 94 unit tests:
+Run all unit tests:
 
 ```bash
 cd components/sdk/dotnet
 dotnet test
 ```
-
-**Test coverage:**
-
-- Core: 12 tests (ISpasClock, SpasContext, SpasTrace, SpasIdentityMiddleware)
-- Metadata: 40 tests (builders, composer, validator, auto-discovery)
-- Events: 18 tests (event builder, publisher)
-- Observability: 12 tests (tracelog middleware, OpenTelemetry)
-- Dev Endpoint: 12 tests (metadata endpoint, archive writer)
 
 ## 🏗️ Architecture
 
@@ -477,20 +492,7 @@ builder.Services.AddSpasTracing(
 
 ## ⚠️ PoC vs Production
 
-**Current Status:** ✅ PoC Complete - Ready for development/testing
-
-**Production Migration Required:**
-
-| Component            | PoC                   | Production Required               |
-| -------------------- | --------------------- | --------------------------------- |
-| **Identity**         | Headers (`x-user-id`) | mTLS + SPIFFE workload identity   |
-| **Tracing**          | Zipkin                | Prometheus + Jaeger / Tempo       |
-| **OpenTelemetry**    | 1.10.0 (CVE)          | Upgrade to 2.0+                   |
-| **Secrets**          | Environment vars      | Azure Key Vault / HashiCorp Vault |
-| **Event Publishing** | No retry              | Polly retry + circuit breaker     |
-| **Communication**    | HTTP                  | gRPC with TLS 1.3                 |
-
-See [SECURITY.md](../../specs/001-dotnet-spas-sdk/SECURITY.md) for complete checklist.
+This SDK is a PoC. Review [SECURITY.md](../../specs/001-dotnet-spas-sdk/SECURITY.md) before treating it as production-ready.
 
 ## 🤝 Contributing
 
@@ -505,6 +507,3 @@ This SDK is part of the SPAS framework PoC. For questions or improvements:
 
 See [LICENSE](../../../LICENSE) in the repository root.
 
----
-
-**Built with .NET 10** | **88 Tests Passing** | **Production-Ready Architecture**

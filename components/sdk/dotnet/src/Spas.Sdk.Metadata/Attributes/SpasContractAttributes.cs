@@ -44,6 +44,12 @@ public class SpasCommandAttribute : Attribute
     /// </summary>
     public string? Path { get; set; }
 
+    /// <summary>
+    /// Optional plain-text description of what this command does.
+    /// Omitted from metadata when null/empty.
+    /// </summary>
+    public string? Description { get; set; }
+
     public SpasCommandAttribute(string name, string version)
     {
         Name = name;
@@ -80,6 +86,12 @@ public class SpasQueryAttribute : Attribute
     /// Explicit path override. If not set, path will be inferred from route template.
     /// </summary>
     public string? Path { get; set; }
+
+    /// <summary>
+    /// Optional plain-text description of what this query does.
+    /// Omitted from metadata when null/empty.
+    /// </summary>
+    public string? Description { get; set; }
 
     public SpasQueryAttribute(string name, string version)
     {
@@ -118,6 +130,12 @@ public class SpasEventAttribute : Attribute
     /// Optional; if not provided, will be auto-generated from service name and event name.
     /// </summary>
     public string? EventType { get; set; }
+
+    /// <summary>
+    /// Optional plain-text description of when/why this event is emitted.
+    /// Omitted from metadata when null/empty.
+    /// </summary>
+    public string? Description { get; set; }
 
     public SpasEventAttribute(string name, string version)
     {

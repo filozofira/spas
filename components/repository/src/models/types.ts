@@ -22,6 +22,7 @@ export interface Event {
   type: string; // CloudEvents type
   version: string;
   schemaRef: string;
+  description?: string;
 }
 
 /**
@@ -47,7 +48,7 @@ export interface Security {
     type: string;
     requiredScopes?: string[];
   };
-  dataClassification: ('public' | 'internal' | 'confidential' | 'pii')[];
+  dataClassification: ('public' | 'internal' | 'confidential' | 'restricted')[];
 }
 
 /**

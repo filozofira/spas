@@ -22,7 +22,7 @@ export class ConfigLoader {
 
     const storageProvider = (process.env.STORAGE_PROVIDER || 'sqlite') as 'sqlite' | 'postgres';
     const spasSchemaPath =
-      process.env.SPAS_SCHEMA_PATH || './data/design-time-metadata-v1.schema.json';
+      process.env.SPAS_SCHEMA_PATH || './schemas/design-time-metadata-v1.schema.json';
 
     const storage: StorageConfig = {
       provider: storageProvider,

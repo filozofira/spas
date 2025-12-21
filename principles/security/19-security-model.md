@@ -8,6 +8,13 @@ Defines security principles for SPAS services and platform.
 - Defense in depth (edge, sidecar/mesh, runtime application layer)
 - Least privilege and default deny
 
+## Metadata Description Safety
+
+Service metadata `description` fields are plain text intended for human/agent guidance.
+
+- MUST NOT include secrets (tokens, passwords, connection strings) or sensitive personal data.
+- MUST NOT be used as an authorization signal or policy input; treat as advisory documentation only.
+
 ## Threat Model (High Level)
 
 - Network egress abuse → Mitigate via `network.allowedEgress[]` + enclosure policies

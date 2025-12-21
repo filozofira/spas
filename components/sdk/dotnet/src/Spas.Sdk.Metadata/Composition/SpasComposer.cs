@@ -9,6 +9,11 @@ namespace Spas.Sdk.Metadata.Composition;
 /// </summary>
 public class SpasComposer
 {
+    private static string? TrimToNull(string? value)
+    {
+        return string.IsNullOrWhiteSpace(value) ? null : value;
+    }
+
     /// <summary>
     /// Composes metadata fragments into a JSON string.
     /// </summary>
@@ -25,7 +30,7 @@ public class SpasComposer
             schemaVersion = "design-time-metadata-v1",
             id = identity.Id,
             name = identity.Name,
-            description = identity.Description,
+            description = TrimToNull(identity.Description),
             version = identity.Version,
             boundedContext = identity.BoundedContext,
             capabilities = identity.Capabilities,
@@ -37,13 +42,14 @@ public class SpasComposer
                 methodPath = e.MethodPath,
                 version = e.Version,
                 schemaRef = e.SchemaRef,
-                description = e.Description
+                description = TrimToNull(e.Description)
             }).ToArray() : Array.Empty<object>(),
             events = contracts != null ? contracts.Events.Select(ev => new
             {
                 type = ev.Type,
                 version = ev.Version,
-                schemaRef = ev.SchemaRef
+                schemaRef = ev.SchemaRef,
+                description = TrimToNull(ev.Description)
             }).ToArray() : Array.Empty<object>(),
             consistency = consistency != null ? new
             {

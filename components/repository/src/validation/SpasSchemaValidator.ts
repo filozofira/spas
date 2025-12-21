@@ -7,6 +7,7 @@
 
 import Ajv from 'ajv';
 import addFormats from 'ajv-formats';
+import { readFileSync } from 'fs';
 import type { ServiceMetadata } from '../models/types';
 
 export class SpasSchemaValidator {
@@ -14,7 +15,7 @@ export class SpasSchemaValidator {
   private spasSchema: Record<string, unknown>;
   private validateMetadataFn: (data: unknown) => boolean;
 
-  constructor(_spasSchemaPath: string) {
+  constructor(spasSchemaPath: string) {
     this.ajv = new Ajv({
       strict: false,
       useDefaults: true,
@@ -24,49 +25,28 @@ export class SpasSchemaValidator {
     // Add format validators (uuid, email, date-time, etc.)
     addFormats(this.ajv);
 
-    // Load SPAS schema - will be done in initialization
-    // For now, create basic schema that will be replaced
-    this.spasSchema = {
-      type: 'object',
-      properties: {
-        schemaVersion: { type: 'string' },
-        id: { type: 'string', pattern: '^[a-z0-9]+(-[a-z0-9]+)*$' },
-        name: { type: 'string' },
-        description: { type: 'string' },
-        version: { type: 'string', pattern: '^\\d+\\.\\d+\\.\\d+$' },
-        boundedContext: { type: 'string' },
-        capabilities: {
-          type: 'array',
-          items: { type: 'string' },
-        },
-        endpoints: { type: 'array' },
-        events: { type: 'array' },
-        consistency: { type: 'object' },
-        network: { type: 'object' },
-        security: { type: 'object' },
-        license: { type: 'string' },
-        runtime: { type: 'object' },
-        publishedAt: { type: 'string' },
-      },
-      required: [
-        'schemaVersion',
-        'id',
-        'name',
-        'description',
-        'version',
-        'boundedContext',
-        'capabilities',
-        'endpoints',
-        'events',
-        'consistency',
-        'network',
-        'security',
-        'license',
-      ],
-      additionalProperties: false,
-    };
+    // Load SPAS schema from file
+    try {
+      const schemaContent = readFileSync(spasSchemaPath, 'utf-8');
+      this.spasSchema = JSON.parse(schemaContent);
+    } catch (error) {
+      throw new Error(
+        `Failed to load SPAS schema from ${spasSchemaPath}: ${
+          error instanceof Error ? error.message : String(error)
+        }`
+      );
+    }
 
-    this.validateMetadataFn = this.ajv.compile(this.spasSchema);
+    // Compile the schema
+    try {
+      this.validateMetadataFn = this.ajv.compile(this.spasSchema);
+    } catch (error) {
+      throw new Error(
+        `Failed to compile SPAS schema: ${
+          error instanceof Error ? error.message : String(error)
+        }`
+      );
+    }
   }
 
   /**

@@ -55,6 +55,22 @@ Terminal events are still added to the source service's outbound config, enablin
 - Runtime activation (middleware, sidecar responsibility):
   - Fail closed on invalid mappings in Production; PoC logs warnings
 
+## Metadata Descriptions (Agent-Aware Composition)
+
+Service metadata MAY include optional plain-text `description` fields at the service, endpoint, and event levels.
+
+**Composition guidance (for humans and AI agents):**
+
+- Prefer `description` as the primary semantic signal when matching endpoints/events to domain intent.
+- When making a mapping decision, quote the exact snippet(s) of `description` that justify the selection.
+- If `description` is missing, empty, or clearly unhelpful, fall back to names/types/schemas and state that fallback explicitly.
+
+**Limitations:**
+
+- Descriptions are optional and may be absent, stale, or incomplete.
+- Descriptions are advisory, not authoritative: mappings MUST be validated against schemas and contracts.
+- Agents/tools MUST NOT invent descriptions; they may only quote what is present in pulled metadata.
+
 ## Runtime Behavior — Middleware/Sidecar scope
 
 - Sidecar loads mappings at startup via priority: mounted files → config service → repository API fallback

@@ -47,30 +47,35 @@ The Java SDK for building **SPAS (Self-contained, Portable, Adaptable Services)*
 
 Add dependencies to your `pom.xml`:
 
+Use a single property for the SDK version (set it to match `components/sdk/java/pom.xml`):
+
+```xml
+<properties>
+    <spas.version></spas.version>
+</properties>
+```
+
 ```xml
 <dependencies>
-    <!-- Core SDK (required) -->
     <dependency>
         <groupId>io.spas</groupId>
         <artifactId>spas-sdk-core</artifactId>
-        <version>1.0.0</version>
+        <version>${spas.version}</version>
     </dependency>
     <dependency>
         <groupId>io.spas</groupId>
         <artifactId>spas-sdk-metadata</artifactId>
-        <version>1.0.0</version>
+        <version>${spas.version}</version>
     </dependency>
     <dependency>
         <groupId>io.spas</groupId>
         <artifactId>spas-sdk-events</artifactId>
-        <version>1.0.0</version>
+        <version>${spas.version}</version>
     </dependency>
-    
-    <!-- Spring integration (optional) -->
     <dependency>
         <groupId>io.spas</groupId>
         <artifactId>spas-sdk-spring</artifactId>
-        <version>1.0.0</version>
+        <version>${spas.version}</version>
     </dependency>
 </dependencies>
 ```
@@ -83,13 +88,12 @@ Configure the annotation processor:
         <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-compiler-plugin</artifactId>
-            <version>3.12.1</version>
             <configuration>
                 <annotationProcessorPaths>
                     <path>
                         <groupId>io.spas</groupId>
                         <artifactId>spas-sdk-metadata-processor</artifactId>
-                        <version>1.0.0</version>
+                        <version>${spas.version}</version>
                     </path>
                 </annotationProcessorPaths>
             </configuration>
@@ -103,7 +107,8 @@ Configure the annotation processor:
 ```java
 import io.spas.sdk.metadata.annotations.SpasEvent;
 
-@SpasEvent(value = "OrderCreated", version = "1.0")
+@SpasEvent(value = "OrderCreated", version = "1.0",
+    description = "Emitted after an order is successfully created and persisted")
 public record OrderCreatedEvent(
     String orderId,
     String customerId,
@@ -121,19 +126,41 @@ import io.spas.sdk.metadata.annotations.SpasQuery;
 @RequestMapping("/api/orders")
 public class OrderController {
 
-    @SpasCommand(value = "CreateOrder", version = "1.0")
+    @SpasCommand(value = "CreateOrder", version = "1.0",
+        description = "Creates a new order and reserves inventory; returns the new orderId")
     @PostMapping
     public OrderResponse createOrder(@RequestBody CreateOrderRequest request) {
         // ...
     }
     
-    @SpasQuery(value = "GetOrder", version = "1.0")
+    @SpasQuery(value = "GetOrder", version = "1.0",
+        description = "Returns current order state (status, items, totals) by orderId")
     @GetMapping("/{orderId}")
     public OrderResponse getOrder(@PathVariable String orderId) {
         // ...
     }
 }
 ```
+
+## ✍️ Writing Effective Descriptions
+
+Descriptions are optional but strongly recommended for AI-assisted choreography.
+
+**Rules**:
+- Plain text only (no Markdown semantics)
+- May include newlines
+- Keep it intent-focused: purpose + key inputs + side effects
+
+**Good examples**:
+- Service: "Creates and tracks shipments for confirmed orders; publishes shipment lifecycle events"
+- Command: "Creates a shipment for a confirmed order using destination address; emits ShipmentCreated"
+- Query: "Returns shipment details by shipmentId"
+- Event: "Emitted when shipment status changes; indicates progress through fulfillment lifecycle"
+
+**Bad examples**:
+- "CreateShipment" (just restates the name)
+- "Does the thing" (too generic)
+- "Creates a shipment (sometimes)" (ambiguous, no signal)
 
 ### Publish Events
 
@@ -170,9 +197,9 @@ cat target/classes/spas.json
 | Variable | Required | Description |
 |----------|----------|-------------|
 | `SERVICE_NAME` | Yes | Service identifier (fails fast if missing) |
-| `SIDECAR_URL` | No | Full sidecar URL (e.g., `http://localhost:8081`) |
+| `SIDECAR_URL` | No | Full sidecar URL (e.g., `http://localhost:7000`) |
 | `SIDECAR_HOST` | No | Sidecar hostname (default: `{service-name}-sidecar`) |
-| `SIDECAR_PORT` | No | Sidecar port (default: `8081`) |
+| `SIDECAR_PORT` | No | Sidecar port (default: `7000`) |
 
 ### Spring Boot Properties (if using spas-sdk-spring)
 
@@ -180,7 +207,7 @@ cat target/classes/spas.json
 spas:
   service-name: order-service
   sidecar:
-    url: http://localhost:8081
+        url: http://localhost:7000
     connect-timeout: 5s
     request-timeout: 30s
 ```

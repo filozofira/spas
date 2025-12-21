@@ -10,6 +10,7 @@ import java.io.IOException;
 
 import static com.google.testing.compile.CompilationSubject.assertThat;
 import static com.google.testing.compile.Compiler.javac;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class SpasAnnotationProcessorTest {
@@ -234,5 +235,75 @@ class SpasAnnotationProcessorTest {
         
         assertTrue(spasJson.contains("\"create-order-item\""));
         assertTrue(spasJson.contains("\"http-request-received\""));
+    }
+
+    @Test
+    void processor_shouldEmitDescriptionsWhenProvided_andOmitWhenEmpty() throws IOException {
+        JavaFileObject serviceClass = JavaFileObjects.forSourceLines(
+            "test.DescribedService",
+            "package test;",
+            "",
+            "import io.spas.sdk.metadata.annotations.*;",
+            "",
+            "@SpasService(",
+            "    id = \"described-service\",",
+            "    name = \"Described Service\",",
+            "    version = \"1.0.0\",",
+            "    description = \"SERVICE_DESC\",",
+            "    boundedContext = \"test\"",
+            ")",
+            "public class DescribedService {",
+            "    @SpasCommand(",
+            "        name = \"CreateOrder\",",
+            "        version = \"1.0.0\",",
+            "        path = \"/api/orders\",",
+            "        description = \"CMD_DESC\"",
+            "    )",
+            "    public CreateOrderResponse createOrder(CreateOrderRequest request) { return null; }",
+            "",
+            "    @SpasQuery(",
+            "        name = \"GetOrder\",",
+            "        version = \"1.0.0\",",
+            "        path = \"/api/orders/{id}\",",
+            "        description = \"\"",
+            "    )",
+            "    public GetOrderResponse getOrder(String id) { return null; }",
+            "}",
+            "",
+            "class CreateOrderRequest {}",
+            "class CreateOrderResponse {}",
+            "class GetOrderResponse {}"
+        );
+
+        JavaFileObject eventClass = JavaFileObjects.forSourceLines(
+            "test.DescribedEvent",
+            "package test;",
+            "",
+            "import io.spas.sdk.metadata.annotations.SpasEvent;",
+            "",
+            "@SpasEvent(",
+            "    type = \"OrderCreated\",",
+            "    version = \"1.0.0\",",
+            "    description = \"EVT_DESC\"",
+            ")",
+            "public class DescribedEvent {",
+            "    private String orderId;",
+            "}"
+        );
+
+        Compilation compilation = compileWithGenerationEnabled(serviceClass, eventClass);
+
+        assertThat(compilation).succeeded();
+
+        JavaFileObject spasJsonFile = compilation.generatedFile(StandardLocation.CLASS_OUTPUT, "spas.json")
+            .orElseThrow(() -> new AssertionError("spas.json was not generated"));
+        String spasJson = new String(spasJsonFile.openInputStream().readAllBytes(), java.nio.charset.StandardCharsets.UTF_8);
+
+        assertTrue(spasJson.contains("\"SERVICE_DESC\""));
+        assertTrue(spasJson.contains("\"CMD_DESC\""));
+        assertTrue(spasJson.contains("\"EVT_DESC\""));
+
+        // Empty descriptions should be omitted entirely (serializer omits null fields)
+        assertFalse(spasJson.contains("\"description\" : \"\""));
     }
 }

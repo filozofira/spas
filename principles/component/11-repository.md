@@ -10,6 +10,16 @@ Defines the SPAS repository API and storage model.
 - Index services by `serviceName`, `version`, `capabilities`, `boundedContext`
 - Link to OCI images in external registries (store image digest for integrity)
 
+## Metadata Descriptions
+
+Design-time service metadata MAY include optional plain-text `description` fields (service/endpoints/events).
+
+Repository responsibilities for descriptions:
+
+- **Preserve** descriptions as-authored (no rewriting, truncation, or interpretation).
+- **Validate structurally** via schema (type = string) but do not attempt semantic validation.
+- **Be permissive**: tooling and agents must tolerate missing or incomplete descriptions.
+
 ## API Endpoints (baseline)
 
 Natural key aligns with CLI (`spas-service pull <name> <version>`):
@@ -31,6 +41,7 @@ All GET endpoints that return service metadata **enrich** design-time JSON with 
 
 - **Input at Publish**: Design-time `spas.json` stored in `metadata` column; runtime fields (`imageDigest`, `imageRepository`, `imageTag`) stored in dedicated database columns
 - **Output on Retrieval**: Repository merges runtime fields into the response object under `runtime` property:
+
   ```json
   {
     "schemaVersion": "design-time-metadata-v1",
@@ -45,6 +56,7 @@ All GET endpoints that return service metadata **enrich** design-time JSON with 
     }
   }
   ```
+
 - **Separation Rationale**: Design-time metadata (`spas.json`) remains clean and authored by service developers; runtime metadata is deployment-specific and added by CI/CD or platform tooling at publish time
 - **Applies to**: All GET endpoints returning service metadata (service details, version metadata, download archives, search results)
 

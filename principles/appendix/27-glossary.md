@@ -12,6 +12,9 @@
 - Domain Event: Business fact (past tense)
 - Canonical Schema: Domain-specific event format
 - Internal Schema: Service-specific event format
+- Metadata Description: Optional plain-text `description` field in service metadata (service/endpoints/events) intended to capture human intent and support description-first matching.
+- Description-First Matching: Composition/agent strategy that prioritizes `description` text over names when selecting endpoints/events; decisions should quote the used snippets.
+- Non-Invention Rule: Agents/tools must not fabricate missing descriptions; they may only quote what exists in pulled metadata.
 
 ## Related Documents
 

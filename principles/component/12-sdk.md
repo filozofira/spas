@@ -62,14 +62,37 @@ SDK Responsibilities:
 
 SDKs MUST normalize event names to **kebab-case** when writing to `spas.json`:
 
-| Language | Native Convention | spas.json Output |
-|----------|-------------------|------------------|
-| C#       | `[SpasEvent("OrderCreated")]` | `order-created` |
-| Python   | `@spas_event("order_created")` | `order-created` |
-| Go       | `SpasEvent{Name: "OrderCreated"}` | `order-created` |
-| Java     | `@SpasEvent("OrderCreated")` | `order-created` |
+| Language | Native Convention               | spas.json Output |
+| -------- | ------------------------------- | --------------- |
+| C#       | `[SpasEvent("OrderCreated")]`       | `order-created`  |
+| Python   | `@spas_event("order_created")`      | `order-created`  |
+| Go       | `SpasEvent{Name: "OrderCreated"}`   | `order-created`  |
+| Java     | `@SpasEvent("OrderCreated")`        | `order-created`  |
 
 This ensures choreography authors work with a single consistent format regardless of service implementation language.
+
+## Metadata Descriptions
+
+SDKs SHOULD support authoring optional plain-text `description` fields in `spas.json` for:
+
+- Service (root)
+- Endpoints (commands/queries)
+- Events
+
+**Authoring recommendations:**
+
+- Write descriptions as short, concrete intent statements: what it does, when it is used/emitted, and any important constraints.
+- Prefer domain language over implementation details.
+- Do not embed Markdown semantics; treat the value as plain text (newlines allowed).
+
+**Emission rules:**
+
+- SDKs MUST omit `description` when it is null/empty/whitespace.
+- SDKs MUST NOT auto-generate descriptions.
+
+**Privacy/security:**
+
+- Descriptions MUST NOT include secrets, tokens, or sensitive personal data.
 
 ## Future Capabilities (Production)
 

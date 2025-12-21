@@ -2,7 +2,8 @@
 
 **Feature Branch**: `017-metadata-descriptions`  
 **Created**: December 21, 2025  
-**Status**: Draft  
+**Completed**: 2025-12-19  
+**Status**: ✅ Complete (PoC)  
 **Input**: User description: "Extend SPAS metadata schemas and SDKs to support optional description fields on services, endpoints (commands/queries), and events. Update agent prompts to prioritize descriptions when reasoning about choreographies. Currently when AI agents propose choreographies, they rely solely on endpoint/event names which are often ambiguous. This causes volatile and frequently incorrect choreography suggestions, especially for complex domains or when multiple services have similar-sounding operations."
 
 ## Clarifications
@@ -16,7 +17,7 @@
 - Q: Should schemas enforce a minimum length for `description`? → A: No (`minLength` MUST NOT be enforced)
 - Q: In agent guidance, do descriptions drive semantic understanding/matching (vs prioritizing endpoint/event types)? → A: Descriptions are the primary semantic signal used to understand and match intent; no priority between endpoint vs event types
 
-## User Scenarios & Testing *(mandatory)*
+## User Scenarios & Testing _(mandatory)_
 
 ### User Story 1 - Schema Extensions for Descriptions (Priority: P1) 🎯 MVP
 
@@ -107,7 +108,7 @@
 - How do agents handle services that mix described and undescribed endpoints?
 - What if a description contradicts the endpoint name (misleading documentation)?
 
-## Requirements *(mandatory)*
+## Requirements _(mandatory)_
 
 ### Functional Requirements
 
@@ -165,14 +166,14 @@
 - **FR-032**: Documentation MUST include examples of good descriptions (semantic, concise, context-rich)
 - **FR-033**: Documentation MUST include examples of bad descriptions (restates name, too generic, misleading)
 
-### Key Entities *(mandatory)*
+### Key Entities _(mandatory)_
 
 - **Service Metadata**: Root metadata object with optional `description` explaining service purpose and bounded context
 - **Endpoint Metadata**: Command or Query definition with optional `description` explaining operation purpose, expected inputs, and side effects
 - **Event Metadata**: Published event definition with optional `description` explaining when the event is emitted and what it signifies
 - **Schema Definitions**: JSON Schema files defining structure and validation rules for metadata with descriptions
 
-## Success Criteria *(mandatory)*
+## Success Criteria _(mandatory)_
 
 ### Measurable Outcomes
 
@@ -191,7 +192,7 @@
 - **Size**: Average description length SHOULD be 50-200 characters; descriptions MAY include newlines; schemas MUST NOT enforce `minLength` or `maxLength`
 - **Usability**: Developers SHOULD be able to add descriptions without consulting documentation (attribute names are self-explanatory)
 
-## Scope Boundaries *(mandatory)*
+## Scope Boundaries _(mandatory)_
 
 ### In Scope
 

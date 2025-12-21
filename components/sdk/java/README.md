@@ -103,7 +103,8 @@ Configure the annotation processor:
 ```java
 import io.spas.sdk.metadata.annotations.SpasEvent;
 
-@SpasEvent(value = "OrderCreated", version = "1.0")
+@SpasEvent(value = "OrderCreated", version = "1.0",
+    description = "Emitted after an order is successfully created and persisted")
 public record OrderCreatedEvent(
     String orderId,
     String customerId,
@@ -121,19 +122,41 @@ import io.spas.sdk.metadata.annotations.SpasQuery;
 @RequestMapping("/api/orders")
 public class OrderController {
 
-    @SpasCommand(value = "CreateOrder", version = "1.0")
+    @SpasCommand(value = "CreateOrder", version = "1.0",
+        description = "Creates a new order and reserves inventory; returns the new orderId")
     @PostMapping
     public OrderResponse createOrder(@RequestBody CreateOrderRequest request) {
         // ...
     }
     
-    @SpasQuery(value = "GetOrder", version = "1.0")
+    @SpasQuery(value = "GetOrder", version = "1.0",
+        description = "Returns current order state (status, items, totals) by orderId")
     @GetMapping("/{orderId}")
     public OrderResponse getOrder(@PathVariable String orderId) {
         // ...
     }
 }
 ```
+
+## ✍️ Writing Effective Descriptions
+
+Descriptions are optional but strongly recommended for AI-assisted choreography.
+
+**Rules**:
+- Plain text only (no Markdown semantics)
+- May include newlines
+- Keep it intent-focused: purpose + key inputs + side effects
+
+**Good examples**:
+- Service: "Creates and tracks shipments for confirmed orders; publishes shipment lifecycle events"
+- Command: "Creates a shipment for a confirmed order using destination address; emits ShipmentCreated"
+- Query: "Returns shipment details by shipmentId"
+- Event: "Emitted when shipment status changes; indicates progress through fulfillment lifecycle"
+
+**Bad examples**:
+- "CreateShipment" (just restates the name)
+- "Does the thing" (too generic)
+- "Creates a shipment (sometimes)" (ambiguous, no signal)
 
 ### Publish Events
 

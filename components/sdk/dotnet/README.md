@@ -219,7 +219,10 @@ app.MapPost("/commands/create-order", async (CreateOrderRequest request) =>
     return Results.Ok(new { orderId = Guid.NewGuid() });
 })
 .WithMetadata(new SpasCommandAttribute("CreateOrder", "1.0",
-    schemaRef: "schemas/create-order-request.json"));
+  schemaRef: "schemas/create-order-request.json")
+{
+  Description = "Creates a new order and reserves inventory; returns the new orderId"
+});
 ```
 
 **Queries:**
@@ -236,9 +239,30 @@ app.MapGet("/queries/get-order/{id}", async (string id) =>
 **Events:**
 
 ```csharp
-[SpasEvent("OrderCreated", "1.0", schemaRef: "schemas/order-created-event.json")]
+[SpasEvent("OrderCreated", "1.0", schemaRef: "schemas/order-created-event.json",
+  Description = "Emitted after an order is successfully created and persisted")]
 public record OrderCreatedEvent(string OrderId, string CustomerId, decimal Total);
 ```
+
+## ✍️ Writing Effective Descriptions
+
+Descriptions are optional but strongly recommended for AI-assisted choreography.
+
+**Rules**:
+- Plain text only (no Markdown semantics)
+- May include newlines
+- Describe intent, not implementation details
+
+**Good examples**:
+- Service: "Order management for checkout and lifecycle updates"
+- Command: "Creates a new order and reserves inventory; returns the new orderId"
+- Query: "Returns current order state by orderId"
+- Event: "Emitted when an order transitions to paid"
+
+**Bad examples**:
+- "CreateOrder" (just restates the name)
+- "Handles orders" (too generic)
+- "Creates an order quickly" (vague/subjective)
 
 ### 2. Publish Events
 

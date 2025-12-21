@@ -12,7 +12,8 @@ import java.time.Instant;
  */
 @SpasEvent(
     type = "ShipmentStatusChanged",
-    version = "1.0.0"
+    version = "1.0.0",
+    description = "Emitted whenever a shipment's status changes; signals progress through the fulfillment lifecycle"
     // Auto-generates: schemas/events/shipment-status-changed.schema.json
 )
 public class ShipmentStatusChangedEvent {

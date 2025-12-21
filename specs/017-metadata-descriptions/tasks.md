@@ -145,11 +145,11 @@ Updating the checked-in file alone is not sufficient; the template used by the C
 
 ### Implementation for User Story 5
 
-- [ ] T034 [US5] Add service-level description to fulfillment-service metadata annotation in examples/services/fulfillment-service/src/main/java/**
-- [ ] T035 [US5] Add endpoint-level descriptions to fulfillment-service command/query annotations in examples/services/fulfillment-service/src/main/java/**
-- [ ] T036 [US5] Add event-level descriptions to fulfillment-service event annotations in examples/services/fulfillment-service/src/main/java/**
-- [ ] T037 [US5] Document best practices and examples (good vs bad) in components/sdk/java/README.md
-- [ ] T038 [US5] Document best practices and examples (good vs bad) in components/sdk/dotnet/README.md
+- [X] T034 [US5] Add service-level description to fulfillment-service metadata annotation in examples/services/fulfillment-service/src/main/java/**
+- [X] T035 [US5] Add endpoint-level descriptions to fulfillment-service command/query annotations in examples/services/fulfillment-service/src/main/java/**
+- [X] T036 [US5] Add event-level descriptions to fulfillment-service event annotations in examples/services/fulfillment-service/src/main/java/**
+- [X] T037 [US5] Document best practices and examples (good vs bad) in components/sdk/java/README.md
+- [X] T038 [US5] Document best practices and examples (good vs bad) in components/sdk/dotnet/README.md
 
 ---
 

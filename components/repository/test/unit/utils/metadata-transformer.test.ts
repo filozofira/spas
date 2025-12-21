@@ -109,6 +109,47 @@ describe('metadata-transformer', () => {
       expect(result).toEqual(unknownSchemaMetadata);
     });
 
+    it('should preserve endpoint and event descriptions during transformation', () => {
+      const metadataWithDescriptions: ServiceMetadata = {
+        schemaVersion: 'design-time-metadata-v1',
+        id: 'described-service',
+        name: 'Described Service',
+        description: 'Service with descriptions',
+        version: '1.0.0',
+        boundedContext: 'test',
+        capabilities: [],
+        endpoints: [
+          {
+            name: 'create-order',
+            type: 'Command',
+            protocol: 'Http',
+            methodPath: 'POST /orders',
+            version: '1.0',
+            schemaRef: 'create-order.json',
+            description: 'Creates a new order with inventory reservation',
+          },
+        ],
+        events: [
+          {
+            type: 'order.created',
+            version: '1.0',
+            schemaRef: 'order-created.json',
+            description: 'Emitted when a new order is successfully created',
+          },
+        ],
+        consistency: { commands: 'ACID', queries: 'EVENTUAL' },
+        network: { requiredEgress: [] },
+        security: { dataClassification: ['internal'] },
+        license: 'MIT',
+      };
+
+      const result = transformToRuntimeMetadata(metadataWithDescriptions);
+
+      expect(result.schemaVersion).toBe('runtime-metadata-v1');
+      expect(result.endpoints[0].description).toBe('Creates a new order with inventory reservation');
+      expect(result.events[0].description).toBe('Emitted when a new order is successfully created');
+    });
+
     it('should not mutate the original metadata object', () => {
       const original: ServiceMetadata = {
         schemaVersion: 'design-time-metadata-v1',

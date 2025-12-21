@@ -54,17 +54,17 @@ description: "Task list for implementing metadata descriptions"
 
 ### Tests for User Story 1 ⚠️
 
-- [ ] T008 [P] [US1] Add schema validation tests for endpoint/event descriptions in components/repository/test/unit/validation/publish-validation.test.ts
-- [ ] T009 [P] [US1] Add transformer pass-through test for descriptions in components/repository/test/unit/utils/metadata-transformer.test.ts
+- [X] T008 [P] [US1] Add schema validation tests for endpoint/event descriptions in components/repository/test/unit/validation/publish-validation.test.ts
+- [X] T009 [P] [US1] Add transformer pass-through test for descriptions in components/repository/test/unit/utils/metadata-transformer.test.ts
 
 ### Implementation for User Story 1
 
-- [ ] T010 [US1] Add optional endpoint.description and event.description to components/sdk/schemas/design-time-metadata-v1.schema.json
-- [ ] T011 [US1] Add optional endpoint.description and event.description to components/repository/schemas/runtime-metadata-v1.schema.json
-- [ ] T012 [US1] Update repository metadata types to make service description optional and add event description in components/repository/src/models/types.ts
-- [ ] T013 [US1] Ensure repository validator does not require service description and accepts new fields in components/repository/src/validation/SpasSchemaValidator.ts
-- [ ] T014 [US1] Verify transformer preserves descriptions (no stripping) in components/repository/src/utils/metadata-transformer.ts
-- [ ] T015 [US1] Confirm repository API returns descriptions unchanged in components/repository/src/routes/services.ts
+- [X] T010 [US1] Add optional endpoint.description and event.description to components/sdk/schemas/design-time-metadata-v1.schema.json
+- [X] T011 [US1] Add optional endpoint.description and event.description to components/repository/schemas/runtime-metadata-v1.schema.json
+- [X] T012 [US1] Update repository metadata types to make service description optional and add event description in components/repository/src/models/types.ts
+- [X] T013 [US1] Ensure repository validator does not require service description and accepts new fields in components/repository/src/validation/SpasSchemaValidator.ts
+- [X] T014 [US1] Verify transformer preserves descriptions (no stripping) in components/repository/src/utils/metadata-transformer.ts
+- [X] T015 [US1] Confirm repository API returns descriptions unchanged in components/repository/src/routes/services.ts
 
 **Checkpoint**: US1 complete when repository can accept/persist/return metadata containing optional descriptions at all levels.
 

@@ -157,7 +157,7 @@ Updating the checked-in file alone is not sufficient; the template used by the C
 
 **Purpose**: Ensure schemas, SDKs, repository, and prompt changes are consistent and validated end-to-end.
 
-- [ ] T039 [P] Update any checked-in domain runtime schema copies to match runtime schema changes in examples/domains/**/.spas/schemas/runtime-metadata-v1.schema.json
+- [X] T039 [P] Update any checked-in domain runtime schema copies to match runtime schema changes in examples/domains/**/.spas/schemas/runtime-metadata-v1.schema.json
 - [ ] T040 Run quickstart validation end-to-end and record outcomes in specs/017-metadata-descriptions/quickstart.md
 
 ---

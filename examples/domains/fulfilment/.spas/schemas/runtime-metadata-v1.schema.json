@@ -4,13 +4,7 @@
   "title": "SPAS Runtime Metadata",
   "description": "Schema for SPAS runtime service metadata - Repository output with design-time metadata enriched with runtime deployment fields",
   "type": "object",
-  "required": [
-    "schemaVersion",
-    "id",
-    "name",
-    "version",
-    "boundedContext"
-  ],
+  "required": ["schemaVersion", "id", "name", "version", "boundedContext"],
   "properties": {
     "schemaVersion": {
       "type": "string",
@@ -19,6 +13,7 @@
     },
     "id": {
       "type": "string",
+      "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$",
       "description": "Unique service identifier (kebab-case recommended)"
     },
     "name": {
@@ -49,14 +44,7 @@
       "type": "array",
       "items": {
         "type": "object",
-        "required": [
-          "name",
-          "type",
-          "protocol",
-          "methodPath",
-          "version",
-          "schemaRef"
-        ],
+        "required": ["name", "type", "protocol", "methodPath", "version", "schemaRef"],
         "properties": {
           "name": {
             "type": "string",
@@ -64,18 +52,12 @@
           },
           "type": {
             "type": "string",
-            "enum": [
-              "Command",
-              "Query"
-            ],
+            "enum": ["Command", "Query"],
             "description": "Endpoint type: Command (write) or Query (read)"
           },
           "protocol": {
             "type": "string",
-            "enum": [
-              "Http",
-              "Grpc"
-            ],
+            "enum": ["Http", "Grpc"],
             "description": "Communication protocol"
           },
           "methodPath": {
@@ -90,6 +72,10 @@
             "type": "string",
             "format": "uri-reference",
             "description": "Relative or absolute URI reference to endpoint schema (e.g., schemas/create-order.schema.json)"
+          },
+          "description": {
+            "type": "string",
+            "description": "Optional plain-text description of the endpoint's purpose and behavior"
           }
         }
       },
@@ -99,11 +85,7 @@
       "type": "array",
       "items": {
         "type": "object",
-        "required": [
-          "type",
-          "version",
-          "schemaRef"
-        ],
+        "required": ["type", "version", "schemaRef"],
         "properties": {
           "type": {
             "type": "string",
@@ -117,6 +99,10 @@
             "type": "string",
             "format": "uri-reference",
             "description": "Relative or absolute URI reference to event schema"
+          },
+          "description": {
+            "type": "string",
+            "description": "Optional plain-text description of the event's purpose and when it is emitted"
           }
         }
       },
@@ -127,18 +113,12 @@
       "properties": {
         "commands": {
           "type": "string",
-          "enum": [
-            "ACID",
-            "EVENTUAL"
-          ],
+          "enum": ["ACID", "EVENTUAL"],
           "description": "Consistency guarantee for command endpoints"
         },
         "queries": {
           "type": "string",
-          "enum": [
-            "STRONG",
-            "EVENTUAL"
-          ],
+          "enum": ["STRONG", "EVENTUAL"],
           "description": "Consistency guarantee for query endpoints"
         }
       },
@@ -159,22 +139,14 @@
     },
     "security": {
       "type": "object",
-      "required": [
-        "dataClassification"
-      ],
+      "required": ["dataClassification"],
       "properties": {
         "authentication": {
           "type": "object",
           "properties": {
             "type": {
               "type": "string",
-              "enum": [
-                "OAuth2",
-                "JWT",
-                "ApiKey",
-                "mTLS",
-                "None"
-              ],
+              "enum": ["OAuth2", "JWT", "ApiKey", "mTLS", "None"],
               "description": "Authentication mechanism"
             },
             "requiredScopes": {
@@ -191,12 +163,7 @@
           "type": "array",
           "items": {
             "type": "string",
-            "enum": [
-              "Public",
-              "Internal",
-              "Confidential",
-              "Restricted"
-            ]
+            "enum": ["public", "internal", "confidential", "restricted"]
           },
           "minItems": 1,
           "description": "Data classification levels handled by this service"

@@ -42,7 +42,7 @@ var identity = new ServiceIdentityBuilder()
 
 // POST /subscriptions - Create new subscription
 app.MapPost("/subscriptions",
-    [SpasCommand("CreateSubscription", "1.0")]
+    [SpasCommand("CreateSubscription", "1.0", Description = "Creates a new subscription for a customer/product and publishes SubscriptionCreated")]
 async (CreateSubscriptionRequest request, EventPublisher publisher, SubscriptionStore store) =>
     {
         var subscriptionId = Guid.NewGuid();
@@ -86,7 +86,7 @@ async (CreateSubscriptionRequest request, EventPublisher publisher, Subscription
 
 // GET /subscriptions - List all subscriptions
 app.MapGet("/subscriptions",
-    [SpasQuery("ListSubscriptions", "1.0")]
+    [SpasQuery("ListSubscriptions", "1.0", Description = "Lists all subscriptions currently known to the service")]
 (SubscriptionStore store) =>
     {
         return Results.Ok(store.GetAll());
@@ -94,7 +94,7 @@ app.MapGet("/subscriptions",
 
 // GET /subscriptions/{id} - Get specific subscription
 app.MapGet("/subscriptions/{id}",
-    [SpasQuery("GetSubscription", "1.0")]
+    [SpasQuery("GetSubscription", "1.0", Description = "Returns subscription details and status history for a given subscriptionId")]
 (Guid id, SubscriptionStore store) =>
     {
         var subscription = store.Get(id);
@@ -114,7 +114,7 @@ app.MapGet("/subscriptions/{id}",
 
 // POST /subscriptions/activate - Activate subscription after order confirmation
 app.MapPost("/subscriptions/activate",
-    [SpasCommand("ActivateSubscription", "1.0")]
+    [SpasCommand("ActivateSubscription", "1.0", Description = "Activates a subscription after an order is confirmed (correlates via referenceId)")]
 async (ActivateSubscriptionRequest request, EventPublisher publisher, SubscriptionStore store) =>
     {
         Console.WriteLine($"[subscription-service] Activating subscription for order {request.OrderId}, referenceId: {request.ReferenceId}");
@@ -191,12 +191,12 @@ app.MapGet("/health", () => new { status = "healthy", service = "subscription-se
 app.Run();
 
 // Request/Response types
-[SpasCommand("CreateSubscription", "1.0")]
+[SpasCommand("CreateSubscription", "1.0", Description = "Payload for CreateSubscription: customerId, productId, quantity, and billing frequency")]
 public record CreateSubscriptionRequest(string CustomerId, string ProductId, int Quantity, string Frequency);
 
 public record CreateSubscriptionResponse(Guid SubscriptionId, string Status);
 
-[SpasCommand("ActivateSubscription", "1.0")]
+[SpasCommand("ActivateSubscription", "1.0", Description = "Payload for ActivateSubscription: orderId, status, and optional referenceId for correlation")]
 public record ActivateSubscriptionRequest(Guid OrderId, string Status, string? ReferenceId = null);
 
 // Status change tracking  
@@ -225,10 +225,10 @@ public record Subscription(
 };
 
 // Events (outbound only)
-[SpasEvent("SubscriptionCreated", "1.0", EventType = "com.subscription.subscription-created")]
+[SpasEvent("SubscriptionCreated", "1.0", Description = "Emitted after a subscription is created; indicates subscription is pending activation")]
 public record SubscriptionCreatedEvent(Guid SubscriptionId, string CustomerId, string ProductId, int Quantity, string Frequency, DateTime CreatedAt);
 
-[SpasEvent("SubscriptionActivated", "1.0", EventType = "com.subscription.subscription-activated")]
+[SpasEvent("SubscriptionActivated", "1.0", Description = "Emitted after a subscription transitions to active (may be disabled in some choreographies)")]
 public record SubscriptionActivatedEvent(Guid SubscriptionId, Guid OrderId, string CustomerId, string ProductId, int Quantity, string Frequency, DateTime ActivatedAt);
 
 // In-memory store

@@ -42,7 +42,7 @@ var identity = new ServiceIdentityBuilder()
 
 // POST /orders - Create new order
 app.MapPost("/orders",
-    [SpasCommand("CreateOrder", "1.0")]
+    [SpasCommand("CreateOrder", "1.0", Description = "Creates a new order from cart items and publishes OrderCreated; returns the new orderId")]
 async (CreateOrderRequest request, EventPublisher publisher, OrderStore store) =>
     {
         var orderId = Guid.NewGuid();
@@ -83,7 +83,7 @@ async (CreateOrderRequest request, EventPublisher publisher, OrderStore store) =
 
 // GET /orders - List all orders
 app.MapGet("/orders",
-    [SpasQuery("ListOrders", "1.0")]
+    [SpasQuery("ListOrders", "1.0", Description = "Lists all orders currently known to the service")]
 (OrderStore store) =>
     {
         return Results.Ok(store.GetAll());
@@ -91,7 +91,7 @@ app.MapGet("/orders",
 
 // GET /orders/{id} - Get specific order
 app.MapGet("/orders/{id}",
-    [SpasQuery("GetOrder", "1.0")]
+    [SpasQuery("GetOrder", "1.0", Description = "Returns order details and status history for a given orderId")]
 (Guid id, OrderStore store) =>
     {
         var order = store.Get(id);
@@ -116,7 +116,7 @@ app.MapGet("/orders/{id}",
 
 // POST /orders/confirm - Confirm order after stock reservation
 app.MapPost("/orders/confirm",
-    [SpasCommand("ConfirmOrder", "1.0")]
+    [SpasCommand("ConfirmOrder", "1.0", Description = "Confirms an order after inventory reservation and publishes OrderConfirmed")]
 async (ConfirmOrderRequest request, EventPublisher publisher, OrderStore store) =>
     {
         Console.WriteLine($"[order-service] Confirming order {request.OrderId} with {request.ReservedItems.Count} items reserved");
@@ -158,7 +158,7 @@ async (ConfirmOrderRequest request, EventPublisher publisher, OrderStore store) 
 
 // POST /orders/shipment-status - Handle shipment status updates from fulfillment service
 app.MapPost("/orders/shipment-status",
-    [SpasCommand("UpdateShipmentStatus", "1.0")]
+    [SpasCommand("UpdateShipmentStatus", "1.0", Description = "Updates shipment/tracking information for an order based on fulfillment updates")]
 (ShipmentStatusRequest request, OrderStore store) =>
     {
         Console.WriteLine($"[order-service] Updating shipment status for order {request.OrderId}");
@@ -222,15 +222,15 @@ app.MapGet("/health", () => new { status = "healthy", service = "order-service",
 app.Run();
 
 // Request/Response types
-[SpasCommand("CreateOrder", "1.0")]
+[SpasCommand("CreateOrder", "1.0", Description = "Payload for CreateOrder: customerId, items, totals, and optional referenceId")]
 public record CreateOrderRequest(string CustomerId, List<OrderItem> Items, decimal Total, string? ReferenceId = null);
 
 public record CreateOrderResponse(Guid OrderId, string Status);
 
-[SpasCommand("ConfirmOrder", "1.0")]
+[SpasCommand("ConfirmOrder", "1.0", Description = "Payload for ConfirmOrder: orderId and the items that were reserved by inventory")]
 public record ConfirmOrderRequest(Guid OrderId, List<ReservedItem> ReservedItems);
 
-[SpasCommand("UpdateShipmentStatus", "1.0")]
+[SpasCommand("UpdateShipmentStatus", "1.0", Description = "Payload for UpdateShipmentStatus: shipmentId, status, and optional tracking number")]
 public record ShipmentStatusRequest(Guid OrderId, string ShipmentId, string Status, string? TrackingNumber = null);
 
 public record OrderItem(string ProductId, int Quantity, decimal Price);
@@ -284,10 +284,10 @@ public record Order(
 public record ShipmentStatusChange(string Status, DateTime Timestamp, string? TrackingNumber = null);
 
 // Events (outbound only)
-[SpasEvent("OrderCreated", "1.0", EventType = "com.ecommerce.order.created")]
+[SpasEvent("OrderCreated", "1.0", Description = "Emitted after a new order is created; signals downstream services to reserve stock")]
 public record OrderCreatedEvent(Guid OrderId, string CustomerId, List<OrderItem> Items, decimal Total, DateTime CreatedAt, string? ReferenceId = null);
 
-[SpasEvent("OrderConfirmed", "1.0", EventType = "com.order.order-confirmed")]
+[SpasEvent("OrderConfirmed", "1.0", Description = "Emitted after inventory reservation succeeds and the order is confirmed; triggers fulfillment")]
 public record OrderConfirmedEvent(Guid OrderId, string Status, List<ReservedItem> ReservedItems, string? ReferenceId = null);
 
 // In-memory store

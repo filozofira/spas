@@ -28,7 +28,7 @@ Add schema reference to config files for IntelliSense:
 
 ```json
 {
-  "$schema": "https://spas.dev/schemas/sidecar-config-v1.schema.json",
+  "$schema": "./schemas/sidecar-config-v1.schema.json",
   "inbound": [...],
   "outbound": [...]
 }

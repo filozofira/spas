@@ -47,30 +47,35 @@ The Java SDK for building **SPAS (Self-contained, Portable, Adaptable Services)*
 
 Add dependencies to your `pom.xml`:
 
+Use a single property for the SDK version (set it to match `components/sdk/java/pom.xml`):
+
+```xml
+<properties>
+    <spas.version></spas.version>
+</properties>
+```
+
 ```xml
 <dependencies>
-    <!-- Core SDK (required) -->
     <dependency>
         <groupId>io.spas</groupId>
         <artifactId>spas-sdk-core</artifactId>
-        <version>1.0.0</version>
+        <version>${spas.version}</version>
     </dependency>
     <dependency>
         <groupId>io.spas</groupId>
         <artifactId>spas-sdk-metadata</artifactId>
-        <version>1.0.0</version>
+        <version>${spas.version}</version>
     </dependency>
     <dependency>
         <groupId>io.spas</groupId>
         <artifactId>spas-sdk-events</artifactId>
-        <version>1.0.0</version>
+        <version>${spas.version}</version>
     </dependency>
-    
-    <!-- Spring integration (optional) -->
     <dependency>
         <groupId>io.spas</groupId>
         <artifactId>spas-sdk-spring</artifactId>
-        <version>1.0.0</version>
+        <version>${spas.version}</version>
     </dependency>
 </dependencies>
 ```
@@ -83,13 +88,12 @@ Configure the annotation processor:
         <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-compiler-plugin</artifactId>
-            <version>3.12.1</version>
             <configuration>
                 <annotationProcessorPaths>
                     <path>
                         <groupId>io.spas</groupId>
                         <artifactId>spas-sdk-metadata-processor</artifactId>
-                        <version>1.0.0</version>
+                        <version>${spas.version}</version>
                     </path>
                 </annotationProcessorPaths>
             </configuration>
@@ -193,9 +197,9 @@ cat target/classes/spas.json
 | Variable | Required | Description |
 |----------|----------|-------------|
 | `SERVICE_NAME` | Yes | Service identifier (fails fast if missing) |
-| `SIDECAR_URL` | No | Full sidecar URL (e.g., `http://localhost:8081`) |
+| `SIDECAR_URL` | No | Full sidecar URL (e.g., `http://localhost:7000`) |
 | `SIDECAR_HOST` | No | Sidecar hostname (default: `{service-name}-sidecar`) |
-| `SIDECAR_PORT` | No | Sidecar port (default: `8081`) |
+| `SIDECAR_PORT` | No | Sidecar port (default: `7000`) |
 
 ### Spring Boot Properties (if using spas-sdk-spring)
 
@@ -203,7 +207,7 @@ cat target/classes/spas.json
 spas:
   service-name: order-service
   sidecar:
-    url: http://localhost:8081
+        url: http://localhost:7000
     connect-timeout: 5s
     request-timeout: 30s
 ```

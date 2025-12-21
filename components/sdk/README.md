@@ -10,10 +10,11 @@ Language SDKs for building SPAS services (metadata + events + context propagatio
 
 ## Common schemas
 
-Canonical, cross-SDK JSON Schemas live in:
+Canonical, cross-SDK JSON Schemas live in [schemas/README.md](./schemas/README.md).
 
-- [schemas/README.md](./schemas/README.md)
-- [design-time-metadata-v1 schema](./schemas/README.md)
+Start here:
+
+- [design-time-metadata-v1.schema.json](./schemas/design-time-metadata-v1.schema.json)
 
 ## References
 

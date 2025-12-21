@@ -1,13 +1,10 @@
 # Spas.Sdk.Inbound - DEFERRED
 
-## Status: Not Implemented (Intentional)
-
 This package was created as part of the initial SDK structure but **implementation has been deferred**.
 
 ## Decision
 
-**Date**: 2025-12-12  
-**Rationale**: Keep SDK simple for PoC; use native ASP.NET Core minimal APIs for inbound handlers
+**Rationale**: Keep the SDK simple; use native ASP.NET Core minimal APIs for inbound handlers.
 
 ### Current Approach
 

@@ -1,0 +1,110 @@
+openapi: 3.0.3
+info:
+  title: SPAS Repository Service (Descriptions)
+  version: 0.1.0
+  description: |
+    Contract excerpt documenting the repository runtime-metadata response shape
+    with optional description fields.
+paths:
+  /services/{id}/versions/{version}:
+    get:
+      summary: Get service metadata (runtime)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: version
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Runtime service metadata
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ServiceMetadataRuntime"
+components:
+  schemas:
+    ServiceMetadataRuntime:
+      type: object
+      required:
+        - schemaVersion
+        - id
+        - name
+        - version
+        - boundedContext
+        - endpoints
+        - events
+      properties:
+        schemaVersion:
+          type: string
+          example: runtime-metadata-v1
+        id:
+          type: string
+        name:
+          type: string
+        description:
+          type: string
+          description: Plain-text description (no Markdown semantics). May contain newlines.
+        version:
+          type: string
+        boundedContext:
+          type: string
+        endpoints:
+          type: array
+          items:
+            $ref: "#/components/schemas/EndpointContract"
+        events:
+          type: array
+          items:
+            $ref: "#/components/schemas/EventContract"
+        runtime:
+          type: object
+          additionalProperties: true
+    EndpointContract:
+      type: object
+      required:
+        - name
+        - type
+        - protocol
+        - methodPath
+        - version
+        - schemaRef
+      properties:
+        name:
+          type: string
+        type:
+          type: string
+          description: Command | Query
+        protocol:
+          type: string
+          description: Http | Grpc
+        methodPath:
+          type: string
+        version:
+          type: string
+        schemaRef:
+          type: string
+        description:
+          type: string
+          description: Plain-text description (no Markdown semantics). May contain newlines.
+    EventContract:
+      type: object
+      required:
+        - type
+        - version
+        - schemaRef
+      properties:
+        type:
+          type: string
+        version:
+          type: string
+        schemaRef:
+          type: string
+        description:
+          type: string
+          description: Plain-text description (no Markdown semantics). May contain newlines.

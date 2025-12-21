@@ -37,10 +37,10 @@ description: "Task list for implementing metadata descriptions"
 
 **⚠️ CRITICAL**: No user story work should merge until this phase is complete.
 
-- [ ] T004 Add repository-local design-time schema copy in components/repository/schemas/design-time-metadata-v1.schema.json
-- [ ] T005 Update repository container to ship schemas directory in components/repository/Dockerfile
-- [ ] T006 Update default repository schema path to a real file in components/repository/src/config.ts
-- [ ] T007 Load and compile the schema file passed to the validator in components/repository/src/validation/SpasSchemaValidator.ts
+- [X] T004 Add repository-local design-time schema copy in components/repository/schemas/design-time-metadata-v1.schema.json
+- [X] T005 Update repository container to ship schemas directory in components/repository/Dockerfile
+- [X] T006 Update default repository schema path to a real file in components/repository/src/config.ts
+- [X] T007 Load and compile the schema file passed to the validator in components/repository/src/validation/SpasSchemaValidator.ts
 
 **Checkpoint**: Repository validation can read a schema from disk in both dev + container.
 

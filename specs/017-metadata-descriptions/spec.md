@@ -5,6 +5,17 @@
 **Status**: Draft  
 **Input**: User description: "Extend SPAS metadata schemas and SDKs to support optional description fields on services, endpoints (commands/queries), and events. Update agent prompts to prioritize descriptions when reasoning about choreographies. Currently when AI agents propose choreographies, they rely solely on endpoint/event names which are often ambiguous. This causes volatile and frequently incorrect choreography suggestions, especially for complex domains or when multiple services have similar-sounding operations."
 
+## Clarifications
+
+### Session 2025-12-21
+
+- Q: Should description text be plain text or Markdown? → A: Plain text only (no Markdown semantics)
+- Q: Which agent prompt(s) must be updated to prioritize descriptions? → A: Only the SPAS compose/choreography prompt (not the general copilot instructions)
+- Q: Should schemas enforce a maximum length for `description`? → A: No (schemas MUST NOT enforce `maxLength`)
+- Q: Should descriptions be allowed to contain newlines? → A: Yes (descriptions MAY include newlines)
+- Q: Should schemas enforce a minimum length for `description`? → A: No (`minLength` MUST NOT be enforced)
+- Q: In agent guidance, do descriptions drive semantic understanding/matching (vs prioritizing endpoint/event types)? → A: Descriptions are the primary semantic signal used to understand and match intent; no priority between endpoint vs event types
+
 ## User Scenarios & Testing *(mandatory)*
 
 ### User Story 1 - Schema Extensions for Descriptions (Priority: P1) 🎯 MVP
@@ -110,6 +121,9 @@
 - **FR-006**: `runtime-metadata-v1.schema.json` MUST add optional `description` field (type: string) to each object in `events` array
 - **FR-007**: Schema validation MUST pass for metadata without description fields (backward compatibility)
 - **FR-008**: Schema validation MUST reject description fields with non-string types
+- **FR-008a**: Description fields MUST be treated as plain text (no Markdown semantics)
+- **FR-008b**: Schemas MUST NOT enforce `minLength` for description fields
+- **FR-008c**: Schemas MUST NOT enforce `maxLength` for description fields
 
 #### Java SDK
 
@@ -141,9 +155,9 @@
 
 #### Agent Guidance
 
-- **FR-028**: `.github/agents/copilot-instructions.md` MUST include instruction: "When proposing choreographies, prioritize endpoints and events whose descriptions match the user's intent. Descriptions are the authoritative source of semantic purpose."
-- **FR-029**: Agent instruction MUST specify: "If multiple endpoints have similar names, use descriptions to disambiguate. Quote relevant description snippets in your reasoning."
-- **FR-030**: Agent instruction MUST specify: "If a service/endpoint lacks descriptions, rely on naming conventions and context. Do not invent or assume descriptions."
+- **FR-028**: The SPAS compose/choreography agent prompt MUST instruct the agent to use descriptions as the primary source of semantic purpose and to match/select candidate endpoints and events to the user's intent (not to prioritize endpoint vs event types)
+- **FR-029**: The SPAS compose/choreography agent prompt MUST instruct: if multiple endpoints/events have similar names, use descriptions to disambiguate and quote relevant description snippets in reasoning
+- **FR-030**: The SPAS compose/choreography agent prompt MUST instruct: if a service/endpoint/event lacks descriptions, rely on naming conventions and available context; do not invent or assume descriptions
 
 #### Documentation
 
@@ -174,7 +188,7 @@
 ### Non-Functional Requirements
 
 - **Performance**: Adding descriptions to metadata MUST NOT increase schema validation time by more than 10%
-- **Size**: Average description length SHOULD be 50-200 characters; schemas MAY enforce maxLength if needed
+- **Size**: Average description length SHOULD be 50-200 characters; descriptions MAY include newlines; schemas MUST NOT enforce `minLength` or `maxLength`
 - **Usability**: Developers SHOULD be able to add descriptions without consulting documentation (attribute names are self-explanatory)
 
 ## Scope Boundaries *(mandatory)*
@@ -212,16 +226,15 @@
 - **Java SDK**: `components/sdk/java/spas-sdk-metadata` (annotations and processor)
 - **.NET SDK**: `components/sdk/dotnet` (attributes and metadata generation)
 - **Repository**: `components/repository/src/utils/metadata-transformer.ts`
-- **Agent Instructions**: `.github/agents/copilot-instructions.md`
+- **Agent Prompt**: SPAS compose/choreography prompt (e.g., `.github/agents/spas-compose.md`)
 - **Example Services**: `examples/services/fulfillment-service` or `components/sdk/java/examples/sample-service`
 
 ## Open Questions
 
-1. Should descriptions be validated for minimum length (e.g., ≥20 characters) to ensure quality, or trust developers?
-2. Should we provide description templates/examples in IDE snippets (e.g., VS Code, IntelliJ)?
-3. Should choreography YAML support human-readable descriptions (separate from service metadata)?
-4. Do we need a migration guide for updating existing services with descriptions, or is it self-evident?
-5. Should descriptions be included in OpenAPI/AsyncAPI exports if we add those in future?
+1. Should we provide description templates/examples in IDE snippets (e.g., VS Code, IntelliJ)?
+2. Should choreography YAML support human-readable descriptions (separate from service metadata)?
+3. Do we need a migration guide for updating existing services with descriptions, or is it self-evident?
+4. Should descriptions be included in OpenAPI/AsyncAPI exports if we add those in future?
 
 ## References
 

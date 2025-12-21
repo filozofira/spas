@@ -463,17 +463,106 @@ If issues arise, no rollback needed - this is a greenfield implementation.
 
 ---
 
-## Next Steps
+## Post-Implementation Bug Fixes
+
+After the initial feature completion (Dec 19, 2025), the following issues were discovered during integration with example services and were fixed in subsequent commits.
+
+### Bug Fix #1: Sidecar Event Publish Endpoint Mismatch (Dec 20, 2025)
+
+**Issue**: The Java SDK posted events to `/events`, but the SPAS sidecar contract expects `POST /publish`.
+
+**Impact**: Event publishing failed against the real sidecar implementation even though the SDK API usage was correct.
+
+**Fix Applied**:
+- Updated the SDK HTTP client to publish to `/publish`.
+- Updated unit tests to match the correct endpoint and typical response code (`202`).
+
+**Files Updated**:
+- `components/sdk/java/spas-sdk-events/src/main/java/io/spas/sdk/events/SidecarClient.java`
+- `components/sdk/java/spas-sdk-events/src/test/java/io/spas/sdk/events/EventPublisherTest.java`
+
+---
+
+### Bug Fix #2: Java Time Serialization in EventPublisher (Dec 20, 2025)
+
+**Issue**: Events containing `java.time.*` types could serialize incorrectly (or require extra manual configuration), producing payloads that are harder to consume consistently.
+
+**Fix Applied**:
+- Configured Jackson in `EventPublisher` to `findAndRegisterModules()` and to prefer ISO-8601 strings (disable `WRITE_DATES_AS_TIMESTAMPS`).
+
+**Files Updated**:
+- `components/sdk/java/spas-sdk-events/src/main/java/io/spas/sdk/events/EventPublisher.java`
+
+---
+
+### Bug Fix #3: Metadata Discovery & SchemaRef Generation (Dec 20, 2025)
+
+**Issue**: Metadata generation/discovery was brittle for real services:
+- Compile-time generation needed to be opt-in (via `-Aspas.generateSpasJson=true`) rather than the default in order to support runtime discovery via `/_spas/metadata`.
+- Annotations were not reliably discoverable at runtime due to retention and shape mismatches.
+- `schemaRef` authoring was too manual.
+
+**Fix Applied**:
+- Made runtime metadata exposure the default path (via `/_spas/metadata`), with compile-time file generation as opt-in.
+- Updated annotations to support runtime discovery and a clearer contract shape (`path` instead of `methodPath`).
+- Added default schemaRef inference for command request and query response DTO types when `schemaRef` is omitted.
+
+**Files Updated (representative)**:
+- `components/sdk/java/spas-sdk-metadata-processor/src/main/java/io/spas/sdk/metadata/processor/SpasAnnotationProcessor.java`
+- `components/sdk/java/spas-sdk-metadata/src/main/java/io/spas/sdk/metadata/annotations/SpasCommand.java`
+- `components/sdk/java/spas-sdk-metadata/src/main/java/io/spas/sdk/metadata/annotations/SpasService.java`
+- `components/sdk/java/spas-sdk-spring/src/main/java/io/spas/sdk/spring/SpasMetadataController.java`
+
+---
+
+### Bug Fix #4: Spring Auto-Configuration Sidecar URL Resolution (Dec 20, 2025)
+
+**Issue**: Spring auto-configuration didn’t consistently create a working `EventPublisher` without exact configuration, and sidecar URL resolution/defaults didn’t match the sidecar conventions (notably default port).
+
+**Fix Applied**:
+- Always register the `EventPublisher` bean and resolve sidecar URL via clear precedence:
+    1) `spas.sidecar.url`
+    2) `spas.sidecar.host` + `spas.sidecar.port` (default port `7000`)
+    3) Environment conventions via `SpasConfiguration`
+
+**Files Updated**:
+- `components/sdk/java/spas-sdk-spring/src/main/java/io/spas/sdk/spring/SpasAutoConfiguration.java`
+- `components/sdk/java/spas-sdk-spring/src/main/java/io/spas/sdk/spring/SpasProperties.java`
+
+---
+
+### Bug Fix #5: Missing Zipkin Traces from Java Example Service (Dec 20, 2025)
+
+**Issue**: Java example services could log trace IDs (MDC) but did not emit spans to Zipkin because there was no Java equivalent of the .NET SDK’s OpenTelemetry + Zipkin wiring.
+
+**Fix Applied**:
+- Added a new Java module `spas-sdk-observability` that configures OpenTelemetry with Zipkin exporter and provides Spring Boot auto-configuration.
+- Added inbound HTTP span creation and MDC correlation (`traceId`, `spanId`) for request logs.
+- Wired the fulfillment service to use the new module and configured the Zipkin endpoint.
+- Fixed Docker build to include the new module in the container build context.
+
+**Files Updated (representative)**:
+- `components/sdk/java/spas-sdk-observability/**`
+- `components/sdk/java/pom.xml`
+- `examples/services/fulfillment-service/pom.xml`
+- `examples/services/fulfillment-service/src/main/resources/application.yml`
+- `examples/services/fulfillment-service/Dockerfile`
+
+---
+
+## Future Enhancements
 
 Suggested enhancements for future releases:
 
-1. **Framework-agnostic filters**: Implement servlet filter for non-Spring frameworks
-2. **Async event publishing**: Add `EventPublisher.publishAsync()` returning `CompletableFuture`
-3. **Batch event publishing**: Support publishing multiple events in one call
-4. **Schema validation**: Validate generated spas.json against schema at build time
-5. **Kotlin support**: Add Kotlin-friendly APIs and extension functions
-6. **Metrics integration**: Add Micrometer metrics for event publishing
-7. **Testing utilities**: Provide test doubles/mocks for EventPublisher
+1. **Framework-agnostic context extraction**: Provide a non-Spring servlet filter (and/or JAX-RS filter) equivalent to `SpasContextFilter` for broader adoption.
+2. **Async event publishing**: Add `EventPublisher.publishAsync()` returning `CompletableFuture`.
+3. **Batch event publishing**: Support publishing multiple events in one call.
+4. **Schema validation**: Validate generated `spas.json` against the design-time schema during build.
+5. **Kotlin support**: Add Kotlin-friendly APIs and extension functions.
+6. **Metrics integration**: Add Micrometer metrics for publishing/invocation.
+7. **Testing utilities**: Provide test doubles/mocks for `EventPublisher` and metadata generation.
+8. **Outbound HTTP tracing**: Auto-wire outbound tracing interceptors (e.g., `RestTemplate`/`WebClient`) in `spas-sdk-observability`.
+9. **Logging parity**: Provide a documented log pattern that includes `traceId`, `spanId`, and optional `traceparent`.
 
 ---
 

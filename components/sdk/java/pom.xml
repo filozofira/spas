@@ -26,6 +26,7 @@
         <module>spas-sdk-metadata-processor</module>
         <module>spas-sdk-events</module>
         <module>spas-sdk-spring</module>
+        <module>spas-sdk-observability</module>
     </modules>
 
     <properties>
@@ -79,6 +80,11 @@
             <dependency>
                 <groupId>io.spas</groupId>
                 <artifactId>spas-sdk-spring</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.spas</groupId>
+                <artifactId>spas-sdk-observability</artifactId>
                 <version>${project.version}</version>
             </dependency>
 

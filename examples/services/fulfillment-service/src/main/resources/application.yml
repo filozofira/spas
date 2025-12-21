@@ -16,6 +16,7 @@ spas:
   tracing:
     enabled: true
     propagate-context: true
+    zipkin-endpoint: http://zipkin:9411/api/v2/spans
 
 # Actuator endpoints for health checks
 management:

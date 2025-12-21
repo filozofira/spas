@@ -9,6 +9,7 @@ COPY components/sdk/java/spas-sdk-metadata spas-sdk-metadata
 COPY components/sdk/java/spas-sdk-metadata-processor spas-sdk-metadata-processor
 COPY components/sdk/java/spas-sdk-events spas-sdk-events
 COPY components/sdk/java/spas-sdk-spring spas-sdk-spring
+COPY components/sdk/java/spas-sdk-observability spas-sdk-observability
 
 # Install SDK to local Maven repository
 RUN mvn install -DskipTests -B -q

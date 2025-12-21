@@ -46,6 +46,11 @@
             <artifactId>spas-sdk-spring</artifactId>
             <version>${spas-sdk.version}</version>
         </dependency>
+        <dependency>
+            <groupId>io.spas</groupId>
+            <artifactId>spas-sdk-observability</artifactId>
+            <version>${spas-sdk.version}</version>
+        </dependency>
 
         <!-- Spring Boot -->
         <dependency>

@@ -7,6 +7,7 @@ Maintain consistent, maintainable documentation across all SPAS components by se
 ## Audience Separation Principle
 
 **Problem**: Mixed-audience documentation leads to:
+
 - Users overwhelmed by internal development details
 - Contributors unable to find maintenance procedures
 - Drift-prone claims (test counts, status updates, versions) that quickly become outdated
@@ -18,6 +19,7 @@ Maintain consistent, maintainable documentation across all SPAS components by se
 **Audience**: Service developers using the component (SDK users, CLI users, service integrators)
 
 **Required Sections**:
+
 - Overview: What this component does, when to use it
 - Installation/Getting Started: How to install and run basic usage
 - Configuration: Key settings and options
@@ -25,6 +27,7 @@ Maintain consistent, maintainable documentation across all SPAS components by se
 - API/Reference: Public interfaces (link to detailed docs)
 
 **Content Guidelines**:
+
 - ✅ Installation commands and prerequisites
 - ✅ Quickstart examples with expected output
 - ✅ Configuration options with defaults
@@ -44,6 +47,7 @@ Maintain consistent, maintainable documentation across all SPAS components by se
 **Audience**: Developers contributing to the component itself
 
 **Required Sections** (Standard Structure):
+
 1. **Prerequisites**: Dev environment setup (tools, versions, accounts)
 2. **Getting Started**: Clone, install dependencies, initial build
 3. **Project Structure**: Directory layout, key files, architectural decisions
@@ -53,6 +57,7 @@ Maintain consistent, maintainable documentation across all SPAS components by se
 7. **References**: Links to specs, related components, decision logs
 
 **Content Guidelines**:
+
 - ✅ Build and test commands with expected output
 - ✅ Development workflow (watch mode, debugging)
 - ✅ Project structure with explanations
@@ -70,15 +75,18 @@ Maintain consistent, maintainable documentation across all SPAS components by se
 **Audience**: Both users and contributors across multiple related components
 
 **When to Create**:
+
 - Rules apply to multiple implementations (e.g., all SDK languages)
 - Consistency is critical across components (e.g., event naming, schema patterns)
 - One source of truth prevents divergence
 
 **Examples**:
+
 - `components/sdk/CONVENTIONS.md`: Event naming, schema references, SDK/sidecar boundaries
 - `components/cli/CONVENTIONS.md` (if needed): Command naming, config file formats, error codes
 
 **Content Guidelines**:
+
 - ✅ Rules that apply across all implementations
 - ✅ Rationale for each convention (why, not just what)
 - ✅ Examples showing compliant vs non-compliant patterns
@@ -126,10 +134,12 @@ These items change frequently and cause documentation maintenance burden:
 ### Linking Strategy
 
 **Prefer linking over duplicating**:
+
 - ✅ "See [Communication Model](../../principles/protocol/07-communication-model.md) for protocol details"
 - ❌ Copy-pasting protocol details into component READMEs
 
 **Link targets**:
+
 - Specs (`specs/`) for implementation requirements
 - Principles (`principles/`) for architectural rationale
 - Other component READMEs for integration points
@@ -139,7 +149,7 @@ These items change frequently and cause documentation maintenance burden:
 
 **README.md**: Inline code snippets (5-15 lines) showing typical usage  
 **examples/** directory**: Complete working projects demonstrating real-world scenarios  
-**CONTRIBUTING.md**: Code snippets showing how to extend the component
+**CONTRIBUTING.md\*\*: Code snippets showing how to extend the component
 
 ### Versioning Documentation
 

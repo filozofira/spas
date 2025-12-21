@@ -1,4 +1,4 @@
-# fullfilment
+# fulfilment
 
 **SPAS Domain Workspace**
 
@@ -7,7 +7,7 @@ This workspace contains choreography configuration for composing SPAS services i
 ## Structure
 
 ```
-fullfilment/
+fulfilment/
 ├── README.md                    # This file
 ├── choreography.yaml            # Choreography configuration
 ├── services/                    # Pulled service metadata

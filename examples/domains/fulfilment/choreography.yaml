@@ -2,7 +2,7 @@
 # See: specs/005-spas-compose-cli/contracts/choreography-schema.yaml
 
 version: "1.0"
-domain: fullfilment
+domain: fulfilment
 
 # Named choreography flows
 # Use /spas.compose agent to generate flows based on service contracts

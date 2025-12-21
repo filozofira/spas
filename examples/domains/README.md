@@ -43,7 +43,7 @@ docker compose up -d
 open http://localhost:9411
 ```
 
-### Viewing Distributed Traces
+### Viewing Distrfullfiibuted Traces
 
 All examples include Zipkin for observability:
 

@@ -17,7 +17,8 @@ class ServiceMetadataTest {
     @BeforeEach
     void setUp() {
         objectMapper = new ObjectMapper();
-        objectMapper.setPropertyNamingStrategy(PropertyNamingStrategies.KEBAB_CASE);
+        // Use camelCase to match design-time-metadata-v1 schema
+        objectMapper.setPropertyNamingStrategy(PropertyNamingStrategies.LOWER_CAMEL_CASE);
         objectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
     }
 
@@ -37,12 +38,12 @@ class ServiceMetadataTest {
                 Protocol.HTTP,
                 "POST /api/test",
                 "1.0.0",
-                "schemas/test.json"
+                "schemas/endpoints/test.schema.json"
             )),
             List.of(new EventContract(
                 "test-event",
                 "1.0.0",
-                "schemas/test-event.json"
+                "schemas/events/test-event.schema.json"
             )),
             new Consistency(ConsistencyLevel.ACID, QueryConsistencyLevel.STRONG),
             new Security(
@@ -55,37 +56,37 @@ class ServiceMetadataTest {
 
         String json = objectMapper.writeValueAsString(metadata);
 
-        assertTrue(json.contains("\"schema-version\":\"design-time-metadata-v1\""));
+        assertTrue(json.contains("\"schemaVersion\":\"design-time-metadata-v1\""));
         assertTrue(json.contains("\"id\":\"test-service\""));
         assertTrue(json.contains("\"test-command\""));
         assertTrue(json.contains("\"test-event\""));
-        assertTrue(json.contains("\"bounded-context\":\"testing\""));
+        assertTrue(json.contains("\"boundedContext\":\"testing\""));
     }
 
     @Test
     void serviceMetadata_shouldDeserializeFromJson() throws Exception {
         String json = """
             {
-              "schema-version": "design-time-metadata-v1",
+              "schemaVersion": "design-time-metadata-v1",
               "id": "test-service",
               "name": "Test Service",
               "version": "1.0.0",
-              "bounded-context": "testing",
+              "boundedContext": "testing",
               "endpoints": [
                 {
                   "name": "test-command",
-                  "type": "COMMAND",
-                  "protocol": "HTTP",
-                  "method-path": "POST /api/test",
+                  "type": "Command",
+                  "protocol": "Http",
+                  "methodPath": "/api/test",
                   "version": "1.0.0",
-                  "schema-ref": "schemas/test.json"
+                  "schemaRef": "schemas/endpoints/test.schema.json"
                 }
               ],
               "events": [
                 {
                   "type": "test-event",
                   "version": "1.0.0",
-                  "schema-ref": "schemas/test-event.json"
+                  "schemaRef": "schemas/events/test-event.schema.json"
                 }
               ],
               "consistency": {
@@ -95,9 +96,9 @@ class ServiceMetadataTest {
               "security": {
                 "authentication": {
                   "type": "JWT",
-                  "required-scopes": ["read"]
+                  "requiredScopes": ["read"]
                 },
-                "data-classification": ["INTERNAL"]
+                "dataClassification": ["Internal"]
               }
             }
             """;
@@ -114,37 +115,37 @@ class ServiceMetadataTest {
     }
 
     @Test
-    void endpointContract_shouldSerializeWithKebabCase() throws Exception {
+    void endpointContract_shouldSerializeWithCamelCase() throws Exception {
         EndpointContract endpoint = new EndpointContract(
             "create-order",
             EndpointType.COMMAND,
             Protocol.HTTP,
-            "POST /api/orders",
+            "/api/orders",
             "1.0.0",
-            "schemas/create-order.json"
+            "schemas/endpoints/create-order.schema.json"
         );
 
         String json = objectMapper.writeValueAsString(endpoint);
 
-        assertTrue(json.contains("\"method-path\":\"POST /api/orders\""));
-        assertTrue(json.contains("\"schema-ref\":\"schemas/create-order.json\""));
+        assertTrue(json.contains("\"methodPath\":\"/api/orders\""));
+        assertTrue(json.contains("\"schemaRef\":\"schemas/endpoints/create-order.schema.json\""));
     }
 
     @Test
-    void eventContract_shouldSerializeWithKebabCase() throws Exception {
+    void eventContract_shouldSerializeWithCamelCase() throws Exception {
         EventContract event = new EventContract(
             "order-created",
             "1.0.0",
-            "schemas/order-created.json"
+            "schemas/events/order-created.schema.json"
         );
 
         String json = objectMapper.writeValueAsString(event);
 
-        assertTrue(json.contains("\"schema-ref\":\"schemas/order-created.json\""));
+        assertTrue(json.contains("\"schemaRef\":\"schemas/events/order-created.schema.json\""));
     }
 
     @Test
-    void authentication_shouldSerializeWithKebabCase() throws Exception {
+    void authentication_shouldSerializeWithCamelCase() throws Exception {
         Authentication auth = new Authentication(
             AuthType.OAUTH2,
             List.of("orders:read", "orders:write")
@@ -152,11 +153,11 @@ class ServiceMetadataTest {
 
         String json = objectMapper.writeValueAsString(auth);
 
-        assertTrue(json.contains("\"required-scopes\":[\"orders:read\",\"orders:write\"]"));
+        assertTrue(json.contains("\"requiredScopes\":[\"orders:read\",\"orders:write\"]"));
     }
 
     @Test
-    void security_shouldSerializeWithKebabCase() throws Exception {
+    void security_shouldSerializeWithCamelCase() throws Exception {
         Security security = new Security(
             new Authentication(AuthType.JWT, null),
             List.of(DataClassification.CONFIDENTIAL, DataClassification.INTERNAL)
@@ -164,18 +165,18 @@ class ServiceMetadataTest {
 
         String json = objectMapper.writeValueAsString(security);
 
-        assertTrue(json.contains("\"data-classification\":[\"CONFIDENTIAL\",\"INTERNAL\"]"));
+        assertTrue(json.contains("\"dataClassification\":[\"Confidential\",\"Internal\"]"));
     }
 
     @Test
-    void network_shouldSerializeWithKebabCase() throws Exception {
+    void network_shouldSerializeWithCamelCase() throws Exception {
         Network network = new Network(
             List.of("http://orders-api.internal", "http://inventory-api.internal")
         );
 
         String json = objectMapper.writeValueAsString(network);
 
-        assertTrue(json.contains("\"required-egress\""));
+        assertTrue(json.contains("\"requiredEgress\""));
     }
 
     @Test

@@ -1,7 +1,5 @@
 package io.spas.sdk.metadata.model;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-
 /**
  * Describes a published event.
  *
@@ -12,6 +10,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 public record EventContract(
     String type,
     String version,
-    @JsonProperty("schema-ref") String schemaRef
+    String schemaRef
 ) {
 }

@@ -46,7 +46,12 @@ Add the SPAS SDK dependencies to your `pom.xml`:
 </dependencies>
 ```
 
-Configure the annotation processor:
+Metadata generation:
+
+- `GET /_spas/metadata` generates `spas.json` and schemas at runtime (default).
+- Compile-time generation is optional and disabled by default.
+
+To opt-in to compile-time generation, configure the annotation processor and enable it via compiler args:
 
 ```xml
 <build>
@@ -54,15 +59,17 @@ Configure the annotation processor:
         <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-compiler-plugin</artifactId>
-            <version>3.12.1</version>
             <configuration>
                 <annotationProcessorPaths>
                     <path>
                         <groupId>io.spas</groupId>
                         <artifactId>spas-sdk-metadata-processor</artifactId>
-                        <version>1.0.0</version>
+                        <version>${spas-sdk.version}</version>
                     </path>
                 </annotationProcessorPaths>
+                <compilerArgs>
+                    <arg>-Aspas.generateSpasJson=true</arg>
+                </compilerArgs>
             </configuration>
         </plugin>
     </plugins>
@@ -128,8 +135,7 @@ public class OrderController {
     @SpasCommand(
         name = "CreateOrder",
         version = "1.0",
-        type = EndpointType.Http,
-        methodPath = "POST /api/orders"
+        path = "/api/orders"
     )
     @PostMapping
     public OrderResponse createOrder(@RequestBody CreateOrderRequest request) {
@@ -149,8 +155,7 @@ public class OrderController {
     @SpasQuery(
         name = "GetOrder",
         version = "1.0",
-        type = EndpointType.Http,
-        methodPath = "GET /api/orders/{orderId}"
+        path = "/api/orders/{orderId}"
     )
     @GetMapping("/{orderId}")
     public OrderResponse getOrder(@PathVariable String orderId) {
@@ -192,9 +197,19 @@ public class OrderServiceApplication {
 ```bash
 # Build the project
 mvn clean compile
+```
 
-# Verify spas.json was generated
-cat target/classes/spas.json
+Run the application and fetch runtime metadata:
+
+```bash
+# Run the app
+mvn spring-boot:run
+
+# Download metadata archive
+curl -L -o metadata.zip http://localhost:8080/_spas/metadata
+
+# Inspect spas.json
+unzip -p metadata.zip spas.json
 ```
 
 Expected output:
@@ -211,24 +226,24 @@ Expected output:
       "name": "create-order",
       "type": "Command",
       "protocol": "Http",
-      "methodPath": "POST /api/orders",
+            "methodPath": "/api/orders",
       "version": "1.0",
-      "schemaRef": ""
+            "schemaRef": "schemas/endpoints/create-order.schema.json"
     },
     {
       "name": "get-order",
       "type": "Query",
       "protocol": "Http",
-      "methodPath": "GET /api/orders/{orderId}",
+            "methodPath": "/api/orders/{orderId}",
       "version": "1.0",
-      "schemaRef": ""
+            "schemaRef": "schemas/endpoints/get-order.schema.json"
     }
   ],
   "events": [
     {
       "type": "order-created",
       "version": "1.0",
-      "schemaRef": ""
+            "schemaRef": "schemas/events/order-created.schema.json"
     }
   ]
 }

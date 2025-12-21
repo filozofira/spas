@@ -11,6 +11,7 @@
 A complete Java SDK for building SPAS (Self-contained, Portable, Adaptable Services) has been implemented, providing feature parity with the existing .NET SDK. The SDK enables Java developers to build services that publish metadata, communicate via events, and propagate distributed trace context.
 
 **Key Achievements**:
+
 - ✅ Framework-agnostic core (works with any Java HTTP framework)
 - ✅ Compile-time metadata generation via annotation processing
 - ✅ Event publishing to SPAS sidecar with automatic header enrichment
@@ -28,6 +29,7 @@ A complete Java SDK for building SPAS (Self-contained, Portable, Adaptable Servi
 **Requirement**: Developers annotate endpoints/events, Maven generates valid `spas.json` at compile-time
 
 **Implementation**:
+
 - Created annotation processor (`SpasAnnotationProcessor`) that scans Java source code
 - Defined annotations: `@SpasService`, `@SpasCommand`, `@SpasQuery`, `@SpasEvent`
 - Generates `target/classes/spas.json` during Maven `compile` phase
@@ -35,6 +37,7 @@ A complete Java SDK for building SPAS (Self-contained, Portable, Adaptable Servi
 - Full design-time-metadata-v1 schema compliance
 
 **Validation**:
+
 ```bash
 mvn compile
 cat target/classes/spas.json
@@ -48,6 +51,7 @@ cat target/classes/spas.json
 **Requirement**: `EventPublisher.publish()` sends events to sidecar with correct headers
 
 **Implementation**:
+
 - `EventPublisher` class with CloudEvents-compliant payload construction
 - Automatic header enrichment:
   - `x-service-name` (from config)
@@ -59,6 +63,7 @@ cat target/classes/spas.json
 - Configurable sidecar endpoint via env vars or config
 
 **Validation**:
+
 ```java
 eventPublisher.publish(new OrderCreatedEvent(...));
 // POST http://localhost:8081/publish
@@ -72,6 +77,7 @@ eventPublisher.publish(new OrderCreatedEvent(...));
 **Requirement**: Programmatic metadata composition via builder APIs
 
 **Implementation**:
+
 - `ServiceIdentityBuilder` - Service identity configuration
 - `SecurityBuilder` - Authentication and data classification
 - `ConsistencyBuilder` - Transaction semantics
@@ -79,6 +85,7 @@ eventPublisher.publish(new OrderCreatedEvent(...));
 - `MetadataComposer` - Compose full `ServiceMetadata` programmatically
 
 **Validation**:
+
 ```java
 ServiceMetadata metadata = MetadataComposer.create()
     .withIdentity(ServiceIdentityBuilder.create()
@@ -98,6 +105,7 @@ ServiceMetadata metadata = MetadataComposer.create()
 **Requirement**: Extract/propagate W3C Trace Context across requests and events
 
 **Implementation**:
+
 - `SpasTrace` class - Thread-local trace context (`InheritableThreadLocal`)
 - `SpasContextFilter` (Spring) - Extracts `traceparent` header from incoming requests
 - W3C Trace Context format: `00-{trace-id}-{span-id}-{flags}`
@@ -105,6 +113,7 @@ ServiceMetadata metadata = MetadataComposer.create()
 - Automatic propagation to `EventPublisher`
 
 **Validation**:
+
 ```java
 // Incoming: traceparent: 00-4bf92f3577b34da6a3ce929d0e0e4736-00f067aa0ba902b7-01
 SpasTrace trace = SpasTrace.current();
@@ -118,12 +127,14 @@ String traceId = trace.getTraceId(); // 4bf92f3577b34da6a3ce929d0e0e4736
 **Requirement**: Capture and propagate user/tenant identity across requests
 
 **Implementation**:
+
 - `SpasContext` class - Thread-local identity context
 - `SpasContextFilter` extracts `x-user-id`, `x-tenant-id` headers
 - Available via `SpasContext.current().getUserId()`
 - Automatic propagation to events via `EventPublisher`
 
 **Validation**:
+
 ```java
 // Incoming: x-user-id: user-123, x-tenant-id: tenant-abc
 SpasContext context = SpasContext.current();
@@ -138,6 +149,7 @@ Optional<String> tenantId = context.getTenantId(); // tenant-abc
 **Requirement**: Working example demonstrating all SDK features
 
 **Implementation**:
+
 - `SampleServiceApplication` - Spring Boot application with `@SpasService` annotation
 - `OrderController` - 3 REST endpoints (`@SpasCommand`, `@SpasQuery`)
 - `OrderCreatedEvent` - Java Record with `@SpasEvent` annotation
@@ -145,6 +157,7 @@ Optional<String> tenantId = context.getTenantId(); // tenant-abc
 - Generates valid `spas.json` with 3 endpoints + 1 event
 
 **Generated Metadata**:
+
 ```json
 {
   "schemaVersion": "design-time-metadata-v1",
@@ -164,9 +177,9 @@ Optional<String> tenantId = context.getTenantId(); // tenant-abc
 
 ## Test Results
 
-### Summary
+### Test Summary
 
-```
+```text
 Test Suites: 7 passed, 7 total
 Tests:       128 passed, 128 total
 Time:        18.336 s
@@ -175,7 +188,7 @@ Time:        18.336 s
 ### Coverage by Module
 
 | Module | Coverage | Tests |
-|--------|----------|-------|
+| ------ | -------- | ----- |
 | spas-sdk-core | 97.26% (568/584 instructions) | 67 |
 | spas-sdk-metadata | 97.03% (621/640 instructions) | 32 |
 | spas-sdk-metadata-processor | 92.26% (322/349 instructions) | 5 |
@@ -189,7 +202,7 @@ Time:        18.336 s
 
 ## Project Structure
 
-```
+```text
 components/sdk/java/
 ├── pom.xml                              # Parent POM (Java 17, Maven 3.8+)
 ├── spas-sdk-core/                       # Core module (framework-agnostic)
@@ -244,20 +257,24 @@ components/sdk/java/
 ## Dependencies
 
 ### Core Dependencies
+
 - **Java**: 17+ (tested with 21.0.6 LTS)
 - **Maven**: 3.8+ (tested with 3.9.12)
 - **Jackson**: 2.18.2 (JSON serialization, kebab-case naming)
 
 ### Spring Integration (Optional)
+
 - **Spring Boot**: 3.4.1 (auto-configuration)
 - **Jakarta Servlet**: 6.1.0 (OncePerRequestFilter)
 
 ### Build Tools
+
 - **Maven Compiler Plugin**: 3.12.1 (annotation processing)
 - **Maven Enforcer Plugin**: 3.4.1 (Java/Maven version checks)
 - **JaCoCo**: 0.8.12 (code coverage)
 
 ### Test Dependencies
+
 - **JUnit 5**: 5.11.4
 - **Mockito**: 5.14.2
 - **Google Compile Testing**: 0.21.0 (annotation processor tests)
@@ -269,7 +286,7 @@ components/sdk/java/
 ### Environment Variables
 
 | Variable | Required | Description | Default |
-|----------|----------|-------------|---------|
+| -------- | -------- | ----------- | ------- |
 | `SERVICE_NAME` | Yes* | Service identifier | *or use `spas.service-name` |
 | `SIDECAR_URL` | No | Full sidecar URL | `http://{service-name}-sidecar:8081` |
 | `SIDECAR_HOST` | No | Sidecar hostname | `{service-name}-sidecar` |
@@ -289,7 +306,7 @@ spas:
 ## Quality Gates
 
 | Gate | Status | Evidence |
-|------|--------|----------|
+| ---- | ------ | -------- |
 | All unit tests pass | ✅ PASS | 128/128 tests passing |
 | Code coverage ≥80% | ✅ PASS | 86.78% overall coverage |
 | Metadata generation works | ✅ PASS | spas.json generated for sample-service |
@@ -307,7 +324,7 @@ spas:
 ### Created Files (Key Implementations)
 
 | File | Purpose |
-|------|---------|
+| ---- | ------- |
 | `spas-sdk-core/.../SpasContext.java` | Identity context (user/tenant) |
 | `spas-sdk-core/.../SpasTrace.java` | W3C Trace Context implementation |
 | `spas-sdk-core/.../SpasConfiguration.java` | Environment variable configuration |
@@ -321,7 +338,7 @@ spas:
 ### Documentation
 
 | File | Content |
-|------|---------|
+| ---- | ------- |
 | `components/sdk/java/README.md` | Framework-agnostic design, module overview, installation |
 | `specs/016-java-spas-sdk/quickstart.md` | Step-by-step guide with code examples |
 | `specs/016-java-spas-sdk/tasks.md` | All 76 tasks marked complete |
@@ -463,17 +480,135 @@ If issues arise, no rollback needed - this is a greenfield implementation.
 
 ---
 
-## Next Steps
+## Post-Implementation Bug Fixes
+
+After the initial feature completion (Dec 19, 2025), the following issues were discovered during integration with example services and were fixed in subsequent commits.
+
+### Bug Fix #1: Sidecar Event Publish Endpoint Mismatch (Dec 20, 2025)
+
+**Issue**: The Java SDK posted events to `/events`, but the SPAS sidecar contract expects `POST /publish`.
+
+**Impact**: Event publishing failed against the real sidecar implementation even though the SDK API usage was correct.
+
+**Fix Applied**:
+
+- Updated the SDK HTTP client to publish to `/publish`.
+- Updated unit tests to match the correct endpoint and typical response code (`202`).
+
+**Files Updated**:
+
+- `components/sdk/java/spas-sdk-events/src/main/java/io/spas/sdk/events/SidecarClient.java`
+- `components/sdk/java/spas-sdk-events/src/test/java/io/spas/sdk/events/EventPublisherTest.java`
+
+---
+
+### Bug Fix #2: Java Time Serialization in EventPublisher (Dec 20, 2025)
+
+**Issue**: Events containing `java.time.*` types could serialize incorrectly (or require extra manual configuration), producing payloads that are harder to consume consistently.
+
+**Fix Applied**:
+
+- Configured Jackson in `EventPublisher` to `findAndRegisterModules()` and to prefer ISO-8601 strings (disable `WRITE_DATES_AS_TIMESTAMPS`).
+
+**Files Updated**:
+
+- `components/sdk/java/spas-sdk-events/src/main/java/io/spas/sdk/events/EventPublisher.java`
+
+---
+
+### Bug Fix #3: Metadata Discovery & SchemaRef Generation (Dec 20, 2025)
+
+**Issue**: Metadata generation/discovery was brittle for real services:
+
+- Compile-time generation needed to be opt-in (via `-Aspas.generateSpasJson=true`) rather than the default in order to support runtime discovery via `/_spas/metadata`.
+- Annotations were not reliably discoverable at runtime due to retention and shape mismatches.
+- `schemaRef` authoring was too manual.
+
+**Fix Applied**:
+
+- Made runtime metadata exposure the default path (via `/_spas/metadata`), with compile-time file generation as opt-in.
+- Updated annotations to support runtime discovery and a clearer contract shape (`path` instead of `methodPath`).
+- Added default schemaRef inference for command request and query response DTO types when `schemaRef` is omitted.
+
+**Files Updated (representative)**:
+
+- `components/sdk/java/spas-sdk-metadata-processor/src/main/java/io/spas/sdk/metadata/processor/SpasAnnotationProcessor.java`
+- `components/sdk/java/spas-sdk-metadata/src/main/java/io/spas/sdk/metadata/annotations/SpasCommand.java`
+- `components/sdk/java/spas-sdk-metadata/src/main/java/io/spas/sdk/metadata/annotations/SpasService.java`
+- `components/sdk/java/spas-sdk-spring/src/main/java/io/spas/sdk/spring/SpasMetadataController.java`
+
+---
+
+### Bug Fix #4: Spring Auto-Configuration Sidecar URL Resolution (Dec 20, 2025)
+
+**Issue**: Spring auto-configuration didn’t consistently create a working `EventPublisher` without exact configuration, and sidecar URL resolution/defaults didn’t match the sidecar conventions (notably default port).
+
+**Fix Applied**:
+
+- Always register the `EventPublisher` bean and resolve sidecar URL via clear precedence:
+    1) `spas.sidecar.url`
+    2) `spas.sidecar.host` + `spas.sidecar.port` (default port `7000`)
+    3) Environment conventions via `SpasConfiguration`
+
+**Files Updated**:
+
+- `components/sdk/java/spas-sdk-spring/src/main/java/io/spas/sdk/spring/SpasAutoConfiguration.java`
+- `components/sdk/java/spas-sdk-spring/src/main/java/io/spas/sdk/spring/SpasProperties.java`
+
+---
+
+### Bug Fix #5: Missing Zipkin Traces from Java Example Service (Dec 20, 2025)
+
+**Issue**: Java example services could log trace IDs (MDC) but did not emit spans to Zipkin because there was no Java equivalent of the .NET SDK’s OpenTelemetry + Zipkin wiring.
+
+**Fix Applied**:
+
+- Added a new Java module `spas-sdk-observability` that configures OpenTelemetry with Zipkin exporter and provides Spring Boot auto-configuration.
+- Added inbound HTTP span creation and MDC correlation (`traceId`, `spanId`) for request logs.
+- Wired the fulfillment service to use the new module and configured the Zipkin endpoint.
+- Fixed Docker build to include the new module in the container build context.
+
+**Files Updated (representative)**:
+
+- `components/sdk/java/spas-sdk-observability/**`
+- `components/sdk/java/pom.xml`
+- `examples/services/fulfillment-service/pom.xml`
+- `examples/services/fulfillment-service/src/main/resources/application.yml`
+- `examples/services/fulfillment-service/Dockerfile`
+
+---
+
+### Bug Fix #6: Sidecar Dropped Events When Multiple Event Types Share a Topic (Dec 21, 2025)
+
+**Issue**: The sidecar subscriber selected only the first inbound subscription for a given Redis stream/topic. When multiple inbound entries used the same topic (e.g., `fulfillment-events`) with different `eventType` filters, the subscriber compared the incoming event type against the wrong subscription and dropped the event.
+
+**Impact**: In the fulfillment-domain example, `shipment-status-changed` events published to `fulfillment-events` could be skipped by `order-service-sidecar` with a misleading “type mismatch” even though a correct subscription existed.
+
+**Fix Applied**:
+
+- Updated the subscriber to support *multiple* subscriptions per topic: for each message, parse the CloudEvent once and route it to all matching subscriptions where `eventType` is absent or equals `event.type`.
+- Added unit test coverage for the multi-subscription routing behavior.
+
+**Files Updated**:
+
+- `components/sidecar/src/services/event-subscriber.ts`
+- `components/sidecar/test/unit/services/event-subscriber.test.ts`
+
+---
+
+## Future Enhancements
 
 Suggested enhancements for future releases:
 
-1. **Framework-agnostic filters**: Implement servlet filter for non-Spring frameworks
-2. **Async event publishing**: Add `EventPublisher.publishAsync()` returning `CompletableFuture`
-3. **Batch event publishing**: Support publishing multiple events in one call
-4. **Schema validation**: Validate generated spas.json against schema at build time
-5. **Kotlin support**: Add Kotlin-friendly APIs and extension functions
-6. **Metrics integration**: Add Micrometer metrics for event publishing
-7. **Testing utilities**: Provide test doubles/mocks for EventPublisher
+1. **Framework-agnostic context extraction**: Provide a non-Spring servlet filter (and/or JAX-RS filter) equivalent to `SpasContextFilter` for broader adoption.
+2. **Async event publishing**: Add `EventPublisher.publishAsync()` returning `CompletableFuture`.
+3. **Batch event publishing**: Support publishing multiple events in one call.
+4. **Schema validation**: Validate generated `spas.json` against the design-time schema during build.
+5. **Kotlin support**: Add Kotlin-friendly APIs and extension functions.
+6. **Metrics integration**: Add Micrometer metrics for publishing/invocation.
+7. **Testing utilities**: Provide test doubles/mocks for `EventPublisher` and metadata generation.
+8. **Outbound HTTP tracing**: Auto-wire outbound tracing interceptors (e.g., `RestTemplate`/`WebClient`) in `spas-sdk-observability`.
+9. **Logging parity**: Provide a documented log pattern that includes `traceId`, `spanId`, and optional `traceparent`.
 
 ---
 

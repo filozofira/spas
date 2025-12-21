@@ -24,7 +24,7 @@ public final class SidecarClient {
     }
     
     /**
-     * Posts an event to the sidecar's /events endpoint.
+     * Posts an event to the sidecar's /publish endpoint.
      * 
      * @param eventJson the event payload as JSON
      * @param headers the headers to include (traceparent, x-service-name, etc.)
@@ -34,7 +34,7 @@ public final class SidecarClient {
     public void postEvent(String eventJson, java.util.Map<String, String> headers) {
         try {
             HttpRequest.Builder requestBuilder = HttpRequest.newBuilder()
-                .uri(URI.create(baseUrl + "/events"))
+                .uri(URI.create(baseUrl + "/publish"))
                 .timeout(timeout)
                 .header("Content-Type", "application/json")
                 .POST(HttpRequest.BodyPublishers.ofString(eventJson));

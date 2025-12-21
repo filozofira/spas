@@ -1,0 +1,37 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: fulfillment-service
+
+# SPAS SDK Configuration
+spas:
+  service:
+    id: fulfillment-service
+    bounded-context: fulfillment
+    version: 1.0.0
+  sidecar:
+    timeout: 5000
+  tracing:
+    enabled: true
+    propagate-context: true
+    zipkin-endpoint: http://zipkin:9411/api/v2/spans
+
+# Actuator endpoints for health checks
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics
+  endpoint:
+    health:
+      show-details: always
+
+# Logging configuration
+logging:
+  level:
+    io.spas: DEBUG
+    io.spas.examples.fulfillment: DEBUG
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] [%X{traceId:-}] %-5level %logger{36} - %msg%n"

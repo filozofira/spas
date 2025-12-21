@@ -61,7 +61,7 @@
           },
           "methodPath": {
             "type": "string",
-            "description": "HTTP method and path (e.g., POST /api/orders) or gRPC method"
+            "description": "HTTP route path (e.g., /api/orders) or gRPC method path"
           },
           "version": {
             "type": "string",

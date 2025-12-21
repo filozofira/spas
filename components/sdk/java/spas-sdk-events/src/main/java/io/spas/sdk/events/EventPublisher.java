@@ -1,6 +1,7 @@
 package io.spas.sdk.events;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import io.spas.sdk.core.config.SpasConfiguration;
 import io.spas.sdk.core.context.SpasContext;
 import io.spas.sdk.core.context.SpasTrace;
@@ -30,7 +31,12 @@ public final class EventPublisher {
      */
     public EventPublisher(EventPublisherConfig config, String serviceName) {
         this.sidecarClient = new SidecarClient(config.getSidecarUrl(), config.getTimeout());
-        this.objectMapper = new ObjectMapper();
+        ObjectMapper mapper = new ObjectMapper();
+        // Register modules like jackson-datatype-jsr310 (Instant/LocalDateTime) when present.
+        mapper.findAndRegisterModules();
+        // Prefer ISO-8601 strings over numeric timestamps.
+        mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+        this.objectMapper = mapper;
         this.serviceName = serviceName;
     }
     

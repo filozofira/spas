@@ -32,6 +32,16 @@
             <artifactId>spas-sdk-events</artifactId>
         </dependency>
 
+        <!-- JSON Schema generation -->
+        <dependency>
+            <groupId>com.github.victools</groupId>
+            <artifactId>jsonschema-generator</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.github.victools</groupId>
+            <artifactId>jsonschema-module-jackson</artifactId>
+        </dependency>
+
         <!-- Spring Boot (optional - only needed when using Spring) -->
         <dependency>
             <groupId>org.springframework.boot</groupId>

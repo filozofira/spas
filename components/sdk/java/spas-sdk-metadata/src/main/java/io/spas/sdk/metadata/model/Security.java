@@ -1,7 +1,5 @@
 package io.spas.sdk.metadata.model;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-
 import java.util.List;
 
 /**
@@ -12,6 +10,6 @@ import java.util.List;
  */
 public record Security(
     Authentication authentication,
-    @JsonProperty("data-classification") List<DataClassification> dataClassification
+    List<DataClassification> dataClassification
 ) {
 }

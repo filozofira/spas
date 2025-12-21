@@ -105,7 +105,12 @@ app.MapGet("/orders/{id}",
             status = order.Status,
             createdAt = order.CreatedAt,
             referenceId = order.ReferenceId,
-            statusHistory = order.StatusHistory.OrderBy(h => h.Timestamp).ToList()
+            statusHistory = order.StatusHistory.OrderBy(h => h.Timestamp).ToList(),
+            // Shipment tracking
+            shipmentId = order.ShipmentId,
+            shipmentStatus = order.ShipmentStatus,
+            trackingNumber = order.TrackingNumber,
+            shipmentStatusHistory = order.ShipmentStatusHistory?.OrderBy(h => h.Timestamp).ToList()
         });
     });
 
@@ -151,6 +156,38 @@ async (ConfirmOrderRequest request, EventPublisher publisher, OrderStore store) 
         return Results.Ok(new { orderId = request.OrderId, status = "confirmed", reservedItems = request.ReservedItems });
     });
 
+// POST /orders/shipment-status - Handle shipment status updates from fulfillment service
+app.MapPost("/orders/shipment-status",
+    [SpasCommand("UpdateShipmentStatus", "1.0")]
+(ShipmentStatusRequest request, OrderStore store) =>
+    {
+        Console.WriteLine($"[order-service] Updating shipment status for order {request.OrderId}");
+
+        var order = store.Get(request.OrderId);
+        if (order == null)
+        {
+            Console.WriteLine($"[order-service] Order {request.OrderId} not found");
+            return Results.NotFound(new { error = $"Order {request.OrderId} not found" });
+        }
+
+        // Update order with shipment info
+        var updatedOrder = order.WithShipmentStatus(
+            request.ShipmentId, 
+            request.Status, 
+            request.TrackingNumber
+        );
+        store.Add(updatedOrder);
+
+        Console.WriteLine($"[order-service] Order {request.OrderId} shipment updated: shipmentId={request.ShipmentId}, status={request.Status}, tracking={request.TrackingNumber ?? "none"}");
+
+        return Results.Ok(new { 
+            orderId = request.OrderId, 
+            shipmentId = request.ShipmentId,
+            shipmentStatus = request.Status,
+            trackingNumber = request.TrackingNumber
+        });
+    });
+
 // Discover contracts
 var contracts = app.DiscoverSpasMetadata();
 
@@ -193,6 +230,9 @@ public record CreateOrderResponse(Guid OrderId, string Status);
 [SpasCommand("ConfirmOrder", "1.0")]
 public record ConfirmOrderRequest(Guid OrderId, List<ReservedItem> ReservedItems);
 
+[SpasCommand("UpdateShipmentStatus", "1.0")]
+public record ShipmentStatusRequest(Guid OrderId, string ShipmentId, string Status, string? TrackingNumber = null);
+
 public record OrderItem(string ProductId, int Quantity, decimal Price);
 
 public record ReservedItem(string ProductId, int Quantity);
@@ -209,10 +249,16 @@ public record Order(
     string Status, 
     DateTime CreatedAt, 
     string? ReferenceId = null,
-    List<StatusChange> StatusHistory = null
+    List<StatusChange> StatusHistory = null,
+    // Shipment tracking fields
+    string? ShipmentId = null,
+    string? ShipmentStatus = null,
+    string? TrackingNumber = null,
+    List<ShipmentStatusChange>? ShipmentStatusHistory = null
 )
 {
     public List<StatusChange> StatusHistory { get; init; } = StatusHistory ?? new();
+    public List<ShipmentStatusChange> ShipmentStatusHistory { get; init; } = ShipmentStatusHistory ?? new();
     
     public Order WithStatus(string newStatus, string? reason = null)
     {
@@ -220,7 +266,22 @@ public record Order(
         var updatedHistory = new List<StatusChange>(StatusHistory) { statusChange };
         return this with { Status = newStatus, StatusHistory = updatedHistory };
     }
+    
+    public Order WithShipmentStatus(string shipmentId, string shipmentStatus, string? trackingNumber = null)
+    {
+        var statusChange = new ShipmentStatusChange(shipmentStatus, DateTime.UtcNow, trackingNumber);
+        var updatedHistory = new List<ShipmentStatusChange>(ShipmentStatusHistory) { statusChange };
+        return this with { 
+            ShipmentId = shipmentId, 
+            ShipmentStatus = shipmentStatus, 
+            TrackingNumber = trackingNumber ?? TrackingNumber,
+            ShipmentStatusHistory = updatedHistory 
+        };
+    }
 };
+
+// Shipment status tracking
+public record ShipmentStatusChange(string Status, DateTime Timestamp, string? TrackingNumber = null);
 
 // Events (outbound only)
 [SpasEvent("OrderCreated", "1.0", EventType = "com.ecommerce.order.created")]

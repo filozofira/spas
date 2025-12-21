@@ -12,25 +12,31 @@ import java.lang.annotation.Target;
  * for event name extraction when publishing events.
  * It also participates in compile-time metadata generation.
  * <p>
- * Example:
+ * Example with explicit schemaRef:
  * <pre>{@code
  * @SpasEvent(
  *     type = "OrderCreated",
  *     version = "1.0.0",
- *     schemaRef = "schemas/order-created.json"
+ *     schemaRef = "schemas/events/order-created.schema.json"
  * )
- * public class OrderCreatedEvent {
- *     private String orderId;
- *     private BigDecimal amount;
- *     // ...
- * }
+ * public class OrderCreatedEvent { ... }
+ * }</pre>
+ * <p>
+ * Example with auto-generated schemaRef (recommended):
+ * <pre>{@code
+ * @SpasEvent(
+ *     type = "OrderCreated",
+ *     version = "1.0.0"
+ * )
+ * public class OrderCreatedEvent { ... }
+ * // Auto-generates: schemas/events/order-created-event.schema.json
  * }</pre>
  */
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)  // RUNTIME retention for event publishing
 public @interface SpasEvent {
     /**
-     * Event type name (will be converted to kebab-case in metadata and headers).
+     * Event type name (will be converted to kebab-case in metadata, headers, and schema path).
      */
     String type();
     
@@ -41,6 +47,8 @@ public @interface SpasEvent {
     
     /**
      * URI reference to event schema.
+     * If empty (default), auto-generates as: schemas/events/{kebab-case-event-payload-type}.schema.json
+     * (falls back to {@code type} if the payload type cannot be resolved).
      */
-    String schemaRef();
+    String schemaRef() default "";
 }

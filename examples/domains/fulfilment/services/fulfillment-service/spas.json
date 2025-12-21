@@ -1,0 +1,86 @@
+{
+  "schemaVersion": "runtime-metadata-v1",
+  "id": "fulfillment-service",
+  "name": "Fulfillment Service",
+  "description": "Handles order fulfillment operations including shipment creation and status tracking",
+  "version": "1.0.0",
+  "boundedContext": "fulfillment",
+  "capabilities": [],
+  "endpoints": [
+    {
+      "name": "get-shipment",
+      "type": "Query",
+      "protocol": "Http",
+      "methodPath": "/api/fulfillments/{id}",
+      "version": "1.0.0",
+      "schemaRef": "schemas/endpoints/shipment-response.schema.json"
+    },
+    {
+      "name": "list-shipments",
+      "type": "Query",
+      "protocol": "Http",
+      "methodPath": "/api/fulfillments",
+      "version": "1.0.0",
+      "schemaRef": "schemas/endpoints/response-entity.schema.json"
+    },
+    {
+      "name": "update-shipment-status",
+      "type": "Command",
+      "protocol": "Http",
+      "methodPath": "/api/fulfillments/{id}/status",
+      "version": "1.0.0",
+      "schemaRef": "schemas/endpoints/update-status-request.schema.json"
+    },
+    {
+      "name": "get-shipment-by-order-id",
+      "type": "Query",
+      "protocol": "Http",
+      "methodPath": "/api/fulfillments/by-order/{orderId}",
+      "version": "1.0.0",
+      "schemaRef": "schemas/endpoints/shipment-response.schema.json"
+    },
+    {
+      "name": "create-shipment",
+      "type": "Command",
+      "protocol": "Http",
+      "methodPath": "/shipments",
+      "version": "1.0.0",
+      "schemaRef": "schemas/endpoints/create-shipment-request.schema.json"
+    }
+  ],
+  "events": [
+    {
+      "type": "shipment-created",
+      "version": "1.0.0",
+      "schemaRef": "schemas/events/shipment-created-event.schema.json"
+    },
+    {
+      "type": "shipment-status-changed",
+      "version": "1.0.0",
+      "schemaRef": "schemas/events/shipment-status-changed-event.schema.json"
+    }
+  ],
+  "consistency": {
+    "commands": "ACID",
+    "queries": "EVENTUAL"
+  },
+  "security": {
+    "authentication": {
+      "type": "None"
+    },
+    "dataClassification": [
+      "Internal"
+    ]
+  },
+  "network": {
+    "requiredEgress": []
+  },
+  "license": "",
+  "publishedAt": "2025-12-20T01:17:26.627Z",
+  "runtime": {
+    "digest": "sha256:TODO_UPDATE_AFTER_BUILD",
+    "repository": "spas-examples/fulfillment-service",
+    "tag": "1.0.0",
+    "image": "spas-examples/fulfillment-service@sha256:TODO_UPDATE_AFTER_BUILD"
+  }
+}

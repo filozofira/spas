@@ -5,7 +5,7 @@
  * Consumes CloudEvents, applies transforms, and invokes service endpoints.
  */
 
-import type { SidecarConfig, InboundEntry, SpanTags } from '../types.js';
+import type { SidecarConfig, InboundEntry, SpanTags, CloudEvent } from '../types.js';
 import { RedisClient } from '../transport/redis.js';
 import { parseCloudEvent } from '../cloudevents/wrapper.js';
 import { ServiceInvoker } from './service-invoker.js';
@@ -100,8 +100,8 @@ export class EventSubscriber {
 
     // Process messages from each stream
     for (const [stream, messages] of result.entries()) {
-      const subscription = subscriptions.find((s) => s.topic === stream);
-      if (!subscription) {
+      const topicSubscriptions = subscriptions.filter((s) => s.topic === stream);
+      if (topicSubscriptions.length === 0) {
         continue;
       }
 
@@ -110,7 +110,7 @@ export class EventSubscriber {
         this.lastIds.set(stream, msg.id);
 
         try {
-          await this.processMessage(msg.message, subscription);
+          await this.processMessageForTopic(msg.message, topicSubscriptions);
         } catch (err) {
           const errMsg = err instanceof Error ? err.message : 'Unknown error';
           console.error(`[subscriber] Error processing message ${msg.id}: ${errMsg}`);
@@ -121,13 +121,13 @@ export class EventSubscriber {
   }
 
   /**
-   * Process a single message from a stream.
+   * Process a single message and route it to all subscriptions for the topic.
+   * This supports multiple event types on the same topic (common in PoC).
    */
-  async processMessage(
+  private async processMessageForTopic(
     message: Record<string, string>,
-    subscription: InboundEntry
+    topicSubscriptions: InboundEntry[]
   ): Promise<void> {
-    // Extract CloudEvent from message data
     const data = message.data;
     if (!data) {
       console.warn('[subscriber] Message missing data field');
@@ -137,12 +137,40 @@ export class EventSubscriber {
     const event = parseCloudEvent(data);
     console.log(`[subscriber] Processing event ${event.id} (${event.type})`);
 
-    // Filter by eventType if specified
-    if (subscription.eventType && event.type !== subscription.eventType) {
-      console.log(`[subscriber] Skipping event - type mismatch (expected: ${subscription.eventType}, got: ${event.type})`);
+    // Route to all matching subscriptions for this topic.
+    // Match rules:
+    // - If subscription.eventType is set, it must match the CloudEvent type.
+    // - If subscription.eventType is not set, the subscription accepts all types.
+    const matchingSubscriptions = topicSubscriptions.filter(
+      (s) => !s.eventType || s.eventType === event.type
+    );
+
+    if (matchingSubscriptions.length === 0) {
+      // Preserve existing logging behavior but avoid claiming a single "expected" value
+      // since multiple subscriptions may exist.
+      const expectedTypes = topicSubscriptions
+        .map((s) => s.eventType)
+        .filter((t): t is string => typeof t === 'string' && t.length > 0);
+      if (expectedTypes.length > 0) {
+        console.log(
+          `[subscriber] Skipping event - type mismatch (expected one of: ${expectedTypes.join(
+            ', '
+          )}, got: ${event.type})`
+        );
+      } else {
+        console.log(
+          `[subscriber] Skipping event - no matching subscription for type ${event.type}`
+        );
+      }
       return;
     }
 
+    for (const subscription of matchingSubscriptions) {
+      await this.processEvent(event, subscription);
+    }
+  }
+
+  private async processEvent(event: CloudEvent, subscription: InboundEntry): Promise<void> {
     // DEBUG: Log payload for troubleshooting (PoC only)
     console.log(`[subscriber] Payload:`, JSON.stringify(event.data, null, 2));
 
@@ -164,9 +192,11 @@ export class EventSubscriber {
       let payload = event.data;
       if (subscription.transform) {
         // Create local span for transformation
-        const transformSpan = parentSpan ? tracer?.startSpan('transform', parentSpan.context.traceparent, {
-          'transform.function': subscription.transform,
-        } as Partial<SpanTags>) : undefined;
+        const transformSpan = parentSpan
+          ? tracer?.startSpan('transform', parentSpan.context.traceparent, {
+              'transform.function': subscription.transform,
+            } as Partial<SpanTags>)
+          : undefined;
 
         payload = await applyTransform(payload, subscription.transform);
 
@@ -178,39 +208,55 @@ export class EventSubscriber {
       // Invoke service endpoint with child span
       // remoteServiceName is the service being invoked (derived from SERVICE_NAME env var)
       const targetServiceName = process.env.SERVICE_NAME || 'unknown-service';
-      const invokeSpan = parentSpan ? tracer?.startChildSpan(parentSpan, 'invoke', {
-        'http.url': subscription.invokeEndpoint,
-        'http.method': 'POST',
-        spanKind: 'CLIENT',
-        remoteServiceName: targetServiceName,
-      } as Partial<SpanTags>) : undefined;
+      const invokeSpan = parentSpan
+        ? tracer?.startChildSpan(parentSpan, 'invoke', {
+            'http.url': subscription.invokeEndpoint,
+            'http.method': 'POST',
+            spanKind: 'CLIENT',
+            remoteServiceName: targetServiceName,
+          } as Partial<SpanTags>)
+        : undefined;
 
       // Pass invoke span's traceparent so downstream service links to this span
       const invokeTraceparent = invokeSpan ? tracer?.getTraceparent(invokeSpan) : undefined;
-      const result = await this.invoker.invoke(subscription.invokeEndpoint, payload, event, invokeTraceparent);
+      const result = await this.invoker.invoke(
+        subscription.invokeEndpoint,
+        payload,
+        event,
+        invokeTraceparent
+      );
 
       if (invokeSpan) {
         tracer?.tagHttpStatus(invokeSpan, result.status);
         tracer?.finishSpan(invokeSpan, parentSpan?.context.spanId);
       }
 
-      // Finish parent span
       if (parentSpan) {
         tracer?.finishSpan(parentSpan);
       }
     } catch (err) {
-      // Tag error and finish span
       if (parentSpan) {
         const errMsg = err instanceof Error ? err.message : 'Unknown error';
         tracer?.tagError(parentSpan, errMsg);
-        tracer?.finishSpan(parentSpan);
       }
       throw err;
     }
   }
 
   /**
-   * Stop the subscription loop.
+   * Process a single message from a stream.
+   */
+  async processMessage(
+    message: Record<string, string>,
+    subscription: InboundEntry
+  ): Promise<void> {
+    // Backwards-compatible API: process a single message with a single subscription.
+    // Used by unit tests and potential external callers.
+    return this.processMessageForTopic(message, [subscription]);
+  }
+
+  /**
+   * Stop the subscriber loop.
    */
   stop(): void {
     this.running = false;

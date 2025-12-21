@@ -82,6 +82,16 @@ dotnet run
 
 ---
 
+## Completion Reports (CRITICAL)
+
+- When a spec is completed or when follow-up fixes/enhancements are made after completion, update that spec’s `COMPLETION.md`.
+- Use the same section structure used in specs like `specs/013-agent-prompt-enrichment/COMPLETION.md`:
+	- Put fixes under `## Post-Implementation Bug Fixes`.
+	- Put non-critical improvements under `## Future Enhancements`.
+- Keep each item concrete: symptom/impact → root cause (if known) → fix applied → files touched.
+
+---
+
 ## Component: SDK (.NET)
 
 - Status: Active feature (branch 001-dotnet-spas-sdk)

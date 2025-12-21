@@ -1,0 +1,8 @@
+/* inbound-shipment-created.jsonata */
+/* fulfillment-service.shipment-created -> order-service UpdateShipmentStatus */
+{
+  "orderId": orderId,
+  "shipmentId": shipmentId,
+  "status": status,
+  "trackingNumber": null
+}

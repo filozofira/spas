@@ -27,6 +27,11 @@ public class SpasProperties {
      */
     private Sidecar sidecar = new Sidecar();
     
+    /**
+     * Metadata endpoint configuration.
+     */
+    private Metadata metadata = new Metadata();
+    
     public String getServiceName() {
         return serviceName;
     }
@@ -51,12 +56,20 @@ public class SpasProperties {
         this.sidecar = sidecar;
     }
     
+    public Metadata getMetadata() {
+        return metadata;
+    }
+    
+    public void setMetadata(Metadata metadata) {
+        this.metadata = metadata;
+    }
+    
     /**
      * Sidecar connection configuration.
      */
     public static class Sidecar {
         /**
-         * Full sidecar URL (e.g., http://localhost:8080).
+         * Full sidecar URL (e.g., http://localhost:7000).
          * Takes precedence over host/port if set.
          */
         private String url;
@@ -67,9 +80,9 @@ public class SpasProperties {
         private String host;
         
         /**
-         * Sidecar port (default: 8080).
+         * Sidecar port (default: 7000).
          */
-        private Integer port = 8080;
+        private Integer port = 7000;
         
         /**
          * Connection timeout (default: 5s).
@@ -119,6 +132,54 @@ public class SpasProperties {
         
         public void setRequestTimeout(Duration requestTimeout) {
             this.requestTimeout = requestTimeout;
+        }
+    }
+    
+    /**
+     * Metadata endpoint configuration.
+     */
+    public static class Metadata {
+        /**
+         * Enable/disable the /_spas/metadata endpoint.
+         * Default: true
+         */
+        private boolean enabled = true;
+        
+        /**
+         * Restrict metadata endpoint to specific environment.
+         * Set to "*" to allow all environments.
+         * Default: development (dev-only)
+         */
+        private String allowedEnvironment = "development";
+        
+        /**
+         * Path for the metadata endpoint.
+         * Default: /_spas/metadata
+         */
+        private String path = "/_spas/metadata";
+        
+        public boolean isEnabled() {
+            return enabled;
+        }
+        
+        public void setEnabled(boolean enabled) {
+            this.enabled = enabled;
+        }
+        
+        public String getAllowedEnvironment() {
+            return allowedEnvironment;
+        }
+        
+        public void setAllowedEnvironment(String allowedEnvironment) {
+            this.allowedEnvironment = allowedEnvironment;
+        }
+        
+        public String getPath() {
+            return path;
+        }
+        
+        public void setPath(String path) {
+            this.path = path;
         }
     }
 }

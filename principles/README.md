@@ -57,6 +57,7 @@ Below you can find the quick navigation to SPAS principles documents organized b
 - **[governance/23-versioning-strategy.md](governance/23-versioning-strategy.md)** - Version management
 - **[governance/24-compliance-checklist.md](governance/24-compliance-checklist.md)** - Compliance validation
 - **[governance/25-evolution-policy.md](governance/25-evolution-policy.md)** - How the spec evolves
+- **[governance/29-documentation-standards.md](governance/29-documentation-standards.md)** - Documentation organization and maintenance
 
 ## Reference Materials
 

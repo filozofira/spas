@@ -36,9 +36,9 @@ description: "Task list for implementing command→produced events mapping"
 
 **Independent Test**: A `spas.json` containing `commands[].produces[]` passes schema validation using Ajv (via Repository validator).
 
-- [ ] T008 [US1] Add schema-level kebab-case enforcement for `commands[].name` (pattern) in components/repository/schemas/design-time-metadata-v1.schema.json
-- [ ] T009 [US1] Add schema-level `when` enforcement (`const: "success"`) in components/repository/schemas/design-time-metadata-v1.schema.json
-- [ ] T010 [US1] Ensure runtime schema mirrors the same `commands[].name` pattern and `when` const in components/repository/schemas/runtime-metadata-v1.schema.json
+- [x] T008 [US1] Add schema-level kebab-case enforcement for `commands[].name` (pattern) in components/repository/schemas/design-time-metadata-v1.schema.json
+- [x] T009 [US1] Add schema-level `when` enforcement (`const: "success"`) in components/repository/schemas/design-time-metadata-v1.schema.json
+- [x] T010 [US1] Ensure runtime schema mirrors the same `commands[].name` pattern and `when` const in components/repository/schemas/runtime-metadata-v1.schema.json
 
 ---
 

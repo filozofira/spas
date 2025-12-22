@@ -68,6 +68,22 @@ Start services:
 docker compose up
 ```
 
+## Choreography
+
+The following diagram illustrates the sequence of events between the participating services.
+
+```mermaid
+flowchart LR
+    subgraph Order Fulfillment Flow
+        direction LR
+        OS[order-service] -->|order-created| IS[inventory-service]
+        IS -->|stock-reserved| OS
+        OS -->|order-confirmed| FS[fulfillment-service]
+        FS -->|shipment-created| OS
+        FS -->|shipment-status-changed| OS
+    end
+```
+
 ## Configuration
 
 ### Repository URL

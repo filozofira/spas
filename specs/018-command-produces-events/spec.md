@@ -2,10 +2,11 @@
 
 **Feature Branch**: `018-command-produces-events`  
 **Created**: 2025-12-22  
-**Status**: Draft  
+**Completed**: 2025-12-22
+**Status**: ✅ Complete (PoC)  
 **Input**: Add a PoC capability in `spas.json` metadata that expresses which events each command produces on success, to improve agent-assisted choreography and reduce guesswork.
 
-## User Scenarios & Testing *(mandatory)*
+## User Scenarios & Testing _(mandatory)_
 
 ### User Story 1 - Discover produced events per command (Priority: P1)
 
@@ -61,7 +62,7 @@ As a platform/tooling maintainer, I want validation that prevents publishing inc
 - A developer references an event class/type that is missing the SDK’s event annotation/attribute.
 - The service has commands but declares no produced events (valid; mapping is optional).
 
-## Requirements *(mandatory)*
+## Requirements _(mandatory)_
 
 ### Functional Requirements
 
@@ -85,6 +86,7 @@ As a platform/tooling maintainer, I want validation that prevents publishing inc
 - **FR-014**: Both the .NET SDK and Java SDK MUST support the developer-declared mapping model and MUST emit the `produces[]` metadata in `spas.json` according to this specification.
 
 Notes:
+
 - For PoC scope, only commands participate; queries do not declare `produces`.
 - The model MUST remain extensible to future producer types (e.g., background jobs) without changing the meaning of `when: "success"`.
 
@@ -95,13 +97,13 @@ Notes:
 - This feature depends on updating the SPAS metadata specification and the principles documentation that governs service metadata and event contracts.
 - The PoC assumes all participating services and tools adopt the updated metadata format (no transitional compatibility requirements).
 
-### Key Entities *(include if feature involves data)*
+### Key Entities _(include if feature involves data)_
 
 - **Command**: A named write operation exposed by a service that may produce events when it succeeds.
 - **Produced Event Reference**: A reference to a declared event by `(type, version)` plus a `when` condition.
 - **Event**: A declared event contract with `type`, `version`, and `schemaRef`.
 
-## Success Criteria *(mandatory)*
+## Success Criteria _(mandatory)_
 
 ### Measurable Outcomes
 

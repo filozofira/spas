@@ -4,7 +4,7 @@ services:
   # SPAS Services (.NET)
   order-service:
     build:
-      context: ..
+      context: ../../
       dockerfile: examples/services/order-service/Dockerfile
     image: spas-examples/order-service:1.0.0
     container_name: order-service
@@ -18,7 +18,7 @@ services:
 
   inventory-service:
     build:
-      context: ..
+      context: ../../
       dockerfile: examples/services/inventory-service/Dockerfile
     image: spas-examples/inventory-service:1.0.0
     container_name: inventory-service
@@ -32,7 +32,7 @@ services:
 
   product-service:
     build:
-      context: ..
+      context: ../../
       dockerfile: examples/services/product-service/Dockerfile
     image: spas-examples/product-service:1.0.0
     container_name: product-service
@@ -46,7 +46,7 @@ services:
 
   subscription-service:
     build:
-      context: ..
+      context: ../../
       dockerfile: examples/services/subscription-service/Dockerfile
     image: spas-examples/subscription-service:1.0.0
     container_name: subscription-service
@@ -61,7 +61,7 @@ services:
   # Fulfillment Service (Java)
   fulfillment-service:
     build:
-      context: ..
+      context: ../../
       dockerfile: examples/services/fulfillment-service/Dockerfile
     image: spas-examples/fulfillment-service:1.0.0
     container_name: fulfillment-service
@@ -78,29 +78,6 @@ services:
       timeout: 5s
       retries: 3
       start_period: 15s
-    networks:
-      - spas-network
-
-  # Gateway (Node.js)
-  api-gateway:
-    build:
-      context: ./gateways/api-gateway
-      dockerfile: Dockerfile
-    image: spas-examples/api-gateway:1.0.0
-    container_name: api-gateway
-    ports:
-      - "8080:3000"
-    environment:
-      - NODE_ENV=development
-      - PORT=3000
-      - SIDECAR_MODE=sync
-      - SIDECAR_URL=http://sidecar:8081
-    healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3000/health"]
-      interval: 10s
-      timeout: 5s
-      retries: 3
-      start_period: 5s
     networks:
       - spas-network
 

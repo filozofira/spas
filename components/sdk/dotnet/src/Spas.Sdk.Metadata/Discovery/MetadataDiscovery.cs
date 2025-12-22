@@ -101,9 +101,7 @@ public class MetadataDiscovery
             return string.Empty;
         }
 
-        var schemaName = contractName.ToLowerInvariant()
-            .Replace(" ", "-")
-            + ".schema.json";
+        var schemaName = AttributeHelpers.ToKebabCase(contractName) + ".schema.json";
 
         return _options.SchemaBasePath + schemaName;
     }

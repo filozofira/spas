@@ -76,6 +76,27 @@ public class MetadataDiscoveryTests
         // Act & Assert
         Assert.False(options.AutoGenerateSchemaReferences);
     }
+
+    [Fact]
+    public void DiscoverEvents_WhenSchemaNotSpecified_AutoGeneratesKebabCaseSchemaRef()
+    {
+        // Arrange
+        var options = new MetadataDiscoveryOptions
+        {
+            AssembliesToScan = { typeof(MetadataDiscoveryTests).Assembly },
+            AutoGenerateSchemaReferences = true,
+            SchemaBasePath = "schemas/events/"
+        };
+
+        var discovery = new MetadataDiscovery(options);
+
+        // Act
+        var contracts = discovery.DiscoverEvents();
+
+        // Assert
+        var created = Assert.Single(contracts.Events, e => e.Type == "test-event-created" && e.Version == "1.0");
+        Assert.Equal("schemas/events/test-event-created.schema.json", created.SchemaRef);
+    }
 }
 
 // Test event types for discovery

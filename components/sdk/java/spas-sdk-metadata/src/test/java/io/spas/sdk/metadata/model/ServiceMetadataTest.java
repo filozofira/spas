@@ -41,6 +41,11 @@ class ServiceMetadataTest {
                 "schemas/endpoints/test.schema.json",
                 null
             )),
+            List.of(new CommandContract(
+                "test-command",
+                "1.0.0",
+                List.of(new ProducedEventRef("test-event", "1.0.0", "success"))
+            )),
             List.of(new EventContract(
                 "test-event",
                 "1.0.0",
@@ -194,6 +199,7 @@ class ServiceMetadataTest {
             "test",
             null,  // capabilities
             null,  // endpoints
+            null,  // commands
             null,  // events
             null,  // consistency
             new Security(null, List.of(DataClassification.PUBLIC)),

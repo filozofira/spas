@@ -61,6 +61,13 @@ class SpasMetadataControllerTest {
         assertTrue(spasJson.contains("SAMPLE_COMMAND_DESC"));
         assertTrue(spasJson.contains("SAMPLE_EVENT_DESC"));
 
+        // commands[].produces[] should be emitted from @SpasCommand(produces=...) and resolved from @SpasEvent
+        assertTrue(spasJson.contains("\"commands\""));
+        assertTrue(spasJson.contains("\"produces\""));
+        assertTrue(spasJson.contains("\"type\" : \"sample-event\""));
+        assertTrue(spasJson.contains("\"version\" : \"1.0.0\""));
+        assertTrue(spasJson.contains("\"when\" : \"success\""));
+
         // Empty/default descriptions should be omitted (null -> omitted)
         assertFalse(spasJson.contains("\"description\" : \"\""));
     }

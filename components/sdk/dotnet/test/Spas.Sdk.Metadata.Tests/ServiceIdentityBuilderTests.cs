@@ -29,7 +29,7 @@ public class ServiceIdentityBuilderTests
     }
 
     [Fact]
-    public void Build_WithoutName_ThrowsException()
+    public void Build_WithoutName_DefaultsNameToId()
     {
         // Arrange
         var builder = new ServiceIdentityBuilder()
@@ -37,8 +37,28 @@ public class ServiceIdentityBuilderTests
             .WithVersion("1.0.0")
             .WithBoundedContext("test");
 
-        // Act & Assert
-        Assert.Throws<InvalidOperationException>(() => builder.Build());
+        // Act
+        var identity = builder.Build();
+
+        // Assert
+        Assert.Equal("test-service", identity.Name);
+    }
+
+    [Fact]
+    public void Build_WithBlankName_DefaultsNameToId()
+    {
+        // Arrange
+        var builder = new ServiceIdentityBuilder()
+            .WithId("test-service")
+            .WithName("  ")
+            .WithVersion("1.0.0")
+            .WithBoundedContext("test");
+
+        // Act
+        var identity = builder.Build();
+
+        // Assert
+        Assert.Equal("test-service", identity.Name);
     }
 
     [Fact]

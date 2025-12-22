@@ -55,6 +55,29 @@ Services MAY expose endpoints (development-only) to retrieve design-time metadat
   - `type`: CloudEvents `type` (e.g., `orders.order-created.v1`)
   - `version`: Event version
   - `schemaRef`: Reference to schema in registry or local file
+
+### Command Produced Events Mapping (PoC)
+
+To support choreography authors (and agents) without requiring source code inspection, services MAY include a `commands[]` section that declares which events a command produces when it succeeds.
+
+- `commands[]`:
+  - `name` (required): canonical command identifier, MUST be kebab-case (`^[a-z0-9]+(-[a-z0-9]+)*$`).
+  - `version` (optional): command contract version (semver recommended).
+  - `produces[]` (optional): list of produced event references.
+    - Each entry MUST be an object with:
+      - `type` (required)
+      - `version` (required)
+      - `when` (required): for PoC, MUST be exactly `"success"`.
+
+Rules:
+
+- Each `(type, version)` pair in `commands[].produces[]` MUST reference an existing entry in `events[]`.
+- Within a single command, `(type, version)` pairs in `produces[]` MUST be unique.
+
+Notes:
+
+- This section is additive and does not replace `endpoints[]`. `endpoints[]` describes how to invoke operations; `commands[]` describes canonical command identifiers and their produced event relationships.
+- Do NOT manually update any `examples/**/spas.json` as part of this feature; examples will be regenerated during e2e testing.
 - `consistency`:
   - `commands`: MUST be `ACID`
   - `queries`: `STRONG | EVENTUAL`

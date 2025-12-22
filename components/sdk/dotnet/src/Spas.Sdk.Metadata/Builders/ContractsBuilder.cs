@@ -8,6 +8,7 @@ namespace Spas.Sdk.Metadata.Builders;
 public class ContractsBuilder
 {
     private readonly List<EndpointContract> _endpoints = new();
+    private readonly List<CommandContract> _commands = new();
     private readonly List<EventContract> _events = new();
 
     private static string? TrimToNull(string? value)
@@ -49,13 +50,92 @@ public class ContractsBuilder
     }
 
     /// <summary>
+    /// Adds or merges a command definition.
+    /// </summary>
+    public ContractsBuilder AddCommand(string name, string version, IEnumerable<ProducedEventRefContract>? produces = null)
+    {
+        var existing = _commands.FirstOrDefault(c =>
+            string.Equals(c.Name, name, StringComparison.OrdinalIgnoreCase)
+            && string.Equals(c.Version, version, StringComparison.OrdinalIgnoreCase));
+
+        if (existing == null)
+        {
+            existing = new CommandContract
+            {
+                Name = name,
+                Version = version,
+                Produces = new List<ProducedEventRefContract>()
+            };
+            _commands.Add(existing);
+        }
+
+        if (produces != null)
+        {
+            foreach (var p in produces)
+            {
+                if (p == null) continue;
+                if (string.IsNullOrWhiteSpace(p.Type)) continue;
+                if (string.IsNullOrWhiteSpace(p.Version)) continue;
+
+                var already = existing.Produces.Any(ep =>
+                    string.Equals(ep.Type, p.Type, StringComparison.OrdinalIgnoreCase)
+                    && string.Equals(ep.Version, p.Version, StringComparison.OrdinalIgnoreCase));
+                if (already)
+                {
+                    throw new InvalidOperationException(
+                        $"Command '{existing.Name}@{existing.Version}' declares duplicate produced event '{p.Type}@{p.Version}'.");
+                }
+
+                existing.Produces.Add(new ProducedEventRefContract
+                {
+                    Type = p.Type,
+                    Version = p.Version,
+                    When = "success"
+                });
+            }
+        }
+
+        return this;
+    }
+
+    /// <summary>
     /// Builds the service contracts.
     /// </summary>
     public ServiceContracts Build()
     {
+        // Fail-fast validation:
+        // - produced events must reference a declared event (type, version)
+        // - commands must not contain duplicate produced events (enforced in AddCommand)
+        var eventKeys = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        foreach (var ev in _events)
+        {
+            if (ev == null) continue;
+            if (string.IsNullOrWhiteSpace(ev.Type)) continue;
+            if (string.IsNullOrWhiteSpace(ev.Version)) continue;
+            eventKeys.Add($"{ev.Type}|{ev.Version}");
+        }
+
+        foreach (var cmd in _commands)
+        {
+            if (cmd == null) continue;
+            if (cmd.Produces == null || cmd.Produces.Count == 0) continue;
+
+            foreach (var p in cmd.Produces)
+            {
+                if (p == null) continue;
+                var key = $"{p.Type}|{p.Version}";
+                if (!eventKeys.Contains(key))
+                {
+                    throw new InvalidOperationException(
+                        $"Command '{cmd.Name}@{cmd.Version}' produces '{p.Type}@{p.Version}' but no matching entry exists in events[].");
+                }
+            }
+        }
+
         return new ServiceContracts
         {
             Endpoints = _endpoints,
+            Commands = _commands,
             Events = _events
         };
     }

@@ -10,6 +10,10 @@ import addFormats from 'ajv-formats';
 import { readFileSync } from 'fs';
 import type { ServiceMetadata } from '../models/types';
 
+function eventKey(type: string, version: string): string {
+  return `${type}|${version}`;
+}
+
 export class SpasSchemaValidator {
   private ajv: Ajv;
   private spasSchema: Record<string, unknown>;
@@ -60,6 +64,53 @@ export class SpasSchemaValidator {
         'Invalid service metadata',
         errors.map((e: any) => `${e.instancePath || 'root'}: ${e.message}`).join('; ')
       );
+    }
+
+    // Cross-field validation (beyond JSON Schema)
+    this.validateCommandsProducedEvents(metadata as ServiceMetadata);
+  }
+
+  private validateCommandsProducedEvents(metadata: ServiceMetadata): void {
+    const commands = metadata.commands;
+    if (!commands || commands.length === 0) {
+      return;
+    }
+
+    const events = metadata.events ?? [];
+    const eventKeys = new Set<string>();
+    for (const evt of events) {
+      if (!evt) continue;
+      if (!evt.type || !evt.version) continue;
+      eventKeys.add(eventKey(evt.type, evt.version));
+    }
+
+    for (const cmd of commands) {
+      if (!cmd) continue;
+      const produces = cmd.produces;
+      if (!produces || produces.length === 0) {
+        continue;
+      }
+
+      const seen = new Set<string>();
+      for (const p of produces) {
+        if (!p) continue;
+        const k = eventKey(p.type, p.version);
+
+        if (seen.has(k)) {
+          throw new ValidationError(
+            'Duplicate produced event',
+            `Command '${cmd.name}${cmd.version ? `@${cmd.version}` : ''}' declares duplicate produced event '${p.type}@${p.version}'`
+          );
+        }
+        seen.add(k);
+
+        if (!eventKeys.has(k)) {
+          throw new ValidationError(
+            'Missing produced event reference',
+            `Command '${cmd.name}${cmd.version ? `@${cmd.version}` : ''}' produces '${p.type}@${p.version}' but no matching entry exists in events[]`
+          );
+        }
+      }
     }
   }
 

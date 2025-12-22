@@ -59,7 +59,7 @@ app.MapGet("/inventory/{productId}",
 
 // POST /inventory/reserve - Reserve stock for order
 app.MapPost("/inventory/reserve",
-    [SpasCommand("ReserveStock", "1.0", Description = "Reserves stock for an order and publishes StockReserved for successfully reserved items")]
+    [SpasCommand("ReserveStock", "1.0", Description = "Reserves stock for an order and publishes StockReserved for successfully reserved items", Produces = new[] { typeof(StockReservedEvent) })]
     async (ReserveStockRequest request, EventPublisher publisher, InventoryStore store) =>
     {
         Console.WriteLine($"[inventory-service] Reserving stock for order {request.OrderId}");

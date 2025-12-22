@@ -2,6 +2,7 @@ package io.spas.examples.fulfillment.controller;
 
 import io.spas.examples.fulfillment.dto.CreateShipmentRequest;
 import io.spas.examples.fulfillment.dto.ShipmentResponse;
+import io.spas.examples.fulfillment.events.ShipmentCreatedEvent;
 import io.spas.examples.fulfillment.model.Shipment;
 import io.spas.examples.fulfillment.service.FulfillmentService;
 import io.spas.sdk.metadata.annotations.SpasCommand;
@@ -34,7 +35,8 @@ public class ShipmentController {
         name = "CreateShipment",
         version = "1.0.0",
         path = "/shipments",
-        description = "Creates a shipment for a confirmed order using the destination address; emits ShipmentCreated when successful"
+        description = "Creates a shipment for a confirmed order using the destination address; emits ShipmentCreated when successful",
+        produces = { ShipmentCreatedEvent.class }
         // Auto-generates: schemas/endpoints/create-shipment.schema.json
     )
     @PostMapping

@@ -11,6 +11,7 @@ import javax.annotation.processing.*;
 import javax.lang.model.SourceVersion;
 import javax.lang.model.element.*;
 import javax.lang.model.type.DeclaredType;
+import javax.lang.model.type.MirroredTypesException;
 import javax.lang.model.type.TypeKind;
 import javax.lang.model.type.TypeMirror;
 import javax.tools.Diagnostic;
@@ -87,6 +88,9 @@ public class SpasAnnotationProcessor extends AbstractProcessor {
             endpoints.addAll(processCommands(roundEnv, serviceAnnotation.protocol()));
             endpoints.addAll(processQueries(roundEnv, serviceAnnotation.protocol()));
 
+            // Collect commands
+            List<CommandContract> commands = processCommandContracts(roundEnv);
+
             // Collect events
             List<EventContract> events = processEvents(roundEnv);
 
@@ -94,6 +98,7 @@ public class SpasAnnotationProcessor extends AbstractProcessor {
             ServiceMetadata metadata = buildServiceMetadata(
                 serviceAnnotation,
                 endpoints,
+                commands,
                 events
             );
 
@@ -101,7 +106,7 @@ public class SpasAnnotationProcessor extends AbstractProcessor {
             writeSpasJson(metadata);
 
             messager.printMessage(Diagnostic.Kind.NOTE,
-                "Generated " + SPAS_JSON_FILENAME + " with " + endpoints.size() + " endpoints and " + events.size() + " events");
+                "Generated " + SPAS_JSON_FILENAME + " with " + endpoints.size() + " endpoints, " + commands.size() + " commands and " + events.size() + " events");
 
             return true;
 
@@ -135,6 +140,82 @@ public class SpasAnnotationProcessor extends AbstractProcessor {
                 );
             })
             .collect(Collectors.toList());
+    }
+
+    private List<CommandContract> processCommandContracts(RoundEnvironment roundEnv) {
+        Map<String, Map<String, ProducedEventRef>> producesByCommandKey = new LinkedHashMap<>();
+
+        for (Element element : roundEnv.getElementsAnnotatedWith(SpasCommand.class)) {
+            if (element.getKind() != ElementKind.METHOD) {
+                continue;
+            }
+
+            SpasCommand cmd = element.getAnnotation(SpasCommand.class);
+            if (cmd == null) {
+                continue;
+            }
+
+            String kebabName = KebabCaseConverter.toKebabCase(cmd.name());
+            String version = cmd.version();
+            String commandKey = kebabName + "@" + version;
+
+            Map<String, ProducedEventRef> produced = producesByCommandKey.computeIfAbsent(commandKey, k -> new LinkedHashMap<>());
+
+            for (ProducedEventRef p : resolveProducedEventsFromAnnotation(cmd)) {
+                String key = p.type() + "|" + p.version();
+                produced.putIfAbsent(key, p);
+            }
+        }
+
+        List<CommandContract> commands = new ArrayList<>();
+        for (Map.Entry<String, Map<String, ProducedEventRef>> entry : producesByCommandKey.entrySet()) {
+            String commandKey = entry.getKey();
+            int sep = commandKey.lastIndexOf('@');
+            if (sep <= 0) continue;
+
+            String name = commandKey.substring(0, sep);
+            String version = commandKey.substring(sep + 1);
+
+            commands.add(new CommandContract(name, version, new ArrayList<>(entry.getValue().values())));
+        }
+
+        return commands;
+    }
+
+    private List<ProducedEventRef> resolveProducedEventsFromAnnotation(SpasCommand cmd) {
+        List<? extends TypeMirror> typeMirrors = List.of();
+
+        try {
+            cmd.produces();
+        } catch (MirroredTypesException e) {
+            typeMirrors = e.getTypeMirrors();
+        }
+
+        if (typeMirrors == null || typeMirrors.isEmpty()) {
+            return List.of();
+        }
+
+        List<ProducedEventRef> produced = new ArrayList<>();
+
+        for (TypeMirror tm : typeMirrors) {
+            if (tm == null) continue;
+
+            Element typeElement = processingEnv.getTypeUtils().asElement(tm);
+            if (typeElement == null) continue;
+
+            SpasEvent evt = typeElement.getAnnotation(SpasEvent.class);
+            if (evt == null) continue;
+
+            String type = KebabCaseConverter.toKebabCase(evt.type());
+            String version = evt.version();
+
+            if (type == null || type.isBlank()) continue;
+            if (version == null || version.isBlank()) continue;
+
+            produced.add(new ProducedEventRef(type, version, "success"));
+        }
+
+        return produced;
     }
 
     private List<EndpointContract> processQueries(RoundEnvironment roundEnv, Protocol defaultProtocol) {
@@ -252,6 +333,7 @@ public class SpasAnnotationProcessor extends AbstractProcessor {
     private ServiceMetadata buildServiceMetadata(
         SpasService service,
         List<EndpointContract> endpoints,
+        List<CommandContract> commands,
         List<EventContract> events
     ) {
         // Build capabilities list
@@ -286,6 +368,7 @@ public class SpasAnnotationProcessor extends AbstractProcessor {
             service.boundedContext(),
             capabilities,
             endpoints,
+            commands,
             events,
             consistency,
             security,

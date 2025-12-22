@@ -141,14 +141,53 @@ export class ChoreographyLoader {
       }
     }
 
-    // Validate events
-    if (!flow.events || flow.events.length === 0) {
-      errors.push(`${prefix}: must have at least 1 event route`);
-    } else {
-      for (let i = 0; i < flow.events.length; i++) {
+    // Validate commands (optional)
+    if (flow.commands && flow.commands.length > 0) {
+      for (let i = 0; i < flow.commands.length; i++) {
+        const cmd = flow.commands[i];
+        const cmdPrefix = `${prefix}.commands[${i}]`;
+
+        if (!cmd.service) {
+          errors.push(`${cmdPrefix}: service is required`);
+        } else if (flow.participants && !flow.participants.includes(cmd.service)) {
+          warnings.push(
+            `${cmdPrefix}: service "${cmd.service}" is not in participants list`,
+          );
+        }
+
+        if (!cmd.command) {
+          errors.push(`${cmdPrefix}: command is required`);
+        } else if (!this.isValidCommandIdentifier(cmd.command)) {
+          errors.push(
+            `${cmdPrefix}: command "${cmd.command}" must be kebab-case (recommended) or PascalCase`,
+          );
+        }
+
+        if (!cmd.endpoint) {
+          errors.push(`${cmdPrefix}: endpoint is required`);
+        } else if (typeof cmd.endpoint !== "string" || !cmd.endpoint.startsWith("/")) {
+          errors.push(`${cmdPrefix}: endpoint "${cmd.endpoint}" must start with "/"`);
+        }
+      }
+    }
+
+    const hasCommands = !!flow.commands && flow.commands.length > 0;
+    const hasEvents = !!flow.events && flow.events.length > 0;
+
+    // A flow can be command-only, event-only, or both.
+    if (!hasCommands && !hasEvents) {
+      errors.push(
+        `${prefix}: must have at least 1 command entry (commands) or 1 event route (events)`,
+      );
+      return;
+    }
+
+    // Validate events (optional)
+    if (hasEvents) {
+      for (let i = 0; i < flow.events!.length; i++) {
         this.validateEventRoute(
           `${prefix}.events[${i}]`,
-          flow.events[i],
+          flow.events![i],
           flow.participants,
           errors,
           warnings,
@@ -204,6 +243,12 @@ export class ChoreographyLoader {
           );
         }
 
+        if (target.command && !this.isValidCommandIdentifier(target.command)) {
+          errors.push(
+            `${prefix}.targets[${i}]: command "${target.command}" must be kebab-case (recommended) or PascalCase`,
+          );
+        }
+
         if (target.transform && !/\.jsonata$/.test(target.transform)) {
           errors.push(
             `${prefix}.targets[${i}]: transform must be a .jsonata file`,
@@ -211,6 +256,16 @@ export class ChoreographyLoader {
         }
       }
     }
+  }
+
+  private isValidCommandIdentifier(value: string): boolean {
+    // Support both formats:
+    // - canonical: kebab-case (preferred)
+    // - endpoint-style: PascalCase (legacy)
+    return (
+      /^[a-z0-9]+(-[a-z0-9]+)*$/.test(value) ||
+      /^[A-Z][A-Za-z0-9]*$/.test(value)
+    );
   }
 
   /**

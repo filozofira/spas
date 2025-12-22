@@ -128,23 +128,49 @@ export interface PulledService {
  * From spas.json runtime metadata
  */
 export interface ServiceMetadata {
+  /** Schema version identifier (e.g., "design-time-metadata-v1", "runtime-metadata-v1") */
+  schemaVersion?: string;
   /** Service identifier */
   id: string;
+  /** Human-readable service name */
+  name?: string;
+  /** Optional service description */
+  description?: string;
   /** Semantic version */
   version: string;
   /** Bounded context name */
   boundedContext: string;
+
+  /** Canonical commands and their produced event relationships */
+  commands?: Array<{
+    /** Canonical command identifier (typically kebab-case) */
+    name: string;
+    /** Command contract version (semver recommended) */
+    version?: string;
+    /** Events this command produces when it succeeds */
+    produces?: Array<{
+      type: string;
+      version: string;
+      /** For PoC, only "success" is supported */
+      when: "success";
+    }>;
+  }>;
+
   /** Service endpoints (Commands/Queries) */
   endpoints?: Array<{
     name: string;
     type: string;
     methodPath: string;
   }>;
-  /** Event definitions */
-  events: {
-    published: EventDefinition[];
-    subscribed: EventDefinition[];
-  };
+
+  /** Events published by this service (outbound only) */
+  events?: Array<{
+    type: string;
+    version: string;
+    schemaRef: string;
+    description?: string;
+  }>;
+
   /** Network configuration */
   network?: {
     port: number;

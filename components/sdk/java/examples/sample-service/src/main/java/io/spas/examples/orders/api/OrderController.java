@@ -52,7 +52,8 @@ public class OrderController {
     @SpasCommand(
         name = "CreateOrder",
         version = "1.0",
-        path = "/api/orders"
+        path = "/api/orders",
+        produces = { OrderCreatedEvent.class }
     )
     @PostMapping
     public OrderResponse createOrder(@RequestBody CreateOrderRequest request) {

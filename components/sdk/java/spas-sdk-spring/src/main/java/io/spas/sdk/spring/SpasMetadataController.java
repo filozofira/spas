@@ -7,7 +7,9 @@ import io.spas.sdk.metadata.JacksonConfiguration;
 import io.spas.sdk.metadata.annotations.SpasCommand;
 import io.spas.sdk.metadata.model.EndpointContract;
 import io.spas.sdk.metadata.model.EndpointType;
+import io.spas.sdk.metadata.model.CommandContract;
 import io.spas.sdk.metadata.model.EventContract;
+import io.spas.sdk.metadata.model.ProducedEventRef;
 import io.spas.sdk.metadata.model.Protocol;
 import io.spas.sdk.metadata.model.Consistency;
 import io.spas.sdk.metadata.model.ConsistencyLevel;
@@ -320,6 +322,9 @@ public class SpasMetadataController {
 
             List<EventContract> events = scanEvents(basePackage);
             List<EndpointContract> endpoints = scanEndpoints(basePackage, service.protocol());
+            List<CommandContract> commands = scanCommands(basePackage);
+
+            validateCommandProducedEvents(commands, events);
 
             List<String> capabilities = service.capabilities().length > 0
                 ? Arrays.asList(service.capabilities())
@@ -344,24 +349,79 @@ public class SpasMetadataController {
                 ? null
                 : service.license();
 
+            String serviceName = (service.name() == null || service.name().isBlank())
+                ? service.id()
+                : service.name();
+
             return new ServiceMetadata(
                 ServiceMetadata.SCHEMA_VERSION,
                 service.id(),
-                service.name(),
+                serviceName,
                 description,
                 service.version(),
                 service.boundedContext(),
                 capabilities,
                 endpoints,
+                commands,
                 events,
                 consistency,
                 security,
                 network,
                 license
             );
+        } catch (IllegalStateException e) {
+            // Fail fast with a clear error for invalid metadata declarations.
+            throw e;
         } catch (Exception e) {
             log.log(Level.WARNING, "Failed to build spas.json metadata at runtime", e);
             return null;
+        }
+    }
+
+    private void validateCommandProducedEvents(List<CommandContract> commands, List<EventContract> events) {
+        if (commands == null || commands.isEmpty()) {
+            return;
+        }
+
+        Set<String> eventKeys = new HashSet<>();
+        if (events != null) {
+            for (EventContract evt : events) {
+                if (evt == null) continue;
+                if (evt.type() == null || evt.type().isBlank()) continue;
+                if (evt.version() == null || evt.version().isBlank()) continue;
+                eventKeys.add(evt.type() + "|" + evt.version());
+            }
+        }
+
+        for (CommandContract cmd : commands) {
+            if (cmd == null) continue;
+            List<ProducedEventRef> produces = cmd.produces();
+            if (produces == null || produces.isEmpty()) {
+                continue;
+            }
+
+            Set<String> seen = new HashSet<>();
+            for (ProducedEventRef p : produces) {
+                if (p == null) continue;
+                String key = p.type() + "|" + p.version();
+                if (!seen.add(key)) {
+                    throw new IllegalStateException(
+                        "Command '" + cmd.name() + "@" + cmd.version() + "' declares duplicate produced event '" + p.type() + "@" + p.version() + "'"
+                    );
+                }
+
+                if (!eventKeys.contains(key)) {
+                    throw new IllegalStateException(
+                        "Command '" + cmd.name() + "@" + cmd.version() + "' produces '" + p.type() + "@" + p.version() + "' but no matching entry exists in events[]"
+                    );
+                }
+
+                if (!"success".equals(p.when())) {
+                    throw new IllegalStateException(
+                        "Command '" + cmd.name() + "@" + cmd.version() + "' has invalid produces.when='" + p.when() + "' (must be 'success')"
+                    );
+                }
+            }
         }
     }
 
@@ -489,6 +549,103 @@ public class SpasMetadataController {
         }
 
         return endpoints;
+    }
+
+    private List<CommandContract> scanCommands(String basePackage) {
+        Map<String, Map<String, ProducedEventRef>> producesByCommandKey = new LinkedHashMap<>();
+
+        try {
+            ClassPathScanningCandidateComponentProvider scanner =
+                new ClassPathScanningCandidateComponentProvider(false);
+            scanner.addIncludeFilter(new AnnotationTypeFilter(RestController.class));
+
+            Set<BeanDefinition> candidates = scanner.findCandidateComponents(basePackage);
+            for (BeanDefinition bd : candidates) {
+                String className = bd.getBeanClassName();
+                if (className == null) continue;
+
+                Class<?> controllerClass;
+                try {
+                    controllerClass = Class.forName(className);
+                } catch (ClassNotFoundException e) {
+                    continue;
+                }
+
+                for (Method method : controllerClass.getDeclaredMethods()) {
+                    SpasCommand cmd = method.getAnnotation(SpasCommand.class);
+                    if (cmd == null) {
+                        continue;
+                    }
+
+                    String kebabName = KebabCaseConverter.toKebabCase(cmd.name());
+                    String version = cmd.version();
+                    String commandKey = kebabName + "@" + version;
+
+                    Map<String, ProducedEventRef> produced = producesByCommandKey.computeIfAbsent(commandKey, _k -> new LinkedHashMap<>());
+
+                    for (ProducedEventRef p : resolveProducedEvents(cmd.produces(), kebabName, version)) {
+                        String key = p.type() + "|" + p.version();
+                        if (produced.containsKey(key)) {
+                            throw new IllegalStateException(
+                                "Command '" + kebabName + "@" + version + "' declares duplicate produced event '" + p.type() + "@" + p.version() + "'"
+                            );
+                        }
+                        produced.put(key, p);
+                    }
+                }
+            }
+        } catch (Exception e) {
+            log.log(Level.FINE, "Failed to scan commands", e);
+        }
+
+        List<CommandContract> commands = new ArrayList<>();
+        for (Map.Entry<String, Map<String, ProducedEventRef>> entry : producesByCommandKey.entrySet()) {
+            String commandKey = entry.getKey();
+            int sep = commandKey.lastIndexOf('@');
+            if (sep <= 0) continue;
+            String name = commandKey.substring(0, sep);
+            String version = commandKey.substring(sep + 1);
+            commands.add(new CommandContract(name, version, new ArrayList<>(entry.getValue().values())));
+        }
+
+        return commands;
+    }
+
+    private List<ProducedEventRef> resolveProducedEvents(Class<?>[] producedEventClasses, String commandName, String commandVersion) {
+        if (producedEventClasses == null || producedEventClasses.length == 0) {
+            return List.of();
+        }
+
+        List<ProducedEventRef> produced = new ArrayList<>();
+
+        for (Class<?> eventClass : producedEventClasses) {
+            if (eventClass == null) continue;
+
+            SpasEvent evt = eventClass.getAnnotation(SpasEvent.class);
+            if (evt == null) {
+                throw new IllegalStateException(
+                    "Command '" + commandName + "@" + commandVersion + "' declares produced event class '" + eventClass.getName() + "' but it is missing @SpasEvent"
+                );
+            }
+
+            String type = KebabCaseConverter.toKebabCase(evt.type());
+            String version = evt.version();
+
+            if (type == null || type.isBlank()) {
+                throw new IllegalStateException(
+                    "Command '" + commandName + "@" + commandVersion + "' references @SpasEvent on '" + eventClass.getName() + "' but event type is blank"
+                );
+            }
+            if (version == null || version.isBlank()) {
+                throw new IllegalStateException(
+                    "Command '" + commandName + "@" + commandVersion + "' references @SpasEvent on '" + eventClass.getName() + "' but event version is blank"
+                );
+            }
+
+            produced.add(new ProducedEventRef(type, version, "success"));
+        }
+
+        return produced;
     }
 
     private String inferEndpointSchemaRef(Method handlerMethod, String fallbackKebabEndpointName) {

@@ -24,7 +24,6 @@ SPAS (Self-contained, Portable, Adaptable Services) is a framework and specifica
 - Event-driven architecture (EDA): East–West communication is event-first
 - Service mesh/Sidecar: Offloads networking, security, and reliability concerns
 - API Gateway: North–South traffic terminates at the edge; TLS termination, authentication, routing (Production: REST→gRPC translation)
-- Very much inspired by [DAPR Project](https://dapr.io/)
 
 ## Architecture Overview
 

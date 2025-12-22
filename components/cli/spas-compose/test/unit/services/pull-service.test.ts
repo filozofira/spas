@@ -17,24 +17,23 @@ const mockServiceResponse: RepositoryServiceResponse = {
     id: "order-service",
     version: "1.0.0",
     boundedContext: "orders",
-    events: {
-      published: [
-        {
-          name: "OrderCreated",
-          schema: "schemas/events/OrderCreated.schema.json",
-        },
-        {
-          name: "OrderUpdated",
-          schema: "schemas/events/OrderUpdated.schema.json",
-        },
-      ],
-      subscribed: [
-        {
-          name: "PaymentReceived",
-          schema: "schemas/events/PaymentReceived.schema.json",
-        },
-      ],
-    },
+    events: [
+      {
+        type: "com.order-service.order-created",
+        version: "1.0.0",
+        schemaRef: "schemas/events/OrderCreated.schema.json",
+      },
+      {
+        type: "com.order-service.order-updated",
+        version: "1.0.0",
+        schemaRef: "schemas/events/OrderUpdated.schema.json",
+      },
+      {
+        type: "com.order-service.payment-received",
+        version: "1.0.0",
+        schemaRef: "schemas/events/PaymentReceived.schema.json",
+      },
+    ],
     network: {
       port: 8080,
       protocol: "grpc",

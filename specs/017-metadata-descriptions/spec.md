@@ -2,7 +2,7 @@
 
 **Feature Branch**: `017-metadata-descriptions`  
 **Created**: December 21, 2025  
-**Completed**: 2025-12-19  
+**Completed**: 2025-12-21  
 **Status**: ✅ Complete (PoC)  
 **Input**: User description: "Extend SPAS metadata schemas and SDKs to support optional description fields on services, endpoints (commands/queries), and events. Update agent prompts to prioritize descriptions when reasoning about choreographies. Currently when AI agents propose choreographies, they rely solely on endpoint/event names which are often ambiguous. This causes volatile and frequently incorrect choreography suggestions, especially for complex domains or when multiple services have similar-sounding operations."
 

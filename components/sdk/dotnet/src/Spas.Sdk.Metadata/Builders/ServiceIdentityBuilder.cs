@@ -78,9 +78,9 @@ public class ServiceIdentityBuilder
             throw new InvalidOperationException("Service id is required.");
         }
 
-        if (string.IsNullOrEmpty(_name))
+        if (string.IsNullOrWhiteSpace(_name))
         {
-            throw new InvalidOperationException("Service name is required.");
+            _name = _id;
         }
 
         if (string.IsNullOrEmpty(_version))

@@ -42,7 +42,7 @@ public @interface SpasService {
     /**
      * Human-readable service name.
      */
-    String name();
+    String name() default "";
     
     /**
      * Service version (semantic versioning recommended).

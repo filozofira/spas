@@ -268,6 +268,9 @@ Auto-generated from all feature plans. Last updated: 2025-12-12
 - N/A (SDK generates files, no runtime storage) (016-java-spas-sdk)
 - TypeScript (Node.js) + Java (Maven/Spring Boot) + .NET + JSON Schema, TypeScript toolchain (repo/sidecar), Java annotations/runtime reflection (metadata), .NET attributes + metadata composer (017-metadata-descriptions)
 - Repository persistence (existing; not changed by this feature) (017-metadata-descriptions)
+- C# / .NET 10 + Java 17+ + Node.js 20 (TypeScript); Ajv for JSON Schema validation; SDK metadata generation via attributes/annotations (018-command-produces-events)
+- N/A (metadata-only; no persistence) (018-command-produces-events)
+- C# / .NET 10, Java 17+, Node.js 20 (TypeScript) + Ajv (JSON Schema validation), System.Text.Json (.NET), Spring/Jackson (Java) (018-command-produces-events)
 
 - .NET 10 (target net10.0); Microsoft.Extensions.Logging; System.Text.Json (001-dotnet-spas-sdk)
 

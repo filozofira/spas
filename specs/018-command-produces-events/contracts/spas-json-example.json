@@ -1,0 +1,21 @@
+{
+  "schemaVersion": "design-time-metadata-v1",
+  "id": "order-service",
+  "name": "order-service",
+  "version": "1.0.0",
+  "boundedContext": "order",
+  "commands": [
+    {
+      "name": "create-order",
+      "version": "1.0.0",
+      "produces": [
+        { "type": "order-created", "version": "1.0.0", "when": "success" },
+        { "type": "order-confirmed", "version": "1.0.0", "when": "success" }
+      ]
+    }
+  ],
+  "events": [
+    { "type": "order-created", "version": "1.0.0", "schemaRef": "schemas/events/order-created.schema.json" },
+    { "type": "order-confirmed", "version": "1.0.0", "schemaRef": "schemas/events/order-confirmed.schema.json" }
+  ]
+}

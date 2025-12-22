@@ -1,0 +1,16 @@
+/**
+ * inbound-order-confirmed.jsonata
+ * 
+ * Transforms: order-confirmed (order-service) → ActivateSubscriptionRequest (subscription-service)
+ * 
+ * Source schema: OrderConfirmedEvent
+ *   - orderId, status, reservedItems[], shippingAddress, referenceId
+ * 
+ * Target schema: ActivateSubscriptionRequest
+ *   - orderId, status, referenceId
+ */
+{
+  "orderId": orderId,
+  "status": status,
+  "referenceId": referenceId
+}

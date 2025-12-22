@@ -1,0 +1,8 @@
+/*
+  Transforms `order-confirmed` event from `order-service`
+  to `create-shipment` command for `fulfillment-service`.
+*/
+{
+  "orderId": orderId,
+  "shippingAddress": shippingAddress
+}

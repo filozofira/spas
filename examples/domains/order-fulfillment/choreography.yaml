@@ -1,0 +1,61 @@
+# SPAS Choreography Configuration
+# See: specs/005-spas-compose-cli/contracts/choreography-schema.yaml
+
+version: "1.0"
+domain: order-fulfillment
+
+# Named choreography flows
+# Use /spas.compose agent to generate flows based on service contracts
+flows:
+  order-fulfillment:
+    description: "Full order-to-fulfillment process, including stock reservation and shipment tracking."
+    participants:
+      - order-service
+      - inventory-service
+      - fulfillment-service
+    events:
+      - source: order-service
+        event: order-created
+        topic: order-events
+        targets:
+          - service: inventory-service
+            command: reserve-stock
+            transform: transformations/inventory-service/inbound-order-created.jsonata
+      - source: inventory-service
+        event: stock-reserved
+        topic: inventory-events
+        targets:
+          - service: order-service
+            command: confirm-order
+            transform: transformations/order-service/inbound-stock-reserved.jsonata
+      - source: order-service
+        event: order-confirmed
+        topic: order-events
+        targets:
+          - service: fulfillment-service
+            command: create-shipment
+            transform: transformations/fulfillment-service/inbound-order-confirmed.jsonata
+      - source: fulfillment-service
+        event: shipment-created
+        topic: fulfillment-events
+        targets:
+          - service: order-service
+            command: update-shipment-status
+            transform: transformations/order-service/inbound-shipment-created.jsonata
+      - source: fulfillment-service
+        event: shipment-status-changed
+        topic: fulfillment-events
+        targets:
+          - service: order-service
+            command: update-shipment-status
+            transform: transformations/order-service/inbound-shipment-status-changed.jsonata
+
+# Infrastructure components (optional)
+infrastructure:
+  redis:
+    enabled: true
+    # host: redis
+    # port: 6379
+  zipkin:
+    enabled: true
+    # url: http://zipkin:9411

@@ -3,154 +3,81 @@
 [![.NET](https://img.shields.io/badge/.NET-10.0-purple)](https://dotnet.microsoft.com/)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](../../../LICENSE)
 
-The .NET SDK for building **SPAS (Self-contained, Portable, Adaptable Services)** - services that publish rich metadata, communicate via events, and maintain distributed trace context.
+The .NET SDK for building **SPAS (Self-contained, Portable, Adaptable Services)** — services that publish rich metadata, communicate via events, and maintain distributed trace context.
 
-> Platform:
->
-> - SDK and sample projects target **.NET net10.0**. Plans, tasks, and validation assume net10.0 unless explicitly overridden.
-> - Testing framework: **xUnit** for SDK unit tests and validation tasks.
+## 🎯 Design
 
-## 📦 What is SPAS?
+> Targets **.NET net10.0**. SDK libraries are usable in any .NET application; ASP.NET Core extensions provide optional integration (minimal APIs, middleware, discovery).
 
-SPAS is an architectural framework where:
+## 📦 Modules
 
-- **Services publish metadata** (`spas.json`) describing their contracts, security, and health
-- **Events flow through sidecars** that handle CloudEvents wrapping and topic adaptation
-- **Trace context propagates** automatically via W3C Trace Context headers
-- **Services remain portable** - no vendor lock-in, run anywhere
+| Package                  | Description                  | ASP.NET Required? |
+| ------------------------ | ---------------------------- | ----------------- |
+| `Spas.Sdk.Core`          | Context, clock, identity     | ❌ No             |
+| `Spas.Sdk.Metadata`      | Attributes, builders, model  | ❌ No             |
+| `Spas.Sdk.Events`        | Event publishing (sidecar)   | ❌ No             |
+| `Spas.Sdk.Observability` | Tracing/logging integrations | ✅ Optional       |
+| `Spas.Sdk.Configuration` | Env var helpers              | ❌ No             |
+| `Spas.Sdk.Inbound`       | Future inbound handlers      | ❌ N/A            |
 
 ## ✨ Features
 
-### 🎯 Metadata Composition
+### Metadata Generation
 
-- **Design-time metadata**: SDK emits `spas.json` aligned with SPAS design-time-metadata-v1 schema
-  - Includes `schemaVersion`, service identity (`id`, `boundedContext`, `capabilities`), contracts, consistency, network, security
-  - Runtime metadata (container image, env, resources) managed by Repository/CLI (not SDK)
-- **Attribute-based auto-discovery**: Decorate endpoints with `[SpasCommand]`, `[SpasQuery]`, `[SpasEvent]`
-- **Fluent builders**: Compose identity, contracts, security, consistency, network metadata programmatically
-  - `ServiceIdentityBuilder`: Define service ID, bounded context, capabilities
-  - `ContractsBuilder`: Add endpoints (type, protocol, methodPath, schemaRef) and events (type, version, schemaRef)
-  - `SecurityBuilder`: Configure authentication + data classification levels
-  - `ConsistencyBuilder`: Specify consistency guarantees (commands: ACID/EVENTUAL, queries: STRONG/EVENTUAL)
-  - `NetworkBuilder`: Declare required egress dependencies
-- **Schema references**: Endpoints and events use `schemaRef` (relative/absolute URIs) instead of embedded schemas
-- **Schema validation**: Validates generated `spas.json` against design-time-metadata-v1 JSON Schema
-  - Schema location: `components/sdk/schemas/design-time-metadata-v1.schema.json`
-  - Distributed via CLI/Repository for validation (not bundled in SDK packages)
-- **Dev endpoint**: `/_spas/metadata` returns ZIP with metadata + all schemas (Development only)
+- Attribute-based: `[SpasCommand]`, `[SpasQuery]`, `[SpasEvent]`
+- Fluent builders for identity, contracts, security, consistency, network
+- Validates generated `spas.json` against design-time schema
+- Kebab-case normalization: `OrderCreated` → `order-created`
 
-### 📤 Event Publishing
+### Event Publishing
 
-- **Type-safe API**: `PublishAsync<TEvent>(payload)` - derives event type from `[SpasEvent]` attribute
-- **Automatic headers**: SDK adds trace context, correlation ID, service name, identity
-- **Sidecar integration**: Publishes to sidecar via HTTP POST; sidecar wraps in CloudEvents
-- **Topic routing**: Sidecar handles topic routing based on event type configuration
-- **Trace propagation**: W3C Trace Context flows through entire event chain
-- **Event naming**: SDK normalizes event names to **kebab-case** in `spas.json` for cross-language interoperability
-  - `[SpasEvent("OrderCreated")]` → stored as `order-created` in spas.json
-  - CloudEvents type: `com.{service-name}.{event-name-kebab}` (e.g., `com.order-service.order-created`)
-  - Other SDKs (Python, Go, etc.) normalize their native conventions to the same kebab-case format
+- Type-safe `PublishAsync<TEvent>(payload)` API
+- Automatic headers: trace context, correlation ID, service name, identity
+- Sidecar HTTP integration (CloudEvents envelope handled by sidecar)
 
-### 📊 Observability
+### Context & Observability
 
-- **Tracelog middleware**: Logs requests with timing, status, trace/correlation IDs
-- **OpenTelemetry integration**: Creates Activity spans for distributed tracing
-- **Zipkin export**: Built-in Zipkin exporter for PoC (production uses Prometheus/Jaeger)
-- **Dual logging**: Text logs (ILogger) + structured traces (OpenTelemetry)
-
-### 🔐 Identity & Context
-
-- **AsyncLocal context**: Thread-safe, async-flow-safe identity storage
-- **Automatic population**: Middleware extracts identity from HTTP context
-- **Header propagation**: Identity flows in `x-user-id` / `x-tenant-id` headers
-- **PoC pattern**: Identity in headers (Production uses mTLS + SPIFFE)
+- W3C Trace Context propagation (Activity/OpenTelemetry)
+- Identity propagation via headers (`x-user-id`, `x-tenant-id`)
+- Tracelog middleware for request timing and correlation
 
 ## 🚀 Quick Start
 
-### Installation
+For runnable examples and configuration, see:
 
-Add project references to your service:
+- [Examples Services README](../../../examples/services/README.md)
 
-```xml
-<ItemGroup>
-  <ProjectReference Include="path/to/Spas.Sdk.Core" />
-  <ProjectReference Include="path/to/Spas.Sdk.Metadata" />
-  <ProjectReference Include="path/to/Spas.Sdk.Events" />
-  <ProjectReference Include="path/to/Spas.Sdk.Observability" />
-</ItemGroup>
-```
+## 📝 Configuration
 
-### Minimal Setup
-
-```csharp
-using Spas.Sdk.Core.Identity;
-using Spas.Sdk.Metadata.Extensions;
-using Spas.Sdk.Observability.Extensions;
-using Spas.Sdk.Observability.Tracing;
-
-var builder = WebApplication.CreateBuilder(args);
-
-// 1. Register metadata services with auto-discovery
-builder.Services.AddSpasMetadata(options =>
-{
-    options.AssembliesToScan.Add(typeof(Program).Assembly);
-});
-
-// 2. Configure all SPAS infrastructure (EventPublisher + OpenTelemetry + Zipkin)
-// Reads: SERVICE_NAME, SIDECAR_HOST, SIDECAR_PORT, SIDECAR_URL, ZIPKIN_URL from environment
-// Derives sidecar host from SERVICE_NAME if SIDECAR_HOST not set
-var serviceName = builder.Services.AddSpasServices(builder.Configuration, "my-service");
-
-var app = builder.Build();
-
-// 3. Enable identity middleware (populates SpasContext from HTTP headers/claims)
-app.UseSpasIdentity();
-
-// 4. Enable tracelog middleware (request/response logging + distributed tracing)
-app.UseSpasTracelog();
-
-// 5. Discover contracts from attributes
-var contracts = app.DiscoverSpasMetadata();
-
-// 6. Define endpoints with SPAS attributes
-app.MapPost("/commands/create-order", async (CreateOrderRequest request) =>
-{
-    var orderId = Guid.NewGuid();
-    return Results.Ok(new { orderId });
-})
-.WithMetadata(new SpasCommandAttribute("CreateOrder", "1.0"));
-
-app.Run();
-```
-
-**That's it!** Set environment variables and the SDK handles everything.
-
-## 📝 Environment Variables & Sidecar URL Resolution
+### Environment Variables & Sidecar URL Resolution
 
 The SDK uses flat environment variables matching docker-compose patterns:
 
-| Variable       | Description            | Default             | Example                            |
-| -------------- | ---------------------- | ------------------- | ---------------------------------- |
-| `SERVICE_NAME` | Service identifier     | `"unknown-service"` | `"order-service"`                  |
-| `SIDECAR_URL`  | Full sidecar URL       | Derived from convention | `"http://localhost:7000"`          |
-| `SIDECAR_HOST` | Sidecar hostname       | Derived from SERVICE_NAME | `"order-sidecar"` or `"custom"`|
-| `SIDECAR_PORT` | Sidecar port           | `7000` (default)    | `7001` or `3000`                   |
-| `ZIPKIN_URL`   | Zipkin endpoint        | Optional            | `"http://localhost:9411"`          |
-| `PORT`         | Service listening port | `5000`              | `8080`                             |
+| Variable       | Description            | Default                   | Example                         |
+| -------------- | ---------------------- | ------------------------- | ------------------------------- |
+| `SERVICE_NAME` | Service identifier     | `"unknown-service"`       | `"order-service"`               |
+| `SIDECAR_URL`  | Full sidecar URL       | Derived from convention   | `"http://localhost:7000"`       |
+| `SIDECAR_HOST` | Sidecar hostname       | Derived from SERVICE_NAME | `"order-sidecar"` or `"custom"` |
+| `SIDECAR_PORT` | Sidecar port           | `7000` (default)          | `7001` or `3000`                |
+| `ZIPKIN_URL`   | Zipkin endpoint        | Optional                  | `"http://localhost:9411"`       |
+| `PORT`         | Service listening port | `5000`                    | `8080`                          |
 
-### Sidecar URL Resolution Priority
+#### Sidecar URL Resolution Priority
 
 The SDK resolves the sidecar URL in this order (first match wins):
 
 1. **`SIDECAR_URL`** (full URL)
+
    - Set this for complete control: `http://custom-sidecar:8080`
    - Highest priority
 
 2. **`SIDECAR_HOST` + `SIDECAR_PORT`** (explicit host and port)
+
    - Host: `"custom-sidecar"` → `http://custom-sidecar:7000` (uses default port 7000)
    - Host + Port: `"my-sidecar"` + `7001` → `http://my-sidecar:7001`
 
 3. **Derived from `SERVICE_NAME`** (convention-based)
+
    - `SERVICE_NAME=order-service` → `http://order-service-sidecar:7000`
    - `SERVICE_NAME=Order_Service` → `http://order-service-sidecar:7000` (normalized for DNS)
    - Automatic: no additional configuration needed
@@ -160,230 +87,54 @@ The SDK resolves the sidecar URL in this order (first match wins):
    - No configuration needed → `http://localhost:7000`
    - Use for local development without containers
 
-### Examples
+Examples are provided in the domain and service READMEs. Refer to:
 
-**Docker Compose (Recommended - Uses Convention)**
+- [Examples Services README](../../../examples/services/README.md)
 
-```yaml
-services:
-  order-service:
-    environment:
-      - SERVICE_NAME=order-service
-      # That's it! SDK auto-derives: order-service-sidecar:7000
+## 🎨 Usage
 
-  order-service-sidecar:
-    container_name: order-service-sidecar
-    environment:
-      - SIDECAR_PORT=7000
-```
+Usage examples are consolidated in the runnable examples:
 
-**Explicit Configuration (Override)**
-
-```yaml
-services:
-  order-service:
-    environment:
-      - SERVICE_NAME=order-service
-      - SIDECAR_HOST=shared-sidecar  # Override: use custom host
-      - SIDECAR_PORT=7001            # Override: use custom port
-```
-
-**Full URL (Complete Control)**
-
-```yaml
-services:
-  order-service:
-    environment:
-      - SERVICE_NAME=order-service
-      - SIDECAR_URL=http://custom-gateway:8080  # Complete URL, highest priority
-```
-
-**Local Development (Fallback)**
-
-```bash
-# No configuration → defaults to http://localhost:7000
-dotnet run
-```
-
-## 🎨 Usage Examples
-
-### 1. Define Contracts with Attributes
-
-**Commands:**
-
-```csharp
-app.MapPost("/commands/create-order", async (CreateOrderRequest request) =>
-{
-    // Business logic
-    return Results.Ok(new { orderId = Guid.NewGuid() });
-})
-.WithMetadata(new SpasCommandAttribute("CreateOrder", "1.0",
-  schemaRef: "schemas/create-order-request.json")
-{
-  Description = "Creates a new order and reserves inventory; returns the new orderId"
-});
-```
-
-**Queries:**
-
-```csharp
-app.MapGet("/queries/get-order/{id}", async (string id) =>
-{
-    // Query logic
-    return Results.Ok(new { id, status = "completed" });
-})
-.WithMetadata(new SpasQueryAttribute("GetOrder", "1.0"));
-```
-
-**Events:**
-
-```csharp
-[SpasEvent("OrderCreated", "1.0", schemaRef: "schemas/order-created-event.json",
-  Description = "Emitted after an order is successfully created and persisted")]
-public record OrderCreatedEvent(string OrderId, string CustomerId, decimal Total);
-```
+- [Examples Services README](../../../examples/services/README.md)
 
 ## ✍️ Writing Effective Descriptions
 
 Descriptions are optional but strongly recommended for AI-assisted choreography.
 
 **Rules**:
+
 - Plain text only (no Markdown semantics)
 - May include newlines
 - Describe intent, not implementation details
 
 **Good examples**:
+
 - Service: "Order management for checkout and lifecycle updates"
 - Command: "Creates a new order and reserves inventory; returns the new orderId"
 - Query: "Returns current order state by orderId"
 - Event: "Emitted when an order transitions to paid"
 
 **Bad examples**:
+
 - "CreateOrder" (just restates the name)
 - "Handles orders" (too generic)
 - "Creates an order quickly" (vague/subjective)
 
-### 2. Publish Events
+### Publish Events
 
-```csharp
-// Define event with metadata
-[SpasEvent("OrderCreated", "1.0",
-    EventType = "com.example.order.created",
-    Schema = "schemas/order-created.json")]
-public record OrderCreatedEvent(string OrderId, string CustomerId, decimal Total);
+Event publishing examples are available in the example services.
 
-app.MapPost("/commands/create-order",
-    async (CreateOrderRequest request, EventPublisher publisher) =>
-{
-    var orderId = Guid.NewGuid();
+### Compose Metadata Manually
 
-    // Publish event - type-safe with automatic event type from attribute
-    await publisher.PublishAsync<OrderCreatedEvent>(
-        payload: new
-        {
-            orderId,
-            customerId = request.CustomerId,
-            total = request.Total
-        }
-    );
+See the examples for metadata composition patterns.
 
-    return Results.Ok(new { orderId });
-});
-```
+### Access Identity Context
 
-**What happens:**
+Identity context usage is demonstrated in the example services.
 
-1. SDK extracts `EventType` from `[SpasEvent]` attribute (or auto-generates from service name + event name)
-2. SDK sends to sidecar at `/publish` endpoint with headers
-3. Sidecar routes to appropriate topic based on event type configuration
+### Enable Distributed Tracing
 
-**Headers sent to sidecar:**
-
-- `traceparent`: `00-4bf92f3577b34da6a3ce929d0e0e4736-00f067aa0ba902b7-01`
-- `x-service-name`: `order-service`
-- `x-event-type`: `com.example.order.created` (from attribute)
-- `x-correlation-id`: `550e8400-e29b-41d4-a716-446655440000`
-- `x-user-id`: `user-123` (from SpasContext)
-- `x-tenant-id`: `tenant-456` (from SpasContext)
-
-The sidecar wraps this in CloudEvents 1.0 format.
-
-### 3. Compose Metadata Manually
-
-For service-level metadata (identity, security, health):
-
-```csharp
-using Spas.Sdk.Metadata.Builders;
-using Spas.Sdk.Metadata.Composition;
-
-// Build identity
-var identity = new ServiceIdentityBuilder()
-    .WithName("order-service")
-    .WithVersion("1.0.0")
-    .WithDescription("Order management service")
-    .WithOwner("platform-team")
-    .Build();
-
-// Build security metadata
-var security = new SecurityBuilder()
-    .WithAuthentication(required: true, schemes: ["bearer"])
-    .WithAuthorization(["admin", "user"])
-    .Build();
-
-// Build health metadata
-var health = new HealthBuilder()
-    .WithHealthEndpoint("/_health")
-    .WithReadinessEndpoint("/_ready")
-    .Build();
-
-// Compose spas.json
-var composer = new SpasComposer();
-await composer.ComposeToFileAsync(
-    path: "spas.json",
-    identity: identity,
-    contracts: contracts, // from app.DiscoverSpasMetadata()
-    security: security,
-    health: health
-);
-```
-
-### 4. Access Identity Context
-
-Identity is automatically populated by `UseSpasIdentity()` middleware:
-
-```csharp
-app.MapPost("/commands/create-order", async () =>
-{
-    var userId = SpasContext.UserId;       // From x-user-id header or JWT claim
-    var tenantId = SpasContext.TenantId;   // From x-tenant-id header or JWT claim
-    var correlationId = SpasContext.CorrelationId; // From x-correlation-id header
-
-    // Use in business logic
-    return Results.Ok(new { userId, tenantId });
-});
-```
-
-### 5. Enable Distributed Tracing
-
-View traces in Zipkin:
-
-```bash
-# Start Zipkin
-docker run -d -p 9411:9411 openzipkin/zipkin
-
-# Set environment variable
-export ZIPKIN_URL=http://localhost:9411
-
-# Run service - traces appear automatically at http://localhost:9411
-dotnet run
-```
-
-**Trace data includes:**
-
-- HTTP method, URL, status code
-- Request duration (latency)
-- Correlation ID, user ID, tenant ID
-- Error details (if request failed)
+Distributed tracing setup is covered in the runnable examples.
 
 ## 📚 Package Overview
 
@@ -397,90 +148,40 @@ dotnet run
 | **Spas.Sdk.Inbound**       | _(deferred)_         | Future: handler scaffolding                                        |
 | **Spas.Sdk.Testing**       | _(placeholder)_      | Future: test utilities                                             |
 
-## 🧪 Testing
-
-Run all unit tests:
+## 🧪 Building & Testing
 
 ```bash
 cd components/sdk/dotnet
+dotnet build
 dotnet test
 ```
 
-## 🏗️ Architecture
+## 📁 Project Structure
 
-```text
-┌─────────────────────────────────────────────────────────┐
-│                     Your Service                        │
-│  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐ │
-│  │   Commands   │  │   Queries    │  │    Events    │ │
-│  │  [SpasCmd]   │  │  [SpasQry]   │  │  [SpasEvt]   │ │
-│  └──────────────┘  └──────────────┘  └──────────────┘ │
-│         │                 │                  │          │
-│         └─────────────────┼──────────────────┘          │
-│                           │                             │
-│  ┌────────────────────────▼─────────────────────────┐  │
-│  │         SPAS SDK (.NET)                          │  │
-│  │  • Auto-discovery (attributes → metadata)        │  │
-│  │  • SpasContext (identity/correlation)            │  │
-│  │  • EventPublisher (HTTP → sidecar)               │  │
-│  │  • TracelogMiddleware (Activity spans)           │  │
-│  │  • SpasIdentityMiddleware (populate context)     │  │
-│  └───────────────┬──────────────────────────────────┘  │
-└──────────────────┼─────────────────────────────────────┘
-                   │
-         ┌─────────▼──────────┐
-         │   SPAS Sidecar     │
-         │ • CloudEvents      │
-         │ • Topic adaptation │
-         │ • Trace propagation│
-         └─────────┬──────────┘
-                   │
-         ┌─────────▼──────────┐
-         │  Redis / Kafka     │
-         │  (Event Broker)    │
-         └────────────────────┘
+```
+components/sdk/dotnet/
+├── README.md
+├── src/                       # SDK libraries
+├── test/                      # Unit tests
+└── examples/
+  └── SampleService/         # Reference implementation
 ```
 
 ## 🔧 Configuration Patterns
 
-### Single-Line Setup (Recommended)
+## 📚 Related Documentation
 
-Use `AddSpasServices()` for complete infrastructure:
+- [SPAS SDK Principles](../../../principles/component/12-sdk.md)
+- [Communication Model](../../../principles/protocol/07-communication-model.md)
+- [Event Protocol](../../../principles/protocol/09-event-protocol.md)
 
-```csharp
-var serviceName = builder.Services.AddSpasServices(
-    builder.Configuration,
-    defaultServiceName: "my-service"
-);
-```
+## ⚠️ PoC vs Production
 
-This configures:
+This SDK is a PoC. Review security guidance before production use.
 
-- EventPublisher with sidecar HTTP client
-- OpenTelemetry tracing with Zipkin exporter
-- Reads all environment variables automatically
+## 🤝 Contributing
 
-### Manual Setup (Advanced)
-
-For fine-grained control:
-
-```csharp
-// 1. Configure EventPublisher manually
-builder.Services.AddHttpClient<EventPublisher>(client =>
-{
-    client.BaseAddress = new Uri("http://localhost:7001");
-})
-.AddTypedClient((httpClient, sp) =>
-{
-    return new EventPublisher(httpClient, "my-service");
-});
-
-// 2. Configure OpenTelemetry manually
-builder.Services.AddSpasTracing(
-    serviceName: "my-service",
-    zipkinEndpoint: "http://localhost:9411/api/v2/spans"
-);
-```
+Contributions welcome; see module-specific guides.
 
 ## 📖 Additional Resources
 
@@ -506,4 +207,3 @@ This SDK is part of the SPAS framework PoC. For questions or improvements:
 ## 📄 License
 
 See [LICENSE](../../../LICENSE) in the repository root.
-

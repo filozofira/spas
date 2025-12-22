@@ -1,0 +1,10 @@
+/*
+  Transforms `shipment-status-changed` event from `fulfillment-service`
+  to `update-shipment-status` command for `order-service`.
+*/
+{
+  "orderId": orderId,
+  "shipmentId": shipmentId,
+  "status": status,
+  "trackingNumber": trackingNumber
+}

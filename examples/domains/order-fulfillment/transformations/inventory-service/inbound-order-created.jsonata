@@ -1,0 +1,11 @@
+/*
+  Transforms `order-created` event from `order-service`
+  to `reserve-stock` command for `inventory-service`.
+*/
+{
+  "orderId": orderId,
+  "items": $append([], items.{
+    "productId": productId,
+    "quantity": quantity
+  })
+}

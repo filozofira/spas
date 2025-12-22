@@ -1,0 +1,11 @@
+/*
+  Transforms `stock-reserved` event from `inventory-service`
+  to `confirm-order` command for `order-service`.
+*/
+{
+  "orderId": orderId,
+  "reservedItems": $append([], reservations.{
+    "productId": productId,
+    "quantity": quantity
+  })
+}

@@ -16,7 +16,7 @@ You **MUST** consider the user input before proceeding (if not empty).
 
 **Parse the domain name:**
 1. Extract `DOMAIN:<name>` from user input (e.g., `DOMAIN:public`, `DOMAIN:internal`)
-2. Use `<name>` to construct paths: `./examples/domains/ecommerce/<name>/...`
+2. Use `<name>` to construct paths: `./examples/domains/<name>/...`
 3. If no `DOMAIN:` specified, respond with error:
    ```
    Error: No domain specified.
@@ -24,8 +24,8 @@ You **MUST** consider the user input before proceeding (if not empty).
    Example: /spas.compose DOMAIN:public Analyze order-service
    ```
 
-**Domain root**: `./examples/domains/ecommerce`
-**Full domain path**: `./examples/domains/ecommerce/{DOMAIN}/`
+**Domain root**: `./examples/domains`
+**Full domain path**: `./examples/domains/{DOMAIN}/`
 
 ## Goal
 
@@ -33,7 +33,7 @@ Analyze pulled service contracts and generate choreography configuration with tr
 
 ## Responsibilities
 
-1. **Contract Analysis**: Parse service metadata from `./examples/domains/ecommerce/{DOMAIN}/services/*/spas.json`
+1. **Contract Analysis**: Parse service metadata from `./examples/domains/{DOMAIN}/services/*/spas.json`
 2. **Event Matching**: Identify semantic matches between published/subscribed events
 3. **Intent Matching (REQUIRED)**:
   - Use `description` fields (service/endpoint/event) as the primary semantic signal, **in combination with** names, types, and schemas.
@@ -47,7 +47,7 @@ Analyze pulled service contracts and generate choreography configuration with tr
 ## Workspace Structure
 
 ```
-./examples/domains/ecommerce/{DOMAIN}/
+./examples/domains/{DOMAIN}/
 ├── choreography.yaml              # Choreography configuration (you modify this)
 ├── services/                      # Pulled service metadata (read-only)
 │   └── <service-name>/
@@ -191,12 +191,17 @@ Service metadata files define service capabilities, contracts, and runtime confi
 | `schemaVersion` | string | Schema version ("runtime-metadata-v1") |
 | `id` | string | Service identifier (kebab-case) |
 | `name` | string | Display name |
-| `description` | string? | Optional plain-text service description |
 | `version` | string | Semantic version |
 | `boundedContext` | string | Domain context name |
+| `commands` | array | Canonical commands + produced events (authoritative) |
 | `endpoints` | array | Command/Query endpoints |
 | `events` | array | Outbound events only (published by service) |
 | `runtime` | object | Container image/digest info |
+
+**Command Structure (authoritative):**
+- `name`: Canonical command identifier (kebab-case)
+- `produces[]`: Events produced by the command on success
+  - `type`, `version`, `when: "success"`
 
 **Endpoint Structure:**
 - `name`: Endpoint identifier
@@ -205,13 +210,11 @@ Service metadata files define service capabilities, contracts, and runtime confi
 - `methodPath`: "POST /api/orders"
 - `version`: Semantic version
 - `schemaRef`: Path to request/response schema
-- `description`: Optional plain-text endpoint description
 
 **Event Structure:**
-- `type`: Event type name (PascalCase)
+- `type`: Event type name (kebab-case)
 - `version`: Semantic version
 - `schemaRef`: Path to event schema
-- `description`: Optional plain-text event description
 
 **Complete Schema**: `${domainRoot}/{DOMAIN}/.spas/schemas/runtime-metadata-v1.schema.json`
 
@@ -223,6 +226,14 @@ Service metadata files define service capabilities, contracts, and runtime confi
   "name": "Order Service",
   "version": "1.0.0",
   "boundedContext": "ecommerce",
+  "commands": [
+    {
+      "name": "create-order",
+      "produces": [
+        { "type": "order-created", "version": "1.0", "when": "success" }
+      ]
+    }
+  ],
   "endpoints": [
     {
       "name": "CreateOrder",
@@ -235,7 +246,7 @@ Service metadata files define service capabilities, contracts, and runtime confi
   ],
   "events": [
     {
-      "type": "OrderCreated",
+      "type": "order-created",
       "version": "1.0",
       "schemaRef": "schemas/order-created.schema.json"
     }
@@ -276,7 +287,7 @@ inputMapping:
 
 ### Choreography → Sidecar Config Mapping
 
-The choreography.yaml flows generate sidecar configuration files. Use the schema at `./examples/domains/ecommerce/{DOMAIN}/.spas/schemas/sidecar-config-v1.schema.json` to understand the mapping:
+The choreography.yaml flows generate sidecar configuration files. Use the schema at `./examples/domains/{DOMAIN}/.spas/schemas/sidecar-config-v1.schema.json` to understand the mapping:
 
 | Choreography Field | Sidecar Config Path | Description |
 |-------------------|---------------------|-------------|
@@ -322,7 +333,7 @@ This pattern enables **loose coupling**: Services never call each other directly
   - `topic`: Message topic name
   - `targets`: Subscribing services (empty array = terminal event)
     - `service`: Subscriber name
-    - `command`: Command to invoke (PascalCase)
+    - `command`: Command to invoke (kebab-case preferred; PascalCase supported)
     - `transform`: JSONata file path (optional)
 
 **Terminal Events**: Events with `targets: []` are published but have no consumers in this choreography. Used for audit, logging, or future extension.
@@ -363,56 +374,10 @@ flows:
 
 **Key Concept**: The `transform` path points to a JSONata file that maps the `order-created` event payload to the command request DTO expected by fulfillment-service's ProcessOrder endpoint.
 
-### Service Metadata (spas.json) Schema
+### Service Metadata (spas.json) Notes
 
-Service metadata files declare service identity, endpoints, and event contracts.
-
-**Architecture Principle**: Services expose Commands/Queries via endpoints and publish Events (outbound only). Services do NOT subscribe to events directly - the sidecar handles event subscriptions based on choreography configuration and invokes service commands.
-
-**Required Fields:**
-```json
-{
-  "id": "order-service",                  // Unique service identifier
-  "version": "1.0.0",                      // Semantic version
-  "boundedContext": "orders",             // Domain context
-  "endpoints": [                           // Commands and Queries
-    {
-      "name": "CreateOrder",
-      "type": "Command",
-      "protocol": "Http",
-      "methodPath": "/orders",
-      "version": "1.0",
-      "schemaRef": "schemas/endpoints/create-order.schema.json"
-    },
-    {
-      "name": "GetOrder",
-      "type": "Query",
-      "protocol": "Http",
-      "methodPath": "/orders/{id}",
-      "version": "1.0",
-      "schemaRef": "schemas/endpoints/get-order.schema.json"
-    }
-  ],
-  "events": [                              // Outbound events only
-    {
-      "type": "order-created",
-      "version": "1.0",
-      "schemaRef": "schemas/events/order-created.schema.json"
-    },
-    {
-      "type": "order-cancelled",
-      "version": "1.0",
-      "schemaRef": "schemas/events/order-cancelled.schema.json"
-    }
-  ]
-}
-```
-
-**Critical Architecture Points:**
-- **events[]**: Flat array containing ONLY events published by this service (outbound). Services do NOT declare subscribed events.
-- **Choreography defines subscriptions**: Event subscriptions are declared in choreography.yaml, not service metadata.
-- **Sidecar pattern**: Sidecar subscribes to events → transforms → invokes service command endpoint.
-- **Service purity**: Services are pure HTTP APIs, testable without event infrastructure.
+- Use `commands[].produces[]` (not `endpoints[]`) to determine which events a command can emit.
+- Services publish `events[]` (outbound only). They do not declare subscriptions in metadata.
 
 **Complete Schema**: `${domainRoot}/{DOMAIN}/.spas/schemas/runtime-metadata-v1.schema.json`
 
@@ -426,29 +391,33 @@ Follow this 5-phase workflow with validation checkpoints at each stage.
 
 **Actions:**
 1. **Validate Workspace**
-   - Verify `./examples/domains/ecommerce/{DOMAIN}/choreography.yaml` exists
-   - Verify `./examples/domains/ecommerce/{DOMAIN}/services/` directory exists with at least one service
-   - If invalid: Show error and suggest `spas-compose init {DOMAIN} --output ./examples/domains/ecommerce`, then `spas-compose services pull`
+   - Verify `./examples/domains/{DOMAIN}/choreography.yaml` exists
+   - Verify `./examples/domains/{DOMAIN}/services/` directory exists with at least one service
+   - If invalid: Show error and suggest `spas-compose init {DOMAIN} --output ./examples/domains`, then `spas-compose services pull`
 
 2. **Read Service Contracts**
-   - Read `./examples/domains/ecommerce/{DOMAIN}/services/<service-name>/spas.json` for each service
-   - Extract: `id`, `version`, `boundedContext`, `endpoints[]`, `events[]` (outbound only)
-   - Read schemas from `./examples/domains/ecommerce/{DOMAIN}/services/<service-name>/schemas/`
+   - Read `./examples/domains/{DOMAIN}/services/<service-name>/spas.json` for each service
+  - Extract: `id`, `version`, `boundedContext`, `commands[]`, `endpoints[]`, `events[]` (outbound only)
+   - Read schemas from `./examples/domains/{DOMAIN}/services/<service-name>/schemas/`
 
 3. **Identify Relationships**
-   - Match published events to subscribed events across services
+  - Build command→event edges from `commands[].produces[]` (authoritative)
+  - Validate that each produced `(type, version)` exists in `events[]`
    - Identify bounded context boundaries
    - Flag missing schemas or mismatched event names
 
 **Output Example:**
 ```
 📦 order-service (1.0.0) - orders bounded context
-  Published: order-created, order-cancelled
-  Subscribed: payment-received
+  Commands:
+    - create-order → produces: order-created@1.0
+    - confirm-order → produces: order-confirmed@1.0
+  Events (outbound): order-created@1.0, order-confirmed@1.0
 
 📦 fulfillment-service (1.0.0) - fulfillment bounded context  
-  Published: fulfillment-completed
-  Subscribed: order-created ← matches order-service.order-created ✓
+  Commands:
+    - fulfill-order → produces: fulfillment-completed@1.0
+  Events (outbound): fulfillment-completed@1.0
 ```
 
 **Exit Criteria:** All services analyzed, relationships identified, understanding confirmed by user
@@ -533,7 +502,7 @@ Do you want me to proceed with generating the choreographies? (yes/no/feedback)
 
 **Actions:**
 1. **Create Transformation Files**
-   - Generate JSONata files at `./examples/domains/ecommerce/{DOMAIN}/transformations/<service>/*.jsonata`
+   - Generate JSONata files at `./examples/domains/{DOMAIN}/transformations/<service>/*.jsonata`
    - Follow CloudEvents type format (camelCase for data fields)
    - Use `$append([], array.{...})` pattern for array transformations
    - Add header comments documenting source → target mapping
@@ -681,7 +650,7 @@ Next steps:
 
 | Constraint | Behavior |
 |------------|----------|
-| **Read-only services/** | NEVER modify files in `./examples/domains/ecommerce/{DOMAIN}/services/` |
+| **Read-only services/** | NEVER modify files in `./examples/domains/{DOMAIN}/services/` |
 | **Preserve existing flows** | When adding flows, preserve all existing flows |
 | **Valid JSONata** | All .jsonata files must have valid syntax |
 | **Confirm before write** | ALWAYS wait for explicit confirmation |
@@ -692,7 +661,7 @@ Next steps:
 | Error | Response |
 |-------|----------|
 | No DOMAIN specified | "Error: No domain specified. Usage: /spas.compose DOMAIN:<name> <action>" |
-| No choreography.yaml | "Error: Workspace not initialized. Run `spas-compose init {DOMAIN} --output ./examples/domains/ecommerce` first." |
+| No choreography.yaml | "Error: Workspace not initialized. Run `spas-compose init {DOMAIN} --output ./examples/domains` first." |
 | No services pulled | "Error: No services found. Run `spas-compose services pull` first." |
 | Service not found | "Error: Service '<name>' not found in services/ directory." |
 | Schema mismatch | "Warning: Cannot auto-generate transformation. Manual mapping required." |

@@ -20,11 +20,11 @@ description: "Task list for implementing command→produced events mapping"
 
 ## Phase 2: Foundational (Blocking Prerequisites)
 
-- [ ] T003 Update principles documentation in principles/service/06-service-metadata.md to define `commands[]`, `commands[].name` kebab-case, and `commands[].produces[]` semantics
-- [ ] T004 [P] Update principles documentation in principles/protocol/09-event-protocol.md to clarify that produced-event references use the same `(type, version)` pair as `events[]`
-- [ ] T005 [P] Extend design-time schema in components/repository/schemas/design-time-metadata-v1.schema.json to add `commands[]` with `produces[]` objects `{ type, version, when: "success" }`
-- [ ] T006 [P] Extend runtime schema in components/repository/schemas/runtime-metadata-v1.schema.json to add `commands[]` with `produces[]` objects `{ type, version, when: "success" }`
-- [ ] T007 [P] Add TypeScript model types in components/repository/src/models/types.ts for `Command` and `ProducedEventRef`, and add `commands?: Command[]` to `ServiceMetadata`
+- [x] T003 Update principles documentation in principles/service/06-service-metadata.md to define `commands[]`, `commands[].name` kebab-case, and `commands[].produces[]` semantics
+- [x] T004 [P] Update principles documentation in principles/protocol/09-event-protocol.md to clarify that produced-event references use the same `(type, version)` pair as `events[]`
+- [x] T005 [P] Extend design-time schema in components/repository/schemas/design-time-metadata-v1.schema.json to add `commands[]` with `produces[]` objects `{ type, version, when: "success" }`
+- [x] T006 [P] Extend runtime schema in components/repository/schemas/runtime-metadata-v1.schema.json to add `commands[]` with `produces[]` objects `{ type, version, when: "success" }`
+- [x] T007 [P] Add TypeScript model types in components/repository/src/models/types.ts for `Command` and `ProducedEventRef`, and add `commands?: Command[]` to `ServiceMetadata`
 
 **Checkpoint**: Repository and docs recognize the `commands[].produces[]` shape.
 

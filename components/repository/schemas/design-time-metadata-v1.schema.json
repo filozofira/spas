@@ -40,6 +40,47 @@
       },
       "description": "List of service capabilities"
     },
+    "commands": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["name"],
+        "properties": {
+          "name": {
+            "type": "string",
+            "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$",
+            "description": "Canonical command identifier (kebab-case)"
+          },
+          "version": {
+            "type": "string",
+            "description": "Command contract version (semver recommended)"
+          },
+          "produces": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": ["type", "version", "when"],
+              "properties": {
+                "type": {
+                  "type": "string",
+                  "description": "Produced event type; must match an entry in events[].type"
+                },
+                "version": {
+                  "type": "string",
+                  "description": "Produced event version; must match the referenced event's version"
+                },
+                "when": {
+                  "const": "success",
+                  "description": "For PoC, only 'success' is supported"
+                }
+              }
+            },
+            "description": "Events this command produces when it succeeds"
+          }
+        }
+      },
+      "description": "Canonical commands and their produced event relationships"
+    },
     "endpoints": {
       "type": "array",
       "items": {

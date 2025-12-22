@@ -51,6 +51,15 @@ CloudEvents `type` field uses format: `com.{service-name}.{event-name-kebab}`
 
 **Example**: Service `order-service` publishing `OrderCreated` → `com.order-service.order-created`
 
+### Produced Event References (Metadata)
+
+When a service declares command→event relationships in design-time metadata (`spas.json`), it references events by the same `(type, version)` pair used in the service’s `events[]` list.
+
+- `commands[].produces[].type` + `commands[].produces[].version` MUST match an entry in `events[]`.
+- For the PoC, `commands[].produces[].when` MUST be `"success"`.
+
+This metadata relationship does not change CloudEvents envelope construction; it exists to help choreography tooling and agents reason about expected outcomes of successful commands.
+
 ## Topics & Routing
 
 - Topic naming: `{boundedContext}.{eventType}.{version}`

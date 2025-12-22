@@ -26,6 +26,24 @@ export interface Event {
 }
 
 /**
+ * Produced event reference for a successful command
+ */
+export interface ProducedEventRef {
+  type: string;
+  version: string;
+  when: 'success';
+}
+
+/**
+ * Canonical command definition
+ */
+export interface Command {
+  name: string; // kebab-case
+  version?: string;
+  produces?: ProducedEventRef[];
+}
+
+/**
  * Consistency requirements
  */
 export interface Consistency {
@@ -78,6 +96,7 @@ export interface ServiceMetadata {
   version: string; // Semantic version
   boundedContext: string;
   capabilities: string[];
+  commands?: Command[];
   endpoints: Endpoint[];
   events: Event[];
   consistency: Consistency;

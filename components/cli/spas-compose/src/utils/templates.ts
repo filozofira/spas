@@ -280,9 +280,15 @@ Service metadata files define service capabilities, contracts, and runtime confi
 | \`name\` | string | Display name |
 | \`version\` | string | Semantic version |
 | \`boundedContext\` | string | Domain context name |
+| \`commands\` | array | Canonical commands + produced events (authoritative) |
 | \`endpoints\` | array | Command/Query endpoints |
 | \`events\` | array | Outbound events only (published by service) |
 | \`runtime\` | object | Container image/digest info |
+
+**Command Structure (authoritative):**
+- \`name\`: Canonical command identifier (kebab-case)
+- \`produces[]\`: Events produced by the command on success
+  - \`type\`, \`version\`, \`when: "success"\`
 
 **Endpoint Structure:**
 - \`name\`: Endpoint identifier
@@ -293,7 +299,7 @@ Service metadata files define service capabilities, contracts, and runtime confi
 - \`schemaRef\`: Path to request/response schema
 
 **Event Structure:**
-- \`type\`: Event type name (PascalCase)
+- \`type\`: Event type name (kebab-case)
 - \`version\`: Semantic version
 - \`schemaRef\`: Path to event schema
 
@@ -307,6 +313,14 @@ Service metadata files define service capabilities, contracts, and runtime confi
   "name": "Order Service",
   "version": "1.0.0",
   "boundedContext": "ecommerce",
+  "commands": [
+    {
+      "name": "create-order",
+      "produces": [
+        { "type": "order-created", "version": "1.0", "when": "success" }
+      ]
+    }
+  ],
   "endpoints": [
     {
       "name": "CreateOrder",
@@ -319,7 +333,7 @@ Service metadata files define service capabilities, contracts, and runtime confi
   ],
   "events": [
     {
-      "type": "OrderCreated",
+      "type": "order-created",
       "version": "1.0",
       "schemaRef": "schemas/order-created.schema.json"
     }
@@ -406,7 +420,7 @@ This pattern enables **loose coupling**: Services never call each other directly
   - \`topic\`: Message topic name
   - \`targets\`: Subscribing services (empty array = terminal event)
     - \`service\`: Subscriber name
-    - \`command\`: Command to invoke (PascalCase)
+    - \`command\`: Command to invoke (kebab-case preferred; PascalCase supported)
     - \`transform\`: JSONata file path (optional)
 
 **Terminal Events**: Events with \`targets: []\` are published but have no consumers in this choreography. Used for audit, logging, or future extension.
@@ -447,56 +461,10 @@ flows:
 
 **Key Concept**: The \`transform\` path points to a JSONata file that maps the \`order-created\` event payload to the command request DTO expected by fulfillment-service's ProcessOrder endpoint.
 
-### Service Metadata (spas.json) Schema
+### Service Metadata (spas.json) Notes
 
-Service metadata files declare service identity, endpoints, and event contracts.
-
-**Architecture Principle**: Services expose Commands/Queries via endpoints and publish Events (outbound only). Services do NOT subscribe to events directly - the sidecar handles event subscriptions based on choreography configuration and invokes service commands.
-
-**Required Fields:**
-\`\`\`json
-{
-  "id": "order-service",                  // Unique service identifier
-  "version": "1.0.0",                      // Semantic version
-  "boundedContext": "orders",             // Domain context
-  "endpoints": [                           // Commands and Queries
-    {
-      "name": "CreateOrder",
-      "type": "Command",
-      "protocol": "Http",
-      "methodPath": "/orders",
-      "version": "1.0",
-      "schemaRef": "schemas/endpoints/create-order.schema.json"
-    },
-    {
-      "name": "GetOrder",
-      "type": "Query",
-      "protocol": "Http",
-      "methodPath": "/orders/{id}",
-      "version": "1.0",
-      "schemaRef": "schemas/endpoints/get-order.schema.json"
-    }
-  ],
-  "events": [                              // Outbound events only
-    {
-      "type": "order-created",
-      "version": "1.0",
-      "schemaRef": "schemas/events/order-created.schema.json"
-    },
-    {
-      "type": "order-cancelled",
-      "version": "1.0",
-      "schemaRef": "schemas/events/order-cancelled.schema.json"
-    }
-  ]
-}
-\`\`\`
-
-**Critical Architecture Points:**
-- **events[]**: Flat array containing ONLY events published by this service (outbound). Services do NOT declare subscribed events.
-- **Choreography defines subscriptions**: Event subscriptions are declared in choreography.yaml, not service metadata.
-- **Sidecar pattern**: Sidecar subscribes to events → transforms → invokes service command endpoint.
-- **Service purity**: Services are pure HTTP APIs, testable without event infrastructure.
+- Use \`commands[].produces[]\` (not \`endpoints[]\`) to determine which events a command can emit.
+- Services publish \`events[]\` (outbound only). They do not declare subscriptions in metadata.
 
 **Complete Schema**: \`\${domainRoot}/{DOMAIN}/.spas/schemas/runtime-metadata-v1.schema.json\`
 `;
@@ -532,23 +500,27 @@ Follow this 5-phase workflow with validation checkpoints at each stage.
 
 2. **Read Service Contracts**
    - Read \`${domainRoot}/{DOMAIN}/services/<service-name>/spas.json\` for each service
-   - Extract: \`id\`, \`version\`, \`boundedContext\`, \`endpoints[]\`, \`events[]\` (outbound only)
+  - Extract: \`id\`, \`version\`, \`boundedContext\`, \`commands[]\`, \`endpoints[]\`, \`events[]\` (outbound only)
    - Read schemas from \`${domainRoot}/{DOMAIN}/services/<service-name>/schemas/\`
 
 3. **Identify Relationships**
-   - Match published events to subscribed events across services
+  - Build command→event edges from \`commands[].produces[]\` (authoritative)
+  - Validate that each produced \`(type, version)\` exists in \`events[]\`
    - Identify bounded context boundaries
    - Flag missing schemas or mismatched event names
 
 **Output Example:**
 \`\`\`
 📦 order-service (1.0.0) - orders bounded context
-  Published: order-created, order-cancelled
-  Subscribed: payment-received
+  Commands:
+    - create-order → produces: order-created@1.0
+    - confirm-order → produces: order-confirmed@1.0
+  Events (outbound): order-created@1.0, order-confirmed@1.0
 
 📦 fulfillment-service (1.0.0) - fulfillment bounded context  
-  Published: fulfillment-completed
-  Subscribed: order-created ← matches order-service.order-created ✓
+  Commands:
+    - fulfill-order → produces: fulfillment-completed@1.0
+  Events (outbound): fulfillment-completed@1.0
 \`\`\`
 
 **Exit Criteria:** All services analyzed, relationships identified, understanding confirmed by user
@@ -1175,7 +1147,8 @@ export function generateChoreographySchema(): string {
           type: "object",
           description:
             "A named choreography flow defining event routing between services",
-          required: ["participants", "events"],
+          required: ["participants"],
+          anyOf: [{ required: ["events"] }, { required: ["commands"] }],
           additionalProperties: false,
           properties: {
             description: {
@@ -1192,6 +1165,14 @@ export function generateChoreographySchema(): string {
               minItems: 2,
               uniqueItems: true,
             },
+            commands: {
+              type: "array",
+              description: "Command entry points that initiate this flow",
+              items: {
+                $ref: "#/definitions/CommandEntry",
+              },
+              minItems: 1,
+            },
             events: {
               type: "array",
               description: "Event routing definitions",
@@ -1199,6 +1180,32 @@ export function generateChoreographySchema(): string {
                 $ref: "#/definitions/EventRoute",
               },
               minItems: 1,
+            },
+          },
+        },
+        CommandEntry: {
+          type: "object",
+          description: "Entry point command that can initiate a flow",
+          required: ["service", "command", "endpoint"],
+          additionalProperties: false,
+          properties: {
+            service: {
+              type: "string",
+              description: "Service exposing the command",
+              pattern: "^[a-z][a-z0-9-]*[a-z0-9]$",
+            },
+            command: {
+              type: "string",
+              description:
+                "Command identifier (kebab-case preferred; PascalCase supported for legacy endpoint-style names)",
+              pattern: "(^[a-z0-9]+(-[a-z0-9]+)*$)|(^[A-Z][A-Za-z0-9]*$)",
+              examples: ["create-order", "CreateOrder"],
+            },
+            endpoint: {
+              type: "string",
+              description: "HTTP endpoint path",
+              pattern: "^/.*$",
+              examples: ["/orders", "/inventory/reserve"],
             },
           },
         },
@@ -1246,6 +1253,13 @@ export function generateChoreographySchema(): string {
               type: "string",
               description: "Subscribing service name",
               pattern: "^[a-z][a-z0-9-]*[a-z0-9]$",
+            },
+            command: {
+              type: "string",
+              description:
+                "Command to invoke on the subscribing service (kebab-case preferred; PascalCase supported for legacy endpoint-style names)",
+              pattern: "(^[a-z0-9]+(-[a-z0-9]+)*$)|(^[A-Z][A-Za-z0-9]*$)",
+              examples: ["reserve-stock", "ReserveStock"],
             },
             transform: {
               type: "string",
@@ -1298,8 +1312,8 @@ export function generateChoreographySchema(): string {
               events: [
                 {
                   source: "order-service",
-                  event: "OrderCreated",
-                  topic: "orders",
+                  event: "order-created",
+                  topic: "order-events",
                   targets: [
                     {
                       service: "fulfillment-service",
@@ -1379,6 +1393,48 @@ export function generateRuntimeMetadataSchema(): string {
             type: "string",
           },
           description: "List of service capabilities",
+        },
+        commands: {
+          type: "array",
+          description: "Canonical commands and their produced event relationships",
+          items: {
+            type: "object",
+            required: ["name"],
+            properties: {
+              name: {
+                type: "string",
+                pattern: "^[a-z0-9]+(-[a-z0-9]+)*$",
+                description: "Canonical command identifier (kebab-case)",
+              },
+              version: {
+                type: "string",
+                description: "Command contract version (semver recommended)",
+              },
+              produces: {
+                type: "array",
+                description: "Events this command produces when it succeeds",
+                items: {
+                  type: "object",
+                  required: ["type", "version", "when"],
+                  properties: {
+                    type: {
+                      type: "string",
+                      description: "Produced event type; must match an entry in events[].type",
+                    },
+                    version: {
+                      type: "string",
+                      description:
+                        "Produced event version; must match the referenced event's version",
+                    },
+                    when: {
+                      const: "success",
+                      description: "For PoC, only 'success' is supported",
+                    },
+                  },
+                },
+              },
+            },
+          },
         },
         endpoints: {
           type: "array",

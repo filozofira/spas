@@ -308,11 +308,25 @@ export class SidecarConfigGenerator {
       return "/incoming"; // Fallback to old behavior
     }
 
-    // If command name specified, find matching endpoint
+    // If command name specified, find matching Command endpoint.
+    // Accept either:
+    // - endpoint name (often PascalCase), e.g. "ReserveStock"
+    // - canonical command name (often kebab-case), e.g. "reserve-stock"
     if (commandName) {
-      const matchingEndpoint = metadata.endpoints.find(
-        (ep: any) => ep.name === commandName && ep.type === "Command",
-      );
+      const requested = commandName;
+      const requestedLower = requested.toLowerCase();
+      const requestedKebab = /^[a-z0-9]+(-[a-z0-9]+)*$/.test(requested)
+        ? requested
+        : pascalToKebab(requested);
+
+      const matchingEndpoint = metadata.endpoints.find((ep: any) => {
+        if (ep.type !== "Command") return false;
+        if (!ep.name) return false;
+        if (ep.name === requested) return true;
+        if (typeof ep.name === "string" && ep.name.toLowerCase() === requestedLower) return true;
+        return pascalToKebab(ep.name) === requestedKebab;
+      });
+
       if (matchingEndpoint && matchingEndpoint.methodPath) {
         return matchingEndpoint.methodPath;
       }

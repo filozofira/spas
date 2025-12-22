@@ -257,6 +257,12 @@ public static class WebApplicationDiscoveryExtensions
                 // Check for SpasCommandAttribute
                 if (item is SpasCommandAttribute commandAttr)
                 {
+                    var commandName = AttributeHelpers.ToKebabCase(commandAttr.Name);
+                    builder.AddCommand(
+                        name: commandName,
+                        version: commandAttr.Version,
+                        produces: ResolveProducedEvents(commandAttr.Produces, commandName, commandAttr.Version));
+
                     var finalPath = commandAttr.Path ?? path ?? string.Empty;
                     var schemaRef = commandAttr.Schema ?? $"schemas/endpoints/{commandAttr.Name.ToLowerInvariant()}.schema.json";
                     builder.AddEndpoint(
@@ -293,5 +299,61 @@ public static class WebApplicationDiscoveryExtensions
         {
             return false; // Skip endpoints that can't be processed
         }
+    }
+
+    private static IEnumerable<ProducedEventRefContract> ResolveProducedEvents(Type[]? producedEventTypes)
+    {
+        return ResolveProducedEvents(producedEventTypes, commandName: null, commandVersion: null);
+    }
+
+    private static IEnumerable<ProducedEventRefContract> ResolveProducedEvents(
+        Type[]? producedEventTypes,
+        string? commandName,
+        string? commandVersion)
+    {
+        if (producedEventTypes == null || producedEventTypes.Length == 0)
+        {
+            return Array.Empty<ProducedEventRefContract>();
+        }
+
+        var results = new List<ProducedEventRefContract>();
+
+        foreach (var eventType in producedEventTypes)
+        {
+            if (eventType == null) continue;
+
+            var evtAttr = eventType.GetCustomAttribute<SpasEventAttribute>();
+            if (evtAttr == null)
+            {
+                var cmd = !string.IsNullOrWhiteSpace(commandName)
+                    ? $"'{commandName}@{commandVersion}'"
+                    : "<unknown command>";
+                throw new InvalidOperationException(
+                    $"Command {cmd} declares produced event type '{eventType.FullName}' but it is missing [SpasEvent].");
+            }
+
+            var resolvedType = AttributeHelpers.ToKebabCase(evtAttr.Name);
+            var resolvedVersion = evtAttr.Version;
+
+            if (string.IsNullOrWhiteSpace(resolvedType))
+            {
+                throw new InvalidOperationException(
+                    $"Produced event type '{eventType.FullName}' has [SpasEvent] but Name is blank.");
+            }
+            if (string.IsNullOrWhiteSpace(resolvedVersion))
+            {
+                throw new InvalidOperationException(
+                    $"Produced event type '{eventType.FullName}' has [SpasEvent] but Version is blank.");
+            }
+
+            results.Add(new ProducedEventRefContract
+            {
+                Type = resolvedType,
+                Version = resolvedVersion,
+                When = "success"
+            });
+        }
+
+        return results;
     }
 }

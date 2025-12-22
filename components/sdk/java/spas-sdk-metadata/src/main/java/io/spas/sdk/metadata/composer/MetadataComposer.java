@@ -18,6 +18,7 @@ public final class MetadataComposer {
     
     private ServiceIdentityBuilder.ServiceIdentity identity;
     private List<EndpointContract> endpoints;
+    private List<CommandContract> commands;
     private List<EventContract> events;
     private Security security;
     private Consistency consistency;
@@ -36,6 +37,11 @@ public final class MetadataComposer {
     
     public MetadataComposer withEndpoints(List<EndpointContract> endpoints) {
         this.endpoints = endpoints != null ? new ArrayList<>(endpoints) : null;
+        return this;
+    }
+
+    public MetadataComposer withCommands(List<CommandContract> commands) {
+        this.commands = commands != null ? new ArrayList<>(commands) : null;
         return this;
     }
     
@@ -73,6 +79,7 @@ public final class MetadataComposer {
             identity.boundedContext(),
             identity.capabilities(),
             endpoints,
+            commands,
             events,
             consistency,
             security,

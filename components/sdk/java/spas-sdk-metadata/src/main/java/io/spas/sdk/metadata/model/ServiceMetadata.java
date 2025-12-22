@@ -14,6 +14,7 @@ import java.util.List;
  * @param boundedContext Domain bounded context
  * @param capabilities List of service capabilities
  * @param endpoints Command and Query endpoints
+ * @param commands Canonical commands with produced events
  * @param events Published events
  * @param consistency Consistency guarantees
  * @param security Security configuration
@@ -29,6 +30,7 @@ public record ServiceMetadata(
     String boundedContext,
     List<String> capabilities,
     List<EndpointContract> endpoints,
+    List<CommandContract> commands,
     List<EventContract> events,
     Consistency consistency,
     Security security,

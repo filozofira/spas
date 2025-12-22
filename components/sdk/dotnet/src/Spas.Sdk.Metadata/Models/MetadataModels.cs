@@ -19,7 +19,28 @@ public class ServiceIdentity
 public class ServiceContracts
 {
     public List<EndpointContract> Endpoints { get; set; } = new();
+    public List<CommandContract> Commands { get; set; } = new();
     public List<EventContract> Events { get; set; } = new();
+}
+
+/// <summary>
+/// Command definition and its produced events.
+/// </summary>
+public class CommandContract
+{
+    public string Name { get; set; } = string.Empty;
+    public string Version { get; set; } = string.Empty;
+    public List<ProducedEventRefContract> Produces { get; set; } = new();
+}
+
+/// <summary>
+/// Produced event reference.
+/// </summary>
+public class ProducedEventRefContract
+{
+    public string Type { get; set; } = string.Empty;
+    public string Version { get; set; } = string.Empty;
+    public string When { get; set; } = "success";
 }
 
 /// <summary>

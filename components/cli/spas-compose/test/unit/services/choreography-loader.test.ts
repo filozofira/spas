@@ -177,5 +177,35 @@ flows:
       expect(validateResult.isValid).toBe(true);
       expect(validateResult.errors).toHaveLength(0);
     });
+
+    it("should allow a command-only flow (no events yet)", () => {
+      // Arrange
+      const commandsOnly = `
+version: "1.0"
+domain: "test-domain"
+flows:
+  my-flow:
+    participants:
+      - order-service
+      - inventory-service
+    commands:
+      - service: order-service
+        command: create-order
+        endpoint: /orders
+`;
+      fs.writeFileSync(
+        path.join(workspacePath, "choreography.yaml"),
+        commandsOnly,
+      );
+      const loader = new ChoreographyLoader(workspacePath);
+      const loadResult = loader.load();
+
+      // Act
+      const validateResult = loader.validate(loadResult.choreography!);
+
+      // Assert
+      expect(validateResult.isValid).toBe(true);
+      expect(validateResult.errors).toHaveLength(0);
+    });
   });
 });

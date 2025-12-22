@@ -50,6 +50,12 @@ public class SpasCommandAttribute : Attribute
     /// </summary>
     public string? Description { get; set; }
 
+    /// <summary>
+    /// Optional list of event types produced by this command.
+    /// The SDK will resolve (type, version) from the referenced types' <see cref="SpasEventAttribute"/>.
+    /// </summary>
+    public Type[]? Produces { get; set; }
+
     public SpasCommandAttribute(string name, string version)
     {
         Name = name;

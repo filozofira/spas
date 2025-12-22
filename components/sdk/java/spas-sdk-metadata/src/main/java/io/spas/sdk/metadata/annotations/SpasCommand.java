@@ -69,4 +69,10 @@ public @interface SpasCommand {
      * Consistency level for this command (default: ACID).
      */
     ConsistencyLevel consistency() default ConsistencyLevel.ACID;
+
+    /**
+     * Optional list of event classes produced by this command.
+     * The SDK resolves (type, version) from {@link SpasEvent} on those classes.
+     */
+    Class<?>[] produces() default {};
 }

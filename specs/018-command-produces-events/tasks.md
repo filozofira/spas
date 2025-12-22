@@ -48,14 +48,14 @@ description: "Task list for implementing command→produced events mapping"
 
 **Independent Test**: In each SDK, declaring produced events via event types/classes results in `spas.json` containing `commands[].produces[]` with correct `(type, version)` derived from the event annotation/attribute.
 
-- [ ] T011 [P] [US2] Add produced-events declaration to .NET attribute in components/sdk/dotnet/src/Spas.Sdk.Metadata/Attributes/SpasContractAttributes.cs (e.g., `Type[] Produces` on `SpasCommandAttribute`)
-- [ ] T012 [P] [US2] Add metadata models in components/sdk/dotnet/src/Spas.Sdk.Metadata/Models/MetadataModels.cs for `CommandContract` and `ProducedEventRefContract`, and add `Commands` to `ServiceContracts`
-- [ ] T013 [P] [US2] Update metadata builder in components/sdk/dotnet/src/Spas.Sdk.Metadata/Builders/ContractsBuilder.cs to build `ServiceContracts.Commands` from `SpasCommandAttribute`, converting command name to kebab-case and resolving produced event `(type, version)` from `[SpasEvent]`
-- [ ] T014 [P] [US2] Update JSON emission in components/sdk/dotnet/src/Spas.Sdk.Metadata/Composition/SpasComposer.cs to include `commands` serialized from `ServiceContracts.Commands` (with `when: "success"`)
+- [x] T011 [P] [US2] Add produced-events declaration to .NET attribute in components/sdk/dotnet/src/Spas.Sdk.Metadata/Attributes/SpasContractAttributes.cs (e.g., `Type[] Produces` on `SpasCommandAttribute`)
+- [x] T012 [P] [US2] Add metadata models in components/sdk/dotnet/src/Spas.Sdk.Metadata/Models/MetadataModels.cs for `CommandContract` and `ProducedEventRefContract`, and add `Commands` to `ServiceContracts`
+- [x] T013 [P] [US2] Update metadata builder in components/sdk/dotnet/src/Spas.Sdk.Metadata/Builders/ContractsBuilder.cs to build `ServiceContracts.Commands` from `SpasCommandAttribute`, converting command name to kebab-case and resolving produced event `(type, version)` from `[SpasEvent]`
+- [x] T014 [P] [US2] Update JSON emission in components/sdk/dotnet/src/Spas.Sdk.Metadata/Composition/SpasComposer.cs to include `commands` serialized from `ServiceContracts.Commands` (with `when: "success"`)
 
-- [ ] T015 [P] [US2] Add produced-events declaration to Java annotation in components/sdk/java/spas-sdk-metadata/src/main/java/io/spas/sdk/metadata/annotations/SpasCommand.java (e.g., `Class<?>[] produces() default {}`)
-- [ ] T016 [P] [US2] Add Java model types in components/sdk/java/spas-sdk-metadata/src/main/java/io/spas/sdk/metadata/model/ (e.g., `CommandContract`, `ProducedEventRef`) and add `commands` to io.spas.sdk.metadata.model.ServiceMetadata
-- [ ] T017 [P] [US2] Update metadata generation in components/sdk/java/spas-sdk-spring/src/main/java/io/spas/sdk/spring/SpasMetadataController.java to populate `commands[]` and resolve produced event `(type, version)` from `@SpasEvent` on referenced event classes (and set `when: "success"`)
+- [x] T015 [P] [US2] Add produced-events declaration to Java annotation in components/sdk/java/spas-sdk-metadata/src/main/java/io/spas/sdk/metadata/annotations/SpasCommand.java (e.g., `Class<?>[] produces() default {}`)
+- [x] T016 [P] [US2] Add Java model types in components/sdk/java/spas-sdk-metadata/src/main/java/io/spas/sdk/metadata/model/ (e.g., `CommandContract`, `ProducedEventRef`) and add `commands` to io.spas.sdk.metadata.model.ServiceMetadata
+- [x] T017 [P] [US2] Update metadata generation in components/sdk/java/spas-sdk-spring/src/main/java/io/spas/sdk/spring/SpasMetadataController.java to populate `commands[]` and resolve produced event `(type, version)` from `@SpasEvent` on referenced event classes (and set `when: "success"`)
 
 ---
 
@@ -65,11 +65,11 @@ description: "Task list for implementing command→produced events mapping"
 
 **Independent Test**: Invalid metadata fails fast with clear errors for missing references and duplicates.
 
-- [ ] T018 [P] [US3] Add repository cross-field validation in components/repository/src/validation/SpasSchemaValidator.ts to fail when a produced `(type, version)` does not exist in `events[]`
-- [ ] T019 [P] [US3] Add repository cross-field validation in components/repository/src/validation/SpasSchemaValidator.ts to fail when a command contains duplicate produced `(type, version)` pairs
+- [x] T018 [P] [US3] Add repository cross-field validation in components/repository/src/validation/SpasSchemaValidator.ts to fail when a produced `(type, version)` does not exist in `events[]`
+- [x] T019 [P] [US3] Add repository cross-field validation in components/repository/src/validation/SpasSchemaValidator.ts to fail when a command contains duplicate produced `(type, version)` pairs
 
-- [ ] T020 [P] [US3] Add .NET SDK fail-fast validation in components/sdk/dotnet/src/Spas.Sdk.Metadata/Builders/ContractsBuilder.cs for: referenced produced event type missing `[SpasEvent]`, missing `(type, version)` in declared `events[]`, and duplicates
-- [ ] T021 [P] [US3] Add Java SDK fail-fast validation in components/sdk/java/spas-sdk-spring/src/main/java/io/spas/sdk/spring/SpasMetadataController.java for: referenced produced event class missing `@SpasEvent`, missing `(type, version)` in declared `events[]`, and duplicates
+- [x] T020 [P] [US3] Add .NET SDK fail-fast validation in components/sdk/dotnet/src/Spas.Sdk.Metadata/Builders/ContractsBuilder.cs for: referenced produced event type missing `[SpasEvent]`, missing `(type, version)` in declared `events[]`, and duplicates
+- [x] T021 [P] [US3] Add Java SDK fail-fast validation in components/sdk/java/spas-sdk-spring/src/main/java/io/spas/sdk/spring/SpasMetadataController.java for: referenced produced event class missing `@SpasEvent`, missing `(type, version)` in declared `events[]`, and duplicates
 
 ---
 
@@ -77,6 +77,20 @@ description: "Task list for implementing command→produced events mapping"
 
 - [ ] T022 [P] Ensure feature docs remain consistent with implementation in specs/018-command-produces-events/{spec.md,research.md,data-model.md,quickstart.md}
 - [ ] T023 Ensure no tasks require editing `examples/**/spas.json` and that examples remain regeneratable via e2e workflow (no committed example metadata updates)
+- [ ] T026 Update .NET SDK sample service (components/sdk/dotnet/examples/SampleService) to declare produced events via `SpasCommandAttribute.Produces` where applicable
+- [ ] T027 Update Java SDK sample service (components/sdk/java/examples/sample-service) to declare produced events via `@SpasCommand(produces=...)` where applicable
+- [ ] T028 Add repository validator unit tests for `commands[].produces[]` cross-field checks (produced (type, version) must exist in `events[]`; duplicates rejected)
+- [ ] T029 Add .NET SDK unit tests asserting `spas.json` contains `commands[].produces[]` when `SpasCommandAttribute.Produces` is used
+- [ ] T030 Add .NET SDK unit tests for fail-fast validation: duplicate produced refs rejected; produced event missing `[SpasEvent]` rejected; produced (type, version) missing from declared `events[]` rejected
+- [ ] T031 Make service `name` optional (schemas + SDKs): if omitted/blank, default `name` to `id` during metadata generation/validation
+
+### Phase 6b: Downstream Compatibility (Choreography + Agent Prompts)
+
+**Goal**: Prevent downstream tooling breakage by updating choreography parsing and agent prompt generation to understand `commands[]` and `commands[].produces[]`.
+
+- [x] T024 [P0] Update choreography generation/parsing code to read `commands[]` and use `commands[].produces[]` to build command→event edges; join with `endpoints[]` only for invocation details
+- [x] T025 [P0] Update agent prompt enrichment/prompt-generation code to instruct agents to use `commands[].produces[]` (authoritative) and not infer produced events from `endpoints[]`
+
 
 ---
 

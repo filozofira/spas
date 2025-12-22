@@ -44,6 +44,17 @@ public class SpasComposer
                 schemaRef = e.SchemaRef,
                 description = TrimToNull(e.Description)
             }).ToArray() : Array.Empty<object>(),
+            commands = contracts != null ? contracts.Commands.Select(c => new
+            {
+                name = c.Name,
+                version = c.Version,
+                produces = c.Produces.Select(p => new
+                {
+                    type = p.Type,
+                    version = p.Version,
+                    when = p.When
+                }).ToArray()
+            }).ToArray() : Array.Empty<object>(),
             events = contracts != null ? contracts.Events.Select(ev => new
             {
                 type = ev.Type,

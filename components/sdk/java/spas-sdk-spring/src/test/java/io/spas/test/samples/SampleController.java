@@ -18,6 +18,7 @@ public class SampleController {
         name = "CreateOrder",
         version = "1.0.0",
         path = "/api/orders",
+        produces = { SampleEvent.class },
         description = "SAMPLE_COMMAND_DESC"
     )
     public SampleResponse createOrder(@RequestBody SampleRequest request) {

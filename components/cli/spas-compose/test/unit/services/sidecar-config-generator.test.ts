@@ -334,6 +334,67 @@ describe("SidecarConfigGenerator", () => {
       expect(entries[0].invokeEndpoint).toBe("/inventory/reserve");
     });
 
+    it("should resolve endpoint when target.command is kebab-case", () => {
+      // Arrange
+      const generator = new SidecarConfigGenerator(workspacePath);
+
+      // Create services directory with metadata
+      const servicesDir = path.join(
+        workspacePath,
+        "services",
+        "inventory-service",
+      );
+      fs.mkdirSync(servicesDir, { recursive: true });
+      fs.writeFileSync(
+        path.join(servicesDir, "spas.json"),
+        JSON.stringify({
+          id: "inventory-service",
+          version: "1.0.0",
+          endpoints: [
+            {
+              name: "ReserveStock",
+              type: "Command",
+              methodPath: "/inventory/reserve",
+            },
+          ],
+        }),
+      );
+
+      const choreographyWithCommand: Choreography = {
+        version: "1.0",
+        domain: "e-commerce",
+        flows: {
+          "order-flow": {
+            participants: ["order-service", "inventory-service"],
+            events: [
+              {
+                source: "order-service",
+                event: "order-created",
+                topic: "orders",
+                targets: [
+                  {
+                    service: "inventory-service",
+                    command: "reserve-stock",
+                  },
+                ],
+              },
+            ],
+          },
+        },
+      };
+
+      // Act
+      const entries = generator.buildInboundEntries(
+        choreographyWithCommand,
+        "inventory-service",
+      );
+
+      // Assert
+      expect(entries).toHaveLength(1);
+      expect(entries[0].kind).toBe("event");
+      expect(entries[0].invokeEndpoint).toBe("/inventory/reserve");
+    });
+
     it("should resolve command endpoint from service metadata", () => {
       // Arrange
       const generator = new SidecarConfigGenerator(workspacePath);

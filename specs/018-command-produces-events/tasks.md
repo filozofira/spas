@@ -13,8 +13,8 @@ description: "Task list for implementing command→produced events mapping"
 
 ## Phase 1: Setup (Shared Infrastructure)
 
-- [ ] T001 Confirm current schema/validator entrypoints in components/repository/schemas/*.schema.json and components/repository/src/validation/SpasSchemaValidator.ts
-- [ ] T002 Confirm SDK metadata generation entrypoints in components/sdk/dotnet/src/Spas.Sdk.Metadata/Composition/SpasComposer.cs and components/sdk/java/spas-sdk-spring/src/main/java/io/spas/sdk/spring/SpasMetadataController.java
+- [x] T001 Confirm current schema/validator entrypoints in components/repository/schemas/*.schema.json and components/repository/src/validation/SpasSchemaValidator.ts
+- [x] T002 Confirm SDK metadata generation entrypoints in components/sdk/dotnet/src/Spas.Sdk.Metadata/Composition/SpasComposer.cs and components/sdk/java/spas-sdk-spring/src/main/java/io/spas/sdk/spring/SpasMetadataController.java
 
 ---
 

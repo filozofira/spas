@@ -1,0 +1,18 @@
+/**
+ * inbound-stock-reserved.jsonata
+ * 
+ * Transforms: stock-reserved (inventory-service) → ConfirmOrderRequest (order-service)
+ * 
+ * Source schema: StockReservedEvent
+ *   - orderId, reservations[], timestamp
+ * 
+ * Target schema: ConfirmOrderRequest
+ *   - orderId, reservedItems[]
+ */
+{
+  "orderId": orderId,
+  "reservedItems": $append([], reservations.{
+    "productId": productId,
+    "quantity": quantity
+  })
+}

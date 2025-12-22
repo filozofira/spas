@@ -1,0 +1,30 @@
+{
+  "inbound": [
+    {
+      "kind": "event",
+      "topic": "subscription-events",
+      "invokeEndpoint": "/orders",
+      "eventType": "com.subscription-service.subscription-created",
+      "transform": "transformations/inbound-subscription-created.jsonata"
+    },
+    {
+      "kind": "event",
+      "topic": "inventory-events",
+      "invokeEndpoint": "/orders/confirm",
+      "eventType": "com.inventory-service.stock-reserved",
+      "transform": "transformations/inbound-stock-reserved.jsonata"
+    }
+  ],
+  "outbound": [
+    {
+      "topic": "order-events",
+      "eventType": "com.order-service.order-created",
+      "eventName": "order-created"
+    },
+    {
+      "topic": "order-events",
+      "eventType": "com.order-service.order-confirmed",
+      "eventName": "order-confirmed"
+    }
+  ]
+}

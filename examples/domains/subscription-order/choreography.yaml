@@ -1,0 +1,60 @@
+# SPAS Choreography Configuration
+# See: specs/005-spas-compose-cli/contracts/choreography-schema.yaml
+
+version: "1.0"
+domain: subscription-order
+
+# Named choreography flows
+flows:
+  subscription-activation:
+    description: "End-to-end subscription activation flow: create subscription, order, reserve stock, confirm order, activate subscription"
+    participants:
+      - subscription-service
+      - order-service
+      - inventory-service
+    events:
+      # 1. subscription-service publishes subscription-created -> order-service creates order
+      - source: subscription-service
+        event: subscription-created
+        topic: subscription-events
+        targets:
+          - service: order-service
+            command: create-order
+            transform: transformations/order-service/inbound-subscription-created.jsonata
+
+      # 2. order-service publishes order-created -> inventory-service reserves stock
+      - source: order-service
+        event: order-created
+        topic: order-events
+        targets:
+          - service: inventory-service
+            command: reserve-stock
+            transform: transformations/inventory-service/inbound-order-created.jsonata
+
+      # 3. inventory-service publishes stock-reserved -> order-service confirms order
+      - source: inventory-service
+        event: stock-reserved
+        topic: inventory-events
+        targets:
+          - service: order-service
+            command: confirm-order
+            transform: transformations/order-service/inbound-stock-reserved.jsonata
+
+      # 4. order-service publishes order-confirmed -> subscription-service activates subscription
+      - source: order-service
+        event: order-confirmed
+        topic: order-events
+        targets:
+          - service: subscription-service
+            command: activate-subscription
+            transform: transformations/subscription-service/inbound-order-confirmed.jsonata
+
+# Infrastructure components (optional)
+infrastructure:
+  redis:
+    enabled: true
+    # host: redis
+    # port: 6379
+  zipkin:
+    enabled: true
+    # url: http://zipkin:9411

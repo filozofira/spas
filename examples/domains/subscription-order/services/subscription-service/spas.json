@@ -1,0 +1,110 @@
+{
+  "schemaVersion": "runtime-metadata-v1",
+  "id": "subscription-service",
+  "name": "subscription-service",
+  "description": "B2B subscription management service",
+  "version": "1.0.0",
+  "boundedContext": "subscription",
+  "capabilities": [
+    "subscription-management"
+  ],
+  "endpoints": [
+    {
+      "name": "create-subscription",
+      "type": "Command",
+      "protocol": "Http",
+      "methodPath": "/subscriptions",
+      "version": "1.0",
+      "schemaRef": "schemas/endpoints/create-subscription.schema.json",
+      "description": "Creates a new subscription for a customer/product and publishes SubscriptionCreated"
+    },
+    {
+      "name": "list-subscriptions",
+      "type": "Query",
+      "protocol": "Http",
+      "methodPath": "/subscriptions",
+      "version": "1.0",
+      "schemaRef": "schemas/endpoints/list-subscriptions.schema.json",
+      "description": "Lists all subscriptions currently known to the service"
+    },
+    {
+      "name": "get-subscription",
+      "type": "Query",
+      "protocol": "Http",
+      "methodPath": "/subscriptions/{id}",
+      "version": "1.0",
+      "schemaRef": "schemas/endpoints/get-subscription.schema.json",
+      "description": "Returns subscription details and status history for a given subscriptionId"
+    },
+    {
+      "name": "activate-subscription",
+      "type": "Command",
+      "protocol": "Http",
+      "methodPath": "/subscriptions/activate",
+      "version": "1.0",
+      "schemaRef": "schemas/endpoints/activate-subscription.schema.json",
+      "description": "Activates a subscription after an order is confirmed (correlates via referenceId)"
+    }
+  ],
+  "commands": [
+    {
+      "name": "create-subscription",
+      "version": "1.0",
+      "produces": [
+        {
+          "type": "subscription-created",
+          "version": "1.0",
+          "when": "success"
+        }
+      ]
+    },
+    {
+      "name": "activate-subscription",
+      "version": "1.0",
+      "produces": []
+    }
+  ],
+  "events": [
+    {
+      "type": "subscription-created",
+      "version": "1.0",
+      "schemaRef": "schemas/events/subscription-created.schema.json",
+      "description": "Emitted after a subscription is created; indicates subscription is pending activation"
+    },
+    {
+      "type": "subscription-activated",
+      "version": "1.0",
+      "schemaRef": "schemas/events/subscription-activated.schema.json",
+      "description": "Emitted after a subscription transitions to active (may be disabled in some choreographies)"
+    }
+  ],
+  "consistency": {
+    "commands": "ACID",
+    "queries": "EVENTUAL"
+  },
+  "network": {
+    "requiredEgress": [
+      "localhost:6379"
+    ]
+  },
+  "security": {
+    "authentication": {
+      "type": "jwt",
+      "requiredScopes": [
+        "subscriptions.read",
+        "subscriptions.write"
+      ]
+    },
+    "dataClassification": [
+      "internal"
+    ]
+  },
+  "license": "MIT",
+  "publishedAt": "2025-12-22T09:46:51.715Z",
+  "runtime": {
+    "digest": "sha256:98ed8036c20440548030630b7a99d5372871f49e3bbb40d428b64404090105bb",
+    "repository": "spas-examples/subscription-service",
+    "tag": "1.0.0",
+    "image": "spas-examples/subscription-service@sha256:98ed8036c20440548030630b7a99d5372871f49e3bbb40d428b64404090105bb"
+  }
+}

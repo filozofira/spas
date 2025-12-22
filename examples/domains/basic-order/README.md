@@ -4,6 +4,23 @@
 
 This workspace contains choreography configuration for composing SPAS services into a domain context.
 
+## Choreography Flow
+
+```mermaid
+flowchart LR
+    OS[order-service] -->|order-created| IS[inventory-service]
+    IS -->|stock-reserved| OS
+    OS -->|order-confirmed| END((done))
+```
+
+**Flow Description:**
+1. **order-created** (order-service) → reserve-stock (inventory-service)
+   - When a new order is created, it signals downstream services to reserve stock
+2. **stock-reserved** (inventory-service) → confirm-order (order-service)
+   - After inventory reservation succeeds, the order is confirmed
+3. **order-confirmed** (order-service) → terminal event
+   - Order confirmation triggers fulfillment (future service integration)
+
 ## Structure
 
 ```

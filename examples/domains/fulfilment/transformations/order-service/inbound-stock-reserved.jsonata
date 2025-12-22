@@ -1,9 +1,0 @@
-/* inbound-stock-reserved.jsonata */
-/* inventory-service.stock-reserved -> order-service ConfirmOrder */
-{
-  "orderId": orderId,
-  "reservedItems": $append([], reservations.{
-    "productId": productId,
-    "quantity": quantity
-  })
-}

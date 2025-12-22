@@ -1,7 +1,0 @@
-/* inbound-order-confirmed.jsonata */
-/* order-service.order-confirmed -> fulfillment-service create-shipment */
-{
-  "orderId": orderId,
-  "customerId": referenceId ? referenceId : "",
-  "shippingAddress": {}
-}

@@ -17,6 +17,12 @@ Each SDK provides:
 - Identity context (PoC)
 - Development metadata endpoint
 
+### Examples
+
+For end-to-end runnable examples and walkthroughs, see the examples services overview:
+
+- [Examples Services README](../../examples/services/README.md)
+
 ## For SDK Contributors (Building SDKs)
 
 Contributing to the SDK implementations:

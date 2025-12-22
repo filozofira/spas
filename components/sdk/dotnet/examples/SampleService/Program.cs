@@ -77,7 +77,10 @@ app.MapPost("/commands/create-order",
 
         return Results.Ok(result);
     })
-    .WithMetadata(new SpasCommandAttribute("CreateOrder", "1.0"));
+    .WithMetadata(new SpasCommandAttribute("CreateOrder", "1.0")
+    {
+        Produces = new[] { typeof(OrderCreatedEvent) }
+    });
 
 app.MapGet("/queries/get-order/{id}",
     (Guid id) =>
@@ -120,7 +123,7 @@ app.MapGet("/health", () => new { status = "healthy", timestamp = DateTime.UtcNo
 app.Run();
 
 // Sample request/response types
-[SpasCommand("CreateOrder", "1.0")]
+[SpasCommand("CreateOrder", "1.0", Produces = new[] { typeof(OrderCreatedEvent) })]
 public record CreateOrderRequest(string CustomerId, decimal Total);
 
 [SpasQuery("GetOrder", "1.0")]

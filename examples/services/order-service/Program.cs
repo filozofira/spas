@@ -42,7 +42,7 @@ var identity = new ServiceIdentityBuilder()
 
 // POST /orders - Create new order
 app.MapPost("/orders",
-    [SpasCommand("CreateOrder", "1.0", Description = "Creates a new order from cart items and publishes OrderCreated; returns the new orderId")]
+    [SpasCommand("CreateOrder", "1.0", Description = "Creates a new order from cart items and publishes OrderCreated; returns the new orderId", Produces = new[] { typeof(OrderCreatedEvent) })]
 async (CreateOrderRequest request, EventPublisher publisher, OrderStore store) =>
     {
         var orderId = Guid.NewGuid();
@@ -119,7 +119,7 @@ app.MapGet("/orders/{id}",
 
 // POST /orders/confirm - Confirm order after stock reservation
 app.MapPost("/orders/confirm",
-    [SpasCommand("ConfirmOrder", "1.0", Description = "Confirms an order after inventory reservation and publishes OrderConfirmed")]
+    [SpasCommand("ConfirmOrder", "1.0", Description = "Confirms an order after inventory reservation and publishes OrderConfirmed", Produces = new[] { typeof(OrderConfirmedEvent) })]
 async (ConfirmOrderRequest request, EventPublisher publisher, OrderStore store) =>
     {
         Console.WriteLine($"[order-service] Confirming order {request.OrderId} with {request.ReservedItems.Count} items reserved");

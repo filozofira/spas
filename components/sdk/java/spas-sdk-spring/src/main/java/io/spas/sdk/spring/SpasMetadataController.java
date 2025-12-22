@@ -349,10 +349,14 @@ public class SpasMetadataController {
                 ? null
                 : service.license();
 
+            String serviceName = (service.name() == null || service.name().isBlank())
+                ? service.id()
+                : service.name();
+
             return new ServiceMetadata(
                 ServiceMetadata.SCHEMA_VERSION,
                 service.id(),
-                service.name(),
+                serviceName,
                 description,
                 service.version(),
                 service.boundedContext(),

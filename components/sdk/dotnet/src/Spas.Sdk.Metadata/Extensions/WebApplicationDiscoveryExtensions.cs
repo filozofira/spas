@@ -264,9 +264,9 @@ public static class WebApplicationDiscoveryExtensions
                         produces: ResolveProducedEvents(commandAttr.Produces, commandName, commandAttr.Version));
 
                     var finalPath = commandAttr.Path ?? path ?? string.Empty;
-                    var schemaRef = commandAttr.Schema ?? $"schemas/endpoints/{commandAttr.Name.ToLowerInvariant()}.schema.json";
+                    var schemaRef = commandAttr.Schema ?? $"schemas/endpoints/{commandName}.schema.json";
                     builder.AddEndpoint(
-                        name: commandAttr.Name,
+                        name: commandName,
                         type: "Command",
                         protocol: "Http",
                         methodPath: finalPath,
@@ -279,10 +279,11 @@ public static class WebApplicationDiscoveryExtensions
                 // Check for SpasQueryAttribute
                 if (item is SpasQueryAttribute queryAttr)
                 {
+                    var queryName = AttributeHelpers.ToKebabCase(queryAttr.Name);
                     var finalPath = queryAttr.Path ?? path ?? string.Empty;
-                    var schemaRef = queryAttr.Schema ?? $"schemas/endpoints/{queryAttr.Name.ToLowerInvariant()}.schema.json";
+                    var schemaRef = queryAttr.Schema ?? $"schemas/endpoints/{queryName}.schema.json";
                     builder.AddEndpoint(
-                        name: queryAttr.Name,
+                        name: queryName,
                         type: "Query",
                         protocol: "Http",
                         methodPath: finalPath,
@@ -294,6 +295,11 @@ public static class WebApplicationDiscoveryExtensions
             }
 
             return false;
+        }
+        catch (InvalidOperationException)
+        {
+            // Fail fast for invalid SPAS metadata declarations.
+            throw;
         }
         catch
         {

@@ -1008,9 +1008,9 @@ export function generateSidecarConfigSchema(): string {
             },
             command: {
               type: "string",
-              pattern: "^[A-Z][a-zA-Z0-9]*$",
+              pattern: "^([A-Z][a-zA-Z0-9]*|[a-z0-9]+(-[a-z0-9]+)*)$",
               description:
-                "Command name (PascalCase) for /invoke/{command} endpoint. Required when kind='command'.",
+                "Command identifier for /invoke/{command}. Canonical form is kebab-case (e.g., 'reserve-stock'); PascalCase is accepted for legacy configs. Required when kind='command'.",
             },
             transform: {
               type: "string",

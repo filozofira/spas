@@ -42,7 +42,7 @@ var identity = new ServiceIdentityBuilder()
 
 // POST /subscriptions - Create new subscription
 app.MapPost("/subscriptions",
-    [SpasCommand("CreateSubscription", "1.0", Description = "Creates a new subscription for a customer/product and publishes SubscriptionCreated")]
+    [SpasCommand("CreateSubscription", "1.0", Description = "Creates a new subscription for a customer/product and publishes SubscriptionCreated", Produces = new[] { typeof(SubscriptionCreatedEvent) })]
 async (CreateSubscriptionRequest request, EventPublisher publisher, SubscriptionStore store) =>
     {
         var subscriptionId = Guid.NewGuid();

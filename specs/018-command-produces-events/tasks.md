@@ -75,14 +75,15 @@ description: "Task list for implementing command→produced events mapping"
 
 ## Phase 6: Polish & Cross-Cutting Concerns
 
-- [ ] T022 [P] Ensure feature docs remain consistent with implementation in specs/018-command-produces-events/{spec.md,research.md,data-model.md,quickstart.md}
-- [ ] T023 Ensure no tasks require editing `examples/**/spas.json` and that examples remain regeneratable via e2e workflow (no committed example metadata updates)
-- [ ] T026 Update .NET SDK sample service (components/sdk/dotnet/examples/SampleService) to declare produced events via `SpasCommandAttribute.Produces` where applicable
-- [ ] T027 Update Java SDK sample service (components/sdk/java/examples/sample-service) to declare produced events via `@SpasCommand(produces=...)` where applicable
-- [ ] T028 Add repository validator unit tests for `commands[].produces[]` cross-field checks (produced (type, version) must exist in `events[]`; duplicates rejected)
-- [ ] T029 Add .NET SDK unit tests asserting `spas.json` contains `commands[].produces[]` when `SpasCommandAttribute.Produces` is used
-- [ ] T030 Add .NET SDK unit tests for fail-fast validation: duplicate produced refs rejected; produced event missing `[SpasEvent]` rejected; produced (type, version) missing from declared `events[]` rejected
-- [ ] T031 Make service `name` optional (schemas + SDKs): if omitted/blank, default `name` to `id` during metadata generation/validation
+- [x] T022 [P] Ensure feature docs remain consistent with implementation in specs/018-command-produces-events/{spec.md,research.md,data-model.md,quickstart.md}
+- [x] T023 Ensure no tasks require editing `examples/**/spas.json` and that examples remain regeneratable via e2e workflow (no committed example metadata updates)
+- [x] T026 Update .NET SDK sample service (components/sdk/dotnet/examples/SampleService) to declare produced events via `SpasCommandAttribute.Produces` where applicable
+- [x] T027 Update Java SDK sample service (components/sdk/java/examples/sample-service) to declare produced events via `@SpasCommand(produces=...)` where applicable
+- [x] T032 Update root example services (examples/services/*) to declare produced events via `Produces` / `produces` where applicable
+- [x] T028 Add repository validator unit tests for `commands[].produces[]` cross-field checks (produced (type, version) must exist in `events[]`; duplicates rejected)
+- [x] T029 Add .NET SDK unit tests asserting `spas.json` contains `commands[].produces[]` when `SpasCommandAttribute.Produces` is used
+- [x] T030 Add .NET SDK unit tests for fail-fast validation: duplicate produced refs rejected; produced event missing `[SpasEvent]` rejected; produced (type, version) missing from declared `events[]` rejected
+- [x] T031 Keep schema requiring service `name`, but default `name` to `id` in SDK metadata generation when unset/blank
 
 ### Phase 6b: Downstream Compatibility (Choreography + Agent Prompts)
 

@@ -2,6 +2,7 @@ package io.spas.examples.fulfillment.controller;
 
 import io.spas.examples.fulfillment.dto.ShipmentResponse;
 import io.spas.examples.fulfillment.dto.UpdateStatusRequest;
+import io.spas.examples.fulfillment.events.ShipmentStatusChangedEvent;
 import io.spas.examples.fulfillment.model.Shipment;
 import io.spas.examples.fulfillment.service.FulfillmentService;
 import io.spas.examples.fulfillment.service.FulfillmentService.ShipmentNotFoundException;
@@ -80,7 +81,8 @@ public class FulfillmentController {
         name = "UpdateShipmentStatus",
         version = "1.0.0",
         path = "/api/fulfillments/{id}/status",
-        description = "Updates a shipment's status (e.g., packed/shipped/delivered); emits ShipmentStatusChanged on success"
+        description = "Updates a shipment's status (e.g., packed/shipped/delivered); emits ShipmentStatusChanged on success",
+        produces = { ShipmentStatusChangedEvent.class }
         // Auto-generates: schemas/endpoints/update-shipment-status.schema.json
     )
     @PostMapping("/{id}/status")

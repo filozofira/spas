@@ -122,13 +122,4 @@ See [.github/agents/README.md](.github/agents/README.md) for usage and available
 
 ## Contributing
 
-SPAS is under active development. Start with component-specific contribution guides:
-
-- **SDK**: [.NET](./components/sdk/dotnet/CONTRIBUTING.md), [Java](./components/sdk/java/CONTRIBUTING.md)
-- **CLI**: [spas-service](./components/cli/spas-service/CONTRIBUTING.md), [spas-compose](./components/cli/spas-compose/CONTRIBUTING.md)
-- **Runtime**: [Repository](./components/repository/CONTRIBUTING.md), [Sidecar](./components/sidecar/CONTRIBUTING.md)
-
-For architecture and governance changes, use:
-
-- [Principles](./principles/README.md)
-- [Decision Log](./principles/appendix/28-decision-log.md)
+See [CONTRIBUTING.md](./CONTRIBUTING.md) for guidelines on bug reports, feature requests, and code contributions.

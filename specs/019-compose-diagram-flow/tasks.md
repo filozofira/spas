@@ -46,13 +46,13 @@
 
 ### Implementation for User Story 1
 
-- [ ] T003 [US1] Update diagram template in `generateWorkflowPhases()` to use `Start([Start])` and `End([End])` nodes in components/cli/spas-compose/src/utils/templates.ts (~line 560)
-- [ ] T004 [US1] Add explicit agent instruction requiring Start node connected to first service in the flow in components/cli/spas-compose/src/utils/templates.ts (Phase 2: Propose section)
-- [ ] T005 [US1] Add explicit agent instruction requiring End node connected from terminal events in components/cli/spas-compose/src/utils/templates.ts (Phase 2: Propose section)
-- [ ] T006 [US1] Add explicit agent instruction requiring `flowchart LR` direction (not subgraph-wrapped) in components/cli/spas-compose/src/utils/templates.ts
-- [ ] T007 [US1] Add explicit agent instruction requiring edge labels with event types in components/cli/spas-compose/src/utils/templates.ts
+- [X] T003 [US1] Update diagram template in `generateWorkflowPhases()` to use `Start([Start])` and `End([End])` nodes in components/cli/spas-compose/src/utils/templates.ts (~line 560)
+- [X] T004 [US1] Add explicit agent instruction requiring Start node connected to first service in the flow in components/cli/spas-compose/src/utils/templates.ts (Phase 2: Propose section)
+- [X] T005 [US1] Add explicit agent instruction requiring End node connected from terminal events in components/cli/spas-compose/src/utils/templates.ts (Phase 2: Propose section)
+- [X] T006 [US1] Add explicit agent instruction requiring `flowchart LR` direction (not subgraph-wrapped) in components/cli/spas-compose/src/utils/templates.ts
+- [X] T007 [US1] Add explicit agent instruction requiring edge labels with event types in components/cli/spas-compose/src/utils/templates.ts
 
-**Checkpoint**: Diagram template now includes Start/End notation rules
+**Checkpoint**: Diagram template now includes Start/End notation rules ✅
 
 ---
 

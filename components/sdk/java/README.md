@@ -45,7 +45,7 @@ mvn spring-boot:run
 - Simple API: `EventPublisher.publishAsync(event)`
 - Automatic headers: traceparent, x-service-name, x-event-name, x-correlation-id
 - Sidecar integration: Posts to sidecar `/publish` endpoint
-- No CloudEvents wrapping: Sidecar handles envelope construction
+- Sidecar handles CloudEvents wrapping
 
 **Context Propagation:**
 

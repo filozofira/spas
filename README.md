@@ -31,7 +31,7 @@ Most frameworks separate infrastructure (mesh/sidecar), semantics (API specs), a
 
 ## Architecture Overview
 
-This repo keeps the detailed architecture description in the Principles docs.
+Detailed architecture documentation lives in the Principles docs.
 
 - Canonical architecture description: [principles/02-architecture-overview.md](principles/02-architecture-overview.md)
 - Sidecar behavior/contract (normative): [principles/component/10-sidecar-contract.md](principles/component/10-sidecar-contract.md)
@@ -46,7 +46,7 @@ This repo keeps the detailed architecture description in the Principles docs.
   - [.NET SDK](./components/sdk/dotnet/README.md)
   - [Java SDK](./components/sdk/java/README.md)
 
-2. Run a runnable example service (recommended for first-time setup):
+2. Run an example service (recommended for first-time setup):
   - [Examples Services](./examples/services/README.md)
 
 3. Publish service metadata to a Repository:

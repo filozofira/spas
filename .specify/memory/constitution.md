@@ -423,4 +423,46 @@ All constitution changes MUST:
 - Prepend Sync Impact Report (HTML comment at top of file)
 - Update dependent templates/docs within same PR
 
-**Version**: 1.0.4 | **Ratified**: 2025-12-12 | **Last Amended**: 2025-12-14
+---
+
+## Related Documents
+
+This Constitution is the authoritative governance document. For detailed technical specifications, refer to:
+
+### Foundation
+
+| Document | Purpose |
+|----------|---------|
+| [principles/01-core-principles.md](../../principles/01-core-principles.md) | Immutable design principles |
+| [principles/02-architecture-overview.md](../../principles/02-architecture-overview.md) | High-level system architecture, PoC vs Production comparison |
+| [principles/README.md](../../principles/README.md) | Navigation guide to all principles documents |
+
+### Component Specifications
+
+| Component | Specification |
+|-----------|---------------|
+| SDK | [principles/component/12-sdk.md](../../principles/component/12-sdk.md) |
+| Repository | [principles/component/11-repository.md](../../principles/component/11-repository.md) |
+| CLI | [principles/component/13-cli.md](../../principles/component/13-cli.md) |
+| Sidecar | [principles/component/10-sidecar-contract.md](../../principles/component/10-sidecar-contract.md) |
+| Domain Choreography | [principles/component/14-domain-choreography.md](../../principles/component/14-domain-choreography.md) |
+
+### Protocols & Security
+
+| Topic | Specification |
+|-------|---------------|
+| Communication Model | [principles/protocol/07-communication-model.md](../../principles/protocol/07-communication-model.md) |
+| Event Protocol | [principles/protocol/09-event-protocol.md](../../principles/protocol/09-event-protocol.md) |
+| Security Model | [principles/security/19-security-model.md](../../principles/security/19-security-model.md) |
+
+### Governance
+
+| Topic | Specification |
+|-------|---------------|
+| Versioning | [principles/governance/23-versioning-strategy.md](../../principles/governance/23-versioning-strategy.md) |
+| Compliance | [principles/governance/24-compliance-checklist.md](../../principles/governance/24-compliance-checklist.md) |
+| Decision Log (ADRs) | [principles/appendix/28-decision-log.md](../../principles/appendix/28-decision-log.md) |
+
+---
+
+**Version**: 1.0.5 | **Ratified**: 2025-12-12 | **Last Amended**: 2025-12-15

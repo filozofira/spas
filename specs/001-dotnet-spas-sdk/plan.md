@@ -1,7 +1,7 @@
 # Implementation Plan: .NET SPAS SDK
 
 **Branch**: `001-dotnet-spas-sdk` | **Date**: 2025-12-12 | **Completed**: 2025-12-12 | **Status**: ✅ Complete (PoC)  
-**Spec**: [specs/001-dotnet-spas-sdk/spec.md](specs/001-dotnet-spas-sdk/spec.md)  
+**Spec**: [spec.md](spec.md)  
 **Input**: Feature specification from `/specs/001-dotnet-spas-sdk/spec.md`
 
 **Completion Summary**: All PoC user stories implemented (P1-P3). SDK provides metadata composition with auto-discovery, dev metadata endpoint, event publishing with trace/correlation propagation, and tracelog middleware with Zipkin integration. Configuration abstracted using environment variables matching sidecar prototype patterns. 88 unit tests passing. See [SECURITY.md](SECURITY.md) for Production migration requirements.

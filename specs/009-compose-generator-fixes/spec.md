@@ -150,6 +150,6 @@ As a domain composer, I want to specify where domain files are created using `--
 ## References
 
 - [README.md Feature Grooming](../../README.md) - FG01, FG05, FG06, FG07 detailed descriptions
-- [examples/domains/ecommerce/public/](../../examples/domains/ecommerce/public/) - Manually fixed reference implementation
+- [examples/domains/order-fulfillment/](../../examples/domains/order-fulfillment/) - Manually fixed reference implementation
 - [components/cli/spas-compose/](../../components/cli/spas-compose/) - CLI implementation to modify
 

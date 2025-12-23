@@ -198,7 +198,7 @@ SPAS distinguishes between **PoC** and **Production** modes.
 - **PoC** favors rapid validation of architecture patterns with simplified infrastructure and largely declarative (non-enforced) policies.
 - **Production** hardens transport/security/identity, increases enforcement of policy and compatibility rules, and strengthens repository guarantees.
 
-The canonical technical comparison (transport, identity, observability, repository, enforcement) is maintained in [principles/02-architecture-overview.md](principles/02-architecture-overview.md).
+The canonical technical comparison (transport, identity, observability, repository, enforcement) is maintained in [principles/02-architecture-overview.md](../../principles/02-architecture-overview.md).
 
 **Testing policy (SpecKit, PoC planning convenience):** Unit test tasks MUST be included per user story in generated task lists. Integration test tasks MAY be omitted during PoC unless explicitly requested in the feature spec. Independent test criteria per user story are MANDATORY. This simplification does NOT waive component Quality Gates for non‑PoC releases.
 

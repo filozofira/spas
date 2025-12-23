@@ -39,7 +39,7 @@ subscription-order/
 
 ## Workflow
 
-Follow the standard workflow in [spas-compose CLI](../../components/cli/spas-compose/README.md).
+Follow the standard workflow in [spas-compose CLI](../../../components/cli/spas-compose/README.md).
 
 Typical services for this domain:
 
@@ -49,8 +49,8 @@ Typical services for this domain:
 
 ## Configuration
 
-Repository configuration (including `SPAS_REPOSITORY_URL` and `--repo`) is documented in [spas-compose CLI](../../components/cli/spas-compose/README.md).
+Repository configuration (including `SPAS_REPOSITORY_URL` and `--repo`) is documented in [spas-compose CLI](../../../components/cli/spas-compose/README.md).
 
 ## Documentation
 
-See also: [spas-compose CLI](../../components/cli/spas-compose/README.md) and [Domain Choreography](../../principles/component/14-domain-choreography.md).
+See also: [spas-compose CLI](../../../components/cli/spas-compose/README.md) and [Domain Choreography](../../../principles/component/14-domain-choreography.md).

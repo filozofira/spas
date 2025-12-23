@@ -18,6 +18,6 @@
 
 ## Related Documents
 
-- [INDEX](../INDEX.md)
-- [Introduction](../00-introduction.md)
+- [Principles](../README.md)
+- [Repository Introduction](../../README.md)
 - [Decision Log](28-decision-log.md)

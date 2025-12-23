@@ -185,22 +185,22 @@ Contributions welcome; see module-specific guides.
 
 ## 📖 Additional Resources
 
-- **[Quickstart Guide](../../specs/001-dotnet-spas-sdk/quickstart.md)** - Step-by-step tutorial
+- **[Quickstart Guide](../../../specs/001-dotnet-spas-sdk/quickstart.md)** - Step-by-step tutorial
 - **[SampleService](./examples/SampleService/README.md)** - Complete working example
-- **[Specification](../../specs/001-dotnet-spas-sdk/spec.md)** - Full requirements
-- **[Security Review](../../specs/001-dotnet-spas-sdk/SECURITY.md)** - PoC→Production migration
-- **[Completion Report](../../specs/001-dotnet-spas-sdk/COMPLETION.md)** - Metrics & summary
+- **[Specification](../../../specs/001-dotnet-spas-sdk/spec.md)** - Full requirements
+- **[Security Review](../../../specs/001-dotnet-spas-sdk/SECURITY.md)** - PoC→Production migration
+- **[Completion Report](../../../specs/001-dotnet-spas-sdk/COMPLETION.md)** - Metrics & summary
 
 ## ⚠️ PoC vs Production
 
-This SDK is a PoC. Review [SECURITY.md](../../specs/001-dotnet-spas-sdk/SECURITY.md) before treating it as production-ready.
+This SDK is a PoC. Review [SECURITY.md](../../../specs/001-dotnet-spas-sdk/SECURITY.md) before treating it as production-ready.
 
 ## 🤝 Contributing
 
 This SDK is part of the SPAS framework PoC. For questions or improvements:
 
-1. Review the [specification](../../specs/001-dotnet-spas-sdk/spec.md)
-2. Check [tasks.md](../../specs/001-dotnet-spas-sdk/tasks.md) for implementation details
+1. Review the [specification](../../../specs/001-dotnet-spas-sdk/spec.md)
+2. Check [tasks.md](../../../specs/001-dotnet-spas-sdk/tasks.md) for implementation details
 3. Run tests: `dotnet test`
 4. Follow existing patterns (attribute-based discovery, single-line config)
 

@@ -159,7 +159,7 @@ To use: Run `spas-compose init <domain>` then run `spas-compose services pull <s
 
 ## Related Documents
 
-- [INDEX](INDEX.md)
+- [Principles](README.md)
 - [Communication Model](protocol/07-communication-model.md)
 - [Domain Choreography](component/14-domain-choreography.md)
 - [Runtime Environment](infrastructure/17-runtime-environment.md)

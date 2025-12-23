@@ -64,10 +64,10 @@
 
 ### Implementation for User Story 2
 
-- [ ] T008 [US2] Add explicit agent instruction to insert/update diagram in domain README.md in components/cli/spas-compose/src/utils/templates.ts (Phase 2: Propose section)
-- [ ] T009 [US2] Add explicit agent instruction for diagram placement (at top of file, after title) in components/cli/spas-compose/src/utils/templates.ts
+- [X] T008 [US2] Add explicit agent instruction to insert/update diagram in domain README.md in components/cli/spas-compose/src/utils/templates.ts (Phase 2: Propose section)
+- [X] T009 [US2] Add explicit agent instruction for diagram placement (at top of file, after title) in components/cli/spas-compose/src/utils/templates.ts
 
-**Checkpoint**: Agent prompt now instructs to update README with diagram
+**Checkpoint**: Agent prompt now instructs to update README with diagram ✅
 
 ---
 

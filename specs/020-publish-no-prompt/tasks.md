@@ -46,14 +46,14 @@
 
 ### Implementation for User Story 1
 
-- [ ] T009 [US1] Modify `downloadMetadata()` method to attempt immediate download in components/cli/spas-service/src/services/publish-service.ts
-- [ ] T010 [US1] Update `publish()` method to call `downloadMetadata()` directly (no prompt) in components/cli/spas-service/src/services/publish-service.ts
-- [ ] T011 [US1] Ensure `--archive` mode behavior unchanged (no service download) in components/cli/spas-service/src/services/publish-service.ts
-- [ ] T012 [US1] Add test: successful immediate download when service available in components/cli/spas-service/test/unit/services/publish-service.test.ts
-- [ ] T013 [US1] Add test: immediate failure when service unavailable (no retry yet) in components/cli/spas-service/test/unit/services/publish-service.test.ts
-- [ ] T014 [US1] Add test: `--archive` mode bypasses service download in components/cli/spas-service/test/unit/services/publish-service.test.ts
-- [ ] T015 [US1] Update integration tests to not expect prompt in components/cli/spas-service/test/integration/ (if any)
-- [ ] T016 [US1] Verify CI/CD compatibility: test command in non-interactive environment (bash script with `< /dev/null`)
+- [X] T009 [US1] Modify `downloadMetadata()` method to attempt immediate download in components/cli/spas-service/src/services/publish-service.ts
+- [X] T010 [US1] Update `publish()` method to call `downloadMetadata()` directly (no prompt) in components/cli/spas-service/src/services/publish-service.ts
+- [X] T011 [US1] Ensure `--archive` mode behavior unchanged (no service download) in components/cli/spas-service/src/services/publish-service.ts
+- [X] T012 [US1] Add test: successful immediate download when service available in components/cli/spas-service/test/unit/services/publish-service.test.ts
+- [X] T013 [US1] Add test: immediate failure when service unavailable (no retry yet) in components/cli/spas-service/test/unit/services/publish-service.test.ts
+- [X] T014 [US1] Add test: `--archive` mode bypasses service download in components/cli/spas-service/test/unit/services/publish-service.test.ts
+- [X] T015 [US1] Update integration tests to not expect prompt in components/cli/spas-service/test/integration/ (if any)
+- [X] T016 [US1] Verify CI/CD compatibility: test command in non-interactive environment (bash script with `< /dev/null`)
 
 **Checkpoint**: US1 complete - publish works without prompt, fails immediately if service unavailable
 

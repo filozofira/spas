@@ -176,4 +176,75 @@ describe('PublishService', () => {
             );
         });
     });
+
+    describe('publish workflow (US1: Direct Publish Without Prompt)', () => {
+        it('should immediately download metadata when service is available', async () => {
+            // Arrange
+            const serviceHost = 'http://localhost:5000';
+            const archiveBuffer = Buffer.from('mock-zip-content');
+            const identity = { id: 'test-service', version: '1.0.0' };
+
+            mockMetadataClient.downloadMetadata.mockResolvedValue(archiveBuffer);
+            mockArchiveReader.extractIdentity.mockResolvedValue(identity);
+            mockRepositoryClient.publishService.mockResolvedValue(undefined);
+
+            // Act
+            const result = await publishService.publish(serviceHost);
+
+            // Assert
+            expect(mockMetadataClient.downloadMetadata).toHaveBeenCalledWith(serviceHost);
+            expect(mockMetadataClient.downloadMetadata).toHaveBeenCalledTimes(1);
+            expect(mockArchiveReader.extractIdentity).toHaveBeenCalledWith(archiveBuffer);
+            expect(mockRepositoryClient.publishService).toHaveBeenCalledWith(
+                identity.id,
+                identity.version,
+                archiveBuffer,
+                undefined
+            );
+            expect(result).toEqual(identity);
+        });
+
+        it('should fail immediately when service is unavailable (no retry in US1)', async () => {
+            // Arrange
+            const serviceHost = 'http://localhost:5000';
+            const connectionError = new Error('ECONNREFUSED');
+            (connectionError as any).code = 'ECONNREFUSED';
+
+            mockMetadataClient.downloadMetadata.mockRejectedValue(connectionError);
+
+            // Act & Assert
+            await expect(publishService.publish(serviceHost))
+                .rejects.toThrow('ECONNREFUSED');
+
+            expect(mockMetadataClient.downloadMetadata).toHaveBeenCalledTimes(1);
+            expect(mockRepositoryClient.publishService).not.toHaveBeenCalled();
+        });
+
+        it('should ensure archive mode bypasses service download', async () => {
+            // Arrange
+            const archivePath = './test-service-1.0.0.zip';
+            const archiveBuffer = Buffer.from('mock-zip-content');
+            const identity = { id: 'test-service', version: '1.0.0' };
+
+            (fs.readFileSync as jest.Mock).mockReturnValue(archiveBuffer);
+            mockArchiveReader.extractIdentity.mockResolvedValue(identity);
+            mockRepositoryClient.publishService.mockResolvedValue(undefined);
+
+            // Act
+            const result = await publishService.publishFromArchive(archivePath);
+
+            // Assert
+            expect(fs.readFileSync).toHaveBeenCalledWith(archivePath);
+            expect(mockMetadataClient.downloadMetadata).not.toHaveBeenCalled();
+            expect(mockArchiveReader.extractIdentity).toHaveBeenCalledWith(archiveBuffer);
+            expect(mockRepositoryClient.publishService).toHaveBeenCalledWith(
+                identity.id,
+                identity.version,
+                archiveBuffer,
+                undefined
+            );
+            expect(result).toEqual(identity);
+        });
+    });
 });
+

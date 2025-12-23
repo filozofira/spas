@@ -143,6 +143,6 @@ Example error:
 
 ## See Also
 
-- [Sidecar README](../../../components/sidecar/README.md)
+- [Sidecar README](../../components/sidecar/README.md)
 - [JSONata Documentation](https://docs.jsonata.org/)
-- [spec.md](../spec.md) - Feature specification
+- [spec.md](spec.md) - Feature specification

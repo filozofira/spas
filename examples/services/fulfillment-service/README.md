@@ -189,5 +189,4 @@ curl -X POST http://localhost:8080/api/fulfillments/ship-abc123/status \
 ## Related Documentation
 
 - [Java SPAS SDK](../../../components/sdk/java/README.md)
-- [E-Commerce Domain](../../domains/ecommerce/README.md)
-- [Fulfillment Service Design](../../FULFILLMENT-SERVICE-DESIGN.md)
+- [Order Fulfillment Domain](../../domains/order-fulfillment/README.md)

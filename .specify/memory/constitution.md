@@ -193,24 +193,14 @@ Services MUST run unchanged across Kubernetes, Docker Compose, and bare metal en
 
 ## PoC vs Production Distinction
 
-**PoC Simplifications** (Current Phase):
+SPAS distinguishes between **PoC** and **Production** modes.
 
-- HTTP transport (not gRPC)
-- Identity in CloudEvents payload (not mTLS/SPIFFE)
-- Zipkin-only observability (not full OpenTelemetry + Prometheus)
-- SQLite repository storage (not PostgreSQL + S3)
-- No contract testing framework
-- Declarative-only security policies (not runtime enforcement)
-- SpecKit testing policy: Unit test tasks MUST be included per user story in generated task lists. Integration test tasks MAY be omitted during PoC unless explicitly requested in the feature spec. Independent test criteria per user story are MANDATORY. This simplification does NOT waive component Quality Gates for non‑PoC releases.
+- **PoC** favors rapid validation of architecture patterns with simplified infrastructure and largely declarative (non-enforced) policies.
+- **Production** hardens transport/security/identity, increases enforcement of policy and compatibility rules, and strengthens repository guarantees.
 
-**Production Requirements** (Future):
+The canonical technical comparison (transport, identity, observability, repository, enforcement) is maintained in [principles/02-architecture-overview.md](../../principles/02-architecture-overview.md).
 
-- gRPC for all service APIs
-- mTLS with SPIFFE/SPIRE for identity
-- Full OpenTelemetry + Prometheus metrics
-- PostgreSQL (JSONB) + S3 for repository storage
-- Contract testing framework (Pact-style)
-- Runtime policy enforcement via service mesh
+**Testing policy (SpecKit, PoC planning convenience):** Unit test tasks MUST be included per user story in generated task lists. Integration test tasks MAY be omitted during PoC unless explicitly requested in the feature spec. Independent test criteria per user story are MANDATORY. This simplification does NOT waive component Quality Gates for non‑PoC releases.
 
 **Rationale**: PoC prioritizes rapid validation of architecture patterns over production-grade infrastructure. All PoC implementations MUST be designed for future production migration.
 

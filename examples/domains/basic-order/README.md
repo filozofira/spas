@@ -38,64 +38,17 @@ basic-order/
 
 ## Workflow
 
-### 1. Pull Services
+Follow the standard workflow in [spas-compose CLI](../../../components/cli/spas-compose/README.md).
 
-Download service metadata from SPAS Repository:
+Typical services for this domain:
 
-```bash
-spas-compose services pull <service-name> <version>
-```
-
-**Example:**
-
-```bash
-spas-compose services pull order-service 1.0.0
-spas-compose services pull fulfillment-service 1.0.0
-```
-
-### 2. Compose Choreography
-
-Use the `/spas.compose` agent prompt to analyze service contracts and generate choreography:
-
-```
-/spas.compose Analyze order-service and fulfillment-service contracts.
-Propose topic mappings and generate transformations.
-```
-
-The agent will:
-- Parse service contracts from `services/*/spas.json`
-- Propose event mappings and topic routes
-- Generate JSONata transformation files
-- Update `choreography.yaml`
-
-### 3. Build
-
-Build Docker Compose deployment:
-
-```bash
-spas-compose choreography build --dry-run   # Validate
-spas-compose choreography build --docker    # Generate docker-compose.yaml
-```
-
-### 4. Run
-
-Start services:
-
-```bash
-docker compose up
-```
+- order-service 1.0.0
+- inventory-service 1.0.0
 
 ## Configuration
 
-### Repository URL
-
-Set repository URL via:
-- `--repo` flag: `spas-compose services pull order-service 1.0.0 --repo http://repo.example.com`
-- Environment: `export SPAS_REPOSITORY_URL=http://repo.example.com`
-- Default: `http://localhost:3000`
+Repository configuration (including `SPAS_REPOSITORY_URL` and `--repo`) is documented in [spas-compose CLI](../../../components/cli/spas-compose/README.md).
 
 ## Documentation
 
-- [spas-compose CLI](../../components/cli/spas-compose/README.md)
-- [SPAS Principles](../../principles/README.md)
-- [Domain Choreography](../../principles/component/14-domain-choreography.md)
+See also: [spas-compose CLI](../../../components/cli/spas-compose/README.md) and [Domain Choreography](../../../principles/component/14-domain-choreography.md).

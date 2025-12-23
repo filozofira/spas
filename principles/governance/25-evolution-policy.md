@@ -35,4 +35,4 @@
 
 - [Versioning Strategy](23-versioning-strategy.md)
 - [Decision Log](../appendix/28-decision-log.md)
-- [INDEX](../INDEX.md)
+- [Principles](../README.md)

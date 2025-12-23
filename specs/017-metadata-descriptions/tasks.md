@@ -9,8 +9,8 @@ description: "Task list for implementing metadata descriptions"
 
 **Prerequisites**:
 
-- Required: [specs/017-metadata-descriptions/plan.md](specs/017-metadata-descriptions/plan.md), [specs/017-metadata-descriptions/spec.md](specs/017-metadata-descriptions/spec.md)
-- Optional: [specs/017-metadata-descriptions/research.md](specs/017-metadata-descriptions/research.md), [specs/017-metadata-descriptions/data-model.md](specs/017-metadata-descriptions/data-model.md), [specs/017-metadata-descriptions/contracts/repository-service.openapi.yaml](specs/017-metadata-descriptions/contracts/repository-service.openapi.yaml), [specs/017-metadata-descriptions/quickstart.md](specs/017-metadata-descriptions/quickstart.md)
+- Required: [plan.md](plan.md), [spec.md](spec.md)
+- Optional: [research.md](research.md), [data-model.md](data-model.md), [contracts/repository-service.openapi.yaml](contracts/repository-service.openapi.yaml), [quickstart.md](quickstart.md)
 
 **Tests**: REQUIRED by spec (FR-016, FR-023, SC-008)
 

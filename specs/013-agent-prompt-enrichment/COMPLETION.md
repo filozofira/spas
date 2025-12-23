@@ -871,7 +871,7 @@ To accommodate the execution flow documentation within the 25 KB limit:
 - Generated sidecar configs would fail at runtime with 404 errors
 
 **Root Cause**:
-- [sidecar-config-generator.ts:152](../components/cli/spas-compose/src/services/sidecar-config-generator.ts#L152) hardcoded the endpoint
+- [sidecar-config-generator.ts:152](../../components/cli/spas-compose/src/services/sidecar-config-generator.ts#L152) hardcoded the endpoint
 - No logic to lookup service metadata and extract `methodPath` from endpoints
 - Contradicted service-sidecar architecture (services expose Commands, sidecars invoke them)
 

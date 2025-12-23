@@ -326,5 +326,5 @@ ADR-030 notes: "Future consideration: standardized term for 'system built by com
 ## Related Documents
 
 - [Evolution Policy](../governance/25-evolution-policy.md)
-- [INDEX](../INDEX.md)
+- [Principles](../README.md)
 - [Glossary](27-glossary.md)

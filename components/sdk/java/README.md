@@ -4,94 +4,58 @@
 [![Maven](https://img.shields.io/badge/Maven-3.8+-blue)](https://maven.apache.org/)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](../../../LICENSE)
 
-The Java SDK for building **SPAS (Self-contained, Portable, Adaptable Services)** - services that publish rich metadata, communicate via events, and maintain distributed trace context.
+The Java SDK for building **SPAS (Self-contained, Portable, Adaptable Services)** — services that publish rich metadata, communicate via events, and maintain distributed trace context.
 
-## 🎯 Framework-Agnostic Design
+> The core SDK modules (`spas-sdk-core`, `spas-sdk-metadata`, `spas-sdk-events`) are **framework-agnostic** and work with any Java HTTP framework (JAX-RS, plain servlets, Micronaut, Quarkus, etc.). The `spas-sdk-spring` module is an **optional** integration for Spring Boot applications.
 
-> **Important**: The core SDK modules (`spas-sdk-core`, `spas-sdk-metadata`, `spas-sdk-events`) are **framework-agnostic** and work with any Java HTTP framework (JAX-RS, plain servlets, Micronaut, Quarkus, etc.).
->
-> The `spas-sdk-spring` module is an **optional** integration that provides Spring Boot auto-configuration. You only need it if you're building Spring Boot applications.
+## For Users
 
-## 📦 Modules
+### Quick Start
 
-| Module                        | Description                          | Spring Required?  |
-| ----------------------------- | ------------------------------------ | ----------------- |
-| `spas-sdk-core`               | Context, configuration, utilities    | ❌ No             |
-| `spas-sdk-metadata`           | Annotations, builders, model classes | ❌ No             |
-| `spas-sdk-metadata-processor` | Compile-time `spas.json` generation  | ❌ No             |
-| `spas-sdk-events`             | Event publishing to sidecar          | ❌ No             |
-| `spas-sdk-spring`             | Spring Boot auto-configuration       | ✅ Yes (optional) |
+1. Run the reference sample-service:
 
-## ✨ Features
+```bash
+cd components/sdk/java/examples/sample-service
+mvn spring-boot:run
+```
 
-### 🎯 Metadata Generation
+2. Use a runnable end-to-end example: [Examples Services README](../../../examples/services/README.md)
 
-- **Annotation-based**: `@SpasCommand`, `@SpasQuery`, `@SpasEvent`
-- **Compile-time generation**: `spas.json` created during Maven build
-- **Schema validation**: Validates against design-time-metadata-v1 schema
-- **Kebab-case normalization**: `OrderCreated` → `order-created`
+### Modules
 
-### 📤 Event Publishing
+| Module                          | Purpose                    | Key Types                                            |
+| ------------------------------- | -------------------------- | ---------------------------------------------------- |
+| `spas-sdk-core`                 | Context, configuration     | `SpasContext`, `SpasConfiguration`, `SpasIdentity`   |
+| `spas-sdk-metadata`             | Annotations, builders      | `@SpasCommand`, `@SpasQuery`, `@SpasEvent`, builders |
+| `spas-sdk-metadata-processor`   | Compile-time generation    | Annotation processor (`spas.json` output)            |
+| `spas-sdk-events`               | Event publishing (sidecar) | `EventPublisher`, `SpasEventBuilder`                 |
+| `spas-sdk-spring`               | Spring integration         | Auto-configuration, property binding                 |
 
-- **Simple API**: `EventPublisher.publishAsync(event)`
-- **Automatic headers**: traceparent, x-service-name, x-event-name, x-correlation-id
-- **Sidecar integration**: Posts to sidecar `/publish` endpoint
-- **No CloudEvents wrapping**: Sidecar handles envelope construction
+### Features
 
-### 📊 Context Propagation
+**Metadata Generation:**
 
-- **W3C Trace Context**: Full traceparent/tracestate support
-- **Identity propagation**: x-user-id, x-tenant-id headers
-- **Thread-safe**: InheritableThreadLocal for async operations
+- Annotation-based: `@SpasCommand`, `@SpasQuery`, `@SpasEvent`
+- Compile-time generation: `spas.json` created during Maven build
+- Schema validation: Validates against design-time-metadata-v1 schema
+- Kebab-case normalization: `OrderCreated` → `order-created`
 
-## 🚀 Quick Start
+**Event Publishing:**
 
-For runnable examples, configuration, and setup walkthroughs, see:
+- Simple API: `EventPublisher.publishAsync(event)`
+- Automatic headers: traceparent, x-service-name, x-event-name, x-correlation-id
+- Sidecar integration: Posts to sidecar `/publish` endpoint
+- No CloudEvents wrapping: Sidecar handles envelope construction
 
-- [Examples Services README](../../../examples/services/README.md)
+**Context Propagation:**
 
-### Define an Event
+- W3C Trace Context: Full traceparent/tracestate support
+- Identity propagation: x-user-id, x-tenant-id headers
+- Thread-safe: InheritableThreadLocal for async operations
 
-See the example services for event definitions.
+### Configuration
 
-### Mark Endpoints
-
-Endpoint annotations are demonstrated in the example services.
-
-## ✍️ Writing Effective Descriptions
-
-Descriptions are optional but strongly recommended for AI-assisted choreography.
-
-**Rules**:
-
-- Plain text only (no Markdown semantics)
-- May include newlines
-- Keep it intent-focused: purpose + key inputs + side effects
-
-**Good examples**:
-
-- Service: "Creates and tracks shipments for confirmed orders; publishes shipment lifecycle events"
-- Command: "Creates a shipment for a confirmed order using destination address; emits ShipmentCreated"
-- Query: "Returns shipment details by shipmentId"
-- Event: "Emitted when shipment status changes; indicates progress through fulfillment lifecycle"
-
-**Bad examples**:
-
-- "CreateShipment" (just restates the name)
-- "Does the thing" (too generic)
-- "Creates a shipment (sometimes)" (ambiguous, no signal)
-
-### Publish Events
-
-Publishing examples are available in the example services.
-
-### Build and Verify
-
-Build and verification steps are provided in the runnable examples.
-
-## ⚙️ Configuration
-
-### Environment Variables
+The SDK uses environment variables matching docker-compose patterns:
 
 | Variable       | Required | Description                                          |
 | -------------- | -------- | ---------------------------------------------------- |
@@ -100,31 +64,34 @@ Build and verification steps are provided in the runnable examples.
 | `SIDECAR_HOST` | No       | Sidecar hostname (default: `{service-name}-sidecar`) |
 | `SIDECAR_PORT` | No       | Sidecar port (default: `7000`)                       |
 
-### Spring Boot Properties (if using spas-sdk-spring)
+**Sidecar URL Resolution:** `SIDECAR_URL` > `SIDECAR_HOST:PORT` > derived from `SERVICE_NAME` > localhost. See [Sidecar Contract](../../../principles/component/10-sidecar-contract.md) for details.
 
-See configuration in the examples services.
+### Writing Effective Descriptions
 
-## 📁 Project Structure
+Descriptions improve AI-assisted choreography. Use plain text describing intent, not implementation.
 
-```
-components/sdk/java/
-├── pom.xml                        # Parent POM
-├── README.md                      # This file
-├── spas-sdk-core/                 # Core: context, config, utilities
-├── spas-sdk-metadata/             # Annotations, builders, models
-├── spas-sdk-metadata-processor/   # Compile-time annotation processor
-├── spas-sdk-events/               # Event publishing
-├── spas-sdk-spring/               # Spring Boot integration (optional)
-└── examples/
-    └── sample-service/            # Reference implementation
-```
+- ✅ Good: "Creates a shipment for a confirmed order using destination address; emits ShipmentCreated"
+- ❌ Bad: "CreateShipment" (restates name), "Does the thing" (too generic)
 
-## 🔧 Building
+More examples: [SDK Principles](../../../principles/component/12-sdk.md)
 
-Use module-specific build and test commands as documented in the examples and module READMEs.
+### Additional Resources
 
-## 📚 Related Documentation
-
+- [sample-service](./examples/sample-service/README.md) — Complete working example
+- [Examples Services](../../../examples/services/README.md) — Runnable domain examples
 - [SPAS SDK Principles](../../../principles/component/12-sdk.md)
-- [Design-Time Metadata Schema](../schemas/design-time-metadata-v1.schema.json)
+- [Communication Model](../../../principles/protocol/07-communication-model.md)
+- [Event Protocol](../../../principles/protocol/09-event-protocol.md)
 - [.NET SDK Reference](../dotnet/README.md)
+
+### PoC vs Production
+
+This SDK is a PoC. Review security considerations before treating it as production-ready.
+
+## For Contributors
+
+See [CONTRIBUTING.md](./CONTRIBUTING.md).
+
+## License
+
+See [LICENSE](../../../LICENSE) in the repository root.

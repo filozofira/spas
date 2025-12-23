@@ -202,5 +202,5 @@ The choreography.yaml flows generate sidecar configuration files. Use the schema
 
 ## References
 
-- [Sidecar Config Schema](./examples/ecommerce/{DOMAIN}/.spas/schemas/sidecar-config-v1.schema.json)
+- Sidecar Config Schema: `./examples/ecommerce/{DOMAIN}/.spas/schemas/sidecar-config-v1.schema.json`
 

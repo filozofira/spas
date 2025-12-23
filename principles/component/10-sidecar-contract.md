@@ -2,6 +2,8 @@
 
 Specifies responsibilities and interfaces for the platform-injected sidecar/mesh.
 
+This document is normative for sidecar behavior (interfaces, headers, transformations). For implementation setup and local run instructions, see the sidecar runbook in [../../components/sidecar/README.md](../../components/sidecar/README.md).
+
 ## Responsibilities
 
 - Traffic interception: ingress/egress
@@ -117,3 +119,4 @@ Note: Topic is NOT in the URL path. The sidecar uses routing configuration to ma
 - [Communication Model](../protocol/07-communication-model.md)
 - [Runtime Environment](../infrastructure/17-runtime-environment.md)
 - [Network Security](../security/21-network-security.md)
+- [SPAS Sidecar runbook](../../components/sidecar/README.md)

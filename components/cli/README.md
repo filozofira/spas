@@ -2,23 +2,21 @@
 
 Command-line tooling for working with SPAS services and domain choreographies.
 
-## For CLI Users (Service Developers & Domain Architects)
+## For Users
 
 - [spas-service](./spas-service/README.md) - Publish/pull service metadata archives to/from Repository
 - [spas-compose](./spas-compose/README.md) - Initialize domain workspaces, pull services, build deployment artifacts
 
-## For CLI Contributors (Tooling Developers)
+## For Contributors
 
 Contributing to the CLI implementations:
 
 - [spas-service Contributing Guide](./spas-service/CONTRIBUTING.md)
 - [spas-compose Contributing Guide](./spas-compose/CONTRIBUTING.md)
 
-## Typical workflow
+## Workflow
 
-1. Build a service with an SDK and expose `/_spas/metadata` (Development mode)
-2. Publish it with `spas-service`
-3. Compose a domain with `spas-compose` (pull services → author choreography → build sidecar configs + docker compose)
+See the canonical end-to-end workflow in [./spas-compose/README.md](./spas-compose/README.md).
 
 ## References
 

@@ -1,6 +1,6 @@
 # Implementation Plan: Service Metadata Schema Alignment
 
-**Branch**: `002-metadata-schema-alignment` | **Date**: 2025-12-13 | **Spec**: [specs/002-metadata-schema-alignment/spec.md](specs/002-metadata-schema-alignment/spec.md)
+**Branch**: `002-metadata-schema-alignment` | **Date**: 2025-12-13 | **Spec**: [spec.md](spec.md)
 **Input**: Feature specification from `/specs/002-metadata-schema-alignment/spec.md`
 
 ## Summary

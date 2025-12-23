@@ -3,7 +3,7 @@
 Runnable reference implementation for the .NET SDK.
 
 For end-to-end examples and service composition, see the central examples documentation:
-- [Examples Services README](../../../../examples/services/README.md)
+- [Examples Services README](../../../../../examples/services/README.md)
 
 ## Quick start
 

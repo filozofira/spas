@@ -5,21 +5,57 @@ version: "1.0"
 domain: basket-checkout
 
 # Named choreography flows
-# Use /spas.compose agent to generate flows based on service contracts
-flows: {}
-  # Example:
-  # order-fulfillment:
-  #   description: "Order to fulfillment processing flow"
-  #   participants:
-  #     - order-service
-  #     - fulfillment-service
-  #   events:
-  #     - source: order-service
-  #       event: order-created
-  #       topic: orders
-  #       targets:
-  #         - service: fulfillment-service
-#           transform: transformations/fulfillment-service/inbound-order-created.jsonata
+flows:
+  basket-checkout-flow:
+    description: "Complete basket checkout to order fulfillment flow"
+    participants:
+      - basket-service
+      - order-service
+      - inventory-service
+      - fulfillment-service
+    events:
+      - source: basket-service
+        event: checkout-initiated
+        topic: shopping-events
+        targets:
+          - service: order-service
+            command: create-order
+            transform: transformations/order-service/inbound-checkout-initiated.jsonata
+      
+      - source: order-service
+        event: order-created
+        topic: order-events
+        targets:
+          - service: inventory-service
+            command: reserve-stock
+            transform: transformations/inventory-service/inbound-order-created.jsonata
+      
+      - source: inventory-service
+        event: stock-reserved
+        topic: inventory-events
+        targets:
+          - service: order-service
+            command: confirm-order
+            transform: transformations/order-service/inbound-stock-reserved.jsonata
+      
+      - source: order-service
+        event: order-confirmed
+        topic: order-events
+        targets:
+          - service: basket-service
+            command: clear-basket
+            transform: transformations/basket-service/inbound-order-confirmed.jsonata
+          - service: fulfillment-service
+            command: create-shipment
+            transform: transformations/fulfillment-service/inbound-order-confirmed.jsonata
+      
+      - source: fulfillment-service
+        event: shipment-created
+        topic: fulfillment-events
+        targets:
+          - service: order-service
+            command: update-shipment-status
+            transform: transformations/order-service/inbound-shipment-created.jsonata
 
 # Infrastructure components (optional)
 infrastructure:

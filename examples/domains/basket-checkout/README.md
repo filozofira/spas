@@ -4,6 +4,27 @@
 
 This workspace contains choreography configuration for composing SPAS services into a domain context.
 
+## Choreography Overview
+
+```mermaid
+flowchart LR
+    subgraph Basket Checkout Flow
+        BS[basket-service] -->|checkout-initiated| OS[order-service]
+        OS -->|order-created| IS[inventory-service]
+        IS -->|stock-reserved| OS
+        OS -->|order-confirmed| BS
+        OS -->|order-confirmed| FS[fulfillment-service]
+        FS -->|shipment-created| OS
+    end
+```
+
+**Event Flow:**
+1. Customer checks out basket → `checkout-initiated` triggers order creation
+2. Order created → `order-created` triggers inventory reservation
+3. Inventory reserved → `stock-reserved` confirms order
+4. Order confirmed → `order-confirmed` clears basket AND creates shipment
+5. Shipment created → `shipment-created` updates order tracking
+
 ## Structure
 
 ```

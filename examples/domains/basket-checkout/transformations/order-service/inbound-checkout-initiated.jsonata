@@ -1,0 +1,20 @@
+/* inbound-checkout-initiated.jsonata */
+/* Transforms checkout-initiated (basket-service) → CreateOrderRequest (order-service) */
+/* Maps basket checkout to order creation with basketId as referenceId for correlation */
+{
+  "customerId": customerId,
+  "items": $append([], items.{
+    "productId": productId,
+    "quantity": quantity,
+    "price": 0
+  }),
+  "total": 0,
+  "shippingAddress": {
+    "street": shippingAddress.street,
+    "city": shippingAddress.city,
+    "state": shippingAddress.state,
+    "postalCode": shippingAddress.postalCode,
+    "country": shippingAddress.country
+  },
+  "referenceId": basketId
+}

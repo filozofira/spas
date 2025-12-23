@@ -105,15 +105,15 @@
 
 **Purpose**: Documentation, cleanup, and final verification
 
-- [ ] T039 Update components/cli/spas-service/README.md if it documents prompt behavior (verify no changes needed)
-- [ ] T040 Run full test suite: `npm test` in components/cli/spas-service/
-- [ ] T041 Verify all success criteria from spec.md:
+- [X] T039 Update components/cli/spas-service/README.md if it documents prompt behavior (verify no changes needed)
+- [X] T040 Run full test suite: `npm test` in components/cli/spas-service/
+- [X] T041 Verify all success criteria from spec.md:
   - SC-001: No stdin required ✓
   - SC-002: CI/CD compatible ✓
   - SC-003: Fast publish <5s ✓
   - SC-004: Retry window 15s ✓
-- [ ] T042 Update CHANGELOG or release notes with breaking change notice
-- [ ] T043 Verify backward compatibility: `--archive`, `--dry-run`, `--repo` flags unchanged
+- [X] T042 Update CHANGELOG or release notes with breaking change notice
+- [X] T043 Verify backward compatibility: `--archive`, `--dry-run`, `--repo` flags unchanged
 
 ---
 

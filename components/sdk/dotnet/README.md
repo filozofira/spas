@@ -5,7 +5,7 @@
 
 The .NET SDK for building **SPAS (Self-contained, Portable, Adaptable Services)** — services that publish rich metadata, communicate via events, and maintain distributed trace context.
 
-> Targets **.NET net10.0**. SDK libraries are usable in any .NET application; ASP.NET Core extensions provide optional integration (minimal APIs, middleware, discovery).
+> Targets **.NET 10.0**. SDK libraries are usable in any .NET application; ASP.NET Core extensions provide optional integration (minimal APIs, middleware, discovery).
 
 ## For Users
 

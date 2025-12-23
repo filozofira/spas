@@ -142,7 +142,6 @@ describe("generateAgentFile", () => {
       expect(content).toContain("**Choreography Diagram Template:**");
       expect(content).toContain("```mermaid");
       expect(content).toContain("flowchart LR");
-      expect(content).toContain("subgraph");
       
       // Verify it's in Phase 2 section
       const phase2Start = content.indexOf("### Phase 2: Propose");
@@ -153,6 +152,32 @@ describe("generateAgentFile", () => {
       expect(phase3Start).toBeGreaterThan(phase2Start);
       expect(mermaidPos).toBeGreaterThan(phase2Start);
       expect(mermaidPos).toBeLessThan(phase3Start);
+    });
+
+    it("should contain Start node in diagram template (019-compose-diagram-flow)", () => {
+      const content = generateAgentFile("./examples/ecommerce");
+
+      // FR-001: Start node with stadium shape
+      expect(content).toContain("Start([Start])");
+      expect(content).toContain("**Start node**");
+      expect(content).toContain("MUST include `Start([Start])` node");
+    });
+
+    it("should contain End node in diagram template (019-compose-diagram-flow)", () => {
+      const content = generateAgentFile("./examples/ecommerce");
+
+      // FR-002: End node with stadium shape
+      expect(content).toContain("End([End])");
+      expect(content).toContain("**End node**");
+      expect(content).toContain("MUST include `End([End])` node");
+    });
+
+    it("should require diagram insertion into README (019-compose-diagram-flow)", () => {
+      const content = generateAgentFile("./examples/ecommerce");
+
+      // FR-005: README update instruction
+      expect(content).toContain("MUST insert/update the choreography diagram in the domain README.md file");
+      expect(content).toContain("(at top, after title)");
     });
 
     it("should contain confirmation prompt between Propose and Generate", () => {

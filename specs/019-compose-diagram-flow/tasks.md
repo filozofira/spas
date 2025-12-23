@@ -75,11 +75,13 @@
 
 **Purpose**: Verify template changes work correctly
 
-- [ ] T010 [P] Add test case verifying `Start([Start])` appears in generated agent prompt in components/cli/spas-compose/test/unit/utils/templates.test.ts
-- [ ] T011 [P] Add test case verifying `End([End])` appears in generated agent prompt in components/cli/spas-compose/test/unit/utils/templates.test.ts
-- [ ] T012 [P] Add test case verifying README update instruction appears in generated agent prompt in components/cli/spas-compose/test/unit/utils/templates.test.ts
-- [ ] T013 Run full test suite: `npm test` in components/cli/spas-compose/
-- [ ] T014 Manual validation: Run `spas-compose init test-domain --output /tmp` and inspect generated prompt file
+- [X] T010 [P] Add test case verifying `Start([Start])` appears in generated agent prompt in components/cli/spas-compose/test/unit/utils/templates.test.ts
+- [X] T011 [P] Add test case verifying `End([End])` appears in generated agent prompt in components/cli/spas-compose/test/unit/utils/templates.test.ts
+- [X] T012 [P] Add test case verifying README update instruction appears in generated agent prompt in components/cli/spas-compose/test/unit/utils/templates.test.ts
+- [X] T013 Run full test suite: `npm test` in components/cli/spas-compose/ (222 tests pass)
+- [X] T014 Manual validation: Run `spas-compose init test-domain --output /tmp` and inspect generated agent file
+
+**Checkpoint**: All tests pass and manual validation confirms Start/End nodes and README instruction present ✅
 
 ---
 

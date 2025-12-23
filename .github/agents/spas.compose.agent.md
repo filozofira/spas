@@ -431,10 +431,12 @@ Follow this 5-phase workflow with validation checkpoints at each stage.
 **Actions:**
 1. **Generate Choreography Diagram (mermaid flowchart)**
    - Create Mermaid flowchart diagram showing event flows between services
-   - Use format: `flowchart LR` with `subgraph [Domain Name]`
+   - Use format: `flowchart LR` (horizontal left-to-right flow, NO subgraph wrapper)
+   - **MUST include `Start([Start])` node** connected to the first service in the flow
+   - **MUST include `End([End])` node** connected from all terminal events (events with no downstream consumers)
+   - **MUST label all edges** with the event type in format `-->|event-name|`
    - Include all service participants and event flows
    - Present diagram to user for visual review before proceeding
-   - Reference pattern from examples/domains/README.md
 
 2. **Design Choreography**
    - Create choreography.yaml structure with flows, participants, events
@@ -444,19 +446,25 @@ Follow this 5-phase workflow with validation checkpoints at each stage.
    - Show Mermaid flowchart diagram for user review
    - Show choreography.yaml proposal
    - List transformation files to be created
-   - Add the choreography diagram to the workspace README.md file
+   - **MUST insert/update the choreography diagram in the domain README.md file** (at top, after title)
    - Wait for user confirmation before proceeding to Generate phase
 
 **Choreography Diagram Template:**
 ```mermaid
 flowchart LR
-    subgraph Order Fulfillment Flow
-        OS[order-service] -->|order-created| FS[fulfillment-service]
-        FS -->|fulfillment-completed| PS[payment-service]
-        PS -->|payment-processed| OS
-        OS -->|order-confirmed| END((done))
-    end
+    Start([Start]) --> OS[order-service]
+    OS -->|order-created| FS[fulfillment-service]
+    FS -->|fulfillment-completed| PS[payment-service]
+    PS -->|payment-processed| OS
+    OS -->|order-confirmed| End([End])
 ```
+
+**Diagram Requirements:**
+- **Start node**: Use `Start([Start])` stadium shape, connect to the first service receiving external trigger
+- **End node**: Use `End([End])` stadium shape, connect from all terminal events (no downstream targets)
+- **Direction**: Use `flowchart LR` for horizontal left-to-right flow
+- **Edge labels**: All arrows between services MUST include event type label `-->|event-name|`
+- **No subgraph**: Do NOT wrap diagram in subgraph, keep flat structure for clarity
 
 **Choreography Schema:**
 ```yaml

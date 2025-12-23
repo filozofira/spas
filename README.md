@@ -43,32 +43,49 @@ Detailed architecture documentation lives in the Principles docs.
 ### 1) Develop a SPAS service
 
 1. Pick an SDK and follow its component README:
-  - [.NET SDK](./components/sdk/dotnet/README.md)
-  - [Java SDK](./components/sdk/java/README.md)
+
+- [.NET SDK](./components/sdk/dotnet/README.md)
+- [Java SDK](./components/sdk/java/README.md)
 
 2. Run an example service (recommended for first-time setup):
-  - [Examples Services](./examples/services/README.md)
+
+- [Examples Services](./examples/services/README.md)
 
 3. Publish service metadata to a Repository:
-  - [spas-service CLI](./components/cli/spas-service/README.md)
+
+- [spas-service CLI](./components/cli/spas-service/README.md)
 
 ### 2) Compose a domain
 
 1. Initialize a domain workspace:
-  - [spas-compose init](./components/cli/spas-compose/README.md)
+
+- [spas-compose init](./components/cli/spas-compose/README.md)
 
 2. Pull the services you want to compose:
-  - [spas-compose services pull](./components/cli/spas-compose/README.md)
+
+- [spas-compose services pull](./components/cli/spas-compose/README.md)
 
 3. Author `choreography.yaml` and any JSONata files under `transformations/`:
-  - [Domain choreography model (principles)](./principles/component/14-domain-choreography.md)
+
+- [Domain choreography model (principles)](./principles/component/14-domain-choreography.md)
 
 4. Build runnable artifacts and start the domain:
-  - [spas-compose choreography build](./components/cli/spas-compose/README.md)
-  - `docker compose up`
+
+- [spas-compose choreography build](./components/cli/spas-compose/README.md)
+- `docker compose up`
 
 See the runnable domain examples for concrete compositions:
+
 - [Examples Domains](./examples/domains/)
+
+## AI-Assisted Development
+
+SPAS includes GitHub Copilot agent prompts for AI-assisted workflows:
+
+- **`/spas.compose`** — Domain choreography authoring with AI guidance
+- **SpecKit agents** — Structured specification, planning, and implementation
+
+See [.github/agents/README.md](.github/agents/README.md) for usage and available agents.
 
 ## Common Documentation
 

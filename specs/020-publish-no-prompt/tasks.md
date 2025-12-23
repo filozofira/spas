@@ -18,9 +18,9 @@
 
 **Purpose**: Verify environment and existing codebase
 
-- [ ] T001 Review existing publish workflow in components/cli/spas-service/src/services/publish-service.ts
-- [ ] T002 Verify current test coverage in components/cli/spas-service/test/unit/services/publish-service.test.ts
-- [ ] T003 Run existing tests to establish baseline: `npm test` in components/cli/spas-service/
+- [X] T001 Review existing publish workflow in components/cli/spas-service/src/services/publish-service.ts
+- [X] T002 Verify current test coverage in components/cli/spas-service/test/unit/services/publish-service.test.ts
+- [X] T003 Run existing tests to establish baseline: `npm test` in components/cli/spas-service/
 
 ---
 

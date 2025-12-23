@@ -25,6 +25,8 @@ SPAS (Self-contained, Portable, Adaptable Services) is a framework and specifica
 - Service mesh/Sidecar: Offloads networking, security, and reliability concerns
 - API Gateway: North–South traffic terminates at the edge; TLS termination, authentication, routing (Production: REST→gRPC translation)
 
+Most frameworks separate infrastructure (mesh/sidecar), semantics (API specs), and AI tooling into distinct concerns. SPAS unifies these: services self-describe in a way that AI agents can read, understand intent, and choreograph — with the runtime (sidecar) already wired for execution.
+
 ## Architecture Overview
 
 This repo keeps the detailed architecture description in the Principles docs.

@@ -61,7 +61,7 @@ spas-service pull order-service 1.0.0 --repo http://localhost:3000 --output ./ar
 
 ## Configuration
 
-- `SPAS_REPOSITORY_URL` sets the default repository URL when `--repo` is omitted.
+- `SPAS_REPOSITORY_URL` sets the default repository URL when `--repo` is omitted (default: `http://localhost:3000`).
 
 Schema reference:
 

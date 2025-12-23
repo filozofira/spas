@@ -19,6 +19,32 @@ Verify:
 spas-compose --version
 spas-compose --help
 ```
+## Typical workflow
+
+1. Create a domain workspace:
+
+```bash
+spas-compose init <domain>
+cd <domain>
+```
+
+2. Pull the services you want to compose:
+
+```bash
+spas-compose services pull <service-name> <version>
+```
+
+3. Author the choreography:
+
+- Edit `choreography.yaml` and add JSONata files under `transformations/`, or
+- Use the `/spas.compose` agent prompt to propose and generate mappings.
+
+4. Build runnable artifacts and start the domain:
+
+```bash
+spas-compose choreography build --docker
+docker compose up
+```
 
 ## Commands
 

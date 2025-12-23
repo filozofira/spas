@@ -10,6 +10,107 @@ This document provides a high-level view of SPAS components and how they interac
 - SPAS Repository: Stores metadata (spas.json) and SPAS Service event/message schemas. It does not store transformation configs.
 - SDKs & CLI: Language/tooling to build, validate, and compose services
 
+## Component Architecture
+
+```mermaid
+flowchart TB
+  subgraph "North-South Traffic"
+    Client[Client] --> Gateway[API Gateway]
+  end
+
+  subgraph "Domain Context"
+    Gateway --> S1[Service A]
+    Gateway --> S2[Service B]
+
+    subgraph "Service A Pod"
+      S1 <--> SC1[SPAS Sidecar]
+    end
+
+    subgraph "Service B Pod"
+      S2 <--> SC2[SPAS Sidecar]
+    end
+  end
+
+  subgraph "East-West Traffic"
+    SC1 <-->|CloudEvents| EB[(Event Backbone<br/>Redis Streams)]
+    SC2 <-->|CloudEvents| EB
+  end
+
+  subgraph "Observability"
+    SC1 -->|Traces| OB[Zipkin]
+    SC2 -->|Traces| OB
+  end
+
+  subgraph "Registry"
+    Repo[(SPAS Repository)]
+  end
+```
+
+## Logical Flow
+
+```mermaid
+flowchart LR
+  subgraph "Design Time"
+    SDK[.NET SDK] -->|generates| Meta[Service Metadata]
+    Meta -->|published via| CLI1[spas-service CLI]
+    CLI1 -->|pushes image| DockerReg[(Container Registry)]
+    CLI1 -->|pushes metadata| Repo[(SPAS Repository)]
+  end
+
+  subgraph "Composition Time"
+    CLI2[spas-compose CLI] -->|pulls from| Repo
+    CLI2 -->|generates| Choreo[choreography.yaml]
+    CLI2 -->|generates| DC[docker-compose.yaml]
+    CLI2 -->|generates| SC[sidecar configs]
+  end
+
+  subgraph "Runtime"
+    DC -->|deploys| Services[Services + Sidecars]
+    Choreo -->|routes| Events[Event Flows]
+    Services -->|pulls images| DockerReg
+  end
+```
+
+## Key Patterns
+
+| Pattern           | Implementation              | Purpose                              |
+| ----------------- | --------------------------- | ------------------------------------ |
+| **Sidecar**       | SPAS Sidecar (Node.js)      | Offloads networking, events, tracing |
+| **Event-first**   | CloudEvents + Redis Streams | Decoupled east-west communication    |
+| **Choreography**  | choreography.yaml + JSONata | Domain-specific event routing        |
+| **Schema-driven** | JSON Schema validation      | Contract enforcement at boundaries   |
+
+## AI-in-the-Loop Choreography
+
+SPAS supports **AI-assisted choreography design** through GitHub Copilot agent integration. The `spas-compose init` command scaffolds a domain workspace with an AI agent prompt (`.github/agents/spas.compose.agent.md`) that guides developers through a structured 5-phase workflow:
+
+```mermaid
+flowchart LR
+  A[1. Analyze] --> B[2. Propose]
+  B --> C{User Review}
+  C -->|Confirm| D[3. Generate]
+  C -->|Feedback| B
+  D --> E[4. Validate]
+  E --> F[5. Build]
+```
+
+| Phase        | AI Actions                                        | Human Actions                    |
+| ------------ | ------------------------------------------------- | -------------------------------- |
+| **Analyze**  | Read service metadata, identify events/commands   | Provide domain context           |
+| **Propose**  | Generate choreography diagram, design flows       | Review diagram, provide feedback |
+| **Generate** | Create choreography.yaml, transformation files    | Confirm to proceed               |
+| **Validate** | Check YAML syntax, schema compliance, consistency | Review validation results        |
+| **Build**    | Suggest build commands                            | Execute deployment               |
+
+**Key Benefits:**
+
+- **Visual-first design**: Mermaid diagrams let you see event flows before generating code
+- **Schema-aware**: AI uses pulled service metadata to propose valid transformations
+- **Iterative refinement**: Feedback loop between Propose and Generate phases
+- **Guardrails**: Validation phase catches errors before deployment
+
+To use: Run `spas-compose init <domain>` then run `spas-compose services pull <service-name> <service-version>` for each service you wish to use, and finally invoke the agent with `/spas.compose` in GitHub Copilot Chat.
+
 ## Communication Model
 
 - North–South (client ↔ service)
@@ -53,8 +154,8 @@ This document provides a high-level view of SPAS components and how they interac
 
 > PoC vs Production
 >
-> - PoC: SPAS sidecar component; HTTP transport; no mTLS; Zipkin observability; CloudEvents wrapper for transformations
-> - Production: Mesh-agnostic sidecar contract (Istio/Linkerd compatible); gRPC transport; mTLS; policy enforcement
+> - PoC: SPAS sidecar component; HTTP transport; identity in payload/headers; Zipkin tracing; local repository (no auth); declarative-only policies; SQLite-backed storage
+> - Production: Mesh-agnostic sidecar contract (Istio/Linkerd compatible); gRPC transport; mTLS + SPIFFE/SPIRE identity; OpenTelemetry + Prometheus; authenticated repository with signed packages; enforceable policies; PostgreSQL (JSONB) + S3
 
 ## Related Documents
 

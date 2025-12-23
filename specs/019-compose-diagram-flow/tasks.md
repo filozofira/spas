@@ -89,8 +89,10 @@
 
 **Purpose**: Final cleanup and documentation
 
-- [ ] T015 Update spec checklist to mark requirements FR-001 through FR-008 as complete in specs/019-compose-diagram-flow/checklists/requirements.md
-- [ ] T016 Commit all changes with message: "feat(spas-compose): add Start/End flow notations to diagram template"
+- [X] T015 Update spec checklist to mark requirements FR-001 through FR-008 as complete in specs/019-compose-diagram-flow/checklists/requirements.md
+- [X] T016 Commit all changes with message: "feat(spas-compose): add Start/End flow notations to diagram template"
+
+**Checkpoint**: All tasks complete, ready for PR ✅
 
 ---
 

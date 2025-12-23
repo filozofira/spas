@@ -1,0 +1,33 @@
+{
+  "inbound": [
+    {
+      "kind": "event",
+      "topic": "order-events",
+      "invokeEndpoint": "/api/baskets/clear",
+      "eventType": "com.order-service.order-confirmed",
+      "transform": "transformations/inbound-order-confirmed.jsonata"
+    }
+  ],
+  "outbound": [
+    {
+      "topic": "shopping-events",
+      "eventType": "com.basket-service.basket-created",
+      "eventName": "basket-created"
+    },
+    {
+      "topic": "shopping-events",
+      "eventType": "com.basket-service.item-added",
+      "eventName": "item-added"
+    },
+    {
+      "topic": "shopping-events",
+      "eventType": "com.basket-service.item-removed",
+      "eventName": "item-removed"
+    },
+    {
+      "topic": "shopping-events",
+      "eventType": "com.basket-service.checkout-initiated",
+      "eventName": "checkout-initiated"
+    }
+  ]
+}

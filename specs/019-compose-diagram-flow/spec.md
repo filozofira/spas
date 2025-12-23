@@ -5,6 +5,11 @@
 **Status**: Draft  
 **Input**: User description: "Extend agent prompt to include agent instruction to add start and end flow notations while generating choreography diagram and make sure that diagram is added to choreography readme"
 
+## Clarifications
+
+### Session 2025-12-23
+- Q: Where should the Start/End diagram rules be stored so that `spas-compose init` can include them in the generated agent prompt? → A: Store rules in the `spas-compose` CLI codebase (template embedded in generator)
+
 ## User Scenarios & Testing *(mandatory)*
 
 ### User Story 1 - Agent Generates Diagram with Start/End Nodes (Priority: P1)
@@ -53,13 +58,14 @@ When the `/spas.compose` agent generates a choreography, it automatically insert
 
 ### Functional Requirements
 
-- **FR-001**: Agent prompt MUST instruct the agent to include `Start([Start])` node in all generated Mermaid diagrams.
-- **FR-002**: Agent prompt MUST instruct the agent to include `End([End])` node in all generated Mermaid diagrams.
-- **FR-003**: Agent prompt MUST instruct the agent to connect the Start node to the first service/event in the flow.
-- **FR-004**: Agent prompt MUST instruct the agent to connect terminal events to the End node.
-- **FR-005**: Agent MUST insert or update the Mermaid diagram in the domain README.md file.
-- **FR-006**: Agent MUST use Mermaid `flowchart LR` direction for horizontal flow visualization.
-- **FR-007**: Diagram edges MUST be labeled with the event type (e.g., `|checkout-initiated|`).
+- **FR-001**: `spas-compose init` CLI command MUST generate agent prompt template that instructs the agent to include `Start([Start])` node in all generated Mermaid diagrams.
+- **FR-002**: `spas-compose init` CLI command MUST generate agent prompt template that instructs the agent to include `End([End])` node in all generated Mermaid diagrams.
+- **FR-003**: Generated agent prompt MUST instruct the agent to connect the Start node to the first service/event in the flow.
+- **FR-004**: Generated agent prompt MUST instruct the agent to connect terminal events to the End node.
+- **FR-005**: Generated agent prompt MUST instruct the agent to insert or update the Mermaid diagram in the domain README.md file.
+- **FR-006**: Generated agent prompt MUST instruct the agent to use Mermaid `flowchart LR` direction for horizontal flow visualization.
+- **FR-007**: Generated agent prompt MUST instruct the agent to label diagram edges with the event type (e.g., `|checkout-initiated|`).
+- **FR-008**: Diagram rules MUST be embedded in the `spas-compose` CLI codebase as a template.
 
 ### Key Entities
 

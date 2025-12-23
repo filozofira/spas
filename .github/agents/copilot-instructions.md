@@ -271,6 +271,8 @@ Auto-generated from all feature plans. Last updated: 2025-12-12
 - C# / .NET 10 + Java 17+ + Node.js 20 (TypeScript); Ajv for JSON Schema validation; SDK metadata generation via attributes/annotations (018-command-produces-events)
 - N/A (metadata-only; no persistence) (018-command-produces-events)
 - C# / .NET 10, Java 17+, Node.js 20 (TypeScript) + Ajv (JSON Schema validation), System.Text.Json (.NET), Spring/Jackson (Java) (018-command-produces-events)
+- TypeScript 5.x (Node.js CLI) + Commander.js (CLI framework) (019-compose-diagram-flow)
+- N/A (template strings in source code) (019-compose-diagram-flow)
 
 - .NET 10 (target net10.0); Microsoft.Extensions.Logging; System.Text.Json (001-dotnet-spas-sdk)
 

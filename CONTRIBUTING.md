@@ -2,6 +2,38 @@
 
 Thank you for your interest in contributing to SPAS!
 
+## AI-Assisted Development
+
+Most of the SPAS framework and examples were built using **AI-assisted development** with GitHub Copilot, guided by a structured specification workflow called **SpecKit**.
+
+### How It Works
+
+The development process is governed by the [SPAS Framework Constitution](./.specify/memory/constitution.md), which establishes non-negotiable principles, component quality gates, and governance rules. The constitution references detailed [Principles](./principles/README.md) that serve a dual audience:
+
+> **Developers** seeking architectural clarity and **AI agents** requiring precise constraints. This eliminates ambiguity during development, enabling high-fidelity code generation while ensuring both human and automated contributors align with the framework's core design.
+
+### SpecKit Workflow
+
+When building features, we follow a structured workflow:
+
+1. **Specify** (`/speckit.specify`) — Define user stories, requirements, and success criteria
+2. **Clarify** (`/speckit.clarify`) — Resolve ambiguities with Q&A
+3. **Plan** (`/speckit.plan`) — Create implementation plan with constitution checks
+4. **Tasks** (`/speckit.tasks`) — Break down into actionable implementation tasks
+5. **Implement** (`/speckit.implement`) — Execute tasks phase by phase
+
+This approach ensures AI-generated code adheres to framework principles and maintains consistency across components.
+
+### Key Documents
+
+| Document | Purpose |
+|----------|---------|
+| [Constitution](./.specify/memory/constitution.md) | Governance, universal rules, quality gates |
+| [Principles](./principles/README.md) | Technical specifications for all components |
+| [Decision Log](./principles/appendix/28-decision-log.md) | Architecture Decision Records (ADRs) |
+
+---
+
 ## Getting Started
 
 SPAS is organized into independent components, each with its own contribution guide:

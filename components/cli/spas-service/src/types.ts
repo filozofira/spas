@@ -16,6 +16,8 @@ export interface PublishOptions {
   dryRun?: boolean;
   /** Output directory for dry-run archive */
   output?: string;
+  /** Disable retry logic (commander negatable option) */
+  retry?: boolean;
   /** Docker image SHA256 digest */
   imageDigest?: string;
   /** Docker image repository (e.g., ghcr.io/org/service) */

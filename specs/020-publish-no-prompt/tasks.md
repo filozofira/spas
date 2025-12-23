@@ -67,20 +67,20 @@
 
 ### Implementation for User Story 2
 
-- [ ] T017 [US2] Create `retryWithBackoff()` utility method in components/cli/spas-service/src/services/publish-service.ts (~50 lines)
-- [ ] T018 [US2] Implement error classification logic (connection vs HTTP errors) in components/cli/spas-service/src/services/publish-service.ts
-- [ ] T019 [US2] Add status message display before each retry: "Waiting for service... (attempt X/Y)" in components/cli/spas-service/src/services/publish-service.ts
-- [ ] T020 [US2] Wrap `downloadMetadata()` HTTP call in `retryWithBackoff()` when `--no-retry` is false in components/cli/spas-service/src/services/publish-service.ts
-- [ ] T021 [US2] Implement `--no-retry` flag behavior (skip retry logic) in components/cli/spas-service/src/services/publish-service.ts
-- [ ] T022 [US2] Format exhaustion error message with URL, attempts, time, suggestion per FR-005 in components/cli/spas-service/src/services/publish-service.ts
-- [ ] T023 [US2] Add test: successful retry after 1-2 failed attempts in components/cli/spas-service/test/unit/services/publish-service.test.ts
-- [ ] T024 [US2] Add test: error message after all retries exhausted in components/cli/spas-service/test/unit/services/publish-service.test.ts
-- [ ] T025 [US2] Add test: retry only on connection errors (ECONNREFUSED, ETIMEDOUT) in components/cli/spas-service/test/unit/services/publish-service.test.ts
-- [ ] T026 [US2] Add test: fail immediately on HTTP errors (404, 500) without retry in components/cli/spas-service/test/unit/services/publish-service.test.ts
-- [ ] T027 [US2] Add test: `--no-retry` flag disables retry logic in components/cli/spas-service/test/unit/services/publish-service.test.ts
-- [ ] T028 [US2] Add test: retry status messages displayed correctly in components/cli/spas-service/test/unit/services/publish-service.test.ts
-- [ ] T029 [US2] Add test: exponential backoff timing (1s, 2s, 4s, 8s) in components/cli/spas-service/test/unit/services/publish-service.test.ts
-- [ ] T030 [US2] Verify `--dry-run` still applies retry logic in components/cli/spas-service/test/unit/services/publish-service.test.ts
+- [X] T017 [US2] Create `retryWithBackoff()` utility method in components/cli/spas-service/src/services/publish-service.ts (~50 lines)
+- [X] T018 [US2] Implement error classification logic (connection vs HTTP errors) in components/cli/spas-service/src/services/publish-service.ts
+- [X] T019 [US2] Add status message display before each retry: "Waiting for service... (attempt X/Y)" in components/cli/spas-service/src/services/publish-service.ts
+- [X] T020 [US2] Wrap `downloadMetadata()` HTTP call in `retryWithBackoff()` when `--no-retry` is false in components/cli/spas-service/src/services/publish-service.ts
+- [X] T021 [US2] Implement `--no-retry` flag behavior (skip retry logic) in components/cli/spas-service/src/services/publish-service.ts
+- [X] T022 [US2] Format exhaustion error message with URL, attempts, time, suggestion per FR-005 in components/cli/spas-service/src/services/publish-service.ts
+- [X] T023 [US2] Add test: successful retry after 1-2 failed attempts in components/cli/spas-service/test/unit/services/publish-service.test.ts
+- [X] T024 [US2] Add test: error message after all retries exhausted in components/cli/spas-service/test/unit/services/publish-service.test.ts
+- [X] T025 [US2] Add test: retry only on connection errors (ECONNREFUSED, ETIMEDOUT) in components/cli/spas-service/test/unit/services/publish-service.test.ts
+- [X] T026 [US2] Add test: fail immediately on HTTP errors (404, 500) without retry in components/cli/spas-service/test/unit/services/publish-service.test.ts
+- [X] T027 [US2] Add test: `--no-retry` flag disables retry logic in components/cli/spas-service/test/unit/services/publish-service.test.ts
+- [X] T028 [US2] Add test: retry status messages displayed correctly in components/cli/spas-service/test/unit/services/publish-service.test.ts
+- [X] T029 [US2] Add test: exponential backoff timing (1s, 2s, 4s, 8s) in components/cli/spas-service/test/unit/services/publish-service.test.ts
+- [X] T030 [US2] Verify `--dry-run` still applies retry logic in components/cli/spas-service/test/unit/services/publish-service.test.ts
 
 **Checkpoint**: US2 complete - publish retries gracefully with clear feedback, handles all error scenarios
 

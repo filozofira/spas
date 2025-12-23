@@ -1,3 +1,7 @@
+using SubscriptionService.DTOs;
+using SubscriptionService.Events;
+using SubscriptionService.Models;
+using SubscriptionService.Services;
 using Spas.Sdk.Core.Identity;
 using Spas.Sdk.Events.Publish;
 using Spas.Sdk.Metadata.Attributes;
@@ -6,7 +10,6 @@ using Spas.Sdk.Metadata.Composition;
 using Spas.Sdk.Metadata.Dev;
 using Spas.Sdk.Metadata.Extensions;
 using Spas.Sdk.Observability.Extensions;
-using System.Collections.Concurrent;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -189,54 +192,3 @@ app.MapGet("/", () => "Subscription Service");
 app.MapGet("/health", () => new { status = "healthy", service = "subscription-service", timestamp = DateTime.UtcNow });
 
 app.Run();
-
-// Request/Response types
-[SpasCommand("CreateSubscription", "1.0", Description = "Payload for CreateSubscription: customerId, productId, quantity, and billing frequency")]
-public record CreateSubscriptionRequest(string CustomerId, string ProductId, int Quantity, string Frequency);
-
-public record CreateSubscriptionResponse(Guid SubscriptionId, string Status);
-
-[SpasCommand("ActivateSubscription", "1.0", Description = "Payload for ActivateSubscription: orderId, status, and optional referenceId for correlation")]
-public record ActivateSubscriptionRequest(Guid OrderId, string Status, string? ReferenceId = null);
-
-// Status change tracking  
-public record StatusChange(string Status, DateTime Timestamp, string? Reason = null);
-
-// Domain models
-public record Subscription(
-    Guid SubscriptionId, 
-    string CustomerId, 
-    string ProductId, 
-    int Quantity, 
-    string Frequency, 
-    string Status, 
-    DateTime CreatedAt,
-    List<StatusChange> StatusHistory = null
-)
-{
-    public List<StatusChange> StatusHistory { get; init; } = StatusHistory ?? new();
-    
-    public Subscription WithStatus(string newStatus, string? reason = null)
-    {
-        var statusChange = new StatusChange(newStatus, DateTime.UtcNow, reason);
-        var updatedHistory = new List<StatusChange>(StatusHistory) { statusChange };
-        return this with { Status = newStatus, StatusHistory = updatedHistory };
-    }
-};
-
-// Events (outbound only)
-[SpasEvent("SubscriptionCreated", "1.0", Description = "Emitted after a subscription is created; indicates subscription is pending activation")]
-public record SubscriptionCreatedEvent(Guid SubscriptionId, string CustomerId, string ProductId, int Quantity, string Frequency, DateTime CreatedAt);
-
-[SpasEvent("SubscriptionActivated", "1.0", Description = "Emitted after a subscription transitions to active (may be disabled in some choreographies)")]
-public record SubscriptionActivatedEvent(Guid SubscriptionId, Guid OrderId, string CustomerId, string ProductId, int Quantity, string Frequency, DateTime ActivatedAt);
-
-// In-memory store
-public class SubscriptionStore
-{
-    private readonly ConcurrentDictionary<Guid, Subscription> _subscriptions = new();
-
-    public void Add(Subscription subscription) => _subscriptions[subscription.SubscriptionId] = subscription;
-    public Subscription? Get(Guid id) => _subscriptions.TryGetValue(id, out var subscription) ? subscription : null;
-    public IEnumerable<Subscription> GetAll() => _subscriptions.Values;
-}

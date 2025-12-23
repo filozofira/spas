@@ -34,3 +34,10 @@ spas-service publish --archive ./metadata/fulfillment-service-1.0.0.zip `
 --image-digest sha256:TODO_UPDATE_AFTER_BUILD
 
 Write-Host "Published Fulfillment Service"
+
+spas-service publish --archive ./metadata/basket-service-1.0.0.zip `
+--image-repository spas-examples/basket-service `
+--image-tag 1.0.0 `
+--image-digest sha256:TODO_UPDATE_AFTER_BUILD
+
+Write-Host "Published Basket Service"

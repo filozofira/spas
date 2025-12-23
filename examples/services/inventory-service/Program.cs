@@ -1,3 +1,7 @@
+using InventoryService.DTOs;
+using InventoryService.Events;
+using InventoryService.Models;
+using InventoryService.Services;
 using Spas.Sdk.Core.Identity;
 using Spas.Sdk.Events.Publish;
 using Spas.Sdk.Metadata.Attributes;
@@ -6,7 +10,6 @@ using Spas.Sdk.Metadata.Composition;
 using Spas.Sdk.Metadata.Dev;
 using Spas.Sdk.Metadata.Extensions;
 using Spas.Sdk.Observability.Extensions;
-using System.Collections.Concurrent;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -147,49 +150,3 @@ app.MapGet("/", () => "Inventory Service");
 app.MapGet("/health", () => new { status = "healthy", service = "inventory-service", timestamp = DateTime.UtcNow });
 
 app.Run();
-
-// Request/Response types
-[SpasCommand("ReserveStock", "1.0", Description = "Payload for ReserveStock: orderId and the set of product quantities to reserve")]
-public record ReserveStockRequest(Guid OrderId, List<OrderItem> Items);
-
-public record OrderItem(string ProductId, int Quantity);
-
-// Domain models
-public record InventoryItem(string ProductId, int AvailableQuantity, int ReservedQuantity);
-public record StockReservation(string ProductId, int Quantity, DateTime ReservedAt);
-
-// Events (outbound only)
-[SpasEvent("StockReserved", "1.0", Description = "Emitted when stock is successfully reserved for one or more items in an order")]
-public record StockReservedEvent(Guid OrderId, List<StockReservation> Reservations, DateTime Timestamp);
-
-[SpasEvent("StockDepleted", "1.0", Description = "Emitted when requested quantity exceeds available inventory for a product")]
-public record StockDepletedEvent(string ProductId, Guid OrderId, int RequestedQuantity, int AvailableQuantity, DateTime Timestamp);
-
-// In-memory store with sample data
-public class InventoryStore
-{
-    private readonly ConcurrentDictionary<string, InventoryItem> _inventory = new();
-
-    public InventoryStore()
-    {
-        // Seed with sample products
-        _inventory["prod-001"] = new InventoryItem("prod-001", 100, 0);
-        _inventory["prod-002"] = new InventoryItem("prod-002", 50, 0);
-        _inventory["prod-003"] = new InventoryItem("prod-003", 75, 0);
-    }
-
-    public InventoryItem? Get(string productId) => 
-        _inventory.TryGetValue(productId, out var item) ? item : null;
-
-    public IEnumerable<InventoryItem> GetAll() => _inventory.Values;
-
-    public void Reserve(string productId, int quantity)
-    {
-        if (_inventory.TryGetValue(productId, out var item))
-        {
-            var newAvailable = item.AvailableQuantity - quantity;
-            var newReserved = item.ReservedQuantity + quantity;
-            _inventory[productId] = new InventoryItem(productId, newAvailable, newReserved);
-        }
-    }
-}

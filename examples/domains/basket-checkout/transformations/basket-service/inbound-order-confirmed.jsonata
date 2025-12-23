@@ -1,0 +1,7 @@
+/* inbound-order-confirmed.jsonata */
+/* Transforms order-confirmed (order-service) → ClearBasketRequest (basket-service) */
+/* Uses referenceId to correlate order back to basket for clearing */
+{
+  "orderId": orderId,
+  "referenceId": referenceId
+}

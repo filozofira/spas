@@ -1,3 +1,7 @@
+using OrderService.DTOs;
+using OrderService.Events;
+using OrderService.Models;
+using OrderService.Services;
 using Spas.Sdk.Core.Identity;
 using Spas.Sdk.Events.Publish;
 using Spas.Sdk.Metadata.Attributes;
@@ -6,7 +10,6 @@ using Spas.Sdk.Metadata.Composition;
 using Spas.Sdk.Metadata.Dev;
 using Spas.Sdk.Metadata.Extensions;
 using Spas.Sdk.Observability.Extensions;
-using System.Collections.Concurrent;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -224,85 +227,3 @@ app.MapGet("/", () => "Order Service");
 app.MapGet("/health", () => new { status = "healthy", service = "order-service", timestamp = DateTime.UtcNow });
 
 app.Run();
-
-// Request/Response types
-[SpasCommand("CreateOrder", "1.0", Description = "Payload for CreateOrder: customerId, items, totals, shippingAddress, and optional referenceId")]
-public record CreateOrderRequest(string CustomerId, List<OrderItem> Items, decimal Total, Address ShippingAddress, string? ReferenceId = null);
-
-public record CreateOrderResponse(Guid OrderId, string Status);
-
-[SpasCommand("ConfirmOrder", "1.0", Description = "Payload for ConfirmOrder: orderId and the items that were reserved by inventory")]
-public record ConfirmOrderRequest(Guid OrderId, List<ReservedItem> ReservedItems);
-
-[SpasCommand("UpdateShipmentStatus", "1.0", Description = "Payload for UpdateShipmentStatus: shipmentId, status, and optional tracking number")]
-public record ShipmentStatusRequest(Guid OrderId, string ShipmentId, string Status, string? TrackingNumber = null);
-
-public record OrderItem(string ProductId, int Quantity, decimal Price);
-
-public record ReservedItem(string ProductId, int Quantity);
-
-public record Address(string Street, string City, string State, string PostalCode, string Country);
-
-// Status change tracking
-public record StatusChange(string Status, DateTime Timestamp, string? Reason = null);
-
-// Domain models
-public record Order(
-    Guid OrderId, 
-    string CustomerId, 
-    List<OrderItem> Items, 
-    decimal Total, 
-    string Status, 
-    DateTime CreatedAt, 
-    string? ReferenceId = null,
-    Address? ShippingAddress = null,
-    List<StatusChange> StatusHistory = null,
-    // Shipment tracking fields
-    string? ShipmentId = null,
-    string? ShipmentStatus = null,
-    string? TrackingNumber = null,
-    List<ShipmentStatusChange>? ShipmentStatusHistory = null
-)
-{
-    public List<StatusChange> StatusHistory { get; init; } = StatusHistory ?? new();
-    public List<ShipmentStatusChange> ShipmentStatusHistory { get; init; } = ShipmentStatusHistory ?? new();
-    
-    public Order WithStatus(string newStatus, string? reason = null)
-    {
-        var statusChange = new StatusChange(newStatus, DateTime.UtcNow, reason);
-        var updatedHistory = new List<StatusChange>(StatusHistory) { statusChange };
-        return this with { Status = newStatus, StatusHistory = updatedHistory };
-    }
-    
-    public Order WithShipmentStatus(string shipmentId, string shipmentStatus, string? trackingNumber = null)
-    {
-        var statusChange = new ShipmentStatusChange(shipmentStatus, DateTime.UtcNow, trackingNumber);
-        var updatedHistory = new List<ShipmentStatusChange>(ShipmentStatusHistory) { statusChange };
-        return this with { 
-            ShipmentId = shipmentId, 
-            ShipmentStatus = shipmentStatus, 
-            TrackingNumber = trackingNumber ?? TrackingNumber,
-            ShipmentStatusHistory = updatedHistory 
-        };
-    }
-};
-
-// Shipment status tracking
-public record ShipmentStatusChange(string Status, DateTime Timestamp, string? TrackingNumber = null);
-
-// Events (outbound only)
-[SpasEvent("OrderCreated", "1.0", Description = "Emitted after a new order is created; signals downstream services to reserve stock")]
-public record OrderCreatedEvent(Guid OrderId, string CustomerId, List<OrderItem> Items, decimal Total, DateTime CreatedAt, Address ShippingAddress, string? ReferenceId = null);
-
-[SpasEvent("OrderConfirmed", "1.0", Description = "Emitted after inventory reservation succeeds and the order is confirmed; triggers fulfillment")]
-public record OrderConfirmedEvent(Guid OrderId, string Status, List<ReservedItem> ReservedItems, Address ShippingAddress, string? ReferenceId = null);
-
-// In-memory store
-public class OrderStore
-{
-    private readonly ConcurrentDictionary<Guid, Order> _orders = new();
-
-    public void Add(Order order) => _orders[order.OrderId] = order;
-    public Order? Get(Guid id) => _orders.TryGetValue(id, out var order) ? order : null;
-    public IEnumerable<Order> GetAll() => _orders.Values;
-}

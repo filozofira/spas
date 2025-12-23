@@ -2,6 +2,8 @@
 
 SPAS (Self-contained, Portable, Adaptable Services) is a framework and specification that enables building services around a single bounded context that are reusable across domain contexts through choreography, not direct dependencies. SPAS emphasizes strong encapsulation, portable packaging, and configuration-driven adaptation.
 
+> **⚠️ Proof of Concept**: SPAS is currently a PoC under active evaluation. APIs, schemas, and tooling may change significantly. Not recommended for production use. We welcome feedback — open an issue or start a discussion!
+
 ## Why SPAS
 
 - Fragmented microservice practices create distributed monoliths; SPAS enforces strict boundaries and event-first integration.

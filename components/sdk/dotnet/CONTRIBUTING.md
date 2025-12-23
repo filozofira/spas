@@ -18,19 +18,9 @@ dotnet build
 
 ## Project Structure
 
-The SDK is organized into focused packages:
+See [README.md](./README.md#packages) for package overview. The [examples/SampleService](./examples/SampleService/) provides a runnable reference implementation.
 
-| Package | Purpose |
-|---------|---------|
-| `Spas.Sdk.Core` | Context (SpasContext, ISpasClock), identity middleware, trace utilities |
-| `Spas.Sdk.Metadata` | Metadata builders, composition, schema validation, auto-discovery |
-| `Spas.Sdk.Events` | Event publishing to sidecar (EventPublisher, EventBuilder) |
-| `Spas.Sdk.Observability` | Tracelog middleware, OpenTelemetry integration, Zipkin export |
-| `Spas.Sdk.DevEndpoint` | Development metadata endpoint (ZIP archive generation) |
-| `Spas.Sdk.Inbound` | **DEFERRED** - See [module notes](#module-notes) |
-
-**Examples**:
-- [examples/SampleService](./examples/SampleService/) - Runnable reference implementation
+> **Note:** `Spas.Sdk.Inbound` is **DEFERRED** — see [module notes](#module-notes).
 
 ## Building and Testing
 

@@ -23,13 +23,13 @@ mvn spring-boot:run
 
 ### Modules
 
-| Module                        | Description                          | Spring Required?  |
-| ----------------------------- | ------------------------------------ | ----------------- |
-| `spas-sdk-core`               | Context, configuration, utilities    | ❌ No             |
-| `spas-sdk-metadata`           | Annotations, builders, model classes | ❌ No             |
-| `spas-sdk-metadata-processor` | Compile-time `spas.json` generation  | ❌ No             |
-| `spas-sdk-events`             | Event publishing to sidecar          | ❌ No             |
-| `spas-sdk-spring`             | Spring Boot auto-configuration       | ✅ Yes (optional) |
+| Module                          | Purpose                    | Key Types                                            |
+| ------------------------------- | -------------------------- | ---------------------------------------------------- |
+| `spas-sdk-core`                 | Context, configuration     | `SpasContext`, `SpasConfiguration`, `SpasIdentity`   |
+| `spas-sdk-metadata`             | Annotations, builders      | `@SpasCommand`, `@SpasQuery`, `@SpasEvent`, builders |
+| `spas-sdk-metadata-processor`   | Compile-time generation    | Annotation processor (`spas.json` output)            |
+| `spas-sdk-events`               | Event publishing (sidecar) | `EventPublisher`, `SpasEventBuilder`                 |
+| `spas-sdk-spring`               | Spring integration         | Auto-configuration, property binding                 |
 
 ### Features
 
@@ -64,38 +64,16 @@ The SDK uses environment variables matching docker-compose patterns:
 | `SIDECAR_HOST` | No       | Sidecar hostname (default: `{service-name}-sidecar`) |
 | `SIDECAR_PORT` | No       | Sidecar port (default: `7000`)                       |
 
-#### Sidecar URL Resolution Priority
-
-The SDK resolves the sidecar URL in this order (first match wins):
-
-1. **`SIDECAR_URL`** — Full URL, highest priority (`http://custom-sidecar:8080`)
-2. **`SIDECAR_HOST` + `SIDECAR_PORT`** — Explicit host/port (`http://my-sidecar:7001`)
-3. **Derived from `SERVICE_NAME`** — Convention-based (`order-service` → `http://order-service-sidecar:7000`). Recommended for Docker Compose.
-4. **Localhost fallback** — No configuration needed (`http://localhost:7000`)
+**Sidecar URL Resolution:** `SIDECAR_URL` > `SIDECAR_HOST:PORT` > derived from `SERVICE_NAME` > localhost. See [Sidecar Contract](../../../principles/component/10-sidecar-contract.md) for details.
 
 ### Writing Effective Descriptions
 
-Descriptions are optional but strongly recommended for AI-assisted choreography.
+Descriptions improve AI-assisted choreography. Use plain text describing intent, not implementation.
 
-**Rules:** Plain text only; describe intent, not implementation.
+- ✅ Good: "Creates a shipment for a confirmed order using destination address; emits ShipmentCreated"
+- ❌ Bad: "CreateShipment" (restates name), "Does the thing" (too generic)
 
-**Good examples:**
-
-- Service: "Creates and tracks shipments for confirmed orders; publishes shipment lifecycle events"
-- Command: "Creates a shipment for a confirmed order using destination address; emits ShipmentCreated"
-- Event: "Emitted when shipment status changes; indicates progress through fulfillment lifecycle"
-
-**Bad examples:** "CreateShipment" (restates name), "Does the thing" (too generic)
-
-### Module Reference
-
-| Module                          | Purpose              | Key Types                                            |
-| ------------------------------- | -------------------- | ---------------------------------------------------- |
-| **spas-sdk-core**               | Foundation types     | `SpasContext`, `SpasConfiguration`, `SpasIdentity`   |
-| **spas-sdk-metadata**           | Metadata composition | `@SpasCommand`, `@SpasQuery`, `@SpasEvent`, builders |
-| **spas-sdk-metadata-processor** | Compile-time gen     | Annotation processor (`spas.json` output)            |
-| **spas-sdk-events**             | Event publishing     | `EventPublisher`, `SpasEventBuilder`                 |
-| **spas-sdk-spring**             | Spring integration   | Auto-configuration, property binding                 |
+More examples: [SDK Principles](../../../principles/component/12-sdk.md)
 
 ### Additional Resources
 

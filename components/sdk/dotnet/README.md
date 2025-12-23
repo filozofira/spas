@@ -22,14 +22,15 @@ dotnet run
 
 ### Packages
 
-| Package                  | Description                  | ASP.NET Required? |
-| ------------------------ | ---------------------------- | ----------------- |
-| `Spas.Sdk.Core`          | Context, clock, identity     | ❌ No             |
-| `Spas.Sdk.Metadata`      | Attributes, builders, model  | ❌ No             |
-| `Spas.Sdk.Events`        | Event publishing (sidecar)   | ❌ No             |
-| `Spas.Sdk.Observability` | Tracing/logging integrations | ✅ Optional       |
-| `Spas.Sdk.Configuration` | Env var helpers              | ❌ No             |
-| `Spas.Sdk.Inbound`       | Future inbound handlers      | ❌ N/A            |
+| Package                    | Purpose                    | Key Types                                                          |
+| -------------------------- | -------------------------- | ------------------------------------------------------------------ |
+| `Spas.Sdk.Core`            | Context, clock, identity   | `SpasContext`, `SpasTrace`, `ISpasClock`, `SpasIdentityMiddleware` |
+| `Spas.Sdk.Metadata`        | Attributes, builders       | `SpasComposer`, builders, attributes, `DiscoverSpasMetadata()`     |
+| `Spas.Sdk.Events`          | Event publishing (sidecar) | `EventPublisher`, `SpasEventBuilder`, `SpasEventEnvelope`          |
+| `Spas.Sdk.Observability`   | Tracing & logging          | `TracelogMiddleware`, `AddSpasTracing()`, `AddSpasServices()`      |
+| `Spas.Sdk.Configuration`   | Env var helpers            | Environment variable helpers                                       |
+| `Spas.Sdk.Inbound`         | _(deferred)_               | Future: handler scaffolding                                        |
+| `Spas.Sdk.Testing`         | _(placeholder)_            | Future: test utilities                                             |
 
 ### Features
 
@@ -65,40 +66,16 @@ The SDK uses flat environment variables matching docker-compose patterns:
 | `ZIPKIN_URL`   | Zipkin endpoint        | Optional                  | `"http://localhost:9411"`       |
 | `PORT`         | Service listening port | `5000`                    | `8080`                          |
 
-#### Sidecar URL Resolution Priority
-
-The SDK resolves the sidecar URL in this order (first match wins):
-
-1. **`SIDECAR_URL`** — Full URL, highest priority (`http://custom-sidecar:8080`)
-2. **`SIDECAR_HOST` + `SIDECAR_PORT`** — Explicit host/port (`http://my-sidecar:7001`)
-3. **Derived from `SERVICE_NAME`** — Convention-based (`order-service` → `http://order-service-sidecar:7000`). Recommended for Docker Compose.
-4. **Localhost fallback** — No configuration needed (`http://localhost:7000`)
+**Sidecar URL Resolution:** `SIDECAR_URL` > `SIDECAR_HOST:PORT` > derived from `SERVICE_NAME` > localhost. See [Sidecar Contract](../../../principles/component/10-sidecar-contract.md) for details.
 
 ### Writing Effective Descriptions
 
-Descriptions are optional but strongly recommended for AI-assisted choreography.
+Descriptions improve AI-assisted choreography. Use plain text describing intent, not implementation.
 
-**Rules:**: Plain text only; describe intent, not implementation.
+- ✅ Good: "Creates a new order and reserves inventory; returns the new orderId"
+- ❌ Bad: "CreateOrder" (restates name), "Handles orders" (too generic)
 
-**Good examples:**:
-
-- Service: "Order management for checkout and lifecycle updates"
-- Command: "Creates a new order and reserves inventory; returns the new orderId"
-- Event: "Emitted when an order transitions to paid"
-
-**Bad examples:**: "CreateOrder" (restates name), "Handles orders" (too generic)
-
-### Package Reference
-
-| Package                    | Purpose              | Key Types                                                          |
-| -------------------------- | -------------------- | ------------------------------------------------------------------ |
-| **Spas.Sdk.Core**          | Foundation types     | `SpasContext`, `SpasTrace`, `ISpasClock`, `SpasIdentityMiddleware` |
-| **Spas.Sdk.Metadata**      | Metadata composition | `SpasComposer`, builders, attributes, `DiscoverSpasMetadata()`     |
-| **Spas.Sdk.Events**        | Event publishing     | `EventPublisher`, `SpasEventBuilder`, `SpasEventEnvelope`          |
-| **Spas.Sdk.Observability** | Tracing & logging    | `TracelogMiddleware`, `AddSpasTracing()`, `AddSpasServices()`      |
-| **Spas.Sdk.Configuration** | _(minimal)_          | Environment variable helpers                                       |
-| **Spas.Sdk.Inbound**       | _(deferred)_         | Future: handler scaffolding                                        |
-| **Spas.Sdk.Testing**       | _(placeholder)_      | Future: test utilities                                             |
+More examples: [SDK Principles](../../../principles/component/12-sdk.md)
 
 ### Additional Resources
 

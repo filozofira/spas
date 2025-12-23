@@ -18,19 +18,7 @@ mvn clean install
 
 ## Project Structure
 
-The SDK is organized into focused modules:
-
-| Module | Purpose |
-|--------|---------|
-| `spas-sdk-core` | Context (SpasContext), configuration, utilities (framework-agnostic) |
-| `spas-sdk-metadata` | Annotations (@SpasCommand, @SpasQuery, @SpasEvent), builders, model classes |
-| `spas-sdk-metadata-processor` | Compile-time annotation processor (generates spas.json during Maven build) |
-| `spas-sdk-events` | Event publishing to sidecar (EventPublisher) |
-| `spas-sdk-spring` | Spring Boot auto-configuration (optional integration) |
-| `spas-sdk-observability` | Trace context utilities, logging helpers |
-
-**Examples**:
-- [examples/sample-service](./examples/sample-service/) - Runnable reference implementation
+See [README.md](./README.md#modules) for module overview. The [examples/sample-service](./examples/sample-service/) provides a runnable reference implementation.
 
 ## Building and Testing
 

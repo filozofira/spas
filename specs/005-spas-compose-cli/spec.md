@@ -149,7 +149,7 @@ As a developer, I want to use an AI agent to analyze pulled service contracts an
 - **SC-002**: Developer can pull service metadata from repository in under 10 seconds per service.
 - **SC-003**: Developer can generate valid docker-compose.yaml from choreography in under 30 seconds.
 - **SC-004**: Generated docker-compose.yaml runs successfully with `docker compose up` without manual edits.
-- **SC-005**: AI agent can propose initial choreography for 2-3 services within one iteration 80% of the time.
+- **SC-005**: AI agent can propose initial choreography for 2-3 services within one iteration (validated by manual testing with 5+ distinct service combinations during PoC; formal success rate tracking deferred to production).
 - **SC-006**: CLI provides actionable error messages that guide developer to resolution without consulting documentation.
 
 ## Assumptions

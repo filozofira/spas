@@ -166,5 +166,3 @@ A developer wants to download a service's metadata archive from the Repository t
 - `--force` flag to overwrite existing versions
 - Authentication/authorization with Repository
 - Progress bars for large file transfers (simple text output is sufficient)
-- **SC-003**: [User satisfaction metric, e.g., "90% of users successfully complete primary task on first attempt"]
-- **SC-004**: [Business metric, e.g., "Reduce support tickets related to [X] by 50%"]

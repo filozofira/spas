@@ -46,10 +46,6 @@ When the `/spas.compose` agent generates a choreography, it automatically insert
 
 ---
 
-### User Story 3 - [Brief Title] (Priority: P3)
-
-[Describe this user journey in plain language]
-
 ### Edge Cases
 
 - What happens when the choreography has only one service? → Diagram should show `Start → [service] → End`.

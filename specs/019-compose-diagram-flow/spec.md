@@ -8,9 +8,10 @@
 ## Clarifications
 
 ### Session 2025-12-23
+
 - Q: Where should the Start/End diagram rules be stored so that `spas-compose init` can include them in the generated agent prompt? → A: Store rules in the `spas-compose` CLI codebase (template embedded in generator)
 
-## User Scenarios & Testing *(mandatory)*
+## User Scenarios & Testing _(mandatory)_
 
 ### User Story 1 - Agent Generates Diagram with Start/End Nodes (Priority: P1)
 
@@ -54,7 +55,7 @@ When the `/spas.compose` agent generates a choreography, it automatically insert
 - What happens when there are circular event flows? → Diagram should still have Start/End nodes; cycles are shown as edges back to earlier nodes.
 - What happens when README has other content? → Only the diagram section is updated; other content is preserved.
 
-## Requirements *(mandatory)*
+## Requirements _(mandatory)_
 
 ### Functional Requirements
 
@@ -72,7 +73,7 @@ When the `/spas.compose` agent generates a choreography, it automatically insert
 - **Mermaid Diagram**: Flowchart visualization of the choreography with Start/End nodes, service nodes, and event-labeled edges.
 - **Domain README**: The `README.md` file in the domain workspace root that contains the choreography diagram.
 
-## Success Criteria *(mandatory)*
+## Success Criteria _(mandatory)_
 
 ### Measurable Outcomes
 

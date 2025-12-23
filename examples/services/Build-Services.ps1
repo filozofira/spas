@@ -7,3 +7,4 @@ docker build -t spas-examples/inventory-service:latest -f "$repoRoot/examples/se
 docker build -t spas-examples/product-service:latest -f "$repoRoot/examples/services/product-service/Dockerfile" $repoRoot
 docker build -t spas-examples/subscription-service:latest -f "$repoRoot/examples/services/subscription-service/Dockerfile" $repoRoot
 docker build -t spas-examples/fulfillment-service:latest -f "$repoRoot/examples/services/fulfillment-service/Dockerfile" $repoRoot
+docker build -t spas-examples/basket-service:latest -f "$repoRoot/examples/services/basket-service/Dockerfile" $repoRoot

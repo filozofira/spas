@@ -2,12 +2,12 @@
 
 Command-line tooling for working with SPAS services and domain choreographies.
 
-## For CLI Users (Service Developers & Domain Architects)
+## For Users
 
 - [spas-service](./spas-service/README.md) - Publish/pull service metadata archives to/from Repository
 - [spas-compose](./spas-compose/README.md) - Initialize domain workspaces, pull services, build deployment artifacts
 
-## For CLI Contributors (Tooling Developers)
+## For Contributors
 
 Contributing to the CLI implementations:
 

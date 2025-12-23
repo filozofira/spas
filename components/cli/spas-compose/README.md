@@ -4,22 +4,9 @@ Domain choreography composition tool.
 
 It creates a domain workspace, pulls service contracts from a Repository, and generates deployment artifacts from `choreography.yaml`.
 
-## Install (from source)
+## For Users
 
-```bash
-cd components/cli/spas-compose
-npm install
-npm run build
-npm link
-```
-
-Verify:
-
-```bash
-spas-compose --version
-spas-compose --help
-```
-## Typical workflow
+### Typical Workflow
 
 1. Create a domain workspace:
 
@@ -46,9 +33,9 @@ spas-compose choreography build --docker
 docker compose up
 ```
 
-## Commands
+### Commands
 
-### `spas-compose init <workspace-name>`
+#### `spas-compose init <workspace-name>`
 
 Creates a domain workspace containing:
 
@@ -64,7 +51,7 @@ spas-compose init e-commerce
 cd e-commerce
 ```
 
-### `spas-compose services pull <name> <version>`
+#### `spas-compose services pull <name> <version>`
 
 Downloads service metadata + schemas from the Repository and saves them under `services/<name>/`.
 
@@ -73,7 +60,7 @@ spas-compose services pull order-service 1.0.0
 spas-compose services pull order-service 1.0.0 --repo http://localhost:3000
 ```
 
-### `spas-compose choreography build --docker`
+#### `spas-compose choreography build --docker`
 
 Generates `docker-compose.yaml` and sidecar config files from `choreography.yaml`.
 
@@ -84,12 +71,16 @@ spas-compose choreography build --docker
 spas-compose choreography build --docker --dev
 ```
 
-## Configuration
+### Configuration
 
 - `SPAS_REPOSITORY_URL` sets the default repository URL (default: `http://localhost:3000`).
 
-## References
+### Additional Resources
 
-- [../../../principles/component/13-cli.md](../../../principles/component/13-cli.md)
-- [../../../principles/component/14-domain-choreography.md](../../../principles/component/14-domain-choreography.md)
+- [CLI Principles](../../../principles/component/13-cli.md)
+- [Domain Choreography](../../../principles/component/14-domain-choreography.md)
+
+## For Contributors
+
+See [CONTRIBUTING.md](./CONTRIBUTING.md).
 

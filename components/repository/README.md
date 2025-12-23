@@ -7,6 +7,10 @@ Primary consumers:
 - `spas-service` publishes archives to the repository
 - `spas-compose` downloads (pulls) them into a domain workspace
 
+## For Users
+
+This service is typically run as part of a local SPAS stack (the default Repository URL used by tooling is `http://localhost:3000`).
+
 ## Run locally
 
 ### Docker (recommended)
@@ -17,15 +21,6 @@ docker compose up --build
 ```
 
 Health endpoint: <http://localhost:3000/health>
-
-### Node.js (development)
-
-```bash
-cd components/repository
-npm install
-npm run build
-npm run dev
-```
 
 ## Configuration
 
@@ -61,4 +56,8 @@ See:
 
 - [../../principles/component/11-repository.md](../../principles/component/11-repository.md)
 - [../cli/spas-service/README.md](../cli/spas-service/README.md)
+
+## For Contributors
+
+See [CONTRIBUTING.md](./CONTRIBUTING.md).
 

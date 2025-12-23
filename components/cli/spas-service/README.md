@@ -2,26 +2,17 @@
 
 Command-line tool for publishing and pulling SPAS service metadata archives.
 
-## Install
+## For Users
 
-### Global install
+### Install
 
 ```bash
 npm install -g @spas/cli
 ```
 
-### From source (development)
+### Publish
 
-```bash
-cd components/cli/spas-service
-npm install
-npm run build
-npm link
-```
-
-## Publish
-
-### From a running service
+#### From a running service
 
 The service must expose `/_spas/metadata` (typically Development mode).
 
@@ -29,13 +20,13 @@ The service must expose `/_spas/metadata` (typically Development mode).
 spas-service publish http://localhost:5000 --repo http://localhost:3000
 ```
 
-### From a pre-built archive
+#### From a pre-built archive
 
 ```bash
 spas-service publish --archive ./order-service-1.0.0.zip --repo http://localhost:3000
 ```
 
-### Dry run
+#### Dry run
 
 Downloads and inspects metadata, but does not publish.
 
@@ -43,7 +34,7 @@ Downloads and inspects metadata, but does not publish.
 spas-service publish http://localhost:5000 --dry-run --output ./archives
 ```
 
-### Add runtime image metadata (optional)
+#### Add runtime image metadata (optional)
 
 ```bash
 spas-service publish --archive ./order-service-1.0.0.zip \
@@ -53,17 +44,21 @@ spas-service publish --archive ./order-service-1.0.0.zip \
   --image-digest sha256:abc123def456...
 ```
 
-## Pull
+### Pull
 
 ```bash
 spas-service pull order-service 1.0.0 --repo http://localhost:3000 --output ./archives
 ```
 
-## Configuration
+### Configuration
 
 - `SPAS_REPOSITORY_URL` sets the default repository URL when `--repo` is omitted (default: `http://localhost:3000`).
 
-Schema reference:
+### Additional Resources
 
-- [../../sdk/schemas/design-time-metadata-v1.schema.json](../../sdk/schemas/design-time-metadata-v1.schema.json)
+- [Design-Time Metadata Schema](../../sdk/schemas/design-time-metadata-v1.schema.json)
+
+## For Contributors
+
+See [CONTRIBUTING.md](./CONTRIBUTING.md).
 

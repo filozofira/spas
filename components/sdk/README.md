@@ -3,7 +3,7 @@
 
 Language SDKs for building SPAS services (metadata + events + context propagation). Each SDK generates compatible `spas.json` and publishes events through the sidecar.
 
-## For Service Developers (Using SDKs)
+## For Users
 
 Choose your language and follow the quickstart:
 
@@ -23,7 +23,7 @@ For end-to-end runnable examples and walkthroughs, see the examples services ove
 
 - [Examples Services README](../../examples/services/README.md)
 
-## For SDK Contributors (Building SDKs)
+## For Contributors
 
 Contributing to the SDK implementations:
 

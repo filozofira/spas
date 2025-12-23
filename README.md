@@ -34,28 +34,37 @@ This repo keeps the detailed architecture description in the Principles docs.
 - Domain choreography model: [principles/component/14-domain-choreography.md](principles/component/14-domain-choreography.md)
 - End-to-end composition workflow (canonical): [components/cli/spas-compose/README.md](components/cli/spas-compose/README.md)
 
-## Scope
+## Using SPAS
 
-SPAS specifies:
+### 1) Develop a SPAS service
 
-- What makes a service SPAS-compliant
-- Protocols for sync (north-south) and async (east-west) communication
-- Adaptation rules for choreography via `choreography.yaml`
-- Packaging and repository integration
-- Security, observability, and governance requirements
+1. Pick an SDK and follow its component README:
+  - [.NET SDK](./components/sdk/dotnet/README.md)
+  - [Java SDK](./components/sdk/java/README.md)
 
-## Out of Scope (v1.0)
+2. Run a runnable example service (recommended for first-time setup):
+  - [Examples Services](./examples/services/README.md)
 
-- Central orchestration (choreography-only)
-- Control plane requirements (PoC avoids managed control plane)
-- Serverless execution (container-only)
-- Path parameters in command endpoints (e.g., `/order/{id}/confirm` not supported; use flat endpoints like `/confirm-order`)
-- Input/output transformations for queries and commands (transformations apply to events only)
-- Queries in choreography (queries are synchronous; route via API Gateway, not event flows)
+3. Publish service metadata to a Repository:
+  - [spas-service CLI](./components/cli/spas-service/README.md)
 
-> PoC vs Production
->
-> See [principles/02-architecture-overview.md](principles/02-architecture-overview.md) for the canonical PoC vs Production comparison.
+### 2) Compose a domain
+
+1. Initialize a domain workspace:
+  - [spas-compose init](./components/cli/spas-compose/README.md)
+
+2. Pull the services you want to compose:
+  - [spas-compose services pull](./components/cli/spas-compose/README.md)
+
+3. Author `choreography.yaml` and any JSONata files under `transformations/`:
+  - [Domain choreography model (principles)](./principles/component/14-domain-choreography.md)
+
+4. Build runnable artifacts and start the domain:
+  - [spas-compose choreography build](./components/cli/spas-compose/README.md)
+  - `docker compose up`
+
+See the runnable domain examples for concrete compositions:
+- [Examples Domains](./examples/domains/)
 
 ## Common Documentation
 
@@ -69,35 +78,36 @@ SPAS specifies:
 - [Examples](./examples/README.md) - Sample services and domain implementations
 - [Grooming](./GROOMING.md) - Product backlog and feature planning
 
-## Component Documentation
+## Scope
 
-### SDKs
-Build SPAS-compliant services in your preferred language:
+### In Scope
 
-- [SDK Overview](./components/sdk/README.md) - Language SDK comparison and guidance
-- [.NET SDK](./components/sdk/dotnet/README.md) - C# implementation with ASP.NET Core
-- [Java SDK](./components/sdk/java/README.md) - Java implementation (framework-agnostic)
-- [SDK Conventions](./components/sdk/CONVENTIONS.md) - Shared rules across all SDKs
+- What makes a service SPAS-compliant
+- Protocols for sync (north-south) and async (east-west) communication
+- Adaptation rules for choreography via `choreography.yaml`
+- Packaging and repository integration
+- Security, observability, and governance requirements
 
-### CLI Tools
-Manage service lifecycle and compose domain contexts:
+### Out of Scope (v1.0)
 
-- [CLI Overview](./components/cli/README.md) - Tool comparison and workflows
-- [spas-service](./components/cli/spas-service/README.md) - Publish and pull service packages
-- [spas-compose](./components/cli/spas-compose/README.md) - Generate choreography and deployment configs
+- Central orchestration (choreography-only)
+- Control plane requirements (PoC avoids managed control plane)
+- Serverless execution (container-only)
+- Path parameters in command endpoints (e.g., `/order/{id}/confirm` not supported; use flat endpoints like `/confirm-order`)
+- Input/output transformations for queries and commands (transformations apply to events only)
+- Queries in choreography (queries are synchronous; route via API Gateway, not event flows)
 
-### Runtime Components
-Core infrastructure services:
-
-- [Repository](./components/repository/README.md) - Service metadata and package registry
-- [Sidecar](./components/sidecar/README.md) - Event routing, telemetry, and health checks
+> PoC vs Production: See [principles/02-architecture-overview.md](principles/02-architecture-overview.md) for the canonical comparison.
 
 ## Contributing
 
-SPAS is an internal framework under active development. Component-specific contribution guides are available:
+SPAS is under active development. Start with component-specific contribution guides:
 
-- **SDK Contributors**: See language-specific CONTRIBUTING.md files in [components/sdk/dotnet](./components/sdk/dotnet/CONTRIBUTING.md) and [components/sdk/java](./components/sdk/java/CONTRIBUTING.md)
-- **CLI Contributors**: See [spas-service](./components/cli/spas-service/CONTRIBUTING.md) and [spas-compose](./components/cli/spas-compose/CONTRIBUTING.md) contributor guides
-- **Repository/Sidecar Contributors**: Development workflows documented in respective component READMEs
+- **SDK**: [.NET](./components/sdk/dotnet/CONTRIBUTING.md), [Java](./components/sdk/java/CONTRIBUTING.md)
+- **CLI**: [spas-service](./components/cli/spas-service/CONTRIBUTING.md), [spas-compose](./components/cli/spas-compose/CONTRIBUTING.md)
+- **Runtime**: [Repository](./components/repository/CONTRIBUTING.md), [Sidecar](./components/sidecar/CONTRIBUTING.md)
 
-For architectural proposals or governance changes, review the [Principles](./principles/README.md) and [Decision Log](./principles/appendix/28-decision-log.md).
+For architecture and governance changes, use:
+
+- [Principles](./principles/README.md)
+- [Decision Log](./principles/appendix/28-decision-log.md)

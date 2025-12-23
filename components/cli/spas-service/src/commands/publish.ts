@@ -22,6 +22,7 @@ export function createPublishCommand(): Command {
     .option('--repo <url>', 'Repository URL (overrides SPAS_REPOSITORY_URL)')
     .option('--dry-run', 'Download and inspect metadata without publishing to repository')
     .option('--output <dir>', 'Output directory for dry-run archive (default: current directory)')
+    .option('--no-retry', 'Disable retry logic and fail immediately on connection errors')
     .option('--image-digest <digest>', 'Docker image SHA256 digest (e.g., sha256:abc123...)')
     .option('--image-repository <repo>', 'Docker image repository (e.g., ghcr.io/org/service)')
     .option('--image-tag <tag>', 'Docker image tag (e.g., 1.0.0, latest)')

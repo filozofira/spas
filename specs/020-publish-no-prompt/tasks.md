@@ -28,11 +28,11 @@
 
 **Purpose**: Prepare shared infrastructure for both user stories
 
-- [ ] T004 Remove `promptUser()` method from components/cli/spas-service/src/services/publish-service.ts (~20 lines)
-- [ ] T005 Remove call to `promptUser()` in `publish()` method in components/cli/spas-service/src/services/publish-service.ts
-- [ ] T006 Remove readline import and related dependencies from components/cli/spas-service/src/services/publish-service.ts
-- [ ] T007 [P] Add `--no-retry` flag to publish command definition in components/cli/spas-service/src/commands/publish.ts
-- [ ] T008 Remove tests that verify prompt behavior from components/cli/spas-service/test/unit/services/publish-service.test.ts
+- [X] T004 Remove `promptUser()` method from components/cli/spas-service/src/services/publish-service.ts (~20 lines)
+- [X] T005 Remove call to `promptUser()` in `publish()` method in components/cli/spas-service/src/services/publish-service.ts
+- [X] T006 Remove readline import and related dependencies from components/cli/spas-service/src/services/publish-service.ts
+- [X] T007 [P] Add `--no-retry` flag to publish command definition in components/cli/spas-service/src/commands/publish.ts
+- [X] T008 Remove tests that verify prompt behavior from components/cli/spas-service/test/unit/services/publish-service.test.ts
 
 **Checkpoint**: Prompt removed - all tests should now fail or require updates
 

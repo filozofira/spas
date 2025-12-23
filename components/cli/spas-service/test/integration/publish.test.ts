@@ -2,13 +2,11 @@ import { PublishService } from '../../src/services/publish-service';
 import { MetadataClient } from '../../src/services/metadata-client';
 import { ArchiveReader } from '../../src/services/archive-reader';
 import { RepositoryClient } from '../../src/services/repository-client';
-import * as readline from 'readline';
 import * as fs from 'fs';
 
 jest.mock('../../src/services/metadata-client');
 jest.mock('../../src/services/archive-reader');
 jest.mock('../../src/services/repository-client');
-jest.mock('readline');
 jest.mock('fs');
 
 describe('Publish Command Integration', () => {
@@ -53,40 +51,6 @@ describe('Publish Command Integration', () => {
                 archiveBuffer,
                 undefined  // runtimeMetadata defaults to undefined
             );
-        });
-
-        it('should handle user prompt before downloading metadata', async () => {
-            // Arrange
-            const serviceHost = 'http://localhost:5000';
-            const archiveBuffer = Buffer.from('mock-zip');
-            const identity = { id: 'test-service', version: '1.0.0' };
-
-            mockMetadataClient.downloadMetadata.mockResolvedValue(archiveBuffer);
-            mockArchiveReader.extractIdentity.mockResolvedValue(identity);
-            mockRepositoryClient.publishService.mockResolvedValue();
-
-            // Mock readline to simulate user pressing Enter
-            const mockInterface = {
-                question: jest.fn((query, callback) => callback()),
-                close: jest.fn()
-            };
-            (readline.createInterface as jest.Mock).mockReturnValue(mockInterface);
-
-            const publishService = new PublishService(
-                mockMetadataClient,
-                mockArchiveReader,
-                mockRepositoryClient
-            );
-
-            // Act
-            await publishService.publish(serviceHost);
-
-            // Assert
-            expect(mockInterface.question).toHaveBeenCalledWith(
-                expect.stringContaining(serviceHost),
-                expect.any(Function)
-            );
-            expect(mockInterface.close).toHaveBeenCalled();
         });
 
         it('should propagate errors from download phase', async () => {
@@ -198,13 +162,6 @@ describe('Publish Command Integration', () => {
             mockArchiveReader.extractIdentity.mockResolvedValue(identity);
             mockRepositoryClient.publishService.mockResolvedValue(undefined);
 
-            // Mock readline - should NOT be called
-            const mockInterface = {
-                question: jest.fn(),
-                close: jest.fn()
-            };
-            (readline.createInterface as jest.Mock).mockReturnValue(mockInterface);
-
             const publishService = new PublishService(
                 mockMetadataClient,
                 mockArchiveReader,
@@ -216,7 +173,6 @@ describe('Publish Command Integration', () => {
 
             // Assert
             expect(mockMetadataClient.downloadMetadata).not.toHaveBeenCalled();
-            expect(mockInterface.question).not.toHaveBeenCalled();
             expect(mockRepositoryClient.publishService).toHaveBeenCalledWith(
                 identity.id,
                 identity.version,

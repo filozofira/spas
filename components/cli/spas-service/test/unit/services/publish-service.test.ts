@@ -9,7 +9,6 @@ jest.mock('../../../src/services/metadata-client');
 jest.mock('../../../src/services/archive-reader');
 jest.mock('../../../src/services/repository-client');
 jest.mock('fs');
-jest.mock('readline');
 
 describe('PublishService', () => {
     let mockMetadataClient: jest.Mocked<MetadataClient>;

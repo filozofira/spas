@@ -2,7 +2,8 @@
 
 **Feature Branch**: `020-publish-no-prompt`  
 **Created**: 2025-12-23  
-**Status**: Planning Complete  
+**Completed**: 2025-12-23
+**Status**: ✅ Complete (PoC)
 **Input**: User description: "Remove prompt to start service from spas-service publish cli command"
 
 ## Clarifications
@@ -15,7 +16,7 @@
 - Q: Should retry logic apply to `--archive` mode? → A: Skip retry logic entirely for `--archive` mode - fail fast on file access errors since it's a local operation
 - Q: Should retry behavior differ based on error type (connection refused vs HTTP 404/500)? → A: Retry only connection-level errors (refused, timeout, network unreachable); fail immediately on HTTP errors (404, 500) since retrying won't fix misconfigured endpoint
 
-## User Scenarios & Testing *(mandatory)*
+## User Scenarios & Testing _(mandatory)_
 
 ### User Story 1 - Direct Publish Without Prompt (Priority: P1)
 
@@ -57,7 +58,7 @@ A developer starts the publish command before their service is fully ready. With
 - What happens with the existing `--archive` flag? → Retry logic is skipped entirely; archive mode fails fast on file access errors (local operation).
 - What happens with `--dry-run`? → Works the same, just without the prompt before attempting download; retry logic still applies.
 
-## Requirements *(mandatory)*
+## Requirements _(mandatory)_
 
 ### Functional Requirements
 
@@ -73,7 +74,7 @@ A developer starts the publish command before their service is fully ready. With
 
 - **NFR-001**: Total retry time MUST NOT exceed 15 seconds (4 attempts: 1s + 2s + 4s + 8s).
 
-## Success Criteria *(mandatory)*
+## Success Criteria _(mandatory)_
 
 ### Measurable Outcomes
 

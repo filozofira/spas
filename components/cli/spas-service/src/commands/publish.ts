@@ -22,6 +22,7 @@ export function createPublishCommand(): Command {
     .option('--repo <url>', 'Repository URL (overrides SPAS_REPOSITORY_URL)')
     .option('--dry-run', 'Download and inspect metadata without publishing to repository')
     .option('--output <dir>', 'Output directory for dry-run archive (default: current directory)')
+    .option('--no-retry', 'Disable retry logic and fail immediately on connection errors')
     .option('--image-digest <digest>', 'Docker image SHA256 digest (e.g., sha256:abc123...)')
     .option('--image-repository <repo>', 'Docker image repository (e.g., ghcr.io/org/service)')
     .option('--image-tag <tag>', 'Docker image tag (e.g., 1.0.0, latest)')
@@ -75,14 +76,15 @@ async function executePublish(serviceHost: string | undefined, options: PublishO
       await executeArchivePublish(options.archive, publishService, repositoryUrl, runtimeMetadata);
     } else if (options.dryRun) {
       // Dry-run mode
-      await executeDryRun(serviceHost!, publishService, options.output);
+      await executeDryRun(serviceHost!, publishService, options.output, options.retry === false);
     } else {
       // Normal publish mode from running service
       verbose(`Using repository: ${repositoryUrl}`);
       info(`Publishing service metadata from ${serviceHost}`);
       info(`Target repository: ${repositoryUrl}`);
 
-      const identity = await publishService.publish(serviceHost!, runtimeMetadata);
+      const skipRetry = options.retry === false;
+      const identity = await publishService.publish(serviceHost!, runtimeMetadata, skipRetry);
 
       success(`Downloaded metadata from ${serviceHost}`);
       success(`Extracted identity: ${identity.id} v${identity.version}`);
@@ -137,12 +139,13 @@ async function executeArchivePublish(
 async function executeDryRun(
   serviceHost: string,
   publishService: PublishService,
-  outputDir?: string
+  outputDir?: string,
+  skipRetry: boolean = false
 ): Promise<void> {
   info('Dry-run mode: Metadata will be downloaded but NOT published to repository');
   info(`Downloading service metadata from ${serviceHost}`);
 
-  const result = await publishService.publishDryRun(serviceHost, outputDir);
+  const result = await publishService.publishDryRun(serviceHost, outputDir, skipRetry);
 
   success(`Downloaded metadata from ${serviceHost}`);
   success(`Extracted identity: ${result.identity.id} v${result.identity.version}`);

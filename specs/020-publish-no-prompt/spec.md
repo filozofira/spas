@@ -2,7 +2,7 @@
 
 **Feature Branch**: `020-publish-no-prompt`  
 **Created**: 2025-12-23  
-**Status**: Draft  
+**Status**: Planning Complete  
 **Input**: User description: "Remove prompt to start service from spas-service publish cli command"
 
 ## Clarifications

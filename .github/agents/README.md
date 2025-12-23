@@ -38,7 +38,7 @@ SpecKit provides a structured workflow for turning ideas into implemented featur
 In Copilot Chat, type the agent name followed by your request:
 
 ```
-/spas.compose DOMAIN:e-commerce Review choreography.yaml and suggest missing transformations
+/spas.compose Compose DOMAIN:order-fulfillment choreography using order-service, inventory-service and fulfillment-service.
 ```
 
 ```

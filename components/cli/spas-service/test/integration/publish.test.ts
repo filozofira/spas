@@ -67,8 +67,8 @@ describe('Publish Command Integration', () => {
                 mockRepositoryClient
             );
 
-            // Act & Assert
-            await expect(publishService.publish(serviceHost))
+            // Act & Assert - use skipRetry=true to avoid retry delays in test
+            await expect(publishService.publish(serviceHost, undefined, true))
                 .rejects
                 .toThrow('Service unavailable');
         });

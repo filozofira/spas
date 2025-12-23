@@ -90,14 +90,14 @@
 
 **Purpose**: End-to-end validation using quickstart scenarios
 
-- [ ] T031 Run Quickstart Scenario 1: Service already running (expect <5s completion) per quickstart.md
-- [ ] T032 Run Quickstart Scenario 2: Service startup delay (expect retry and success) per quickstart.md
-- [ ] T033 Run Quickstart Scenario 3: Service never available (expect clear error after 15s) per quickstart.md
-- [ ] T034 Run Quickstart Scenario 4: HTTP 404 error (expect immediate failure, no retry) per quickstart.md
-- [ ] T035 Run Quickstart Scenario 5: `--no-retry` flag (expect immediate failure) per quickstart.md
-- [ ] T036 Run Quickstart Scenario 6: CI/CD script (expect non-interactive success) per quickstart.md
-- [ ] T037 Run Quickstart Scenario 7: `--archive` mode (expect no retry logic) per quickstart.md
-- [ ] T038 Run Quickstart Scenario 8: `--dry-run` with retry (expect retry applies) per quickstart.md
+- [X] T031 Run Quickstart Scenario 1: Service already running (expect <5s completion) per quickstart.md
+- [X] T032 Run Quickstart Scenario 2: Service startup delay (expect retry and success) per quickstart.md
+- [X] T033 Run Quickstart Scenario 3: Service never available (expect clear error after 15s) per quickstart.md
+- [X] T034 Run Quickstart Scenario 4: HTTP 404 error (expect immediate failure, no retry) per quickstart.md
+- [X] T035 Run Quickstart Scenario 5: `--no-retry` flag (expect immediate failure) per quickstart.md
+- [X] T036 Run Quickstart Scenario 6: CI/CD script (expect non-interactive success) per quickstart.md
+- [X] T037 Run Quickstart Scenario 7: `--archive` mode (expect no retry logic) per quickstart.md
+- [X] T038 Run Quickstart Scenario 8: `--dry-run` with retry (expect retry applies) per quickstart.md
 
 ---
 

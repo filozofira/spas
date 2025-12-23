@@ -1,7 +1,7 @@
 import { MetadataClient } from './metadata-client.js';
 import { ArchiveReader } from './archive-reader.js';
 import { RepositoryClient } from './repository-client.js';
-import { ServiceIdentity, RuntimeMetadata } from '../types.js';
+import { ServiceIdentity, RuntimeMetadata, ErrorCode, CliError } from '../types.js';
 import { retryWithBackoff } from '../utils/retry.js';
 import * as fs from 'fs';
 import * as path from 'path';
@@ -120,7 +120,13 @@ export class PublishService {
                     initialDelay: delays[0],
                     multiplier: 2,
                     shouldRetry: (error: Error) => {
-                        // Only retry connection-level errors
+                        // Check for CLI error codes that represent connection issues
+                        const cliError = error as CliError;
+                        if (cliError.code === ErrorCode.SERVICE_UNAVAILABLE) {
+                            return true; // Retry service unavailable errors
+                        }
+                        
+                        // Also check for raw connection-level errors (in case not wrapped)
                         const code = (error as any).code;
                         const isConnectionError = 
                             code === 'ECONNREFUSED' || 
@@ -129,7 +135,10 @@ export class PublishService {
                             code === 'ECONNRESET' ||
                             code === 'ENETUNREACH';
                         
-                        // Don't retry HTTP errors (404, 500, etc.)
+                        // Don't retry HTTP errors (404, 500, etc.) or metadata disabled
+                        if (cliError.code === ErrorCode.METADATA_DISABLED) {
+                            return false;
+                        }
                         if (!isConnectionError && (error as any).status) {
                             return false;
                         }
@@ -141,12 +150,29 @@ export class PublishService {
         } catch (error: any) {
             const elapsedTime = Math.floor((Date.now() - startTime) / 1000);
             
-            // Check if it's a connection error that exhausted retries
+            // Check if it's a CLI error for service unavailable (wrapped connection error)
+            const cliError = error as CliError;
+            if (cliError.code === ErrorCode.SERVICE_UNAVAILABLE) {
+                throw new Error(
+                    `Failed to connect to ${serviceHost} after ${attemptCount} attempts (${elapsedTime}s).\n` +
+                    `Ensure your service is running and accessible.`
+                );
+            }
+            
+            // Check if it's a raw connection error that exhausted retries
             const code = error.code;
             if (code === 'ECONNREFUSED' || code === 'ETIMEDOUT' || code === 'ENOTFOUND' || code === 'ECONNRESET' || code === 'ENETUNREACH') {
                 throw new Error(
                     `Failed to connect to ${serviceHost} after ${attemptCount} attempts (${elapsedTime}s).\n` +
                     `Ensure your service is running and accessible.`
+                );
+            }
+            
+            // For metadata disabled errors, throw with appropriate message
+            if (cliError.code === ErrorCode.METADATA_DISABLED) {
+                throw new Error(
+                    `Endpoint not found: GET /_spas/metadata returned 404.\n` +
+                    `Ensure service is running in Development mode with metadata endpoint enabled.`
                 );
             }
             

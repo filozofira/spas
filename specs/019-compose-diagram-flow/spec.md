@@ -2,7 +2,8 @@
 
 **Feature Branch**: `019-compose-diagram-flow`  
 **Created**: 2025-12-23  
-**Status**: Draft  
+**Completed**: 2025-12-23
+**Status**: ✅ Complete (PoC)
 **Input**: User description: "Extend agent prompt to include agent instruction to add start and end flow notations while generating choreography diagram and make sure that diagram is added to choreography readme"
 
 ## Clarifications

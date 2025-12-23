@@ -25,8 +25,8 @@
 
 **Purpose**: Prepare development environment
 
-- [ ] T001 Checkout feature branch `019-compose-diagram-flow` and verify local build in components/cli/spas-compose/
-- [ ] T002 Run existing tests to confirm baseline passes: `npm test` in components/cli/spas-compose/
+- [X] T001 Checkout feature branch `019-compose-diagram-flow` and verify local build in components/cli/spas-compose/
+- [X] T002 Run existing tests to confirm baseline passes: `npm test` in components/cli/spas-compose/
 
 ---
 

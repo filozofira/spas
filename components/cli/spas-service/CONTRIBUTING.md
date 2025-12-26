@@ -17,6 +17,35 @@ npm run build
 npm link  # Makes spas-service available globally for testing
 ```
 
+### Using npm link
+
+`npm link` creates a symlink from the global `node_modules` to this package, allowing you to:
+
+1. Run `spas-service` commands anywhere on your machine
+2. Test changes immediately after `npm run build` (no reinstall needed)
+3. Test the CLI in other local projects
+
+**Verify it's linked:**
+
+```bash
+which spas-service   # Unix
+where spas-service   # Windows
+spas-service --version
+```
+
+**Unlink when done:**
+
+```bash
+npm unlink -g @spas/cli
+```
+
+**Link to another local project:**
+
+```bash
+cd /path/to/other-project
+npm link @spas/cli
+```
+
 ## Project Structure
 
 ```

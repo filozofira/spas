@@ -114,3 +114,36 @@ export function createCliError(
   error.details = details;
   return error;
 }
+
+/**
+ * Options for the init command
+ */
+export interface InitOptions {
+  /** Custom output directory */
+  output?: string;
+  /** Overwrite existing workspace */
+  force?: boolean;
+  /** Output JSON instead of human-readable */
+  json?: boolean;
+  /** Enable verbose logging */
+  verbose?: boolean;
+}
+
+/**
+ * Standard result type for CLI commands
+ */
+export interface CommandResult {
+  success: boolean;
+  message: string;
+  error?: {
+    code: string;
+    details: string;
+  };
+  data?: {
+    name: string;
+    path: string;
+    files: string[];
+    agentPromptPath?: string;
+    promptFilePath?: string;
+  };
+}

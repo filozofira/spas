@@ -1,0 +1,1093 @@
+## SDK Integration Patterns
+
+This section provides idiomatic code patterns for integrating with the SPAS SDK.
+Use the patterns matching the STACK token (java or dotnet).
+
+---
+
+### Java/Spring Patterns
+
+#### Project Structure (Maven)
+
+```
+{NAME}/
+├── pom.xml
+├── src/
+│   ├── main/
+│   │   ├── java/com/{context}/{name}/
+│   │   │   ├── Application.java
+│   │   │   ├── config/
+│   │   │   │   └── SpasConfig.java
+│   │   │   ├── controller/
+│   │   │   │   └── {Entity}Controller.java
+│   │   │   ├── service/
+│   │   │   │   └── {Entity}Service.java
+│   │   │   ├── model/
+│   │   │   │   ├── {Entity}.java
+│   │   │   │   ├── Create{Entity}Request.java
+│   │   │   │   └── {Entity}Response.java
+│   │   │   ├── repository/
+│   │   │   │   ├── {Entity}Repository.java
+│   │   │   │   └── InMemory{Entity}Repository.java
+│   │   │   └── event/
+│   │   │       └── {Entity}CreatedEvent.java
+│   │   └── resources/
+│   │       └── application.yaml
+│   └── test/
+│       └── java/com/{context}/{name}/
+│           └── {Entity}ServiceTest.java
+├── spas.json
+├── schemas/
+│   ├── endpoints/
+│   │   ├── create-{entity}-request.json
+│   │   └── create-{entity}-response.json
+│   └── events/
+│       └── {entity}-created.json
+└── metadata/
+```
+
+#### pom.xml Template
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 
+         http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    
+    <parent>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-parent</artifactId>
+        <version>3.2.0</version>
+        <relativePath/>
+    </parent>
+    
+    <groupId>com.{context}</groupId>
+    <artifactId>{name}</artifactId>
+    <version>1.0.0</version>
+    <packaging>jar</packaging>
+    
+    <properties>
+        <java.version>17</java.version>
+        <spas-sdk.version>1.0.0</spas-sdk.version>
+    </properties>
+    
+    <dependencies>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-actuator</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-validation</artifactId>
+        </dependency>
+        
+        <!-- SPAS SDK -->
+        <dependency>
+            <groupId>io.spas</groupId>
+            <artifactId>spas-sdk-java</artifactId>
+            <version>${spas-sdk.version}</version>
+        </dependency>
+        
+        <!-- Testing -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+    
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+            </plugin>
+        </plugins>
+    </build>
+</project>
+```
+
+#### Application Entry Point
+
+```java
+package com.{context}.{name};
+
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+
+@SpringBootApplication
+public class Application {
+    public static void main(String[] args) {
+        SpringApplication.run(Application.class, args);
+    }
+}
+```
+
+#### SPAS Configuration
+
+```java
+package com.{context}.{name}.config;
+
+import io.spas.sdk.SpasEventPublisher;
+import io.spas.sdk.SpasEventPublisherConfig;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+
+@Configuration
+public class SpasConfig {
+    
+    @Value("${spas.sidecar.url:http://localhost:3001}")
+    private String sidecarUrl;
+    
+    @Value("${spas.service.id}")
+    private String serviceId;
+    
+    @Bean
+    public SpasEventPublisher spasEventPublisher() {
+        return new SpasEventPublisher(
+            SpasEventPublisherConfig.builder()
+                .sidecarUrl(sidecarUrl)
+                .source("/" + serviceId)
+                .build()
+        );
+    }
+}
+```
+
+#### Event Class with @SpasEvent Annotation
+
+```java
+package com.{context}.{name}.event;
+
+import io.spas.sdk.annotation.SpasEvent;
+import java.math.BigDecimal;
+import java.time.Instant;
+import java.util.List;
+
+/**
+ * Event published when a new {entity} is created.
+ * 
+ * CloudEvents type: com.{context}.{entity}-created
+ */
+@SpasEvent(name = "{entity}-created", version = "1.0.0")
+public record {Entity}CreatedEvent(
+    String id,
+    String customerId,
+    List<LineItem> items,
+    BigDecimal total,
+    Instant createdAt
+) {
+    public record LineItem(
+        String productId,
+        int quantity,
+        BigDecimal unitPrice
+    ) {}
+}
+```
+
+#### Controller with Command Handler
+
+```java
+package com.{context}.{name}.controller;
+
+import com.{context}.{name}.model.*;
+import com.{context}.{name}.service.{Entity}Service;
+import jakarta.validation.Valid;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+@RestController
+@RequestMapping("/{entities}")
+public class {Entity}Controller {
+    
+    private final {Entity}Service service;
+    
+    public {Entity}Controller({Entity}Service service) {
+        this.service = service;
+    }
+    
+    /**
+     * Command: Create{Entity}
+     * Produces: {entity}-created event
+     */
+    @PostMapping
+    public ResponseEntity<{Entity}Response> create(
+            @Valid @RequestBody Create{Entity}Request request) {
+        {Entity} entity = service.create(request);
+        return ResponseEntity
+            .status(HttpStatus.CREATED)
+            .body({Entity}Response.from(entity));
+    }
+    
+    /**
+     * Query: Get{Entity}
+     */
+    @GetMapping("/{id}")
+    public ResponseEntity<{Entity}Response> getById(@PathVariable String id) {
+        return service.findById(id)
+            .map(entity -> ResponseEntity.ok({Entity}Response.from(entity)))
+            .orElse(ResponseEntity.notFound().build());
+    }
+    
+    /**
+     * Query: List{Entities}
+     */
+    @GetMapping
+    public ResponseEntity<List<{Entity}Response>> list() {
+        List<{Entity}Response> responses = service.findAll().stream()
+            .map({Entity}Response::from)
+            .toList();
+        return ResponseEntity.ok(responses);
+    }
+}
+```
+
+#### Service with Event Publishing
+
+```java
+package com.{context}.{name}.service;
+
+import com.{context}.{name}.event.{Entity}CreatedEvent;
+import com.{context}.{name}.model.*;
+import com.{context}.{name}.repository.{Entity}Repository;
+import io.spas.sdk.SpasEventPublisher;
+import org.springframework.stereotype.Service;
+import java.time.Instant;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
+
+@Service
+public class {Entity}Service {
+    
+    private final {Entity}Repository repository;
+    private final SpasEventPublisher eventPublisher;
+    
+    public {Entity}Service(
+            {Entity}Repository repository,
+            SpasEventPublisher eventPublisher) {
+        this.repository = repository;
+        this.eventPublisher = eventPublisher;
+    }
+    
+    /**
+     * Creates a new {entity} and publishes {entity}-created event.
+     */
+    public {Entity} create(Create{Entity}Request request) {
+        // Create entity
+        {Entity} entity = new {Entity}(
+            UUID.randomUUID().toString(),
+            request.customerId(),
+            request.items(),
+            request.calculateTotal(),
+            Instant.now()
+        );
+        
+        // Persist
+        {Entity} saved = repository.save(entity);
+        
+        // Publish event to sidecar
+        eventPublisher.publish(new {Entity}CreatedEvent(
+            saved.id(),
+            saved.customerId(),
+            saved.items().stream()
+                .map(i -> new {Entity}CreatedEvent.LineItem(
+                    i.productId(), i.quantity(), i.unitPrice()))
+                .toList(),
+            saved.total(),
+            saved.createdAt()
+        ));
+        
+        return saved;
+    }
+    
+    public Optional<{Entity}> findById(String id) {
+        return repository.findById(id);
+    }
+    
+    public List<{Entity}> findAll() {
+        return repository.findAll();
+    }
+}
+```
+
+#### Repository Interface
+
+```java
+package com.{context}.{name}.repository;
+
+import com.{context}.{name}.model.{Entity};
+import java.util.List;
+import java.util.Optional;
+
+public interface {Entity}Repository {
+    {Entity} save({Entity} entity);
+    Optional<{Entity}> findById(String id);
+    List<{Entity}> findAll();
+    void deleteById(String id);
+}
+```
+
+#### In-Memory Repository Implementation
+
+```java
+package com.{context}.{name}.repository;
+
+import com.{context}.{name}.model.{Entity};
+import org.springframework.stereotype.Repository;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+
+@Repository
+public class InMemory{Entity}Repository implements {Entity}Repository {
+    
+    private final Map<String, {Entity}> store = new ConcurrentHashMap<>();
+    
+    @Override
+    public {Entity} save({Entity} entity) {
+        store.put(entity.id(), entity);
+        return entity;
+    }
+    
+    @Override
+    public Optional<{Entity}> findById(String id) {
+        return Optional.ofNullable(store.get(id));
+    }
+    
+    @Override
+    public List<{Entity}> findAll() {
+        return new ArrayList<>(store.values());
+    }
+    
+    @Override
+    public void deleteById(String id) {
+        store.remove(id);
+    }
+}
+```
+
+#### application.yaml
+
+```yaml
+server:
+  port: 8080
+
+spring:
+  application:
+    name: {name}
+
+spas:
+  service:
+    id: {name}
+  sidecar:
+    url: ${SPAS_SIDECAR_URL:http://localhost:3001}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      show-details: always
+```
+
+---
+
+### .NET Patterns
+
+#### Project Structure
+
+```
+{NAME}/
+├── src/
+│   └── {Name}.Api/
+│       ├── {Name}.Api.csproj
+│       ├── Program.cs
+│       ├── appsettings.json
+│       ├── Controllers/
+│       │   └── {Entity}Controller.cs
+│       ├── Services/
+│       │   ├── I{Entity}Service.cs
+│       │   └── {Entity}Service.cs
+│       ├── Models/
+│       │   ├── {Entity}.cs
+│       │   ├── Create{Entity}Request.cs
+│       │   └── {Entity}Response.cs
+│       ├── Repositories/
+│       │   ├── I{Entity}Repository.cs
+│       │   └── InMemory{Entity}Repository.cs
+│       └── Events/
+│           └── {Entity}CreatedEvent.cs
+├── test/
+│   └── {Name}.Api.Tests/
+│       ├── {Name}.Api.Tests.csproj
+│       └── {Entity}ServiceTests.cs
+├── spas.json
+├── schemas/
+│   ├── endpoints/
+│   │   ├── create-{entity}-request.json
+│   │   └── create-{entity}-response.json
+│   └── events/
+│       └── {entity}-created.json
+└── metadata/
+```
+
+#### .csproj Template
+
+```xml
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Spas.Sdk.Core" Version="1.0.0-*" />
+    <PackageReference Include="Spas.Sdk.Metadata" Version="1.0.0-*" />
+    <PackageReference Include="Spas.Sdk.Events" Version="1.0.0-*" />
+    <PackageReference Include="Spas.Sdk.Observability" Version="1.0.0-*" />
+  </ItemGroup>
+
+</Project>
+```
+
+#### Program.cs Entry Point
+
+```csharp
+using {Name}.Api.Repositories;
+using {Name}.Api.Services;
+using Spas.Sdk;
+
+var builder = WebApplication.CreateBuilder(args);
+
+// Add services to the container
+builder.Services.AddControllers();
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddHealthChecks();
+
+// Register application services
+builder.Services.AddSingleton<I{Entity}Repository, InMemory{Entity}Repository>();
+builder.Services.AddScoped<I{Entity}Service, {Entity}Service>();
+
+// Configure SPAS SDK
+builder.Services.AddSpasMetadata();
+builder.Services.AddSpasServices(builder.Configuration, "{name}");
+
+// Configure EventPublisher for sidecar communication
+builder.Services.AddSingleton<EventPublisher>(sp =>
+{
+    var config = builder.Configuration;
+    var sidecarUrl = config["Spas:SidecarUrl"] ?? "http://localhost:3001";
+    var serviceName = config["Spas:ServiceName"] ?? "{name}";
+    
+    var httpClient = new HttpClient { BaseAddress = new Uri(sidecarUrl) };
+    return new EventPublisher(httpClient, serviceName);
+});
+
+var app = builder.Build();
+
+app.UseHttpsRedirection();
+app.UseAuthorization();
+app.MapControllers();
+app.MapHealthChecks("/health");
+
+app.Run();
+```
+
+#### Event Class with [SpasEvent] Attribute
+
+```csharp
+using Spas.Sdk.Metadata.Attributes;
+
+namespace {Name}.Api.Events;
+
+/// <summary>
+/// Event published when a new {entity} is created.
+/// CloudEvents type: com.{context}.{entity}-created
+/// </summary>
+[SpasEvent("{entity}-created", "1.0.0")]
+public record {Entity}CreatedEvent(
+    string Id,
+    string CustomerId,
+    IReadOnlyList<LineItem> Items,
+    decimal Total,
+    DateTimeOffset CreatedAt
+)
+{
+    public record LineItem(
+        string ProductId,
+        int Quantity,
+        decimal UnitPrice
+    );
+}
+```
+
+#### Controller with Command Handler
+
+```csharp
+using Microsoft.AspNetCore.Mvc;
+using Spas.Sdk.Metadata.Attributes;
+using {Name}.Api.Models;
+using {Name}.Api.Services;
+using {Name}.Api.Events;
+
+namespace {Name}.Api.Controllers;
+
+[ApiController]
+[Route("[controller]")]
+public class {Entity}Controller : ControllerBase
+{
+    private readonly I{Entity}Service _service;
+
+    public {Entity}Controller(I{Entity}Service service)
+    {
+        _service = service;
+    }
+
+    /// <summary>
+    /// Command: Create{Entity}
+    /// Produces: {entity}-created event
+    /// </summary>
+    /// <remarks>
+    /// SPAS Pattern: Apply [SpasCommand] to both action AND request/response DTOs.
+    /// Use Produces property to link events: Produces = new[] { typeof({Entity}CreatedEvent) }
+    /// </remarks>
+    [HttpPost]
+    [SpasCommand("create-{entity}", "1.0", Produces = new[] { typeof({Entity}CreatedEvent) })]
+    [ProducesResponseType(typeof({Entity}Response), StatusCodes.Status201Created)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<ActionResult<{Entity}Response>> Create(
+        [FromBody] Create{Entity}Request request)
+    {
+        var entity = await _service.CreateAsync(request);
+        return CreatedAtAction(
+            nameof(GetById),
+            new { id = entity.Id },
+            {Entity}Response.From(entity));
+    }
+
+    /// <summary>
+    /// Query: Get{Entity}
+    /// </summary>
+    [HttpGet("{id}")]
+    [SpasQuery("get-{entity}", "1.0")]
+    [ProducesResponseType(typeof({Entity}Response), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<ActionResult<{Entity}Response>> GetById(string id)
+    {
+        var entity = await _service.GetByIdAsync(id);
+        if (entity is null)
+            return NotFound();
+        
+        return Ok({Entity}Response.From(entity));
+    }
+
+    /// <summary>
+    /// Query: List{Entities}
+    /// </summary>
+    [HttpGet]
+    [SpasQuery("list-{entity}s", "1.0")]
+    [ProducesResponseType(typeof(IEnumerable<{Entity}Response>), StatusCodes.Status200OK)]
+    public async Task<ActionResult<IEnumerable<{Entity}Response>>> List()
+    {
+        var entities = await _service.GetAllAsync();
+        return Ok(entities.Select({Entity}Response.From));
+    }
+}
+```
+
+#### Service Interface
+
+```csharp
+using {Name}.Api.Models;
+
+namespace {Name}.Api.Services;
+
+public interface I{Entity}Service
+{
+    Task<{Entity}> CreateAsync(Create{Entity}Request request);
+    Task<{Entity}?> GetByIdAsync(string id);
+    Task<IEnumerable<{Entity}>> GetAllAsync();
+}
+```
+
+#### Service Implementation with Event Publishing
+
+```csharp
+using {Name}.Api.Events;
+using {Name}.Api.Models;
+using {Name}.Api.Repositories;
+using Spas.Sdk.Events.Publish;
+
+namespace {Name}.Api.Services;
+
+public class {Entity}Service : I{Entity}Service
+{
+    private readonly I{Entity}Repository _repository;
+    
+    /// <summary>
+    /// Publishes events to the sidecar for distribution.
+    /// </summary>
+    /// <remarks>
+    /// IMPORTANT: Use concrete EventPublisher class, not ISpasEventPublisher interface.
+    /// The SDK extracts event metadata from the [SpasEvent] attribute at runtime.
+    /// </remarks>
+    /// <example>
+    /// await _eventPublisher.PublishAsync&lt;OrderCreatedEvent&gt;(new OrderCreatedEvent(...));
+    /// </example>
+    private readonly EventPublisher _eventPublisher;
+
+    public {Entity}Service(
+        I{Entity}Repository repository,
+        EventPublisher eventPublisher)
+    {
+        _repository = repository;
+        _eventPublisher = eventPublisher;
+    }
+
+    /// <summary>
+    /// Creates a new {entity} and publishes {entity}-created event.
+    /// </summary>
+    public async Task<{Entity}> CreateAsync(Create{Entity}Request request)
+    {
+        // Create entity
+        var entity = new {Entity}(
+            Id: Guid.NewGuid().ToString(),
+            CustomerId: request.CustomerId,
+            Items: request.Items,
+            Total: request.CalculateTotal(),
+            CreatedAt: DateTimeOffset.UtcNow
+        );
+
+        // Persist
+        var saved = await _repository.SaveAsync(entity);
+
+        // Publish event to sidecar
+        // NOTE: Use generic method PublishAsync<TEvent>() - extracts metadata from [SpasEvent]
+        await _eventPublisher.PublishAsync<{Entity}CreatedEvent>(new {Entity}CreatedEvent(
+            saved.Id,
+            saved.CustomerId,
+            saved.Items.Select(i => new {Entity}CreatedEvent.LineItem(
+                i.ProductId, i.Quantity, i.UnitPrice)).ToList(),
+            saved.Total,
+            saved.CreatedAt
+        ));
+
+        return saved;
+    }
+
+    public Task<{Entity}?> GetByIdAsync(string id)
+        => _repository.GetByIdAsync(id);
+
+    public Task<IEnumerable<{Entity}>> GetAllAsync()
+        => _repository.GetAllAsync();
+}
+```
+
+#### DTOs with SDK Attributes
+
+**CRITICAL**: Apply `[SpasCommand]` or `[SpasQuery]` to request/response DTOs for endpoint schema generation.
+
+```csharp
+using Spas.Sdk.Metadata.Attributes;
+
+namespace {Name}.Api.Models;
+
+/// <summary>
+/// Request DTO for Create{Entity} command.
+/// </summary>
+/// <remarks>
+/// SPAS Pattern: Apply [SpasCommand] to request/response DTOs for automatic JSON schema generation.
+/// The SDK will generate schemas/endpoints/create-{entity}.schema.json from this type.
+/// </remarks>
+[SpasCommand("create-{entity}", "1.0")]
+public class Create{Entity}Request
+{
+    public string CustomerId { get; set; } = string.Empty;
+    public List<LineItem> Items { get; set; } = new();
+    
+    public decimal CalculateTotal() => Items.Sum(i => i.Quantity * i.UnitPrice);
+}
+
+/// <summary>
+/// Response DTO for Create{Entity} command.
+/// </summary>
+[SpasCommand("create-{entity}", "1.0")]
+public class Create{Entity}Response
+{
+    public string Id { get; set; } = string.Empty;
+    public string Status { get; set; } = "created";
+    public decimal Total { get; set; }
+    public DateTimeOffset CreatedAt { get; set; }
+}
+
+/// <summary>
+/// Domain model returned by Get{Entity} query.
+/// </summary>
+/// <remarks>
+/// SPAS Pattern: Apply [SpasQuery] for query response schema generation.
+/// </remarks>
+[SpasQuery("get-{entity}", "1.0")]
+public class {Entity}
+{
+    public string Id { get; set; } = string.Empty;
+    public string CustomerId { get; set; } = string.Empty;
+    public List<LineItem> Items { get; set; } = new();
+    public decimal Total { get; set; }
+    public string Status { get; set; } = "pending";
+    public DateTimeOffset CreatedAt { get; set; }
+}
+
+public class LineItem
+{
+    public string ProductId { get; set; } = string.Empty;
+    public int Quantity { get; set; }
+    public decimal UnitPrice { get; set; }
+}
+```
+
+#### Repository Interface
+
+```csharp
+using {Name}.Api.Models;
+
+namespace {Name}.Api.Repositories;
+
+public interface I{Entity}Repository
+{
+    Task<{Entity}> SaveAsync({Entity} entity);
+    Task<{Entity}?> GetByIdAsync(string id);
+    Task<IEnumerable<{Entity}>> GetAllAsync();
+    Task DeleteAsync(string id);
+}
+```
+
+#### In-Memory Repository Implementation
+
+```csharp
+using {Name}.Api.Models;
+using System.Collections.Concurrent;
+
+namespace {Name}.Api.Repositories;
+
+public class InMemory{Entity}Repository : I{Entity}Repository
+{
+    private readonly ConcurrentDictionary<string, {Entity}> _store = new();
+
+    public Task<{Entity}> SaveAsync({Entity} entity)
+    {
+        _store[entity.Id] = entity;
+        return Task.FromResult(entity);
+    }
+
+    public Task<{Entity}?> GetByIdAsync(string id)
+    {
+        _store.TryGetValue(id, out var entity);
+        return Task.FromResult(entity);
+    }
+
+    public Task<IEnumerable<{Entity}>> GetAllAsync()
+    {
+        return Task.FromResult<IEnumerable<{Entity}>>(_store.Values.ToList());
+    }
+
+    public Task DeleteAsync(string id)
+    {
+        _store.TryRemove(id, out _);
+        return Task.CompletedTask;
+    }
+}
+```
+
+#### appsettings.json
+
+```json
+{
+  "Logging": {
+    "LogLevel": {
+      "Default": "Information",
+      "Microsoft.AspNetCore": "Warning"
+    }
+  },
+  "AllowedHosts": "*",
+  "Spas": {
+    "ServiceId": "{name}",
+    "SidecarUrl": "http://localhost:3001"
+  }
+}
+```
+
+---
+
+### spas.json Generation Pattern
+
+Generate `spas.json` at the workspace root with this structure:
+
+```json
+{
+  "$schema": "./.spas/schemas/design-time-metadata-v1.schema.json",
+  "id": "{NAME}",
+  "name": "{Human-Readable Name}",
+  "version": "1.0.0",
+  "schemaVersion": "1.0",
+  "boundedContext": "{CONTEXT}",
+  "description": "{Service description from user prompt}",
+  "commands": [
+    {
+      "name": "Create{Entity}",
+      "method": "POST",
+      "path": "/{entities}",
+      "description": "Creates a new {entity}",
+      "requestSchema": "schemas/endpoints/create-{entity}-request.json",
+      "responseSchema": "schemas/endpoints/create-{entity}-response.json",
+      "produces": ["{entity}-created"]
+    },
+    {
+      "name": "Update{Entity}",
+      "method": "PUT",
+      "path": "/{entities}/{id}",
+      "description": "Updates an existing {entity}",
+      "requestSchema": "schemas/endpoints/update-{entity}-request.json",
+      "responseSchema": "schemas/endpoints/{entity}-response.json",
+      "produces": ["{entity}-updated"]
+    }
+  ],
+  "queries": [
+    {
+      "name": "Get{Entity}",
+      "method": "GET",
+      "path": "/{entities}/{id}",
+      "description": "Gets a single {entity} by ID",
+      "responseSchema": "schemas/endpoints/{entity}-response.json"
+    },
+    {
+      "name": "List{Entities}",
+      "method": "GET",
+      "path": "/{entities}",
+      "description": "Lists all {entities}",
+      "responseSchema": "schemas/endpoints/{entity}-list-response.json"
+    }
+  ],
+  "events": [
+    {
+      "name": "{entity}-created",
+      "version": "1.0.0",
+      "description": "Published when a new {entity} is created",
+      "schema": "schemas/events/{entity}-created.json"
+    },
+    {
+      "name": "{entity}-updated",
+      "version": "1.0.0",
+      "description": "Published when an {entity} is updated",
+      "schema": "schemas/events/{entity}-updated.json"
+    }
+  ],
+  "security": {
+    "authentication": "none"
+  },
+  "endpoints": {
+    "base": "/"
+  }
+}
+```
+
+**Key Rules**:
+- `$schema` must reference `./.spas/schemas/design-time-metadata-v1.schema.json`
+- `id` must match the NAME token (kebab-case)
+- `commands[].produces[]` must reference event names defined in `events[]`
+- `requestSchema` and `responseSchema` paths are relative to workspace root
+- Event `schema` paths are relative to workspace root
+
+---
+
+### JSON Schema Generation Patterns
+
+#### Endpoint Request Schema
+
+Generate in `schemas/endpoints/create-{entity}-request.json`:
+
+```json
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "create-{entity}-request.json",
+  "title": "Create{Entity}Request",
+  "description": "Request payload for creating a new {entity}",
+  "type": "object",
+  "required": ["customerId", "items"],
+  "properties": {
+    "customerId": {
+      "type": "string",
+      "description": "Customer identifier"
+    },
+    "items": {
+      "type": "array",
+      "description": "Line items for the {entity}",
+      "items": {
+        "$ref": "#/$defs/LineItem"
+      },
+      "minItems": 1
+    }
+  },
+  "$defs": {
+    "LineItem": {
+      "type": "object",
+      "required": ["productId", "quantity"],
+      "properties": {
+        "productId": {
+          "type": "string"
+        },
+        "quantity": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "unitPrice": {
+          "type": "number",
+          "minimum": 0
+        }
+      }
+    }
+  }
+}
+```
+
+#### Endpoint Response Schema
+
+Generate in `schemas/endpoints/{entity}-response.json`:
+
+```json
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "{entity}-response.json",
+  "title": "{Entity}Response",
+  "description": "Response payload for {entity} operations",
+  "type": "object",
+  "required": ["id", "customerId", "items", "total", "createdAt"],
+  "properties": {
+    "id": {
+      "type": "string",
+      "description": "Unique identifier"
+    },
+    "customerId": {
+      "type": "string",
+      "description": "Customer identifier"
+    },
+    "items": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/LineItem"
+      }
+    },
+    "total": {
+      "type": "number",
+      "description": "Total amount"
+    },
+    "createdAt": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Creation timestamp"
+    }
+  },
+  "$defs": {
+    "LineItem": {
+      "type": "object",
+      "properties": {
+        "productId": { "type": "string" },
+        "quantity": { "type": "integer" },
+        "unitPrice": { "type": "number" }
+      }
+    }
+  }
+}
+```
+
+#### Event Schema
+
+Generate in `schemas/events/{entity}-created.json`:
+
+```json
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "{entity}-created.json",
+  "title": "{Entity}CreatedEvent",
+  "description": "Event published when a new {entity} is created",
+  "type": "object",
+  "required": ["id", "customerId", "items", "total", "createdAt"],
+  "properties": {
+    "id": {
+      "type": "string",
+      "description": "Unique identifier of the created {entity}"
+    },
+    "customerId": {
+      "type": "string",
+      "description": "Customer who created the {entity}"
+    },
+    "items": {
+      "type": "array",
+      "description": "Line items in the {entity}",
+      "items": {
+        "$ref": "#/$defs/LineItem"
+      }
+    },
+    "total": {
+      "type": "number",
+      "description": "Total amount of the {entity}"
+    },
+    "createdAt": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Timestamp when the {entity} was created"
+    }
+  },
+  "$defs": {
+    "LineItem": {
+      "type": "object",
+      "required": ["productId", "quantity", "unitPrice"],
+      "properties": {
+        "productId": {
+          "type": "string",
+          "description": "Product identifier"
+        },
+        "quantity": {
+          "type": "integer",
+          "description": "Quantity ordered",
+          "minimum": 1
+        },
+        "unitPrice": {
+          "type": "number",
+          "description": "Price per unit",
+          "minimum": 0
+        }
+      }
+    }
+  }
+}
+```
+
+---
+
+### Naming Convention Quick Reference
+
+| Type | Pattern | Example |
+|------|---------|---------|
+| Service ID | `{name}` (kebab-case) | `order-service` |
+| Event name | `{entity}-{action}` | `order-created` |
+| Event type | `com.{context}.{entity}-{action}` | `com.orders.order-created` |
+| Command class | `Create{Entity}Request` | `CreateOrderRequest` |
+| Event class | `{Entity}{Action}Event` | `OrderCreatedEvent` |
+| Controller | `{Entity}Controller` | `OrderController` |
+| Service | `{Entity}Service` | `OrderService` |
+| Repository | `{Entity}Repository` | `OrderRepository` |
+| Schema file | `{entity}-{purpose}.json` | `order-created.json` |
+
+---

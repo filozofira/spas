@@ -1,0 +1,689 @@
+## Workflow Phases
+
+Execute the following phases in order. Each phase requires explicit user confirmation before proceeding.
+
+---
+
+### Phase 1: Analyze
+
+**Entry Criteria**: User provides NAME, STACK, CONTEXT tokens in their prompt
+
+**Actions**:
+1. **Parse tokens** from user input:
+   - Extract `NAME:<value>` - the service identifier
+   - Extract `STACK:<value>` - must be `java` or `dotnet`
+   - Extract `CONTEXT:<value>` - the bounded context name
+2. **Validate tokens**:
+   - All three tokens must be present
+   - NAME must be kebab-case (lowercase, hyphen-separated)
+   - STACK must be exactly `java` or `dotnet`
+   - CONTEXT should be a single word, lowercase
+3. **Verify workspace** exists at `<%= it.workspaceRoot %>/{NAME}/`
+4. **Parse description** for commands, queries, events, and business logic requirements
+5. **Create analysis summary** with:
+   - Identified commands (e.g., CreateOrder, UpdateOrder)
+   - Identified events (e.g., order-created, order-updated)
+   - Domain model entities
+   - API endpoints to create
+
+**Exit Criteria**: Display analysis summary
+
+**Confirmation Gate**:
+```
+Phase 1 (Analyze) complete.
+
+Analysis Summary:
+- Service: {NAME}
+- Stack: {STACK}
+- Context: {CONTEXT}
+- Commands: [list]
+- Events: [list]
+
+Proceed to Phase 2 (Project Structure)? (yes/no)
+```
+
+---
+
+### Phase 2: Project Structure
+
+**Entry Criteria**: Phase 1 complete, all tokens validated
+
+**Actions**:
+
+**For Java (STACK:java)**:
+1. Create Maven project structure:
+   ```
+   {NAME}/src/
+   ├── main/
+   │   ├── java/com/{context}/{name}/
+   │   │   ├── Application.java           # @SpringBootApplication
+   │   │   ├── config/                     # Configuration classes
+   │   │   ├── controller/                 # @RestController classes
+   │   │   ├── service/                    # Business logic services
+   │   │   ├── model/                      # Domain entities
+   │   │   ├── repository/                 # Data access interfaces
+   │   │   └── event/                      # Event classes
+   │   └── resources/
+   │       └── application.yaml
+   └── test/java/com/{context}/{name}/
+   ```
+2. Create `pom.xml` with Spring Boot 3.x, SPAS SDK dependency
+3. Create `application.yaml` with service configuration
+
+**For .NET (STACK:dotnet)**:
+1. Create .NET project structure:
+   ```
+   {NAME}/src/
+   ├── {Name}.Api/
+   │   ├── Program.cs                      # ASP.NET Core entry point
+   │   ├── Controllers/                    # API controllers
+   │   ├── Services/                       # Business logic
+   │   ├── Models/                         # Domain entities
+   │   ├── Repositories/                   # Data access interfaces
+   │   ├── Events/                         # Event classes
+   │   └── appsettings.json
+   └── {Name}.Api.Tests/
+   ```
+2. Create `{Name}.Api.csproj` with .NET 10.0, SPAS SDK package references:
+   ```xml
+   <Project Sdk="Microsoft.NET.Sdk.Web">
+     <PropertyGroup>
+       <TargetFramework>net10.0</TargetFramework>
+       <Nullable>enable</Nullable>
+       <ImplicitUsings>enable</ImplicitUsings>
+     </PropertyGroup>
+     <ItemGroup>
+       <PackageReference Include="Spas.Sdk.Core" Version="1.0.0-*" />
+       <PackageReference Include="Spas.Sdk.Metadata" Version="1.0.0-*" />
+       <PackageReference Include="Spas.Sdk.Events" Version="1.0.0-*" />
+       <PackageReference Include="Spas.Sdk.Observability" Version="1.0.0-*" />
+     </ItemGroup>
+   </Project>
+   ```
+   - **DO NOT** include Swashbuckle.AspNetCore or Microsoft.AspNetCore.OpenApi (incompatible with .NET 10.0)
+3. Create `.gitignore` for .NET:
+   ```
+   bin/
+   obj/
+   .vs/
+   *.user
+   .spas/
+   metadata/
+   ```
+4. Create `nuget.config` in workspace root to reference local feed:
+   ```xml
+   <?xml version="1.0" encoding="utf-8"?>
+   <configuration>
+     <packageSources>
+       <add key="spas-local" value="~/.nuget/local-feed" />
+       <add key="nuget.org" value="https://api.nuget.org/v3/index.json" />
+     </packageSources>
+   </configuration>
+   ```
+5. Create `appsettings.json` with service configuration
+
+**Exit Criteria**: Project files created, builds successfully
+
+**Confirmation Gate**:
+```
+Phase 2 (Project Structure) complete.
+
+Created files:
+- [list of files]
+
+Proceed to Phase 3 (Service Registration & Identity)? (yes/no)
+```
+
+---
+
+### Phase 3: Service Registration & Identity
+
+**Entry Criteria**: Project structure created
+
+**Actions**:
+
+**For .NET (STACK:dotnet)**:
+1. Register SPAS metadata discovery in Program.cs:
+   ```csharp
+   using Spas.Sdk.Metadata.Extensions;
+   using Spas.Sdk.Observability.Extensions;
+   
+   // ... in ConfigureServices
+   builder.Services.AddSpasMetadata();
+   builder.Services.AddSpasServices(builder.Configuration, "{NAME}");
+   ```
+
+2. Replace `app.Run()` with `await app.RunSpasServiceAsync(args, options => {...})`:
+   ```csharp
+   await app.RunSpasServiceAsync(args, options =>
+   {
+       options.ServiceId = "{NAME}";
+       options.ServiceName = "{Human-Readable Name}";
+       options.Version = "1.0.0";
+       options.BoundedContext = "{CONTEXT}";
+       options.Description = "{description from user prompt}";
+       
+       // Add capabilities (e.g., "order-management", "payment-processing")
+       options.AddCapability("{primary-capability}");
+       
+       // Optional metadata:
+       options.ConfigureConsistency(c => c.WithCommands("ACID").WithQueries("EVENTUAL"));
+       options.ConfigureNetwork(n => n.AddRequiredEgress("localhost:6379"));
+       options.ConfigureSecurity(s => s.WithAuthenticationType("jwt"));
+       options.License = "MIT";
+   });
+   ```
+
+**For Java (STACK:java)**:
+1. Add `@SpasService` annotation to main application class:
+   ```java
+   @SpringBootApplication
+   @SpasService(
+       id = "{NAME}",
+       name = "{Human-Readable Name}",
+       boundedContext = "{CONTEXT}",
+       version = "1.0.0",
+       description = "{description from user prompt}"
+   )
+   public class Application { ... }
+   ```
+
+2. Replace `SpringApplication.run(...)` with `SpasServiceRunner.run(...)`:
+   ```java
+   public static void main(String[] args) {
+       SpasServiceRunner.run(Application.class, args, options -> {
+           // Add capabilities (e.g., "order-management", "payment-processing")
+           options.addCapability("{primary-capability}");
+           
+           options.setConsistency(new Consistency(ConsistencyLevel.ACID, QueryConsistencyLevel.EVENTUAL));
+           options.setNetwork(new Network(List.of("localhost:6379")));
+           options.setSecurity(new Security(
+               new Authentication(AuthType.JWT, List.of("resource.read", "resource.write")),
+               List.of(DataClassification.INTERNAL)
+           ));
+           options.setLicense("MIT");
+       });
+   }
+   ```
+
+**Capabilities**:
+- Capabilities are descriptive tags representing what the service does (e.g., "order-management", "payment-processing", "inventory-tracking")
+- Used for service discovery in the repository (e.g., `GET /services?capability=order-management`)
+- Add at least one capability that describes the primary function of the service
+- Multiple capabilities can be added if the service serves multiple purposes
+- Use kebab-case for capability names
+- Common patterns: `{entity}-management`, `{entity}-processing`, `{entity}-tracking`, `{entity}-catalog`
+
+**Exit Criteria**: 
+- Service identity configured in code
+- At least one capability added via `AddCapability()` or `addCapability()`
+- `RunSpasServiceAsync()` or `SpasServiceRunner.run()` used
+- Metadata will be auto-generated from code annotations
+
+**Confirmation Gate**:
+```
+Phase 3 (Service Registration & Identity) complete.
+
+Service identity configured:
+- ServiceId: {NAME}
+- BoundedContext: {CONTEXT}
+- Version: 1.0.0
+- Capabilities: [{list}]
+
+Metadata will be auto-generated from code annotations.
+
+Proceed to Phase 4 (Storage Layer)? (yes/no)
+```
+
+---
+
+### Phase 4: Storage Layer
+
+**Entry Criteria**: Service metadata defined
+
+**Actions**:
+1. Create repository interface for each domain entity:
+   - Define CRUD operations
+   - Use async/await patterns
+2. Create in-memory implementation:
+   - Use ConcurrentDictionary (dotnet) or ConcurrentHashMap (java)
+   - Suitable for local development and testing
+3. Configure dependency injection:
+   - **Java**: Use `@Repository` and `@Service` annotations
+   - **.NET**: Register in `Program.cs` with `AddScoped<>` or `AddSingleton<>`
+
+**Example (Java)**:
+```java
+public interface OrderRepository {
+    Optional<Order> findById(String id);
+    Order save(Order order);
+    void deleteById(String id);
+    List<Order> findAll();
+}
+
+@Repository
+public class InMemoryOrderRepository implements OrderRepository {
+    private final Map<String, Order> store = new ConcurrentHashMap<>();
+    // Implementation...
+}
+```
+
+**Example (.NET)**:
+```csharp
+public interface IOrderRepository {
+    Task<Order?> GetByIdAsync(string id);
+    Task<Order> SaveAsync(Order order);
+    Task DeleteAsync(string id);
+    Task<IEnumerable<Order>> GetAllAsync();
+}
+
+public class InMemoryOrderRepository : IOrderRepository {
+    private readonly ConcurrentDictionary<string, Order> _store = new();
+    // Implementation...
+}
+```
+
+**Exit Criteria**: Repository interfaces and in-memory implementations created
+
+**Confirmation Gate**:
+```
+Phase 4 (Storage Layer) complete.
+
+Created:
+- {Entity}Repository interface
+- InMemory{Entity}Repository implementation
+
+Proceed to Phase 5 (Endpoints & Model)? (yes/no)
+```
+
+---
+
+### Phase 5: Endpoints & Model
+
+**Entry Criteria**: Storage layer complete
+
+**Actions**:
+1. Create domain model classes for each entity identified in Phase 1
+2. Create request/response DTOs for each endpoint
+3. Implement REST endpoints with SDK annotations:
+   - **Commands**: POST/PUT/DELETE operations that modify state
+   - **Queries**: GET operations that read state
+   - **.NET**: Use `[SpasCommand]` and `[SpasQuery]` attributes
+   - **Java**: Use `@SpasCommand` and `@SpasQuery` annotations
+
+**Example (.NET)**:
+```csharp
+[ApiController]
+[Route("orders")]
+public class OrdersController : ControllerBase
+{
+    [HttpPost]
+    [SpasCommand("CreateOrder", ProducesEvents = new[] { "order-created" })]
+    public async Task<ActionResult<CreateOrderResponse>> CreateOrder(CreateOrderRequest request)
+    {
+        // Implementation
+    }
+
+    [HttpGet("{id}")]
+    [SpasQuery("GetOrder")]
+    public async Task<ActionResult<Order>> GetOrder(string id)
+    {
+        // Implementation
+    }
+}
+```
+
+**Example (Java)**:
+```java
+@RestController
+@RequestMapping("/orders")
+public class OrderController {
+    
+    @PostMapping
+    @SpasCommand(name = "CreateOrder", producesEvents = {"order-created"})
+    public ResponseEntity<CreateOrderResponse> createOrder(@RequestBody CreateOrderRequest request) {
+        // Implementation
+    }
+
+    @GetMapping("/{id}")
+    @SpasQuery(name = "GetOrder")
+    public ResponseEntity<Order> getOrder(@PathVariable String id) {
+        // Implementation
+    }
+}
+```
+
+**Note**: The SDK will auto-generate JSON schemas for these endpoints during metadata generation. Do NOT manually create schema files.
+
+**Exit Criteria**: All endpoints implemented with SDK annotations
+
+**Confirmation Gate**:
+```
+Phase 5 (Endpoints & Model) complete.
+
+Endpoints created:
+- POST /orders (CreateOrder) → produces order-created
+- GET /orders/{id} (GetOrder)
+- [etc.]
+
+SDK annotations applied. Schemas will be auto-generated.
+
+Proceed to Phase 6 (Events)? (yes/no)
+```
+
+---
+
+### Phase 6: Events
+
+**Entry Criteria**: Endpoints implemented
+
+**Actions**:
+1. Create event classes following CloudEvents structure:
+   - **Java**: Use `@SpasEvent` annotation from SDK
+   - **.NET**: Use `[SpasEvent]` attribute from SDK
+2. Ensure `commands[].produces[]` references match event names
+
+**Event Class Example (Java)**:
+```java
+@SpasEvent(name = "order-created", version = "1.0.0")
+public record OrderCreatedEvent(
+    String orderId,
+    String customerId,
+    List<OrderItem> items,
+    BigDecimal total,
+    Instant createdAt
+) {}
+```
+
+**Event Class Example (.NET)**:
+```csharp
+[SpasEvent("order-created", Version = "1.0.0")]
+public record OrderCreatedEvent(
+    string OrderId,
+    string CustomerId,
+    IReadOnlyList<OrderItem> Items,
+    decimal Total,
+    DateTimeOffset CreatedAt
+);
+```
+
+**Note**: The SDK will auto-generate JSON schemas for these events during metadata generation. Do NOT manually create schema files.
+
+**Exit Criteria**: Event classes created with SDK annotations
+
+**Confirmation Gate**:
+```
+Phase 6 (Events) complete.
+
+Events defined:
+- order-created (1.0.0)
+- [etc.]
+
+SDK annotations applied. Schemas will be auto-generated.
+
+Proceed to Phase 7 (Sidecar Integration)? (yes/no)
+```
+
+---
+
+### Phase 7: Sidecar Integration
+
+**Entry Criteria**: Events defined
+
+**Actions**:
+1. Add SPAS SDK event publisher to command handlers:
+   - **Java**: Inject `SpasEventPublisher` and call `publish(event)`
+   - **.NET**: Inject `ISpasEventPublisher` and call `PublishAsync(event)`
+2. Configure sidecar endpoint in application config:
+   - Default: `http://localhost:3001`
+   - Environment variable: `SPAS_SIDECAR_URL`
+3. Ensure CloudEvents format with required headers
+
+**Event Publishing Contract**:
+```
+POST http://localhost:3001/publish
+Content-Type: application/cloudevents+json
+
+{
+  "specversion": "1.0",
+  "type": "com.{context}.{event-name}",
+  "source": "/{NAME}",
+  "id": "{uuid}",
+  "time": "{ISO8601}",
+  "datacontenttype": "application/json",
+  "data": { ... event payload ... }
+}
+```
+
+**Java Example**:
+```java
+@Service
+public class OrderService {
+    private final SpasEventPublisher eventPublisher;
+    private final OrderRepository repository;
+
+    public Order createOrder(CreateOrderRequest request) {
+        Order order = repository.save(new Order(request));
+        
+        eventPublisher.publish(new OrderCreatedEvent(
+            order.getId(),
+            order.getCustomerId(),
+            order.getItems(),
+            order.getTotal(),
+            order.getCreatedAt()
+        ));
+        
+        return order;
+    }
+}
+```
+
+**.NET Example**:
+```csharp
+public class OrderService {
+    private readonly ISpasEventPublisher _eventPublisher;
+    private readonly IOrderRepository _repository;
+
+    public async Task<Order> CreateOrderAsync(CreateOrderRequest request) {
+        var order = await _repository.SaveAsync(new Order(request));
+        
+        await _eventPublisher.PublishAsync(new OrderCreatedEvent(
+            order.Id,
+            order.CustomerId,
+            order.Items,
+            order.Total,
+            order.CreatedAt
+        ));
+        
+        return order;
+    }
+}
+```
+
+**Exit Criteria**: Event publishing integrated into command handlers
+
+**Confirmation Gate**:
+```
+Phase 7 (Sidecar Integration) complete.
+
+Event publishing added to:
+- CreateOrder -> publishes order-created
+- [etc.]
+
+Sidecar endpoint configured: http://localhost:3001/publish
+
+Proceed to Phase 8 (Runtime)? (yes/no)
+```
+
+---
+
+### Phase 8: Runtime
+
+**Entry Criteria**: Sidecar integration complete
+
+**Actions**:
+1. Create `Dockerfile`:
+   ```dockerfile
+   # Java
+   FROM eclipse-temurin:17-jre-alpine
+   WORKDIR /app
+   COPY target/*.jar app.jar
+   EXPOSE 8080
+   HEALTHCHECK --interval=30s --timeout=3s \
+     CMD wget -q --spider http://localhost:8080/actuator/health || exit 1
+   ENTRYPOINT ["java", "-jar", "app.jar"]
+   
+   # .NET
+   FROM mcr.microsoft.com/dotnet/aspnet:10.0-alpine
+   WORKDIR /app
+   COPY bin/Release/net10.0/publish .
+   EXPOSE 8080
+   HEALTHCHECK --interval=30s --timeout=3s \
+     CMD wget -q --spider http://localhost:8080/health || exit 1
+   ENTRYPOINT ["dotnet", "{Name}.Api.dll"]
+   ```
+2. Add health check endpoint:
+   - **Java**: Spring Actuator `/actuator/health`
+   - **.NET**: Health checks middleware `/health`
+3. Configure environment variables:
+   - `SPAS_SIDECAR_URL` - Sidecar endpoint
+   - `SERVER_PORT` or `ASPNETCORE_URLS` - Application port
+4. Create `.dockerignore` to exclude build artifacts
+
+**DO NOT** create docker-compose.yml (orchestration is handled separately)
+
+**Exit Criteria**: Dockerfile created, health endpoint works
+
+**Confirmation Gate**:
+```
+Phase 8 (Runtime) complete.
+
+Created:
+- Dockerfile
+- .dockerignore
+- Health check endpoint at /health (or /actuator/health)
+
+Proceed to Phase 9 (Validate & Generate Metadata)? (yes/no)
+```
+
+---
+
+### Phase 9: Validate & Generate Metadata
+
+**Entry Criteria**: All code generated
+
+**Actions**:
+1. **Build the service**:
+   - **Java**: `./mvnw clean package -DskipTests` or `./gradlew build -x test`
+   - **.NET**: `dotnet build`
+
+2. **Generate offline metadata archive** (CRITICAL):
+   - **Java**: 
+     ```bash
+     java -Dspas.generate-metadata=true -jar target/*.jar
+     # Generates metadata/{NAME}-{version}.zip
+     ```
+   - **.NET**: 
+     ```bash
+     dotnet run -- --generate-metadata
+     # Generates metadata/{NAME}-{version}.zip
+     ```
+
+3. **Extract and validate ZIP contents**:
+   ```bash
+   unzip -l metadata/{NAME}-{version}.zip
+   ```
+   
+   **Expected contents**:
+   - `spas.json` (runtime metadata with generated schemas)
+   - `schemas/endpoints/{command-name}-request.json` (for each command/query)
+   - `schemas/endpoints/{command-name}-response.json` (for each command/query)
+   - `schemas/events/{event-name}.json` (for each event)
+
+4. **Validation checklist**:
+   - [ ] `metadata/{NAME}-{version}.zip` file exists
+   - [ ] ZIP contains `spas.json` at root
+   - [ ] ZIP contains `schemas/endpoints/*.json` files
+   - [ ] ZIP contains `schemas/events/*.json` files
+   - [ ] `spas.json` has populated `commands[]` array (not empty)
+   - [ ] `spas.json` has populated `events[]` array (if events defined)
+   - [ ] Each command in `spas.json` has valid `requestSchema` and `responseSchema` paths
+   - [ ] Each event in `spas.json` has valid `schema` path
+   - [ ] All schema paths in `spas.json` reference files present in ZIP
+
+5. **Display archive contents**:
+   ```bash
+   # List all files in metadata archive
+   unzip -l metadata/{NAME}-{version}.zip
+   
+   # Show spas.json from archive
+   unzip -p metadata/{NAME}-{version}.zip spas.json | jq .
+   ```
+
+**Exit Criteria**: 
+- Build succeeds
+- Metadata archive generated successfully
+- Archive contains all expected files
+- spas.json validation passes
+
+**Final Output**:
+```
+✓ Service scaffolded successfully!
+
+Summary:
+- Service: {NAME}
+- Stack: {STACK}
+- Context: {CONTEXT}
+- Commands: {count}
+- Events: {count}
+- Metadata: metadata/{NAME}-1.0.0.zip
+
+Archive Contents:
+  spas.json
+  schemas/endpoints/create-order-request.json
+  schemas/endpoints/create-order-response.json
+  schemas/events/order-created.json
+
+Validation:
+  ✓ spas.json present
+  ✓ {X} endpoint schemas generated
+  ✓ {Y} event schemas generated
+  ✓ All schema paths valid
+
+Next Steps:
+1. Review generated code in src/
+2. Run locally:
+   - Java: ./mvnw spring-boot:run
+   - .NET: dotnet run
+3. Test endpoints:
+   - curl http://localhost:8080/{endpoint}
+4. Build container:
+   - docker build -t {NAME}:1.0.0 .
+5. Publish metadata:
+   - spas-service publish ./metadata/{NAME}-1.0.0.zip
+
+Documentation:
+- README.md - Service overview
+- metadata/{NAME}-1.0.0.zip - Complete service metadata archive
+```
+
+---
+
+## Confirmation Gates
+
+At the end of **every phase**, you MUST:
+
+1. Display a summary of what was created/modified
+2. Ask for explicit confirmation before proceeding:
+   ```
+   Phase {N} ({Phase Name}) complete. Review the changes above.
+   Proceed to Phase {N+1} ({Next Phase Name})? (yes/no)
+   ```
+3. Wait for user response:
+   - **yes/y/proceed/continue**: Move to next phase
+   - **no/n/stop/wait**: Pause and ask what changes are needed
+   - **skip**: Skip current phase (if recoverable)
+
+**DO NOT** proceed to the next phase without explicit confirmation.
+
+---

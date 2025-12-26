@@ -2,7 +2,8 @@
 
 **Feature Branch**: `021-sdk-metadata-extraction`  
 **Created**: 2025-12-26  
-**Status**: Draft  
+**Completed**: 2025-12-26
+**Status**: ✅ Complete (PoC)
 **Input**: User description: "SDK Metadata Archive Extraction - Extend both .NET and Java SDKs to support extracting the complete metadata archive to disk without requiring the _spas/metadata endpoint to be called. A .Net and Java service developer needs to generate the complete SPAS metadata archive, with identical output format as the current SDK extraction (see \".\\examples\\services\\metadata\\order-service-1.0.0.zip\"). Metadata design-time schema must not be changed and implementation should encapsulate metadata generation logic inside SDK as much as possible, thus requiring minimal service developer effort. Ideally developers can generate metadata via a CLI trigger (e.g., for .NET: `dotnet run -- --generate-metadata` with optional `--output`). _metadata endpoint functionality must be removed as well as .Net ComposeToFile method and its usage. All example services must be updated to use new model."
 
 > **Historical note**: This spec documents the transition away from the runtime metadata endpoint at `/_spas/metadata`.

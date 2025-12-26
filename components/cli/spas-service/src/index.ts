@@ -8,11 +8,16 @@ import { Command } from 'commander';
 import { readFileSync } from 'fs';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
+import { registerInitCommand } from './commands/init.js';
 import { createPublishCommand } from './commands/publish.js';
 import { createPullCommand } from './commands/pull.js';
+import { initModuleDir } from './utils/paths.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
+
+// Initialize module directory for path resolution
+initModuleDir(import.meta.url);
 
 // Read package.json for version
 const packageJson = JSON.parse(
@@ -27,6 +32,7 @@ program
   .version(packageJson.version);
 
 // Register commands
+registerInitCommand(program);
 program.addCommand(createPublishCommand());
 program.addCommand(createPullCommand());
 

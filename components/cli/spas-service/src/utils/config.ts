@@ -3,6 +3,7 @@
  * Resolves repository URL from multiple sources with priority
  */
 
+import { resolve, join } from 'path';
 import type { CliConfig } from '../types.js';
 
 /**
@@ -50,4 +51,38 @@ export function validateUrl(url: string): boolean {
   } catch {
     return false;
   }
+}
+
+/**
+ * Service name validation pattern
+ * - Lowercase letters and numbers only
+ * - Hyphen-separated words (no underscores)
+ * - Starts with a letter
+ * - Ends with a letter or number
+ */
+const SERVICE_NAME_PATTERN = /^[a-z][a-z0-9]*(-[a-z0-9]+)*$/;
+
+/**
+ * Validate a service name against SPAS naming conventions
+ * 
+ * @param name Service name to validate
+ * @returns true if valid, false otherwise
+ */
+export function isValidServiceName(name: string): boolean {
+  if (!name || typeof name !== 'string') {
+    return false;
+  }
+  return SERVICE_NAME_PATTERN.test(name);
+}
+
+/**
+ * Resolve the workspace path for a service
+ * 
+ * @param serviceName Name of the service
+ * @param outputDir Optional custom output directory (defaults to current directory)
+ * @returns Absolute path to the workspace
+ */
+export function resolveWorkspacePath(serviceName: string, outputDir?: string): string {
+  const baseDir = outputDir ? resolve(outputDir) : process.cwd();
+  return join(baseDir, serviceName);
 }

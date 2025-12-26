@@ -1,0 +1,235 @@
+## Error Handling
+
+### Token Validation Errors
+
+If token validation fails, display:
+
+```
+❌ Token Validation Error
+
+Missing or invalid tokens detected:
+- {list of issues}
+
+Required tokens:
+  NAME:<service-id>    Service identifier (kebab-case)
+  STACK:<java|dotnet>  Technology stack
+  CONTEXT:<context>    Bounded context (lowercase)
+
+Example:
+  NAME:order-service STACK:java CONTEXT:orders
+  Create a service with CreateOrder command that produces order-created event
+
+Please provide all required tokens and try again.
+```
+
+### Workspace Errors
+
+**Workspace Not Found**:
+```
+❌ Workspace Error
+
+Directory not found: <%= it.workspaceRoot %>/{NAME}/
+
+Please ensure the workspace was created with:
+  spas-service init {NAME}
+
+Or create the directory manually before running this prompt.
+```
+
+**Workspace Already Has Project**:
+```
+⚠️ Existing Project Detected
+
+The workspace at <%= it.workspaceRoot %>/{NAME}/ already contains:
+- src/ directory
+- spas.json
+
+Options:
+1. Continue (may overwrite files)
+2. Stop and review existing files
+3. Use a different NAME
+
+How would you like to proceed?
+```
+
+### Build Errors
+
+**Java Build Failure**:
+```
+❌ Build Error (Java/Maven)
+
+The Maven build failed. Common causes:
+1. Missing Java 17+ installation
+2. Invalid pom.xml configuration
+3. Compilation errors in generated code
+
+To diagnose:
+  cd <%= it.workspaceRoot %>/{NAME}
+  ./mvnw clean compile -X
+
+Please review the error output and fix any issues, then retry.
+```
+
+**.NET Build Failure**:
+```
+❌ Build Error (.NET)
+
+The dotnet build failed. Common causes:
+1. Missing .NET 8.0 SDK
+2. Invalid .csproj configuration
+3. Compilation errors in generated code
+
+To diagnose:
+  cd <%= it.workspaceRoot %>/{NAME}
+  dotnet build --verbosity detailed
+
+Please review the error output and fix any issues, then retry.
+```
+
+### Schema Validation Errors
+
+**Invalid spas.json**:
+```
+❌ Schema Validation Error
+
+The spas.json file is not valid against the SPAS schema.
+
+Validation errors:
+- {list of schema errors}
+
+Schema location: ./.spas/schemas/design-time-metadata-v1.schema.json
+
+Common issues:
+1. Missing required fields (id, version, schemaVersion)
+2. Invalid event names (must be kebab-case)
+3. commands[].produces references non-existent events
+
+To validate manually:
+  npx ajv validate -s .spas/schemas/design-time-metadata-v1.schema.json -d spas.json
+```
+
+**Invalid JSON Schema**:
+```
+❌ JSON Schema Error
+
+A generated schema file is not valid JSON Schema draft-07.
+
+File: schemas/{type}/{name}.json
+Error: {schema error message}
+
+Common issues:
+1. Invalid $ref reference
+2. Missing required property in object type
+3. Invalid type specification
+
+Please review and correct the schema, then retry.
+```
+
+### Sidecar Integration Errors
+
+**Sidecar Unreachable**:
+```
+⚠️ Sidecar Connection Warning
+
+Cannot connect to SPAS sidecar at http://localhost:3001
+
+This is expected if:
+- Running in development without sidecar
+- Sidecar will be configured at deployment time
+
+The service will still work, but events will not be published.
+
+To start a local sidecar for testing:
+  docker run -p 3001:3001 spas/sidecar:latest
+
+Or configure the sidecar URL via environment variable:
+  SPAS_SIDECAR_URL=http://your-sidecar:3001
+```
+
+**Event Publishing Failed**:
+```
+❌ Event Publishing Error
+
+Failed to publish event to sidecar.
+
+Event: {event-name}
+Endpoint: POST http://localhost:3001/publish
+Status: {HTTP status code}
+Error: {error message}
+
+Common causes:
+1. Sidecar not running
+2. Invalid CloudEvents format
+3. Network connectivity issues
+
+To test sidecar connectivity:
+  curl -X POST http://localhost:3001/health
+
+To validate event format:
+  Ensure event has: specversion, type, source, id, time, data
+```
+
+### Phase Recovery
+
+If a phase fails partway through:
+
+```
+⚠️ Phase {N} Incomplete
+
+Phase {N} ({Phase Name}) did not complete successfully.
+
+Completed:
+- {list of completed actions}
+
+Failed at:
+- {failed action}
+- Error: {error message}
+
+Options:
+1. Retry - Attempt the failed action again
+2. Skip - Continue to next phase (may cause issues)
+3. Rollback - Undo changes from this phase
+4. Stop - Halt workflow and review manually
+
+What would you like to do?
+```
+
+### General Error Format
+
+For any unexpected error:
+
+```
+❌ Unexpected Error
+
+An unexpected error occurred during {operation}.
+
+Error: {error message}
+Phase: {current phase}
+Action: {current action}
+
+This may be a bug. Please:
+1. Check the generated files for issues
+2. Review any partial changes
+3. Report this error if it persists
+
+To continue manually:
+- Review the current phase requirements
+- Complete remaining actions by hand
+- Resume from the next phase
+
+Would you like to see the detailed error trace?
+```
+
+---
+
+### Error Response Guidelines
+
+When an error occurs:
+
+1. **Be specific**: Include exact file paths, line numbers, and error messages
+2. **Be actionable**: Provide clear steps to diagnose and fix the issue
+3. **Offer options**: Give the user choices on how to proceed
+4. **Preserve progress**: Never lose work done in previous phases
+5. **Enable recovery**: Make it easy to resume from where the error occurred
+
+---

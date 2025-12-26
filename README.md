@@ -40,50 +40,51 @@ Detailed architecture documentation lives in the Principles docs.
 
 ## Using SPAS
 
+SPAS has two primary workflows: (1) build a self-describing service, then (2) compose services into a runnable domain using choreography.
+
 ### 1) Develop a SPAS service
 
-1. Pick an SDK and follow its component README:
+A SPAS service is a single bounded-context service that exposes commands/queries and emits events, and can generate an offline metadata archive (`service.metadata.zip`) describing its contracts and schemas.
 
-- [.NET SDK](./components/sdk/dotnet/README.md)
-- [Java SDK](./components/sdk/java/README.md)
+High-level flow:
 
-2. Run an example service (recommended for first-time setup):
+1. Implement the service (commands/queries/events + sidecar integration)
+2. Generate design-time metadata (offline archive)
+3. Publish the metadata archive to a Repository
 
-- [Examples Services](./examples/services/README.md)
+AI-assisted option: use the `/spas.service` agent workflow — see [AI-Assisted Development](#ai-assisted-development).
 
-3. Publish service metadata to a Repository:
+Start here:
 
-- [spas-service CLI](./components/cli/spas-service/README.md)
+- Service workspace + publishing: [spas-service CLI](./components/cli/spas-service/README.md)
+- SDKs: [.NET SDK](./components/sdk/dotnet/README.md) | [Java SDK](./components/sdk/java/README.md)
+- Runnable service examples: [Examples Services](./examples/services/README.md)
 
 ### 2) Compose a domain
 
-1. Initialize a domain workspace:
+A domain composition pulls multiple service metadata archives and defines choreography (plus transformations) to generate runnable artifacts like `docker-compose.yaml`.
 
-- [spas-compose init](./components/cli/spas-compose/README.md)
+High-level flow:
 
-2. Pull the services you want to compose:
+1. Initialize a domain workspace (`choreography.yaml`, `services/`, `transformations/`)
+2. Pull the services you want to compose (from Repository)
+3. Author choreography + transformations
+4. Build runnable artifacts and start the domain
 
-- [spas-compose services pull](./components/cli/spas-compose/README.md)
+AI-assisted option: use the `/spas.compose` agent workflow — see [AI-Assisted Development](#ai-assisted-development).
 
-3. Author `choreography.yaml` and any JSONata files under `transformations/`:
+Start here:
 
-- [Domain choreography model (principles)](./principles/component/14-domain-choreography.md)
+- Domain workspace + build: [spas-compose CLI](./components/cli/spas-compose/README.md)
+- Choreography model: [Domain choreography model](./principles/component/14-domain-choreography.md)
+- Runnable domain examples: [Examples Domains](./examples/domains/README.md)
 
-4. Build runnable artifacts and start the domain:
-
-- [spas-compose choreography build](./components/cli/spas-compose/README.md)
-- `docker compose up`
-
-See the runnable domain examples for concrete compositions:
-
-- [Examples Domains](./examples/domains/)
-
-## AI-Assisted Development
+### AI-Assisted Development
 
 SPAS includes GitHub Copilot agent prompts for AI-assisted workflows:
 
-- **`/spas.compose`** — Domain choreography authoring with AI guidance
-- **SpecKit agents** — Structured specification, planning, and implementation
+- `/spas.service` — Guided service scaffolding and validation
+- `/spas.compose` — Guided choreography authoring (always include `DOMAIN:<name>`)
 
 See [.github/agents/README.md](.github/agents/README.md) for usage and available agents.
 

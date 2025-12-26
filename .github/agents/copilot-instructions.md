@@ -273,6 +273,10 @@ Auto-generated from all feature plans. Last updated: 2025-12-12
 - N/A (template strings in source code) (019-compose-diagram-flow)
 - C# / .NET 10 (SDK + example services), Java 17 (SDK + example services) (021-sdk-metadata-extraction)
 - Filesystem output (metadata ZIP written to `./metadata/service.metadata.zip` by default) (021-sdk-metadata-extraction)
+- [e.g., Python 3.11, Swift 5.9, Rust 1.75 or NEEDS CLARIFICATION] + [e.g., FastAPI, UIKit, LLVM or NEEDS CLARIFICATION] (022-spas-service-init)
+- [if applicable, e.g., PostgreSQL, CoreData, files or N/A] (022-spas-service-init)
+- TypeScript 5.3+, Node.js 20+ + Commander.js 11.x (CLI), Eta 4.x (templating), chalk 4.x (output) (022-spas-service-init)
+- N/A (file system only) (022-spas-service-init)
 
 - .NET 10 (target net10.0); Microsoft.Extensions.Logging; System.Text.Json (001-dotnet-spas-sdk)
 

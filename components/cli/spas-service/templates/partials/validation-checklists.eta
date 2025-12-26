@@ -1,0 +1,129 @@
+## Validation Checklists
+
+Use these checklists to verify each phase is complete before proceeding.
+
+### Phase 1: Analyze ✓
+- [ ] NAME token extracted and validated (kebab-case)
+- [ ] STACK token validated (java or dotnet)
+- [ ] CONTEXT token validated (lowercase identifier)
+- [ ] Workspace directory verified: `<%= it.workspaceRoot %>/{NAME}/`
+- [ ] Commands identified from user description
+- [ ] Events identified from user description
+- [ ] Domain entities identified
+
+### Phase 2: Project Structure ✓
+- [ ] Project directory structure created
+- [ ] Build configuration file created (pom.xml or .csproj)
+- [ ] Application entry point created
+- [ ] Package/namespace structure matches conventions
+- [ ] Test directory structure created
+- [ ] Project builds successfully
+
+### Phase 3: Service Metadata ✓
+- [ ] spas.json created in workspace root
+- [ ] $schema reference points to local schema file
+- [ ] id field matches service NAME
+- [ ] boundedContext field matches CONTEXT
+- [ ] version set to 1.0.0
+- [ ] schemaVersion set to 1.0
+- [ ] JSON validates against schema
+
+### Phase 4: Storage Layer ✓
+- [ ] Repository interface created for each entity
+- [ ] CRUD operations defined
+- [ ] In-memory implementation created
+- [ ] Thread-safe collections used (ConcurrentHashMap/ConcurrentDictionary)
+- [ ] Dependency injection configured
+- [ ] Async patterns used where appropriate
+
+### Phase 5: Endpoints & Model ✓
+- [ ] Domain model classes created
+- [ ] Request DTOs created
+- [ ] Response DTOs created
+- [ ] REST endpoints implemented:
+  - [ ] POST endpoints for create operations
+  - [ ] GET endpoints for read operations
+  - [ ] PUT endpoints for update operations
+  - [ ] DELETE endpoints for delete operations
+- [ ] JSON schemas created in `schemas/endpoints/`
+- [ ] spas.json updated with commands array
+- [ ] spas.json updated with queries array
+- [ ] produces field populated for each command
+
+### Phase 6: Events ✓
+- [ ] Event classes created for each domain event
+- [ ] SPAS SDK annotations/attributes applied
+- [ ] Event naming follows convention: `{entity}-{action}` (e.g., order-created)
+- [ ] JSON schemas created in `schemas/events/`
+- [ ] spas.json events array populated
+- [ ] Event schemas match event class properties
+- [ ] commands[].produces references match event names
+
+### Phase 7: Sidecar Integration ✓
+- [ ] SPAS SDK event publisher injected
+- [ ] publish() or PublishAsync() called after state changes
+- [ ] Sidecar URL configured via environment variable
+- [ ] CloudEvents format used:
+  - [ ] specversion: "1.0"
+  - [ ] type: follows naming convention
+  - [ ] source: service identifier
+  - [ ] id: unique per event
+  - [ ] time: ISO8601 format
+  - [ ] datacontenttype: application/json
+  - [ ] data: event payload
+
+### Phase 8: Runtime ✓
+- [ ] Dockerfile created
+- [ ] Multi-stage build for smaller images (optional)
+- [ ] WORKDIR set appropriately
+- [ ] Correct port exposed
+- [ ] HEALTHCHECK configured
+- [ ] ENTRYPOINT or CMD set
+- [ ] .dockerignore created
+- [ ] Health check endpoint implemented:
+  - [ ] Java: /actuator/health
+  - [ ] .NET: /health
+- [ ] Environment variables documented
+
+### Phase 9: Validate ✓
+- [ ] Project builds without errors
+- [ ] Tests pass (if created)
+- [ ] Application starts without errors
+- [ ] Health check endpoint responds
+- [ ] At least one endpoint responds correctly
+- [ ] Metadata archive created: `metadata/{NAME}-{version}.zip`
+- [ ] Archive contains spas.json
+- [ ] Archive contains schemas/ directory
+- [ ] Next steps documented in output
+
+---
+
+## Quick Reference
+
+### File Locations
+| Artifact | Location |
+|----------|----------|
+| Service metadata | `spas.json` |
+| Endpoint schemas | `schemas/endpoints/*.json` |
+| Event schemas | `schemas/events/*.json` |
+| SPAS schema | `.spas/schemas/design-time-metadata-v1.schema.json` |
+| Metadata archive | `metadata/{NAME}-{version}.zip` |
+| Dockerfile | `Dockerfile` |
+| Docker ignore | `.dockerignore` |
+
+### Naming Conventions
+| Type | Convention | Example |
+|------|------------|---------|
+| Service name | kebab-case | `order-service` |
+| Event name | kebab-case | `order-created` |
+| Command name | PascalCase | `CreateOrder` |
+| Endpoint schema | kebab-case + purpose | `create-order-request.json` |
+| Event schema | kebab-case | `order-created.json` |
+
+### CloudEvents Type Format
+```
+com.{context}.{event-name}
+```
+Example: `com.orders.order-created`
+
+---

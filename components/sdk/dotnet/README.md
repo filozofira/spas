@@ -9,6 +9,39 @@ The .NET SDK for building **SPAS (Self-contained, Portable, Adaptable Services)*
 
 ## For Users
 
+### Local Development Setup
+
+When developing services that reference SPAS SDK packages, you need the SDK packages available locally:
+
+**One-time setup:**
+```bash
+cd components/sdk/dotnet
+.\Publish-LocalNuGet.ps1 -Setup
+```
+
+This will:
+- Create a local NuGet feed at `~/.nuget/local-feed`
+- Build all SDK packages with version `1.0.0-local-{timestamp}`
+- Publish packages to the local feed
+
+**After SDK changes:**
+```bash
+.\Publish-LocalNuGet.ps1 -Rebuild
+```
+
+**Add to your service's nuget.config:**
+```xml
+<?xml version="1.0" encoding="utf-8"?>
+<configuration>
+  <packageSources>
+    <add key="spas-local" value="~/.nuget/local-feed" />
+    <add key="nuget.org" value="https://api.nuget.org/v3/index.json" />
+  </packageSources>
+</configuration>
+```
+
+Or add to global config with: `.\Publish-LocalNuGet.ps1 -Setup -Global`
+
 ### Quick Start
 
 1. Run the reference SampleService:

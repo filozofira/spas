@@ -1,4 +1,5 @@
 using System.Reflection;
+using Microsoft.AspNetCore.Builder;
 using Spas.Sdk.Metadata.Composition;
 using Spas.Sdk.Metadata.Dev;
 using Spas.Sdk.Metadata.Extensions;
@@ -37,10 +38,14 @@ public class MetadataArchiveGenerator
     }
 
     public async Task<string> GenerateAsync(
-        object app,
+        WebApplication app,
         ServiceIdentity identity,
         string? outputDirectory = null,
         Assembly? assemblyToScan = null,
+        SecurityMetadata? security = null,
+        ConsistencyMetadata? consistency = null,
+        NetworkMetadata? network = null,
+        string? license = null,
         CancellationToken cancellationToken = default)
     {
         if (app == null)
@@ -57,7 +62,13 @@ public class MetadataArchiveGenerator
         Directory.CreateDirectory(Path.GetDirectoryName(archivePath)!);
 
         var contracts = app.DiscoverSpasMetadata();
-        var spasJson = _composer.Compose(identity, contracts);
+        var spasJson = _composer.Compose(
+            identity,
+            contracts,
+            security: security,
+            consistency: consistency,
+            network: network,
+            license: license);
 
         var validation = _schemaValidator.Validate(spasJson);
         if (!validation.IsValid)

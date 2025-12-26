@@ -1,43 +1,21 @@
+using Microsoft.AspNetCore.Builder;
 using InventoryService.DTOs;
 using InventoryService.Events;
 using InventoryService.Models;
 using InventoryService.Services;
-using Spas.Sdk.Core.Identity;
 using Spas.Sdk.Events.Publish;
 using Spas.Sdk.Metadata.Attributes;
-using Spas.Sdk.Metadata.Builders;
 using Spas.Sdk.Metadata.Extensions;
-using Spas.Sdk.Metadata.Generation;
 using Spas.Sdk.Observability.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Register SPAS metadata services with auto-discovery
-builder.Services.AddSpasMetadata(options =>
-{
-    options.AssembliesToScan.Add(typeof(Program).Assembly);
-    options.AutoGenerateSchemaReferences = true;
-});
-
-// Configure SPAS infrastructure (event publishing, tracing)
-var serviceName = builder.Services.AddSpasServices(builder.Configuration, "inventory-service");
-
-// In-memory inventory store
+// Register services
 builder.Services.AddSingleton<InventoryStore>();
+builder.Services.AddSpasMetadata();
+builder.Services.AddSpasServices(builder.Configuration, "inventory-service");
 
 var app = builder.Build();
-
-app.UseSpasIdentity();
-
-// Service identity
-var identity = new ServiceIdentityBuilder()
-    .WithId("inventory-service")
-    .WithName("inventory-service")
-    .WithVersion("1.0.0")
-    .WithBoundedContext("inventory")
-    .WithDescription("Stock tracking and reservation service")
-    .AddCapability("inventory-tracking")
-    .Build();
 
 // GET /inventory - List all inventory items
 app.MapGet("/inventory",
@@ -118,43 +96,27 @@ app.MapPost("/inventory/reserve",
 app.MapGet("/", () => "Inventory Service");
 app.MapGet("/health", () => new { status = "healthy", service = "inventory-service", timestamp = DateTime.UtcNow });
 
-static bool TryGetOutputDirectory(string[] args, out string? outputDirectory)
+// Run SPAS service (generates metadata if --generate-metadata, else starts server)
+await app.RunSpasServiceAsync(args, options =>
 {
-    outputDirectory = null;
+    options.ServiceId = "inventory-service";
+    options.ServiceName = "inventory-service";
+    options.Version = "1.0.0";
+    options.BoundedContext = "inventory";
+    options.Description = "Stock tracking and reservation service";
+    options.AddCapability("inventory-tracking");
 
-    for (var i = 0; i < args.Length; i++)
-    {
-        if (string.Equals(args[i], MetadataGenerationConstants.OutputDirectoryArgument, StringComparison.OrdinalIgnoreCase))
-        {
-            if (i + 1 >= args.Length || string.IsNullOrWhiteSpace(args[i + 1]))
-            {
-                return false;
-            }
+    options.ConfigureConsistency(c => c
+        .WithCommands("ACID")
+        .WithQueries("EVENTUAL"));
 
-            outputDirectory = args[i + 1];
-            return true;
-        }
-    }
+    options.ConfigureNetwork(n => n
+        .AddRequiredEgress("localhost:6379"));
 
-    return true;
-}
+    options.ConfigureSecurity(s => s
+        .WithAuthenticationType("jwt")
+        .AddRequiredScope("inventory.read")
+        .AddDataClassification("internal"));
 
-if (args.Any(a => string.Equals(a, MetadataGenerationConstants.GenerateMetadataArgument, StringComparison.OrdinalIgnoreCase)))
-{
-    if (!TryGetOutputDirectory(args, out var outputDirectory))
-    {
-        Console.Error.WriteLine("Missing value for --output <path>.");
-        Environment.ExitCode = 2;
-        return;
-    }
-
-    var archivePath = await app.GenerateSpasMetadataArchiveAsync(
-        identity,
-        outputDirectory: outputDirectory,
-        assemblyToScan: typeof(Program).Assembly);
-
-    Console.WriteLine($"SPAS metadata archive generated at: {archivePath}");
-    return;
-}
-
-app.Run();
+    options.License = "MIT";
+});

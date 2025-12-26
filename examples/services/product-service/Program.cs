@@ -1,40 +1,18 @@
+using Microsoft.AspNetCore.Builder;
 using ProductService.Models;
 using ProductService.Services;
-using Spas.Sdk.Core.Identity;
 using Spas.Sdk.Metadata.Attributes;
-using Spas.Sdk.Metadata.Builders;
 using Spas.Sdk.Metadata.Extensions;
-using Spas.Sdk.Metadata.Generation;
 using Spas.Sdk.Observability.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Register SPAS metadata services with auto-discovery
-builder.Services.AddSpasMetadata(options =>
-{
-    options.AssembliesToScan.Add(typeof(Program).Assembly);
-    options.AutoGenerateSchemaReferences = true;
-});
-
-// Configure SPAS infrastructure (event publishing, tracing)
-var serviceName = builder.Services.AddSpasServices(builder.Configuration, "product-service");
-
-// In-memory product catalog
+// Register services
 builder.Services.AddSingleton<ProductCatalog>();
+builder.Services.AddSpasMetadata();
+builder.Services.AddSpasServices(builder.Configuration, "product-service");
 
 var app = builder.Build();
-
-app.UseSpasIdentity();
-
-// Service identity
-var identity = new ServiceIdentityBuilder()
-    .WithId("product-service")
-    .WithName("product-service")
-    .WithVersion("1.0.0")
-    .WithBoundedContext("product")
-    .WithDescription("Product catalog browsing service")
-    .AddCapability("product-catalog")
-    .Build();
 
 // GET /products - List all products
 app.MapGet("/products",
@@ -63,43 +41,28 @@ app.MapGet("/products/{id}",
 app.MapGet("/", () => "Product Service");
 app.MapGet("/health", () => new { status = "healthy", service = "product-service", timestamp = DateTime.UtcNow });
 
-static bool TryGetOutputDirectory(string[] args, out string? outputDirectory)
+// Run SPAS service (generates metadata if --generate-metadata, else starts server)
+await app.RunSpasServiceAsync(args, options =>
 {
-    outputDirectory = null;
+    options.ServiceId = "product-service";
+    options.ServiceName = "product-service";
+    options.Version = "1.0.0";
+    options.BoundedContext = "product";
+    options.Description = "Product catalog browsing service";
+    options.AddCapability("product-catalog");
 
-    for (var i = 0; i < args.Length; i++)
-    {
-        if (string.Equals(args[i], MetadataGenerationConstants.OutputDirectoryArgument, StringComparison.OrdinalIgnoreCase))
-        {
-            if (i + 1 >= args.Length || string.IsNullOrWhiteSpace(args[i + 1]))
-            {
-                return false;
-            }
+    options.ConfigureConsistency(c => c
+        .WithCommands("ACID")
+        .WithQueries("EVENTUAL"));
 
-            outputDirectory = args[i + 1];
-            return true;
-        }
-    }
+    options.ConfigureNetwork(n => n
+        .AddRequiredEgress("localhost:6379"));
 
-    return true;
-}
+    options.ConfigureSecurity(s => s
+        .WithAuthenticationType("jwt")
+        .AddRequiredScope("products.read")
+        .AddRequiredScope("products.write")
+        .AddDataClassification("internal"));
 
-if (args.Any(a => string.Equals(a, MetadataGenerationConstants.GenerateMetadataArgument, StringComparison.OrdinalIgnoreCase)))
-{
-    if (!TryGetOutputDirectory(args, out var outputDirectory))
-    {
-        Console.Error.WriteLine("Missing value for --output <path>.");
-        Environment.ExitCode = 2;
-        return;
-    }
-
-    var archivePath = await app.GenerateSpasMetadataArchiveAsync(
-        identity,
-        outputDirectory: outputDirectory,
-        assemblyToScan: typeof(Program).Assembly);
-
-    Console.WriteLine($"SPAS metadata archive generated at: {archivePath}");
-    return;
-}
-
-app.Run();
+    options.License = "MIT";
+});

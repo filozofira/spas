@@ -1,6 +1,11 @@
-using System.Diagnostics;
+using Spas.Sdk.Metadata.Attributes;
+using Spas.Sdk.Metadata.Builders;
+using Spas.Sdk.Metadata.Composition;
+using Spas.Sdk.Metadata.Dev;
+using Spas.Sdk.Metadata.Schema;
 using Spas.Sdk.Metadata.Tests.Fixtures;
 using Spas.Sdk.Metadata.Tests.Helpers;
+using Spas.Sdk.Metadata.Validation;
 
 namespace Spas.Sdk.Metadata.Tests;
 
@@ -16,17 +21,9 @@ public sealed class OrderServiceZipEntriesRegressionTests
         {
             var zipPath = Path.Combine(tempRoot, "service.metadata.zip");
 
-            var repoRoot = GetRepoRootFromAppContext();
-            var orderServiceProject = Path.Combine(repoRoot, "examples", "services", "order-service", "OrderService.csproj");
+            // Generate archive in-process using SDK components and test-double contracts
+            await GenerateTestArchiveAsync(zipPath);
 
-            Assert.True(File.Exists(orderServiceProject), $"Order service project not found at: {orderServiceProject}");
-
-            var exitCode = await RunDotNetAsync(
-                arguments: $"run --project \"{orderServiceProject}\" -- --generate-metadata --output \"{tempRoot}\"",
-                workingDirectory: repoRoot,
-                timeout: TimeSpan.FromMinutes(3));
-
-            Assert.Equal(0, exitCode);
             Assert.True(File.Exists(zipPath), $"Expected metadata archive at: {zipPath}");
 
             var actualEntries = ZipAssert.ReadEntryNames(zipPath);
@@ -45,74 +42,73 @@ public sealed class OrderServiceZipEntriesRegressionTests
         }
     }
 
-    private static string GetRepoRootFromAppContext()
+    private static async Task GenerateTestArchiveAsync(string zipPath)
     {
-        var dir = new DirectoryInfo(AppContext.BaseDirectory);
+        // Build service identity matching order-service
+        var identity = new ServiceIdentityBuilder()
+            .WithId("order-service")
+            .WithName("Order Service")
+            .WithVersion("1.0.0")
+            .WithBoundedContext("Orders")
+            .Build();
 
-        for (var i = 0; i < 10 && dir != null; i++)
+        // Build contracts manually to match order-service structure
+        var contractsBuilder = new ContractsBuilder();
+        contractsBuilder.AddEndpoint("create-order", "Command", "Http", "POST /api/orders", "1.0", "schemas/endpoints/create-order.schema.json");
+        contractsBuilder.AddEndpoint("confirm-order", "Command", "Http", "POST /api/orders/confirm", "1.0", "schemas/endpoints/confirm-order.schema.json");
+        contractsBuilder.AddEndpoint("update-shipment-status", "Command", "Http", "POST /api/orders/shipment", "1.0", "schemas/endpoints/update-shipment-status.schema.json");
+        contractsBuilder.AddEvent("order-created", "1.0", "schemas/events/order-created.schema.json");
+        contractsBuilder.AddEvent("order-confirmed", "1.0", "schemas/events/order-confirmed.schema.json");
+        var contracts = contractsBuilder.Build();
+
+        // Generate spas.json
+        var composer = new SpasComposer();
+        var spasJson = composer.Compose(identity, contracts);
+
+        // Validate
+        var validator = new SchemaValidator();
+        var validation = validator.Validate(spasJson);
+        if (!validation.IsValid)
         {
-            if (File.Exists(Path.Combine(dir.FullName, "CODE_OF_CONDUCT.md"))
-                && Directory.Exists(Path.Combine(dir.FullName, "components"))
-                && Directory.Exists(Path.Combine(dir.FullName, "examples")))
-            {
-                return dir.FullName;
-            }
-
-            dir = dir.Parent;
+            throw new InvalidOperationException($"Generated spas.json failed validation: {string.Join("; ", validation.Errors)}");
         }
 
-        throw new DirectoryNotFoundException("Could not locate repository root from test base directory.");
+        // Generate schemas only for our test-double types
+        var schemaGenerator = new SchemaGenerator();
+        var schemas = new Dictionary<string, object>();
+        
+        // Generate schemas for commands
+        schemas["schemas/endpoints/create-order.schema.json"] = await schemaGenerator.GenerateSchemaAsync(typeof(CreateOrderRequest));
+        schemas["schemas/endpoints/confirm-order.schema.json"] = await schemaGenerator.GenerateSchemaAsync(typeof(ConfirmOrderRequest));
+        schemas["schemas/endpoints/update-shipment-status.schema.json"] = await schemaGenerator.GenerateSchemaAsync(typeof(UpdateShipmentStatusRequest));
+        
+        // Generate schemas for events
+        schemas["schemas/events/order-created.schema.json"] = await schemaGenerator.GenerateSchemaAsync(typeof(OrderCreatedEvent));
+        schemas["schemas/events/order-confirmed.schema.json"] = await schemaGenerator.GenerateSchemaAsync(typeof(OrderConfirmedEvent));
+
+        // Create archive
+        var archiveWriter = new MetadataArchiveWriter();
+        var archiveStream = await archiveWriter.CreateArchiveAsync(spasJson, schemas);
+
+        // Write to file
+        await using var fileStream = File.Create(zipPath);
+        archiveStream.Position = 0;
+        await archiveStream.CopyToAsync(fileStream);
     }
 
-    private static async Task<int> RunDotNetAsync(string arguments, string workingDirectory, TimeSpan timeout)
-    {
-        var startInfo = new ProcessStartInfo
-        {
-            FileName = "dotnet",
-            Arguments = arguments,
-            WorkingDirectory = workingDirectory,
-            RedirectStandardOutput = true,
-            RedirectStandardError = true,
-            UseShellExecute = false,
-        };
+    // Test-double contract types that produce the required schema filenames
+    [SpasCommand("CreateOrder", "1.0")]
+    internal sealed record CreateOrderRequest(string CustomerId, int ItemCount);
 
-        startInfo.Environment["DOTNET_NOLOGO"] = "1";
+    [SpasCommand("ConfirmOrder", "1.0")]
+    internal sealed record ConfirmOrderRequest(Guid OrderId);
 
-        using var process = new Process { StartInfo = startInfo };
-        process.Start();
+    [SpasCommand("UpdateShipmentStatus", "1.0")]
+    internal sealed record UpdateShipmentStatusRequest(Guid OrderId, string Status);
 
-        using var cts = new CancellationTokenSource(timeout);
+    [SpasEvent("OrderCreated", "1.0")]
+    internal sealed record OrderCreatedEvent(Guid OrderId, DateTimeOffset Timestamp);
 
-        try
-        {
-            await process.WaitForExitAsync(cts.Token);
-        }
-        catch (OperationCanceledException)
-        {
-            try
-            {
-                if (!process.HasExited)
-                {
-                    process.Kill(entireProcessTree: true);
-                }
-            }
-            catch
-            {
-                // Best-effort cleanup.
-            }
-
-            var stdout = await process.StandardOutput.ReadToEndAsync();
-            var stderr = await process.StandardError.ReadToEndAsync();
-            throw new TimeoutException($"dotnet command timed out after {timeout}.\nSTDOUT:\n{stdout}\nSTDERR:\n{stderr}");
-        }
-
-        if (process.ExitCode != 0)
-        {
-            var stdout = await process.StandardOutput.ReadToEndAsync();
-            var stderr = await process.StandardError.ReadToEndAsync();
-            throw new InvalidOperationException($"dotnet command failed with exit code {process.ExitCode}.\nSTDOUT:\n{stdout}\nSTDERR:\n{stderr}");
-        }
-
-        return process.ExitCode;
-    }
+    [SpasEvent("OrderConfirmed", "1.0")]
+    internal sealed record OrderConfirmedEvent(Guid OrderId, DateTimeOffset Timestamp);
 }

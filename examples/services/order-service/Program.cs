@@ -1,43 +1,21 @@
+using Microsoft.AspNetCore.Builder;
 using OrderService.DTOs;
 using OrderService.Events;
 using OrderService.Models;
 using OrderService.Services;
-using Spas.Sdk.Core.Identity;
 using Spas.Sdk.Events.Publish;
 using Spas.Sdk.Metadata.Attributes;
-using Spas.Sdk.Metadata.Builders;
 using Spas.Sdk.Metadata.Extensions;
-using Spas.Sdk.Metadata.Generation;
 using Spas.Sdk.Observability.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Register SPAS metadata services with auto-discovery
-builder.Services.AddSpasMetadata(options =>
-{
-    options.AssembliesToScan.Add(typeof(Program).Assembly);
-    options.AutoGenerateSchemaReferences = true;
-});
-
-// Configure SPAS infrastructure (event publishing, tracing)
-var serviceName = builder.Services.AddSpasServices(builder.Configuration, "order-service");
-
-// In-memory order store
+// Register services
 builder.Services.AddSingleton<OrderStore>();
+builder.Services.AddSpasMetadata();
+builder.Services.AddSpasServices(builder.Configuration, "order-service");
 
 var app = builder.Build();
-
-app.UseSpasIdentity();
-
-// Service identity
-var identity = new ServiceIdentityBuilder()
-    .WithId("order-service")
-    .WithName("order-service")
-    .WithVersion("1.0.0")
-    .WithBoundedContext("order")
-    .WithDescription("Order lifecycle management service")
-    .AddCapability("order-management")
-    .Build();
 
 // POST /orders - Create new order
 app.MapPost("/orders",
@@ -194,45 +172,29 @@ app.MapPost("/orders/shipment-status",
 app.MapGet("/", () => "Order Service");
 app.MapGet("/health", () => new { status = "healthy", service = "order-service", timestamp = DateTime.UtcNow });
 
-static bool TryGetOutputDirectory(string[] args, out string? outputDirectory)
+// Run SPAS service (generates metadata if --generate-metadata, else starts server)
+await app.RunSpasServiceAsync(args, options =>
 {
-    outputDirectory = null;
+    options.ServiceId = "order-service";
+    options.ServiceName = "order-service";
+    options.Version = "1.0.0";
+    options.BoundedContext = "order";
+    options.Description = "Order lifecycle management service";
+    options.AddCapability("order-management");
 
-    for (var i = 0; i < args.Length; i++)
-    {
-        if (string.Equals(args[i], MetadataGenerationConstants.OutputDirectoryArgument, StringComparison.OrdinalIgnoreCase))
-        {
-            if (i + 1 >= args.Length || string.IsNullOrWhiteSpace(args[i + 1]))
-            {
-                return false;
-            }
+    options.ConfigureConsistency(c => c
+        .WithCommands("ACID")
+        .WithQueries("EVENTUAL"));
 
-            outputDirectory = args[i + 1];
-            return true;
-        }
-    }
+    options.ConfigureNetwork(n => n
+        .AddRequiredEgress("localhost:6379"));
 
-    return true;
-}
+    options.ConfigureSecurity(s => s
+        .WithAuthenticationType("jwt")
+        .AddRequiredScope("orders.read")
+        .AddRequiredScope("orders.write")
+        .AddDataClassification("internal"));
 
-if (args.Any(a => string.Equals(a, MetadataGenerationConstants.GenerateMetadataArgument, StringComparison.OrdinalIgnoreCase)))
-{
-    if (!TryGetOutputDirectory(args, out var outputDirectory))
-    {
-        Console.Error.WriteLine("Missing value for --output <path>.");
-        Console.Error.WriteLine("Usage: dotnet run -- --generate-metadata --output <path>");
-        Environment.ExitCode = 2;
-        return;
-    }
+    options.License = "MIT";
+});
 
-    Console.WriteLine("Generating SPAS metadata archive (offline; no listening ports)...");
-    var archivePath = await app.GenerateSpasMetadataArchiveAsync(
-        identity,
-        outputDirectory: outputDirectory,
-        assemblyToScan: typeof(Program).Assembly);
-
-    Console.WriteLine($"SPAS metadata archive generated at: {archivePath}");
-    return;
-}
-
-app.Run();

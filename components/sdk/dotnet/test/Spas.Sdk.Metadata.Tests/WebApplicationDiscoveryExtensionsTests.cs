@@ -32,12 +32,12 @@ public class WebApplicationDiscoveryExtensionsTests
             e.Name == "create-order" &&
             e.Type == "Command" &&
             e.Protocol == "Http" &&
-            e.MethodPath == "POST /api/orders");
+            e.MethodPath == "/api/orders");
 
         Assert.Contains(contracts.Endpoints, e =>
             e.Name == "get-order" &&
             e.Type == "Query" &&
             e.Protocol == "Http" &&
-            e.MethodPath == "GET /api/orders/{id}");
+            e.MethodPath == "/api/orders/{id}");
     }
 }

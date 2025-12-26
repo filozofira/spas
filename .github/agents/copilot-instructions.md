@@ -29,7 +29,7 @@ Last updated: 2025-12-12
 - Attribute-based metadata auto-discovery (SpasCommandAttribute, SpasQueryAttribute, SpasEventAttribute)
 - Event publishing to sidecar with W3C Trace Context propagation
 - OpenTelemetry + Zipkin integration for distributed tracing
-- Dev-only metadata endpoint (/_spas/metadata) with environment gating
+- Offline metadata archive generation (`--generate-metadata`)
 - Single-line configuration: `AddSpasServices()` abstracts all SPAS infrastructure
 
 **Critical Decisions Made**:

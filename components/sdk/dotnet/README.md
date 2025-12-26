@@ -20,6 +20,17 @@ dotnet run
 
 2. Use a runnable end-to-end example: [Examples Services README](../../../examples/services/README.md)
 
+### Generate Design-time Metadata (Offline)
+
+Generate the complete design-time metadata archive without starting the HTTP server:
+
+```bash
+cd components/sdk/dotnet/examples/SampleService
+dotnet run -- --generate-metadata --output ./metadata
+```
+
+This writes `./metadata/service.metadata.zip` (containing `spas.json` + referenced schemas).
+
 ### Packages
 
 | Package                    | Purpose                    | Key Types                                                          |

@@ -12,12 +12,15 @@ npm install -g @spas/cli
 
 ### Publish
 
-#### From a running service
+#### Publish a locally generated archive
 
-The service must expose `/_spas/metadata` (typically Development mode).
+Generate the archive using your SDK, then publish it:
+
+- .NET: [components/sdk/dotnet/README.md](../../sdk/dotnet/README.md)
+- Java: [components/sdk/java/README.md](../../sdk/java/README.md)
 
 ```bash
-spas-service publish http://localhost:5000 --repo http://localhost:3000
+spas-service publish --archive ./metadata/service.metadata.zip --repo http://localhost:3000
 ```
 
 #### From a pre-built archive
@@ -28,10 +31,10 @@ spas-service publish --archive ./order-service-1.0.0.zip --repo http://localhost
 
 #### Dry run
 
-Downloads and inspects metadata, but does not publish.
+Inspects metadata, but does not publish.
 
 ```bash
-spas-service publish http://localhost:5000 --dry-run --output ./archives
+spas-service publish --archive ./metadata/service.metadata.zip --dry-run --output ./archives
 ```
 
 #### Add runtime image metadata (optional)

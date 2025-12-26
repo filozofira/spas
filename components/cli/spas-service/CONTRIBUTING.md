@@ -28,7 +28,6 @@ src/
 │   └── pull.ts             # pull command
 ├── services/
 │   ├── repository-client.ts # HTTP client for Repository API
-│   ├── metadata-fetcher.ts  # Download metadata from service endpoint
 │   ├── archive-builder.ts   # Create ZIP archives
 │   └── validator.ts         # Metadata validation
 └── utils/
@@ -81,12 +80,11 @@ npm run lint
 
 ### Modifying publish workflow
 
-The `publish` command supports two modes: from running service or from archive.
+The `publish` command is archive-first.
 
 **When changing publish logic**:
 1. Update `commands/publish.ts` command handler
-2. Update `metadata-fetcher.ts` if changing how metadata is downloaded
-3. Update `archive-builder.ts` if changing ZIP structure
+2. Update `archive-builder.ts` if changing ZIP structure
 4. Add tests for new scenarios
 5. Test against real Repository service
 
@@ -160,13 +158,12 @@ cd components/cli/spas-service
 npm run build
 npm link
 
-# Terminal 3: Start a test service (e.g., .NET sample)
+# Terminal 3: Generate a metadata archive (offline)
 cd components/sdk/dotnet/examples/SampleService
-export ASPNETCORE_ENVIRONMENT=Development
-dotnet run
+dotnet run -- --generate-metadata --output ./metadata
 
 # Terminal 4: Test publish workflow
-spas-service publish http://localhost:5000 --repo http://localhost:3000
+spas-service publish --archive ./metadata/service.metadata.zip --repo http://localhost:3000
 
 # Verify in Repository
 curl http://localhost:3000/services/sample-service/versions/1.0.0
@@ -181,7 +178,7 @@ unzip -l downloads/sample-service-1.0.0.zip
 ```bash
 # Add breakpoints in VS Code
 # Run with debugger attached, or:
-node --inspect-brk dist/index.js publish http://localhost:5000
+node --inspect-brk dist/index.js publish --archive ./metadata/service.metadata.zip
 ```
 
 ### Common issues
@@ -197,9 +194,10 @@ node --inspect-brk dist/index.js publish http://localhost:5000
 - Check Repository logs for validation errors
 
 **Service metadata endpoint returns 404**:
-- Ensure service is running in Development mode
-- Verify service exposes `/_spas/metadata` endpoint
-- Check service SDK implementation
+
+**Archive generation fails**:
+- Verify the service supports `--generate-metadata` and writes `service.metadata.zip`
+- Confirm the ZIP has `spas.json` at the archive root
 
 ## Backwards Compatibility
 

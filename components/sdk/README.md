@@ -15,7 +15,7 @@ Each SDK provides:
 - Event publishing to sidecar
 - Trace context propagation
 - Identity context (PoC)
-- Development metadata endpoint
+- Offline metadata archive generation
 
 ### Examples
 

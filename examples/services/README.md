@@ -4,7 +4,7 @@ These SPAS-compliant example services are used to demonstrate choreography acros
 
 ## PowerShell Scripts
 
-Use the helper scripts in this folder to build images, retrieve service metadata archives, and publish them to the SPAS Repository.
+Use the helper scripts in this folder to build images (optional), generate service metadata archives offline, and publish them to the SPAS Repository.
 
 ### 1) Build all service images
 
@@ -27,20 +27,16 @@ Notes:
 
 Script: `Get-ServiceMetadata.ps1`
 
-Generates `*.zip` metadata archives by calling each running service on localhost ports 5000–5004.
+Generates `*.zip` metadata archives by running each service in **offline metadata generation** mode.
 
-Prerequisite: Start the example services.
+Notes:
+- Images are not the intended path for generating metadata.
+- This does not require starting any service HTTP servers.
 
 ```powershell
 # From the examples/services folder
-docker compose up --build -d
-
-# Generate archives
 pwsh ./Get-ServiceMetadata.ps1
 # Archives will be written to ./metadata
-
-# Stop services when done (optional)
-docker compose down
 ```
 
 ### 3) Publish metadata to the SPAS Repository
@@ -72,20 +68,10 @@ You can run the CLI directly if you prefer manual steps.
 ### Get metadata
 
 ```powershell
-# Start services
 cd ../../examples/services
-docker compose up --build -d
 
-# Download metadata to ./metadata
-mkdir -Force ./metadata
-spas-service publish http://localhost:5000 --dry-run --output ./metadata
-spas-service publish http://localhost:5001 --dry-run --output ./metadata
-spas-service publish http://localhost:5002 --dry-run --output ./metadata
-spas-service publish http://localhost:5003 --dry-run --output ./metadata
-spas-service publish http://localhost:5004 --dry-run --output ./metadata
-
-# Stop services
-docker compose down
+# Generate offline archives into ./metadata
+pwsh ./Get-ServiceMetadata.ps1
 ```
 
 ### Publish archives

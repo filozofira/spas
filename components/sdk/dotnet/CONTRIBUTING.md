@@ -146,7 +146,7 @@ Before submitting a PR:
 - Mock external dependencies (sidecar, Zipkin)
 
 ### Integration Tests
-- Run SampleService and verify `/_spas/metadata` output
+- Run SampleService in offline generation mode and verify `service.metadata.zip` output
 - Validate generated `spas.json` against schema
 - Test event publishing sends correct headers
 

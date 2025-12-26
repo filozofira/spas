@@ -21,6 +21,19 @@ mvn spring-boot:run
 
 2. Use a runnable end-to-end example: [Examples Services README](../../../examples/services/README.md)
 
+### Generate Design-time Metadata (Offline)
+
+Generate the complete design-time metadata archive without starting the HTTP server.
+
+**Spring Boot**
+
+```bash
+cd components/sdk/java/examples/sample-service
+mvn -q -DskipTests spring-boot:run -Dspring-boot.run.arguments="--generate-metadata --output ./metadata"
+```
+
+This writes `./metadata/service.metadata.zip` (containing `spas.json` + referenced schemas).
+
 ### Modules
 
 | Module                          | Purpose                    | Key Types                                            |
@@ -36,7 +49,8 @@ mvn spring-boot:run
 **Metadata Generation:**
 
 - Annotation-based: `@SpasCommand`, `@SpasQuery`, `@SpasEvent`
-- Compile-time generation: `spas.json` created during Maven build
+- Offline archive generation: `service.metadata.zip` created via `--generate-metadata`
+- Compile-time generation: `spas.json` created during Maven build (optional)
 - Schema validation: Validates against design-time-metadata-v1 schema
 - Kebab-case normalization: `OrderCreated` → `order-created`
 

@@ -12,10 +12,10 @@ description: "Task list for feature implementation"
 
 ## Phase 1: Setup (Shared Infrastructure)
 
-- [ ] T001 Create a dedicated feature README section in specs/021-sdk-metadata-extraction/quickstart.md describing triggers, defaults, and expected zip layout
-- [ ] T002 [P] Capture the reference ZIP entry list as a checked-in constant in components/sdk/dotnet/test/Spas.Sdk.Metadata.Tests/Fixtures/ReferenceZipEntries.cs
-- [ ] T003 [P] Capture the reference ZIP entry list as a checked-in constant in components/sdk/java/spas-sdk-spring/src/test/java/io/spas/sdk/spring/fixtures/ReferenceZipEntries.java
-- [ ] T004 Add a repo-wide note in GROOMING.md clarifying this feature supersedes runtime /_spas/metadata for metadata publication
+- [x] T001 Create a dedicated feature README section in specs/021-sdk-metadata-extraction/quickstart.md describing triggers, defaults, and expected zip layout
+- [x] T002 [P] Capture the reference ZIP entry list as a checked-in constant in components/sdk/dotnet/test/Spas.Sdk.Metadata.Tests/Fixtures/ReferenceZipEntries.cs
+- [x] T003 [P] Capture the reference ZIP entry list as a checked-in constant in components/sdk/java/spas-sdk-spring/src/test/java/io/spas/sdk/spring/fixtures/ReferenceZipEntries.java
+- [x] T004 Add a repo-wide note in GROOMING.md clarifying this feature supersedes runtime /_spas/metadata for metadata publication
 
 ---
 

@@ -36,8 +36,8 @@
 
 **⚠️ CRITICAL**: User story implementation requires these utilities complete
 
-- [ ] T009 Create WorkspaceService class skeleton in components/cli/spas-service/src/services/workspace-service.ts
-- [ ] T010 Implement WorkspaceService.create() method with directory creation, file writing, error handling
+- [X] T009 Create WorkspaceService class skeleton in components/cli/spas-service/src/services/workspace-service.ts
+- [X] T010 Implement WorkspaceService.create() method with directory creation, file writing, error handling
 
 **Checkpoint**: Foundation ready - user story implementation can begin
 

@@ -1,9 +1,3 @@
-<%# 
-  SDK Patterns Partial
-  Contains idiomatic patterns for Java/Spring and .NET stacks
-  for SPAS service development
-%>
-
 ## SDK Integration Patterns
 
 This section provides idiomatic code patterns for integrating with the SPAS SDK.

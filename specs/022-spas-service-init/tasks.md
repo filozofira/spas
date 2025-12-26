@@ -142,13 +142,13 @@
 
 ### Implementation for User Story 5
 
-- [ ] T047 [US5] Add event publishing contract to agent-prompt.eta (POST /publish, headers) (FR-016)
-- [ ] T048 [US5] Add metadata schema documentation to agent-prompt.eta (commands[].produces[]) (FR-018, FR-021)
-- [ ] T049 [US5] Verify all file paths use {workspaceRoot}/{NAME}/ pattern in templates
-- [ ] T050 [US5] Verify no references to principles/, specs/, components/ in agent-prompt.eta (FR-020)
-- [ ] T051 [US5] Verify agent prompt references .spas/schemas/design-time-metadata-v1.schema.json (FR-021)
-- [ ] T052 [US5] Create error-handling.eta partial for agent error responses in components/cli/spas-service/templates/partials/error-handling.eta
-- [ ] T053 [US5] Verify agent prompt file size < 35KB (SC-007)
+- [X] T047 [US5] Add event publishing contract to agent-prompt.eta (POST /publish, headers) (FR-016)
+- [X] T048 [US5] Add metadata schema documentation to agent-prompt.eta (commands[].produces[]) (FR-018, FR-021)
+- [X] T049 [US5] Verify all file paths use {workspaceRoot}/{NAME}/ pattern in templates
+- [X] T050 [US5] Verify no references to principles/, specs/, components/ in agent-prompt.eta (FR-020)
+- [X] T051 [US5] Verify agent prompt references .spas/schemas/design-time-metadata-v1.schema.json (FR-021)
+- [X] T052 [US5] Create error-handling.eta partial for agent error responses in components/cli/spas-service/templates/partials/error-handling.eta
+- [X] T053 [US5] Verify agent prompt file size < 35KB (SC-007)
 
 **Checkpoint**: Agent prompt is self-contained with all SPAS guidance embedded.
 

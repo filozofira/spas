@@ -1,0 +1,184 @@
+## SDK Integration Patterns
+
+Use patterns matching the STACK token (java or dotnet).
+
+---
+
+### Java/Spring Quick Reference
+
+**Project Structure**:
+```
+{NAME}/
+├── pom.xml
+├── src/main/java/com/{context}/{name}/
+│   ├── Application.java          # @SpringBootApplication
+│   ├── config/SpasConfig.java    # SpasEventPublisher bean
+│   ├── controller/               # @RestController classes
+│   ├── service/                  # @Service with event publishing
+│   ├── model/                    # Domain + DTOs
+│   ├── repository/               # Interface + InMemory impl
+│   └── event/                    # @SpasEvent records
+└── src/main/resources/application.yaml
+```
+
+**Key Dependencies** (pom.xml):
+- `spring-boot-starter-parent:3.2.0`
+- `spring-boot-starter-web`
+- `spring-boot-starter-actuator`
+- `io.spas:spas-sdk-java:1.0.0`
+
+**Event Publishing**:
+```java
+@SpasEvent(name = "{entity}-created", version = "1.0.0")
+public record EntityCreatedEvent(String id, ...) {}
+
+@Service
+public class EntityService {
+    private final SpasEventPublisher eventPublisher;
+    
+    public Entity create(Request req) {
+        Entity saved = repository.save(new Entity(req));
+        eventPublisher.publish(new EntityCreatedEvent(saved.id(), ...));
+        return saved;
+    }
+}
+```
+
+**Configuration** (application.yaml):
+```yaml
+spas:
+  service.id: {name}
+  sidecar.url: ${SPAS_SIDECAR_URL:http://localhost:3001}
+```
+
+---
+
+### .NET Quick Reference
+
+**Project Structure**:
+```
+{NAME}/src/{Name}.Api/
+├── {Name}.Api.csproj
+├── Program.cs                    # AddSpasEventPublisher()
+├── Controllers/                  # [ApiController] classes
+├── Services/                     # I{Entity}Service + impl
+├── Models/                       # Domain + DTOs
+├── Repositories/                 # Interface + InMemory impl
+└── Events/                       # [SpasEvent] records
+```
+
+**Key Packages** (.csproj):
+- `Microsoft.NET.Sdk.Web` (net8.0)
+- `Spas.Sdk:1.0.0`
+
+**Event Publishing**:
+```csharp
+[SpasEvent("{entity}-created", Version = "1.0.0")]
+public record EntityCreatedEvent(string Id, ...);
+
+public class EntityService {
+    private readonly ISpasEventPublisher _eventPublisher;
+    
+    public async Task<Entity> CreateAsync(Request req) {
+        var saved = await _repository.SaveAsync(new Entity(req));
+        await _eventPublisher.PublishAsync(new EntityCreatedEvent(saved.Id, ...));
+        return saved;
+    }
+}
+```
+
+**Configuration** (appsettings.json):
+```json
+{ "Spas": { "ServiceId": "{name}", "SidecarUrl": "http://localhost:3001" } }
+```
+
+---
+
+### spas.json Template
+
+```json
+{
+  "$schema": "./.spas/schemas/design-time-metadata-v1.schema.json",
+  "id": "{NAME}",
+  "name": "{Human-Readable Name}",
+  "version": "1.0.0",
+  "schemaVersion": "1.0",
+  "boundedContext": "{CONTEXT}",
+  "commands": [{
+    "name": "Create{Entity}",
+    "method": "POST",
+    "path": "/{entities}",
+    "requestSchema": "schemas/endpoints/create-{entity}-request.json",
+    "responseSchema": "schemas/endpoints/{entity}-response.json",
+    "produces": ["{entity}-created"]
+  }],
+  "queries": [{
+    "name": "Get{Entity}",
+    "method": "GET",
+    "path": "/{entities}/{id}",
+    "responseSchema": "schemas/endpoints/{entity}-response.json"
+  }],
+  "events": [{
+    "name": "{entity}-created",
+    "version": "1.0.0",
+    "schema": "schemas/events/{entity}-created.json"
+  }],
+  "security": { "authentication": "none" }
+}
+```
+
+**Key Rules**:
+- `$schema` → `./.spas/schemas/design-time-metadata-v1.schema.json`
+- `commands[].produces[]` → must match event names in `events[]`
+- Schema paths relative to workspace root
+
+---
+
+### JSON Schema Templates
+
+**Request** (`schemas/endpoints/create-{entity}-request.json`):
+```json
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Create{Entity}Request",
+  "type": "object",
+  "required": ["field1"],
+  "properties": { "field1": { "type": "string" } }
+}
+```
+
+**Response** (`schemas/endpoints/{entity}-response.json`):
+```json
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "{Entity}Response",
+  "type": "object",
+  "required": ["id"],
+  "properties": { "id": { "type": "string" }, "createdAt": { "type": "string", "format": "date-time" } }
+}
+```
+
+**Event** (`schemas/events/{entity}-created.json`):
+```json
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "{Entity}CreatedEvent",
+  "type": "object",
+  "required": ["id"],
+  "properties": { "id": { "type": "string" } }
+}
+```
+
+---
+
+### Naming Conventions
+
+| Type | Pattern | Example |
+|------|---------|---------|
+| Service ID | kebab-case | `order-service` |
+| Event name | `{entity}-{action}` | `order-created` |
+| Event type | `com.{context}.{event}` | `com.orders.order-created` |
+| Command | `Create{Entity}Request` | `CreateOrderRequest` |
+| Event class | `{Entity}{Action}Event` | `OrderCreatedEvent` |
+
+---

@@ -1,8 +1,3 @@
-<%# 
-  Workflow Phases Partial
-  Contains the 9-phase human-in-the-loop workflow for SPAS service scaffolding
-%>
-
 ## Workflow Phases
 
 Execute the following phases in order. Each phase requires explicit user confirmation before proceeding.

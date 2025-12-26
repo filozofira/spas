@@ -69,11 +69,11 @@ description: "Task list for feature implementation"
 
 **Independent Test**: Generate metadata for order-service and verify `endpoints[]` entries match the reference archive for `methodPath` and `protocol`.
 
-- [ ] T024 [US3] Ensure .NET endpoint discovery uses route data sources without calling `app.Run()` in components/sdk/dotnet/src/Spas.Sdk.Metadata/Extensions/WebApplicationDiscoveryExtensions.cs
-- [ ] T025 [P] [US3] Add .NET unit test that generated spas.json contains endpoints[] with methodPath/protocol for a minimal app in components/sdk/dotnet/test/Spas.Sdk.Metadata.Tests/WebApplicationDiscoveryExtensionsTests.cs
-- [ ] T026 [US3] Ensure Java methodPath derivation is correct using Spring mapping annotations without starting server in components/sdk/java/spas-sdk-spring/src/main/java/io/spas/sdk/spring/SpasMetadataArchiveGenerator.java
-- [ ] T027 [P] [US3] Add Java unit tests for methodPath/protocol extraction in components/sdk/java/spas-sdk-spring/src/test/java/io/spas/sdk/spring/EndpointDiscoveryTest.java
-- [ ] T028 [US3] Add a defensive “no outbound calls” guardrail documentation note in specs/021-sdk-metadata-extraction/research.md
+- [x] T024 [US3] Ensure .NET endpoint discovery uses route data sources without calling `app.Run()` in components/sdk/dotnet/src/Spas.Sdk.Metadata/Extensions/WebApplicationDiscoveryExtensions.cs
+- [x] T025 [P] [US3] Add .NET unit test that generated spas.json contains endpoints[] with methodPath/protocol for a minimal app in components/sdk/dotnet/test/Spas.Sdk.Metadata.Tests/WebApplicationDiscoveryExtensionsTests.cs
+- [x] T026 [US3] Ensure Java methodPath derivation is correct using Spring mapping annotations without starting server in components/sdk/java/spas-sdk-spring/src/main/java/io/spas/sdk/spring/SpasMetadataArchiveGenerator.java
+- [x] T027 [P] [US3] Add Java unit tests for methodPath/protocol extraction in components/sdk/java/spas-sdk-spring/src/test/java/io/spas/sdk/spring/EndpointDiscoveryTest.java
+- [x] T028 [US3] Add a defensive “no outbound calls” guardrail documentation note in specs/021-sdk-metadata-extraction/research.md
 
 ---
 

@@ -417,9 +417,13 @@ public class SpasMetadataArchiveGenerator {
                     }
 
                     String[] methodPaths = extractMethodMappingPaths(method);
+                    String httpVerb = extractHttpVerb(method);
                     String methodPath = null;
                     if (methodPaths.length > 0) {
-                        methodPath = joinPaths(classPaths[0], methodPaths[0]);
+                        String routePath = joinPaths(classPaths[0], methodPaths[0]);
+                        methodPath = httpVerb != null && !httpVerb.isBlank()
+                            ? httpVerb + " " + routePath
+                            : routePath;
                     }
 
                     if (cmd != null) {
@@ -726,10 +730,15 @@ public class SpasMetadataArchiveGenerator {
                         continue;
                     }
 
+                    String httpVerb = extractHttpVerb(method);
+
                     for (String cp : classPaths) {
                         for (String mp : methodPaths) {
                             String full = joinPaths(cp, mp);
-                            routeToMethod.putIfAbsent(full, method);
+                            String key = httpVerb != null && !httpVerb.isBlank()
+                                ? httpVerb + " " + full
+                                : full;
+                            routeToMethod.putIfAbsent(key, method);
                         }
                     }
                 }
@@ -755,6 +764,40 @@ public class SpasMetadataArchiveGenerator {
             }
         }
         return new String[0];
+    }
+
+    private String extractHttpVerb(Method method) {
+        for (Annotation ann : method.getAnnotations()) {
+            String annName = ann.annotationType().getName();
+            if (annName.equals("org.springframework.web.bind.annotation.GetMapping")) {
+                return "GET";
+            }
+            if (annName.equals("org.springframework.web.bind.annotation.PostMapping")) {
+                return "POST";
+            }
+            if (annName.equals("org.springframework.web.bind.annotation.PutMapping")) {
+                return "PUT";
+            }
+            if (annName.equals("org.springframework.web.bind.annotation.DeleteMapping")) {
+                return "DELETE";
+            }
+            if (annName.equals("org.springframework.web.bind.annotation.PatchMapping")) {
+                return "PATCH";
+            }
+            if (annName.equals("org.springframework.web.bind.annotation.RequestMapping")) {
+                try {
+                    Method httpMethod = ann.annotationType().getMethod("method");
+                    Object value = httpMethod.invoke(ann);
+                    if (value instanceof Object[] arr && arr.length > 0 && arr[0] != null) {
+                        return arr[0].toString();
+                    }
+                } catch (Exception ignored) {
+                    // ignore
+                }
+            }
+        }
+
+        return null;
     }
 
     private String[] extractPaths(Annotation mappingAnnotation) {

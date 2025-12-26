@@ -66,6 +66,17 @@
 
 ---
 
+## Guardrails (No Outbound Calls)
+
+Offline metadata generation MUST be a purely local, offline operation:
+
+- Do not bind/listen on any network ports (no `app.Run()` / no embedded server start).
+- Do not make outbound HTTP calls (including calling any local `/_spas/metadata` endpoint).
+
+This is both a correctness requirement (determinism in CI) and a security constraint.
+
+---
+
 ### 4. Output location, naming, and overwrite semantics
 
 **Task**: Define stable output conventions and how they map across .NET and Java.

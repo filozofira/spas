@@ -262,6 +262,8 @@ public static class WebApplicationDiscoveryExtensions
                 }
             }
 
+            var httpVerb = TryGetHttpVerb(metadata);
+
             // metadata is an EndpointMetadataCollection which implements IEnumerable<object>
             // Look for our SPAS attributes in the metadata collection
             foreach (var item in (System.Collections.IEnumerable)metadata)
@@ -276,6 +278,7 @@ public static class WebApplicationDiscoveryExtensions
                         produces: ResolveProducedEvents(commandAttr.Produces, commandName, commandAttr.Version));
 
                     var finalPath = commandAttr.Path ?? path ?? string.Empty;
+                    finalPath = EnsureHttpMethodPath(finalPath, httpVerb);
                     var schemaRef = commandAttr.Schema ?? $"schemas/endpoints/{commandName}.schema.json";
                     builder.AddEndpoint(
                         name: commandName,
@@ -293,6 +296,7 @@ public static class WebApplicationDiscoveryExtensions
                 {
                     var queryName = AttributeHelpers.ToKebabCase(queryAttr.Name);
                     var finalPath = queryAttr.Path ?? path ?? string.Empty;
+                    finalPath = EnsureHttpMethodPath(finalPath, httpVerb);
                     var schemaRef = queryAttr.Schema ?? $"schemas/endpoints/{queryName}.schema.json";
                     builder.AddEndpoint(
                         name: queryName,
@@ -317,6 +321,75 @@ public static class WebApplicationDiscoveryExtensions
         {
             return false; // Skip endpoints that can't be processed
         }
+    }
+
+    private static string EnsureHttpMethodPath(string path, string? httpVerb)
+    {
+        if (string.IsNullOrWhiteSpace(path))
+        {
+            return path;
+        }
+
+        // If the string already looks like "VERB /path", don't double-prefix.
+        var trimmed = path.TrimStart();
+        if (LooksLikeMethodPrefixedPath(trimmed))
+        {
+            return trimmed;
+        }
+
+        if (string.IsNullOrWhiteSpace(httpVerb))
+        {
+            return trimmed;
+        }
+
+        return $"{httpVerb.ToUpperInvariant()} {trimmed}";
+    }
+
+    private static bool LooksLikeMethodPrefixedPath(string value)
+    {
+        // Minimal heuristic: common verbs followed by a space.
+        return value.StartsWith("GET ", StringComparison.OrdinalIgnoreCase)
+            || value.StartsWith("POST ", StringComparison.OrdinalIgnoreCase)
+            || value.StartsWith("PUT ", StringComparison.OrdinalIgnoreCase)
+            || value.StartsWith("DELETE ", StringComparison.OrdinalIgnoreCase)
+            || value.StartsWith("PATCH ", StringComparison.OrdinalIgnoreCase)
+            || value.StartsWith("HEAD ", StringComparison.OrdinalIgnoreCase)
+            || value.StartsWith("OPTIONS ", StringComparison.OrdinalIgnoreCase);
+    }
+
+    private static string? TryGetHttpVerb(object metadata)
+    {
+        try
+        {
+            foreach (var item in (System.Collections.IEnumerable)metadata)
+            {
+                if (item == null) continue;
+
+                var type = item.GetType();
+                if (!string.Equals(type.FullName, "Microsoft.AspNetCore.Routing.HttpMethodMetadata", StringComparison.Ordinal))
+                {
+                    continue;
+                }
+
+                var httpMethodsProperty = type.GetProperty("HttpMethods", BindingFlags.Public | BindingFlags.Instance);
+                if (httpMethodsProperty?.GetValue(item) is System.Collections.IEnumerable httpMethods)
+                {
+                    foreach (var method in httpMethods)
+                    {
+                        if (method is string methodString && !string.IsNullOrWhiteSpace(methodString))
+                        {
+                            return methodString;
+                        }
+                    }
+                }
+            }
+        }
+        catch
+        {
+            // Best-effort: missing type or reflection failure should not break metadata generation.
+        }
+
+        return null;
     }
 
     private static IEnumerable<ProducedEventRefContract> ResolveProducedEvents(Type[]? producedEventTypes)

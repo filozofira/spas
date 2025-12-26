@@ -58,6 +58,29 @@ export function verbose(message: string): void {
 }
 
 /**
+ * Print verbose output when verbose flag is enabled
+ */
+export function verboseLog(message: string, isVerbose: boolean): void {
+  if (isVerbose) {
+    console.log(chalk.gray('[VERBOSE] ') + message);
+  }
+}
+
+/**
+ * Print a list item
+ */
+export function listItem(message: string): void {
+  console.log('  ' + chalk.gray('•') + ' ' + message);
+}
+
+/**
+ * Print JSON output to stdout
+ */
+export function json(data: unknown): void {
+  console.log(JSON.stringify(data, null, 2));
+}
+
+/**
  * Print a section header
  */
 export function header(message: string): void {

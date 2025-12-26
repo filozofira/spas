@@ -19,14 +19,14 @@
 
 **Purpose**: Add Eta dependency and create base utilities
 
-- [ ] T001 Add `eta` ^4.5.0 dependency to components/cli/spas-service/package.json
-- [ ] T002 [P] Create types file with InitOptions, CommandResult interfaces in components/cli/spas-service/src/types.ts
-- [ ] T003 [P] Create output utilities (success, error, info, listItem, verbose, json) in components/cli/spas-service/src/utils/output.ts
-- [ ] T004 [P] Create git utilities (findGitRoot) in components/cli/spas-service/src/utils/git.ts
-- [ ] T005 [P] Create config utilities (isValidServiceName, resolveWorkspacePath) in components/cli/spas-service/src/utils/config.ts
-- [ ] T006 Create Eta template loader (initEta, renderTemplate) in components/cli/spas-service/src/utils/templates.ts
-- [ ] T007 Create templates directory structure at components/cli/spas-service/templates/ with partials/ subdirectory
-- [ ] T008 Run `npm install` to install eta dependency
+- [X] T001 Add `eta` ^4.5.0 dependency to components/cli/spas-service/package.json
+- [X] T002 [P] Create types file with InitOptions, CommandResult interfaces in components/cli/spas-service/src/types.ts
+- [X] T003 [P] Create output utilities (success, error, info, listItem, verbose, json) in components/cli/spas-service/src/utils/output.ts
+- [X] T004 [P] Create git utilities (findGitRoot) in components/cli/spas-service/src/utils/git.ts
+- [X] T005 [P] Create config utilities (isValidServiceName, resolveWorkspacePath) in components/cli/spas-service/src/utils/config.ts
+- [X] T006 Create Eta template loader (initEta, renderTemplate) in components/cli/spas-service/src/utils/templates.ts
+- [X] T007 Create templates directory structure at components/cli/spas-service/templates/ with partials/ subdirectory
+- [X] T008 Run `npm install` to install eta dependency
 
 ---
 

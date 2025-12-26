@@ -3,16 +3,19 @@
  */
 
 import { Eta } from 'eta';
-import { readFileSync } from 'fs';
-import { join, dirname } from 'path';
-import { fileURLToPath } from 'url';
+import { readFileSync, existsSync } from 'fs';
+import { join } from 'path';
+import { getModuleDir } from './paths.js';
 
-// Get the directory path of the current module
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
-
-// Template directory path (relative to utils/)
-const TEMPLATE_DIR = join(__dirname, '..', '..', 'templates');
+/**
+ * Get template directory path
+ * Templates are located at dist/templates (copied during build)
+ */
+function getTemplateDir(): string {
+  const moduleDir = getModuleDir();
+  // moduleDir is dist/ (from dist/index.js), templates are in dist/templates/
+  return join(moduleDir, 'templates');
+}
 
 /**
  * Initialize Eta with default configuration
@@ -22,7 +25,7 @@ let eta: Eta | null = null;
 function getEta(): Eta {
   if (!eta) {
     eta = new Eta({
-      views: TEMPLATE_DIR,
+      views: getTemplateDir(),
       cache: false, // Disable caching for development
       autoEscape: false, // Don't escape HTML - we're generating markdown
     });
@@ -68,7 +71,7 @@ export function renderTemplate(templateName: string, data: Record<string, unknow
  */
 export function loadPartial(partialName: string): string {
   try {
-    const partialPath = join(TEMPLATE_DIR, 'partials', `${partialName}.eta`);
+    const partialPath = join(getTemplateDir(), 'partials', `${partialName}.eta`);
     return readFileSync(partialPath, 'utf-8');
   } catch (error) {
     throw new Error(

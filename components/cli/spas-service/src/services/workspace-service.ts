@@ -51,8 +51,6 @@ export class WorkspaceService {
       // Create subdirectories
       const directories = [
         'src',
-        'schemas/endpoints',
-        'schemas/events',
         'metadata',
         '.spas/schemas',
       ];

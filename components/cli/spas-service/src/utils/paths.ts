@@ -41,12 +41,13 @@ export function getModuleDir(): string {
 export function getSchemaSourcePath(): string {
   const moduleDir = getModuleDir();
   
-  // From dist/utils/ -> dist/ -> spas-service/ -> cli/ -> components/ -> schemas/
+  // From dist/ -> spas-service/ -> cli/ -> components/ -> schemas/
+  // Note: moduleDir is set from dist/index.js, so it's the dist/ folder
   return join(
     moduleDir,
-    '..',
-    '..',
-    '..',
+    '..',   // dist -> spas-service
+    '..',   // spas-service -> cli
+    '..',   // cli -> components
     'schemas',
     'design-time-metadata-v1.schema.json'
   );

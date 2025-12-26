@@ -158,12 +158,12 @@
 
 **Purpose**: Final integration and validation
 
-- [ ] T054 [P] Add npm script to copy templates to dist/ in package.json
-- [ ] T055 [P] Add templates/ to package.json files array for npm publish
-- [ ] T056 Integration test: run `spas-service init order-service` end-to-end in components/cli/spas-service/test/integration/init.test.ts
-- [ ] T057 Verify workspace creation < 5 seconds (SC-001)
-- [ ] T058 Run quickstart.md validation manually
-- [ ] T059 Update components/cli/spas-service/README.md with init command documentation
+- [X] T054 [P] Add npm script to copy templates to dist/ in package.json
+- [X] T055 [P] Add templates/ to package.json files array for npm publish
+- [X] T056 Integration test: run `spas-service init order-service` end-to-end in components/cli/spas-service/test/integration/init.test.ts
+- [X] T057 Verify workspace creation < 5 seconds (SC-001)
+- [X] T058 Run quickstart.md validation manually
+- [X] T059 Update components/cli/spas-service/README.md with init command documentation
 
 ---
 

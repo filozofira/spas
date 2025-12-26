@@ -38,11 +38,17 @@ describe('WorkspaceService', () => {
         );
         
         // Set the module dir so getSchemaSourcePath works
+        // moduleDir is set from dist/index.js, so it's the dist/ folder
         // The path should be set so that going up 3 levels and then to 'schemas' lands in schemaDir
         // moduleDir -> .. -> .. -> .. -> schemas = schemaDir
         // So moduleDir needs to be testDir/a/b/c
         const fakeModuleDir = join(testDir, 'a', 'b', 'c');
         mkdirSync(fakeModuleDir, { recursive: true });
+        
+        // Also create templates directory for getTemplateDir (moduleDir/templates)
+        const fakeTemplatesDir = join(fakeModuleDir, 'templates');
+        mkdirSync(fakeTemplatesDir, { recursive: true });
+        
         setModuleDir(fakeModuleDir);
         
         workspaceService = new WorkspaceService();
@@ -66,8 +72,6 @@ describe('WorkspaceService', () => {
             expect(existsSync(workspacePath)).toBe(true);
             expect(existsSync(join(workspacePath, 'README.md'))).toBe(true);
             expect(existsSync(join(workspacePath, 'src'))).toBe(true);
-            expect(existsSync(join(workspacePath, 'schemas', 'endpoints'))).toBe(true);
-            expect(existsSync(join(workspacePath, 'schemas', 'events'))).toBe(true);
             expect(existsSync(join(workspacePath, 'metadata'))).toBe(true);
             expect(existsSync(join(workspacePath, '.spas', 'schemas'))).toBe(true);
         });

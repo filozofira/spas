@@ -15,7 +15,7 @@ Each SDK provides:
 - Event publishing to sidecar
 - Trace context propagation
 - Identity context (PoC)
-- Development metadata endpoint
+- Offline metadata archive generation
 
 ### Examples
 
@@ -33,11 +33,11 @@ Contributing to the SDK implementations:
 
 ## Common schemas
 
-Canonical, cross-SDK JSON Schemas live in [schemas/README.md](./schemas/README.md).
+Canonical metadata JSON Schemas live in [../schemas/README.md](../schemas/README.md).
 
 Start here:
 
-- [design-time-metadata-v1.schema.json](./schemas/design-time-metadata-v1.schema.json)
+- [design-time-metadata-v1.schema.json](../schemas/design-time-metadata-v1.schema.json)
 
 ## References
 

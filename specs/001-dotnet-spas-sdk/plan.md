@@ -8,6 +8,10 @@
 
 **Note**: Plan reflects decisions captured during clarify: SDK-only metadata composition, dev `/_spas/metadata` archive payload, identity helpers now, minimal observability middleware now. Inbound handler scaffolding (FR-005) and custom configuration package (FR-006) deferred in favor of native ASP.NET Core patterns.
 
+> **Outdated (Historical)**: This plan references a dev-only runtime metadata endpoint at `/_spas/metadata`.
+> The current supported approach is **offline** metadata archive generation (SDK-triggered) and archive-based publishing; the runtime endpoint workflow has been removed.
+> The original plan text is preserved for historical context.
+
 ## Summary
 
 Deliver a modular .NET SDK enabling SPAS-compliant service development: metadata builders and SDK composition of `spas.json`; dev-only metadata endpoint returning an archive with `spas.json` and contract schemas; CloudEvents publish helpers with W3C trace/correlation; inbound scaffolding for commands/queries/events; configuration helpers; minimal opt-in tracelog middleware; and testing utilities. Projects are placed under `components/sdk/dotnet/src` as separate packages with a shared core.

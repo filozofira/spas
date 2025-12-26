@@ -106,7 +106,18 @@ SDKs SHOULD support authoring optional plain-text `description` fields in `spas.
 
 ### Design‑time Metadata Endpoint — Intent & Boundaries
 
-#### Cross‑Component Boundaries (See Constitution)
+SDKs MUST support generating design-time metadata as an offline archive (for example via a `--generate-metadata` startup argument) and MUST NOT require or expose a runtime metadata endpoint.
+
+#### Intent
+
+- Provide a deterministic, repeatable way to emit `service.metadata.zip` (containing `spas.json` + referenced schemas).
+- Enable CI/CD and local workflows without starting the service HTTP server.
+
+#### Boundaries
+
+- SDK output is **design-time only** (no runtime image/resource/env fields).
+- SDKs MUST NOT call external services to generate the archive.
+- SDKs MUST keep `spas.json` compliant with `design-time-metadata-v1`.
 
 ## Developer Experience
 

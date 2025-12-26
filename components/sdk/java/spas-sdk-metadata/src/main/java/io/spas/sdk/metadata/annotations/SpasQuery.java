@@ -11,7 +11,7 @@ import java.lang.annotation.Target;
  * Marks a method as a SPAS Query endpoint (read operation).
  * <p>
  * Queries are read-only operations that do not modify state.
- * This annotation is used at runtime by the /_spas/metadata endpoint to generate endpoint metadata.
+ * This annotation is used to generate endpoint metadata in the offline design-time archive.
  * <p>
  * Example with explicit schemaRef:
  * <pre>{@code

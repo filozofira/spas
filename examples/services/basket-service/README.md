@@ -132,6 +132,16 @@ The service generates `spas.json` at compile-time via the SPAS annotation proces
 target/classes/spas.json
 ```
 
+The recommended publication artifact is the metadata archive ZIP (written without starting the server):
+
+```bash
+# Default output: ./metadata/service.metadata.zip
+java -Dspas.generate-metadata=true -jar target/basket-service-1.0.0-SNAPSHOT.jar
+
+# Optional: override output directory (directory will be created if missing)
+java -Dspas.generate-metadata=true -Dspas.metadata.output=./out -jar target/basket-service-1.0.0-SNAPSHOT.jar
+```
+
 ### Annotations Used
 
 - `@SpasService` - Service identity and bounded context

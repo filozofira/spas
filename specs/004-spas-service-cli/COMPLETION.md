@@ -5,6 +5,8 @@
 **Completed**: 2025-01  
 **Tests**: 48/48 passing
 
+**Note**: The legacy runtime metadata endpoint has been removed in favor of offline metadata archive generation (see `specs/021-sdk-metadata-extraction`). This completion summary describes the earlier PoC workflow and needs updating for the new offline archive flow.
+
 ## ⚠️ Critical Bug Fix (December 15, 2025)
 
 **Issue**: Runtime metadata not being passed to Repository in normal publish mode
@@ -45,7 +47,7 @@ The `spas-service` CLI tool enables developers to publish and download service m
 ### US1: Publish Service (Priority 1) ✅
 
 - Interactive publish from running service with user prompt
-- Metadata download from `/_spas/metadata` endpoint
+- Metadata download from legacy runtime metadata endpoint
 - Archive creation and upload to Repository
 - Support for `--repo` flag and `SPAS_REPOSITORY_URL` env var
 

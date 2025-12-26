@@ -29,7 +29,7 @@ Last updated: 2025-12-12
 - Attribute-based metadata auto-discovery (SpasCommandAttribute, SpasQueryAttribute, SpasEventAttribute)
 - Event publishing to sidecar with W3C Trace Context propagation
 - OpenTelemetry + Zipkin integration for distributed tracing
-- Dev-only metadata endpoint (/_spas/metadata) with environment gating
+- Offline metadata archive generation (`--generate-metadata`)
 - Single-line configuration: `AddSpasServices()` abstracts all SPAS infrastructure
 
 **Critical Decisions Made**:
@@ -160,9 +160,8 @@ dotnet build components/sdk/dotnet/SPAS.SDK.sln -c Debug
 - Commands: `publish`, `pull`
 
 **What Was Built**:
-- `spas-service publish <service-host>` - Publish from running service with interactive prompt
-- `spas-service publish --archive <path>` - Publish from pre-built ZIP (CI/CD mode)
-- `spas-service publish --dry-run` - Download and inspect metadata without publishing
+- `spas-service publish --archive <path>` - Publish from a local ZIP archive (CI/CD and local workflows)
+- `spas-service publish --dry-run --archive <path>` - Inspect an archive without publishing
 - `spas-service pull <name> <version>` - Download published service metadata
 - Runtime metadata flags: `--image-digest`, `--image-repository`, `--image-tag`
 - Repository URL resolution: `--repo` flag or `SPAS_REPOSITORY_URL` env var
@@ -170,7 +169,6 @@ dotnet build components/sdk/dotnet/SPAS.SDK.sln -c Debug
 **Key Features**:
 - TDD approach: All commands tested with unit and integration tests
 - ESM modules with `.js` extension imports
-- Retry logic with exponential backoff for service availability
 - Chalk-based colored output for success/error messages
 - Comprehensive error handling with actionable hints
 
@@ -190,7 +188,7 @@ npm test
 
 # Use CLI locally (after build)
 node dist/index.js --version
-node dist/index.js publish http://localhost:5000 --dry-run
+node dist/index.js publish --archive ./metadata/service.metadata.zip --dry-run
 node dist/index.js pull order-service 1.0.0
 
 # Or link globally for development
@@ -273,6 +271,8 @@ Auto-generated from all feature plans. Last updated: 2025-12-12
 - C# / .NET 10, Java 17+, Node.js 20 (TypeScript) + Ajv (JSON Schema validation), System.Text.Json (.NET), Spring/Jackson (Java) (018-command-produces-events)
 - TypeScript 5.x (Node.js CLI) + Commander.js (CLI framework) (019-compose-diagram-flow)
 - N/A (template strings in source code) (019-compose-diagram-flow)
+- C# / .NET 10 (SDK + example services), Java 17 (SDK + example services) (021-sdk-metadata-extraction)
+- Filesystem output (metadata ZIP written to `./metadata/service.metadata.zip` by default) (021-sdk-metadata-extraction)
 
 - .NET 10 (target net10.0); Microsoft.Extensions.Logging; System.Text.Json (001-dotnet-spas-sdk)
 

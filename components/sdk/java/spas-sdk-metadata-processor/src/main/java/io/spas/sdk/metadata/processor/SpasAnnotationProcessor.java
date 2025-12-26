@@ -60,7 +60,6 @@ public class SpasAnnotationProcessor extends AbstractProcessor {
         }
 
         if (!isGenerationEnabled()) {
-            // Runtime generation via /_spas/metadata is the default behavior.
             // Compile-time generation is opt-in only.
             return false;
         }

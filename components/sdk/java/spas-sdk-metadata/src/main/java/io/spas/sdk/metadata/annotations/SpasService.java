@@ -11,7 +11,7 @@ import java.lang.annotation.Target;
  * Marks a class as a SPAS Service and provides service-level metadata.
  * <p>
  * This annotation should be placed on the main application class or a configuration class.
- * It is used at runtime by the /_spas/metadata endpoint to generate spas.json.
+ * It is used to generate spas.json in the offline design-time archive.
  * <p>
  * Example:
  * <pre>{@code

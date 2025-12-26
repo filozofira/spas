@@ -1,9 +1,6 @@
 using Spas.Sdk.Core.Identity;
 using Spas.Sdk.Events.Publish;
 using Spas.Sdk.Metadata.Attributes;
-using Spas.Sdk.Metadata.Builders;
-using Spas.Sdk.Metadata.Composition;
-using Spas.Sdk.Metadata.Dev;
 using Spas.Sdk.Metadata.Extensions;
 using Spas.Sdk.Observability.Extensions;
 using Spas.Sdk.Observability.Tracing;
@@ -17,9 +14,6 @@ builder.Services.AddSpasMetadata(options =>
     options.AutoGenerateSchemaReferences = true;
 });
 
-// Register dev metadata endpoint (enabled only in Development)
-builder.Services.AddMetadataEndpoint();
-
 // Configure all SPAS infrastructure services (event publishing, tracing)
 // Reads: SERVICE_NAME, SIDECAR_HOST, SIDECAR_PORT (or SIDECAR_URL), ZIPKIN_URL
 var serviceName = builder.Services.AddSpasServices(builder.Configuration, "sample-service");
@@ -31,17 +25,6 @@ app.UseSpasIdentity();
 
 // Enable SPAS tracelog middleware for request/response timing and correlation
 app.UseSpasTracelog();
-
-// Define service identity (still manual - service-level metadata)
-var identity = new ServiceIdentityBuilder()
-    .WithId("sample-service")
-    .WithName("sample-service")
-    .WithVersion("1.0.1")
-    .WithBoundedContext("samples")
-    .WithDescription("Sample SPAS service demonstrating SDK usage")
-    .AddCapability("create-order")
-    .AddCapability("query-order")
-    .Build();
 
 // Define endpoints with SPAS attributes - contracts auto-discovered!
 app.MapPost("/commands/create-order",
@@ -89,38 +72,37 @@ app.MapGet("/queries/get-order/{id}",
     })
     .WithMetadata(new SpasQueryAttribute("GetOrder", "1.0"));
 
-// Discover contracts from attributes
-var contracts = app.DiscoverSpasMetadata();
-
-var security = new SecurityBuilder()
-    .WithAuthenticationType("jwt")
-    .AddRequiredScope("orders.read")
-    .AddRequiredScope("orders.write")
-    .AddDataClassification("internal")
-    .Build();
-
-var consistency = new ConsistencyBuilder()
-    .WithQueries("EVENTUAL")
-    .Build();
-
-var network = new NetworkBuilder()
-    .AddRequiredEgress("localhost:6379")
-    .Build();
-
-// Compose and write spas.json using discovered contracts
-var composer = new SpasComposer();
-var metadataPath = Path.Combine(AppContext.BaseDirectory, "spas.json");
-composer.ComposeToFile(metadataPath, identity, contracts, security, consistency, network, "MIT");
-
-// Map dev-only metadata endpoint (returns ZIP with spas.json + auto-generated schemas)
-app.MapSpasMetadataEndpoint(
-    metadataProvider: () => composer.Compose(identity, contracts, security, consistency, network, "MIT"));
-
 app.MapGet("/", () => "Hello from SPAS Sample Service!");
 
 app.MapGet("/health", () => new { status = "healthy", timestamp = DateTime.UtcNow });
 
-app.Run();
+// Run SPAS service (generates metadata if --generate-metadata, else starts server)
+await app.RunSpasServiceAsync(args, options =>
+{
+    options.ServiceId = "sample-service";
+    options.ServiceName = "sample-service";
+    options.Version = "1.0.1";
+    options.BoundedContext = "samples";
+    options.Description = "Sample SPAS service demonstrating SDK usage";
+    options.AddCapability("create-order");
+    options.AddCapability("query-order");
+
+    // Placeholder metadata (same as other examples)
+    options.ConfigureConsistency(c => c
+        .WithCommands("ACID")
+        .WithQueries("EVENTUAL"));
+
+    options.ConfigureNetwork(n => n
+        .AddRequiredEgress("localhost:6379"));
+
+    options.ConfigureSecurity(s => s
+        .WithAuthenticationType("jwt")
+        .AddRequiredScope("orders.read")
+        .AddRequiredScope("orders.write")
+        .AddDataClassification("internal"));
+
+    options.License = "MIT";
+});
 
 // Sample request/response types
 [SpasCommand("CreateOrder", "1.0", Produces = new[] { typeof(OrderCreatedEvent) })]

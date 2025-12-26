@@ -5,7 +5,7 @@
 The .NET SPAS SDK provides:
 
 - **Metadata Composition**: Auto-discover contracts and generate `spas.json`
-- **Dev Metadata Endpoint**: `/_spas/metadata` returns ZIP with metadata + schemas (dev-only)
+- **Offline Metadata Archive Generation**: Generate `service.metadata.zip` without starting the HTTP server
 - **Event Publishing**: Publish events to sidecar with automatic trace/correlation propagation
 - **Tracelog Middleware**: Request/response logging with distributed tracing
 - **Environment Variable Conventions**: Matches sidecar prototype patterns for seamless integration

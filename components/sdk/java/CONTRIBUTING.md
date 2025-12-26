@@ -58,9 +58,10 @@ mvn surefire:test -Dsurefire.rerunFailingTestsCount=1
 
 ### Schema Alignment
 
-The SDK produces `spas.json` that must validate against [design-time-metadata-v1.schema.json](../schemas/design-time-metadata-v1.schema.json).
+The SDK produces `spas.json` that must validate against [design-time-metadata-v1.schema.json](../../schemas/design-time-metadata-v1.schema.json).
 
 **Before adding new metadata fields**:
+
 1. Check if field exists in schema
 2. If new field needed, update schema first (coordinate with Repository team)
 3. Add property to relevant model class (e.g., `ServiceMetadata`, `ContractDefinition`)
@@ -74,11 +75,13 @@ The SDK produces `spas.json` that must validate against [design-time-metadata-v1
 Follow [principles/governance/23-versioning-strategy.md](../../../principles/governance/23-versioning-strategy.md).
 
 **Non-breaking changes** (safe):
+
 - Add new optional metadata fields
 - Add new annotations or attributes
 - Add new builder methods with defaults
 
 **Breaking changes** (requires major version bump):
+
 - Remove public APIs
 - Change method signatures
 - Change annotation processing behavior
@@ -87,11 +90,13 @@ Follow [principles/governance/23-versioning-strategy.md](../../../principles/gov
 ### When to Update Specs
 
 Update [specs/016-java-spas-sdk](../../../specs/016-java-spas-sdk/) when:
+
 - Adding new user-facing features (new User Story in spec.md + tasks in tasks.md)
 - Changing architecture (update plan.md)
 - Resolving design decisions (document in appendix or decision log)
 
 Don't update specs for:
+
 - Bug fixes
 - Internal refactoring
 - Test additions
@@ -101,11 +106,13 @@ Don't update specs for:
 The core modules (`spas-sdk-core`, `spas-sdk-metadata`, `spas-sdk-events`) must remain **framework-agnostic**.
 
 **Allowed dependencies**:
+
 - Jackson (JSON serialization)
 - SLF4J (logging facade)
 - Standard Java libraries
 
 **NOT allowed in core modules**:
+
 - Spring Framework classes
 - Jakarta EE annotations (except standard ones like `@PostConstruct`)
 - JAX-RS implementations
@@ -118,12 +125,14 @@ The core modules (`spas-sdk-core`, `spas-sdk-metadata`, `spas-sdk-events`) must 
 The metadata processor runs during Maven compilation and generates `target/classes/spas.json`.
 
 **Testing annotation processors**:
+
 1. Use Google Compile Testing library ([compile-testing](https://github.com/google/compile-testing))
 2. Create test source files with annotations in `src/test/resources/test-sources/`
 3. Run processor and verify generated `spas.json` content
 4. Test error cases (missing required fields, invalid syntax)
 
 **Processor workflow**:
+
 1. Scan for `@SpasCommand`, `@SpasQuery`, `@SpasEvent` annotations
 2. Normalize names (PascalCase → kebab-case)
 3. Build metadata model
@@ -146,7 +155,7 @@ Before submitting a PR:
 
 ### Adding a new metadata field
 
-1. Update schema: [../schemas/design-time-metadata-v1.schema.json](../schemas/design-time-metadata-v1.schema.json)
+1. Update schema: [../../schemas/design-time-metadata-v1.schema.json](../../schemas/design-time-metadata-v1.schema.json)
 2. Add property to relevant model class (e.g., `ServiceMetadata`, `ContractDefinition`)
 3. Add annotation attribute if user-facing (e.g., `@SpasEvent(description = "...")`)
 4. Update annotation processor to read and emit field
@@ -155,7 +164,7 @@ Before submitting a PR:
 
 ### Adding a new annotation
 
-1. Create annotation class in `spas-sdk-metadata/src/.../annotations/` 
+1. Create annotation class in `spas-sdk-metadata/src/.../annotations/`
 2. Add `@Retention(RetentionPolicy.RUNTIME)` and `@Target(...)` appropriately
 3. Update annotation processor to scan for new annotation
 4. Add processing logic in `MetadataProcessor`
@@ -173,17 +182,20 @@ Before submitting a PR:
 ## Testing Strategy
 
 ### Unit Tests
+
 - Test annotation processor generates correct metadata
 - Test builders produce correct structure
 - Test event publisher sends correct headers
 - Mock external dependencies (sidecar HTTP calls)
 
 ### Integration Tests
+
 - Run sample-service and verify generated `spas.json`
 - Validate generated metadata against schema
 - Test Spring Boot auto-configuration (if using `spas-sdk-spring`)
 
 ### What NOT to test
+
 - Don't test Jackson serialization library internals
 - Don't test Maven compilation process
 - Don't test sidecar or repository (those have their own tests)
@@ -193,6 +205,7 @@ Before submitting a PR:
 Follow [Google Java Style Guide](https://google.github.io/styleguide/javaguide.html).
 
 **Key points**:
+
 - 2 spaces for indentation (not tabs)
 - 100 character line limit
 - Use `Optional<T>` for nullable return values

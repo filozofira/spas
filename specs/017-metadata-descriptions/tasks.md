@@ -74,7 +74,7 @@ description: "Task list for implementing metadata descriptions"
 
 **Goal**: Enable Java developers to author descriptions via annotations and ensure generated `spas.json` omits empty/default descriptions.
 
-**Independent Test**: Compile-time generation and runtime /_spas/metadata output include descriptions when provided and omit when absent.
+**Independent Test**: Compile-time generation and offline archive output include descriptions when provided and omit when absent.
 
 ### Tests for User Story 2 ⚠️
 

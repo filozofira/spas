@@ -231,12 +231,12 @@ The canonical technical comparison (transport, identity, observability, reposito
 - NO duplication of sidecar concerns (avoid mesh-specific clients)
 - Pluggable abstractions for transport, storage, secrets
 
-**Design-time Metadata Endpoint — Intent & Boundaries**:
+**Offline Design-time Metadata Generation — Intent & Boundaries**:
 
-- Optional, dev/local only: expose `/_spas/metadata` to aggregate SDK‑registered metadata fragments into a canonical, schema‑valid `spas.json` for CLI consumption.
-- Aggregation only: no persistence or publishing; the CLI orchestrates composition, pack, and publish operations.
-- Production guidance: endpoint SHOULD be disabled; CLI composes from design‑time files/SDK outputs and publishes to the repository.
-- Validation: fail fast with clear diagnostics when fragments are incomplete or inconsistent.
+- SDKs generate a complete design-time metadata archive offline (for example: `service.metadata.zip` containing `spas.json` + referenced schemas).
+- No persistence or publishing in SDK; the CLI publishes the archive to the repository.
+- Production guidance: services MUST NOT expose a runtime metadata endpoint.
+- Validation: fail fast with clear diagnostics when metadata is incomplete or inconsistent.
 
 **Quality Gates**:
 Unit tests are non‑negotiable in both PoC and Production phases. During PoC, integration tests MAY be deferred unless the feature scope requires them; prior to any non‑PoC release, integration tests MUST be in place per capability.
@@ -278,7 +278,7 @@ Unit tests are non‑negotiable in both PoC and Production phases. During PoC, i
 - Composition: Deterministically compose canonical `spas.json` from design‑time files and/or SDK outputs.
 - Packaging: Produce distributable artifacts per package format (images, metadata bundles).
 - Publishing: Push canonical metadata and schemas to the Repository via its API.
-- Dev Integration: MAY call the service’s dev‑only `/_spas/metadata` endpoint to fetch an aggregated view; MUST NOT rely on it in production.
+- Dev Integration: MUST NOT depend on service metadata endpoints; use offline-generated archives.
 - No Aggregation Logic Ownership: CLI orchestrates composition but does not persist runtime metadata; Repository is the source of truth post‑publish.
 
 **Quality Gates**:

@@ -62,7 +62,7 @@ Runtime metadata (container image, resources, environment) is added by Repositor
 - Generate `spas.json` with service identity, contracts, security, consistency, network metadata
 - Publish events to sidecar via HTTP POST with headers (traceparent, x-service-name, x-event-type, etc.)
 - Provide context propagation (trace, correlation, identity)
-- Expose `/_spas/metadata` dev endpoint (Development only)
+- Support offline design-time metadata archive generation
 
 **Sidecar responsibilities**:
 - Wrap events in CloudEvents 1.0 envelope
@@ -123,6 +123,6 @@ Each SDK should validate:
 - Metadata generation produces valid design-time-metadata-v1 JSON
 - Event publishing sends correct headers to sidecar
 - Trace context propagates through publish calls
-- Dev endpoint returns valid ZIP archive
+- Offline archive generation produces a valid ZIP archive (`spas.json` at root + referenced schemas)
 
 Use SDK-native test frameworks (xUnit for .NET, JUnit for Java, pytest for Python, etc.).

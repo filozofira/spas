@@ -48,7 +48,7 @@ Add the SPAS SDK dependencies to your `pom.xml`:
 
 Metadata generation:
 
-- `GET /_spas/metadata` generates `spas.json` and schemas at runtime (default).
+- The legacy runtime metadata endpoint has been removed in favor of offline archive generation (see `specs/021-sdk-metadata-extraction/quickstart.md`).
 - Compile-time generation is optional and disabled by default.
 
 To opt-in to compile-time generation, configure the annotation processor and enable it via compiler args:
@@ -199,17 +199,14 @@ public class OrderServiceApplication {
 mvn clean compile
 ```
 
-Run the application and fetch runtime metadata:
+Run offline metadata generation:
 
 ```bash
-# Run the app
-mvn spring-boot:run
-
-# Download metadata archive
-curl -L -o metadata.zip http://localhost:8080/_spas/metadata
+# Generate metadata archive (offline)
+mvn -Dspas.generate-metadata=true spring-boot:run
 
 # Inspect spas.json
-unzip -p metadata.zip spas.json
+unzip -p ./metadata/service.metadata.zip spas.json
 ```
 
 Expected output:

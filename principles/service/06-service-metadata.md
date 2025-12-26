@@ -5,7 +5,7 @@ Defines the service manifest schema and required fields. Extended to include end
 ## Overview
 
 - Single source of truth for service identity, contracts, runtime, and security
-- Design-time: metadata decomposed into separate JSON files (see Design-Time Structure below)
+- Design-time: generated offline as a metadata archive ZIP (see Design-Time Structure below)
 - Runtime: produced by Repository during publish, using design-time metadata plus deployment runtime fields
 - Storage: SPAS repository links to metadata + container image digest
 
@@ -14,26 +14,25 @@ Defines the service manifest schema and required fields. Extended to include end
 ```text
 ./
   /metadata
-    inbound.endpoints.json      (service endpoints — Production: gRPC methods, PoC: HTTP routes)
-    outbound.events.json        (published events)
-    outbound.endpoints.json     (external dependencies — Production: gRPC clients, PoC: HTTP clients)
-    security.data.json          (data classification)
-    {schema1}.json              (message schemas)
-    {schema2}.json
-    license.txt
+    service.metadata.zip        (design-time metadata archive)
   /config
     (application-specific configuration)
   /src
     (service implementation)
 ```
 
-## Design-Time Metadata Endpoints
+The `service.metadata.zip` archive contains:
 
-Services MAY expose endpoints (development-only) to retrieve design-time metadata:
+```text
+spas.json
+schemas/
+  endpoints/
+    *.schema.json
+  events/
+    *.schema.json
+```
 
-- `GET /_spas/metadata` — merged spas.json + all referenced schemas (archive or JSON)
-- Enabled only in development environment (e.g., `.IsDevelopment()` in .NET)
-- Used by CLI command `spas-service metadata get` to generate published metadata
+`spas.json` uses `schemaRef` to reference schemas inside the archive (for example: `schemas/endpoints/create-order.schema.json`).
 
 ## Required Fields (Design-Time)
 
@@ -103,83 +102,11 @@ Design-time metadata does not include `runtime`.
 
 ## JSON Schema (outline, design-time v1)
 
-> **JSON Schema Version**: SPAS uses JSON Schema **draft-07** for all metadata and contract schemas. This decision balances broad tooling support (Ajv, JsonSchema.Net) with stable specification maturity. See ADR-039.
+> SPAS uses JSON Schema **draft-07** for all metadata and contract schemas (see ADR-039).
 
-```json
-{
-  "$schema": "http://json-schema.org/draft-07/schema#",
-  "$id": "https://spas.dev/schemas/design-time-metadata-v1.json",
-  "type": "object",
-  "required": ["schemaVersion", "id", "version", "boundedContext", "capabilities", "endpoints", "events", "consistency", "network", "security", "license"],
-  "properties": {
-    "schemaVersion": {"const": "design-time-metadata-v1"},
-    "id": {"type": "string", "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$"},
-    "name": {"type": "string"},
-    "description": {"type": "string"},
-    "version": {"type": "string"},
-    "boundedContext": {"type": "string"},
-    "capabilities": {"type": "array", "items": {"type": "string"}},
-    "endpoints": {
-      "type": "array",
-      "items": {
-        "type": "object",
-        "required": ["name", "type", "protocol", "methodPath", "version", "schemaRef"],
-        "properties": {
-          "name": {"type": "string"},
-          "type": {"enum": ["Command", "Query"]},
-          "protocol": {"enum": ["Http", "gRPC"]},
-          "methodPath": {"type": "string"},
-          "version": {"type": "string"},
-          "schemaRef": {"type": "string"},
-          "description": {"type": "string"}
-        }
-      }
-    },
-    "events": {
-      "type": "array",
-      "items": {
-        "type": "object",
-        "required": ["type", "schemaRef"],
-        "properties": {
-          "type": {"type": "string"},
-          "version": {"type": "string"},
-          "schemaRef": {"type": "string"}
-        }
-      }
-    },
-    "consistency": {
-      "type": "object",
-      "properties": {
-        "commands": {"enum": ["ACID"]},
-        "queries": {"enum": ["STRONG", "EVENTUAL"]}
-      },
-      "required": ["commands", "queries"]
-    },
-    "network": {
-      "type": "object",
-      "properties": {
-        "requiredEgress": {"type": "array", "items": {"type": "string"}}
-      },
-      "required": ["requiredEgress"]
-    },
-    "security": {
-      "type": "object",
-      "properties": {
-        "authentication": {
-          "type": "object",
-          "properties": {
-            "type": {"type": "string"},
-            "requiredScopes": {"type": "array", "items": {"type": "string"}}
-          }
-        },
-        "dataClassification": {"type": "array", "items": {"enum": ["public", "internal", "confidential", "pii"]}}
-      },
-      "required": ["dataClassification"]
-    },
-    "license": {"type": "string"}
-  }
-}
-```
+Canonical schema:
+
+- [components/schemas/design-time-metadata-v1.schema.json](../../components/schemas/design-time-metadata-v1.schema.json)
 
 ## Example (Design-Time, PoC Simplified)
 

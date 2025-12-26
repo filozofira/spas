@@ -9,8 +9,7 @@ Defines the responsibilities and contracts for command-line tools that power the
 **Responsibilities:**
 
 - Initialize new SPAS services with templates that ensure compliance
-- Retrieve design-time metadata from running services and decompose to folder structures
-- Package services into distributable archives containing metadata, schemas, and transformations
+- Validate locally generated design-time metadata archives
 - Publish service archives and metadata to the SPAS Repository for discovery and deployment
 
 **Constraints:**
@@ -86,7 +85,7 @@ Configuration follows convention-over-configuration principles:
 | Metadata composition    | Deterministically assemble `spas.json` from service code         | Enforce schemas/policies                   | CLI orchestrates; Repository validates and enforces                 |
 | Artifact packaging      | Bundle metadata, schemas, transformations into archives          | Store packages permanently                 | CLI prepares; Repository is source-of-truth for published artifacts |
 | Choreography validation | Verify all references, transformations, and service availability | Perform runtime policy enforcement         | CLI validates structure; Sidecar enforces policies at runtime       |
-| Development endpoints   | MAY call `/_spas/metadata` for local dev workflows               | MUST NOT depend on endpoints in production | Dev endpoint is convenience; publish flow is production contract    |
+| Development endpoints   | MUST NOT depend on service metadata endpoints                    | Expose metadata endpoints                  | Metadata is generated offline and published as an archive           |
 | Runtime configuration   | Generate sidecar configurations from choreography definitions    | Manage infrastructure (Docker/Kubernetes)  | CLI produces configs; infrastructure tools deploy them              |
 
 ---

@@ -8,24 +8,6 @@
   "capabilities": [],
   "endpoints": [
     {
-      "name": "create-basket",
-      "type": "Command",
-      "protocol": "Http",
-      "methodPath": "/api/baskets",
-      "version": "1.0.0",
-      "schemaRef": "schemas/endpoints/create-basket-request.schema.json",
-      "description": "Creates a new shopping basket for a customer; emits BasketCreated event"
-    },
-    {
-      "name": "mark-product-unavailable",
-      "type": "Command",
-      "protocol": "Http",
-      "methodPath": "/api/baskets/mark-unavailable",
-      "version": "1.0.0",
-      "schemaRef": "schemas/endpoints/stock-depleted-payload.schema.json",
-      "description": "Marks a product as unavailable in all open baskets when stock is depleted"
-    },
-    {
       "name": "add-item",
       "type": "Command",
       "protocol": "Http",
@@ -33,24 +15,6 @@
       "version": "1.0.0",
       "schemaRef": "schemas/endpoints/add-item-request.schema.json",
       "description": "Adds a product to the shopping basket; emits ItemAdded event"
-    },
-    {
-      "name": "remove-item",
-      "type": "Command",
-      "protocol": "Http",
-      "methodPath": "/api/baskets/{id}/items/{productId}",
-      "version": "1.0.0",
-      "schemaRef": "schemas/endpoints/basket-response.schema.json",
-      "description": "Removes a product from the shopping basket; emits ItemRemoved event"
-    },
-    {
-      "name": "initiate-checkout",
-      "type": "Command",
-      "protocol": "Http",
-      "methodPath": "/api/baskets/{id}/checkout",
-      "version": "1.0.0",
-      "schemaRef": "schemas/endpoints/checkout-request.schema.json",
-      "description": "Initiates checkout for a basket with shipping address; emits CheckoutInitiated event containing all order details for downstream order-service and fulfillment-service"
     },
     {
       "name": "get-basket",
@@ -62,13 +26,22 @@
       "description": "Returns basket contents including item availability status"
     },
     {
-      "name": "list-baskets",
-      "type": "Query",
+      "name": "remove-item",
+      "type": "Command",
+      "protocol": "Http",
+      "methodPath": "/api/baskets/{id}/items/{productId}",
+      "version": "1.0.0",
+      "schemaRef": "schemas/endpoints/basket-response.schema.json",
+      "description": "Removes a product from the shopping basket; emits ItemRemoved event"
+    },
+    {
+      "name": "create-basket",
+      "type": "Command",
       "protocol": "Http",
       "methodPath": "/api/baskets",
       "version": "1.0.0",
-      "schemaRef": "schemas/endpoints/response-entity.schema.json",
-      "description": "Lists all baskets (demo endpoint; returns in-memory state)"
+      "schemaRef": "schemas/endpoints/create-basket-request.schema.json",
+      "description": "Creates a new shopping basket for a customer; emits BasketCreated event"
     },
     {
       "name": "clear-basket",
@@ -78,25 +51,36 @@
       "version": "1.0.0",
       "schemaRef": "schemas/endpoints/order-created-payload.schema.json",
       "description": "Clears a basket after successful order creation; matches basket via referenceId"
-    }
-  ],
-  "commands": [
+    },
     {
-      "name": "create-basket",
+      "name": "list-baskets",
+      "type": "Query",
+      "protocol": "Http",
+      "methodPath": "/api/baskets",
       "version": "1.0.0",
-      "produces": [
-        {
-          "type": "basket-created",
-          "version": "1.0.0",
-          "when": "success"
-        }
-      ]
+      "schemaRef": "schemas/endpoints/response-entity.schema.json",
+      "description": "Lists all baskets (demo endpoint; returns in-memory state)"
+    },
+    {
+      "name": "initiate-checkout",
+      "type": "Command",
+      "protocol": "Http",
+      "methodPath": "/api/baskets/{id}/checkout",
+      "version": "1.0.0",
+      "schemaRef": "schemas/endpoints/checkout-request.schema.json",
+      "description": "Initiates checkout for a basket with shipping address; emits CheckoutInitiated event containing all order details for downstream order-service and fulfillment-service"
     },
     {
       "name": "mark-product-unavailable",
+      "type": "Command",
+      "protocol": "Http",
+      "methodPath": "/api/baskets/mark-unavailable",
       "version": "1.0.0",
-      "produces": []
-    },
+      "schemaRef": "schemas/endpoints/stock-depleted-payload.schema.json",
+      "description": "Marks a product as unavailable in all open baskets when stock is depleted"
+    }
+  ],
+  "commands": [
     {
       "name": "add-item",
       "version": "1.0.0",
@@ -120,6 +104,22 @@
       ]
     },
     {
+      "name": "create-basket",
+      "version": "1.0.0",
+      "produces": [
+        {
+          "type": "basket-created",
+          "version": "1.0.0",
+          "when": "success"
+        }
+      ]
+    },
+    {
+      "name": "clear-basket",
+      "version": "1.0.0",
+      "produces": []
+    },
+    {
       "name": "initiate-checkout",
       "version": "1.0.0",
       "produces": [
@@ -131,7 +131,7 @@
       ]
     },
     {
-      "name": "clear-basket",
+      "name": "mark-product-unavailable",
       "version": "1.0.0",
       "produces": []
     }
@@ -168,16 +168,23 @@
   },
   "security": {
     "authentication": {
-      "type": "None"
+      "type": "JWT",
+      "requiredScopes": [
+        "baskets.read",
+        "baskets.write"
+      ]
     },
     "dataClassification": [
       "internal"
     ]
   },
   "network": {
-    "requiredEgress": []
+    "requiredEgress": [
+      "localhost:6379"
+    ]
   },
-  "publishedAt": "2025-12-23T19:44:06.706Z",
+  "license": "MIT",
+  "publishedAt": "2025-12-26T15:07:28.664Z",
   "runtime": {
     "digest": "sha256:TODO_UPDATE_AFTER_BUILD",
     "repository": "spas-examples/basket-service",

@@ -3,9 +3,11 @@
 **Branch**: `004-spas-service-cli` | **Date**: 2025-12-14 | **Spec**: [spec.md](./spec.md)
 **Input**: Feature specification from `/specs/004-spas-service-cli/spec.md`
 
+**Note**: The legacy runtime metadata endpoint has been removed in favor of offline metadata archive generation (see `specs/021-sdk-metadata-extraction`). This plan describes the earlier PoC workflow and needs updating for the new offline archive flow.
+
 ## Summary
 
-Implement `spas-service` CLI tool that enables developers to publish SPAS service metadata to the Repository with a single command. The CLI downloads metadata archives from running services via `/_spas/metadata` endpoint and publishes to the Repository. **Prerequisite**: Align SDK archive format with Repository expectations before CLI implementation.
+Implement `spas-service` CLI tool that enables developers to publish SPAS service metadata to the Repository with a single command. The CLI downloads metadata archives from running services via the legacy runtime metadata endpoint and publishes to the Repository. **Prerequisite**: Align SDK archive format with Repository expectations before CLI implementation.
 
 **Technical Approach**: Node.js + Commander.js CLI framework, aligning with Repository tech stack for code reuse opportunities.
 
@@ -35,7 +37,7 @@ Implement `spas-service` CLI tool that enables developers to publish SPAS servic
 | **Exit codes**: 0 (success), non-zero (failure with descriptive stderr) | ✅ Pass | FR-011 requires this |
 | **Idempotent operations** (safe to re-run) | ✅ Pass | Publish is idempotent (409 on duplicate is documented) |
 | **Responsibilities**: Composition, Packaging, Publishing | ⚠️ Partial | Publishing in scope; Composition deferred to spas-compose |
-| **Dev Integration**: MAY call `/_spas/metadata` | ✅ Pass | Core workflow |
+| **Dev Integration**: MAY call legacy runtime metadata endpoint | ✅ Pass | Core workflow |
 | **Quality Gates**: Integration tests for workflows | ✅ Pass | Planned in tasks |
 | **Quality Gates**: Error messages include actionable remediation | ✅ Pass | FR-010 requires this |
 | **Quality Gates**: Help text follows consistent format | ✅ Pass | Commander.js provides this |
@@ -67,7 +69,7 @@ components/cli/
 │   │   │   ├── publish.ts           # publish command implementation
 │   │   │   └── pull.ts              # pull command implementation
 │   │   ├── services/
-│   │   │   ├── metadata-client.ts   # HTTP client for /_spas/metadata
+│   │   │   ├── metadata-client.ts   # HTTP client for legacy runtime metadata endpoint
 │   │   │   ├── repository-client.ts # HTTP client for Repository API
 │   │   │   └── archive-reader.ts    # ZIP extraction for spas.json reading
 │   │   ├── utils/

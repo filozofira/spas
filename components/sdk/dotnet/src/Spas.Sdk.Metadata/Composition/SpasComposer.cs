@@ -85,27 +85,4 @@ public class SpasComposer
 
         return JsonSerializer.Serialize(metadata, JsonSerializerOptionsFactory.Indented);
     }
-
-    /// <summary>
-    /// Composes metadata and writes to a file.
-    /// </summary>
-    public void ComposeToFile(
-        string filePath,
-        ServiceIdentity identity,
-        ServiceContracts? contracts = null,
-        SecurityMetadata? security = null,
-        ConsistencyMetadata? consistency = null,
-        NetworkMetadata? network = null,
-        string? license = null)
-    {
-        var json = Compose(identity, contracts, security, consistency, network, license);
-
-        var directory = Path.GetDirectoryName(filePath);
-        if (!string.IsNullOrEmpty(directory) && !Directory.Exists(directory))
-        {
-            Directory.CreateDirectory(directory);
-        }
-
-        File.WriteAllText(filePath, json);
-    }
 }

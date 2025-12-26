@@ -6,6 +6,10 @@ completed: "2025-12-12"
 
 # Tasks: .NET SPAS SDK
 
+> **Outdated (Historical)**: This task list references a dev-only runtime metadata endpoint at `/_spas/metadata`.
+> The current supported approach is **offline** metadata archive generation (SDK-triggered) and archive-based publishing; the runtime endpoint workflow has been removed.
+> The original task text is preserved for historical context.
+
 **Status**: ✅ Complete (PoC) - All priority user stories (P1-P3) implemented  
 **Completed**: 2025-12-12  
 **Total Tasks**: 60 tasks completed across 7 phases  

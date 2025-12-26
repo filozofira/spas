@@ -1,6 +1,9 @@
+using Microsoft.AspNetCore.Builder;
+using Microsoft.Extensions.DependencyInjection;
 using Spas.Sdk.Metadata.Attributes;
 using Spas.Sdk.Metadata.Builders;
 using Spas.Sdk.Metadata.Discovery;
+using Spas.Sdk.Metadata.Generation;
 using Spas.Sdk.Metadata.Models;
 using System.Reflection;
 
@@ -8,7 +11,6 @@ namespace Spas.Sdk.Metadata.Extensions;
 
 /// <summary>
 /// Extension methods for WebApplication metadata discovery.
-/// This class uses reflection to access ASP.NET Core types without requiring direct references.
 /// Import this namespace in your ASP.NET Core application to enable auto-discovery.
 /// </summary>
 public static class WebApplicationDiscoveryExtensions
@@ -17,9 +19,9 @@ public static class WebApplicationDiscoveryExtensions
     /// Discovers SPAS metadata from configured endpoints and events.
     /// Call this after configuring all endpoints but before app.Run().
     /// </summary>
-    /// <param name="app">The WebApplication instance (passed as object to avoid direct dependency)</param>
+    /// <param name="app">The WebApplication instance</param>
     /// <returns>ServiceContracts containing discovered commands, queries, and events</returns>
-    public static ServiceContracts DiscoverSpasMetadata(this object app)
+    public static ServiceContracts DiscoverSpasMetadata(this WebApplication app)
     {
         if (app == null)
         {
@@ -28,22 +30,8 @@ public static class WebApplicationDiscoveryExtensions
 
         var builder = new ContractsBuilder();
 
-        // Get the Services property to access dependency injection container
-        var servicesProperty = app.GetType().GetProperty("Services");
-        if (servicesProperty == null)
-        {
-            throw new InvalidOperationException("Unable to access Services property. Ensure this is called on a WebApplication instance.");
-        }
-
-        var services = servicesProperty.GetValue(app) as IServiceProvider;
-        if (services == null)
-        {
-            throw new InvalidOperationException("Services property returned null.");
-        }
-
         // Get MetadataDiscovery from DI to discover events
-        var metadataDiscoveryType = typeof(MetadataDiscovery);
-        var discovery = services.GetService(metadataDiscoveryType) as MetadataDiscovery;
+        var discovery = app.Services.GetService<MetadataDiscovery>();
 
         if (discovery == null)
         {
@@ -58,7 +46,7 @@ public static class WebApplicationDiscoveryExtensions
             builder.AddEvent(evt.Type, evt.Version, evt.SchemaRef, description: evt.Description);
         }
 
-        // Discover endpoints - access them directly from WebApplication's DataSources property
+        // Discover endpoints from WebApplication's DataSources
         try
         {
             DiscoverEndpointsFromWebApplication(app, builder);
@@ -72,7 +60,31 @@ public static class WebApplicationDiscoveryExtensions
         return builder.Build();
     }
 
-    private static void DiscoverEndpointsFromWebApplication(object app, ContractsBuilder builder)
+    public static Task<string> GenerateSpasMetadataArchiveAsync(
+        this WebApplication app,
+        ServiceIdentity identity,
+        string? outputDirectory = null,
+        Assembly? assemblyToScan = null,
+        SecurityMetadata? security = null,
+        ConsistencyMetadata? consistency = null,
+        NetworkMetadata? network = null,
+        string? license = null,
+        CancellationToken cancellationToken = default)
+    {
+        var generator = MetadataArchiveGenerator.CreateDefault();
+        return generator.GenerateAsync(
+            app,
+            identity,
+            outputDirectory,
+            assemblyToScan,
+            security,
+            consistency,
+            network,
+            license,
+            cancellationToken);
+    }
+
+    private static void DiscoverEndpointsFromWebApplication(WebApplication app, ContractsBuilder builder)
     {
         // WebApplication has a property called "DataSources" which is a list of EndpointDataSource
         // Try to access it via reflection
@@ -250,6 +262,8 @@ public static class WebApplicationDiscoveryExtensions
                 }
             }
 
+            var httpVerb = TryGetHttpVerb(metadata);
+
             // metadata is an EndpointMetadataCollection which implements IEnumerable<object>
             // Look for our SPAS attributes in the metadata collection
             foreach (var item in (System.Collections.IEnumerable)metadata)
@@ -264,6 +278,7 @@ public static class WebApplicationDiscoveryExtensions
                         produces: ResolveProducedEvents(commandAttr.Produces, commandName, commandAttr.Version));
 
                     var finalPath = commandAttr.Path ?? path ?? string.Empty;
+                    finalPath = EnsureHttpMethodPath(finalPath, httpVerb);
                     var schemaRef = commandAttr.Schema ?? $"schemas/endpoints/{commandName}.schema.json";
                     builder.AddEndpoint(
                         name: commandName,
@@ -281,6 +296,7 @@ public static class WebApplicationDiscoveryExtensions
                 {
                     var queryName = AttributeHelpers.ToKebabCase(queryAttr.Name);
                     var finalPath = queryAttr.Path ?? path ?? string.Empty;
+                    finalPath = EnsureHttpMethodPath(finalPath, httpVerb);
                     var schemaRef = queryAttr.Schema ?? $"schemas/endpoints/{queryName}.schema.json";
                     builder.AddEndpoint(
                         name: queryName,
@@ -305,6 +321,83 @@ public static class WebApplicationDiscoveryExtensions
         {
             return false; // Skip endpoints that can't be processed
         }
+    }
+
+    // NOTE: Despite the name "methodPath" in the SPAS schema, consumers expect this to be ONLY the route path
+    // (e.g. "/orders"), not prefixed with the HTTP verb (e.g. "POST /orders").
+    private static string EnsureHttpMethodPath(string path, string? httpVerb)
+    {
+        if (string.IsNullOrWhiteSpace(path))
+        {
+            return path;
+        }
+
+        var trimmed = path.Trim();
+
+        // If the input already looks like "VERB /path", strip the verb.
+        if (LooksLikeMethodPrefixedPath(trimmed))
+        {
+            var firstSpace = trimmed.IndexOf(' ');
+            if (firstSpace >= 0 && firstSpace + 1 < trimmed.Length)
+            {
+                trimmed = trimmed[(firstSpace + 1)..].TrimStart();
+            }
+        }
+
+        // Ensure it looks like a path.
+        if (!trimmed.StartsWith('/'))
+        {
+            trimmed = "/" + trimmed;
+        }
+
+        return trimmed;
+    }
+
+    private static bool LooksLikeMethodPrefixedPath(string value)
+    {
+        // Minimal heuristic: common verbs followed by a space.
+        return value.StartsWith("GET ", StringComparison.OrdinalIgnoreCase)
+            || value.StartsWith("POST ", StringComparison.OrdinalIgnoreCase)
+            || value.StartsWith("PUT ", StringComparison.OrdinalIgnoreCase)
+            || value.StartsWith("DELETE ", StringComparison.OrdinalIgnoreCase)
+            || value.StartsWith("PATCH ", StringComparison.OrdinalIgnoreCase)
+            || value.StartsWith("HEAD ", StringComparison.OrdinalIgnoreCase)
+            || value.StartsWith("OPTIONS ", StringComparison.OrdinalIgnoreCase);
+    }
+
+    private static string? TryGetHttpVerb(object metadata)
+    {
+        try
+        {
+            foreach (var item in (System.Collections.IEnumerable)metadata)
+            {
+                if (item == null) continue;
+
+                var type = item.GetType();
+                if (!string.Equals(type.FullName, "Microsoft.AspNetCore.Routing.HttpMethodMetadata", StringComparison.Ordinal))
+                {
+                    continue;
+                }
+
+                var httpMethodsProperty = type.GetProperty("HttpMethods", BindingFlags.Public | BindingFlags.Instance);
+                if (httpMethodsProperty?.GetValue(item) is System.Collections.IEnumerable httpMethods)
+                {
+                    foreach (var method in httpMethods)
+                    {
+                        if (method is string methodString && !string.IsNullOrWhiteSpace(methodString))
+                        {
+                            return methodString;
+                        }
+                    }
+                }
+            }
+        }
+        catch
+        {
+            // Best-effort: missing type or reflection failure should not break metadata generation.
+        }
+
+        return null;
     }
 
     private static IEnumerable<ProducedEventRefContract> ResolveProducedEvents(Type[]? producedEventTypes)

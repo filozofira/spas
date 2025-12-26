@@ -53,6 +53,8 @@ Extend framework to support choreographies across multiple domain contexts.
 Consider swapping `_spas/metadata` endpoint with cli based extraction of metadata archive.
 E.g. extend SDK to support writing metadata to file (e.g. already implemented in SampleService `SpasComposer.ComposeToFile(...)`) when running app with certain arguments.
 
+Note: Feature 021 makes offline archive generation the primary supported mechanism and removes runtime `/_spas/metadata` plus the .NET `ComposeToFile` API.
+
 SDK be extended to allow something similar to following startup code in Program.cs
 
 ```csharp

@@ -66,16 +66,16 @@
   ],
   "events": [
     {
-      "type": "subscription-created",
-      "version": "1.0",
-      "schemaRef": "schemas/events/subscription-created.schema.json",
-      "description": "Emitted after a subscription is created; indicates subscription is pending activation"
-    },
-    {
       "type": "subscription-activated",
       "version": "1.0",
       "schemaRef": "schemas/events/subscription-activated.schema.json",
       "description": "Emitted after a subscription transitions to active (may be disabled in some choreographies)"
+    },
+    {
+      "type": "subscription-created",
+      "version": "1.0",
+      "schemaRef": "schemas/events/subscription-created.schema.json",
+      "description": "Emitted after a subscription is created; indicates subscription is pending activation"
     }
   ],
   "consistency": {
@@ -100,11 +100,11 @@
     ]
   },
   "license": "MIT",
-  "publishedAt": "2025-12-22T09:46:51.715Z",
+  "publishedAt": "2025-12-26T15:07:28.186Z",
   "runtime": {
-    "digest": "sha256:98ed8036c20440548030630b7a99d5372871f49e3bbb40d428b64404090105bb",
+    "digest": "sha256:TODO_UPDATE_AFTER_BUILD",
     "repository": "spas-examples/subscription-service",
     "tag": "1.0.0",
-    "image": "spas-examples/subscription-service@sha256:98ed8036c20440548030630b7a99d5372871f49e3bbb40d428b64404090105bb"
+    "image": "spas-examples/subscription-service@sha256:TODO_UPDATE_AFTER_BUILD"
   }
 }

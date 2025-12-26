@@ -31,7 +31,7 @@ Health endpoint: <http://localhost:3000/health>
 | `LOG_LEVEL` | `info` | `debug` \| `info` \| `warn` \| `error` |
 | `STORAGE_PROVIDER` | `sqlite` | `postgres` is not implemented yet |
 | `SQLITE_PATH` | `./data/repository.db` | Used when `STORAGE_PROVIDER=sqlite` |
-| `SPAS_SCHEMA_PATH` | `./schemas/design-time-metadata-v1.schema.json` | Schema used to validate uploaded `spas.json` |
+| `SPAS_SCHEMA_PATH` | `../schemas/design-time-metadata-v1.schema.json` | Schema used to validate uploaded `spas.json` |
 
 ## API (high level)
 
@@ -49,8 +49,8 @@ Health endpoint: <http://localhost:3000/health>
 
 See:
 
-- [../sdk/schemas/design-time-metadata-v1.schema.json](../sdk/schemas/design-time-metadata-v1.schema.json)
-- [schemas/runtime-metadata-v1.schema.json](./schemas/runtime-metadata-v1.schema.json)
+- [../schemas/design-time-metadata-v1.schema.json](../schemas/design-time-metadata-v1.schema.json)
+- [../schemas/runtime-metadata-v1.schema.json](../schemas/runtime-metadata-v1.schema.json)
 
 ## References
 

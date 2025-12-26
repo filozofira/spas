@@ -1,44 +1,18 @@
+using Microsoft.AspNetCore.Builder;
 using ProductService.Models;
 using ProductService.Services;
-using Spas.Sdk.Core.Identity;
 using Spas.Sdk.Metadata.Attributes;
-using Spas.Sdk.Metadata.Builders;
-using Spas.Sdk.Metadata.Composition;
-using Spas.Sdk.Metadata.Dev;
 using Spas.Sdk.Metadata.Extensions;
 using Spas.Sdk.Observability.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Register SPAS metadata services with auto-discovery
-builder.Services.AddSpasMetadata(options =>
-{
-    options.AssembliesToScan.Add(typeof(Program).Assembly);
-    options.AutoGenerateSchemaReferences = true;
-});
-
-// Register dev metadata endpoint
-builder.Services.AddMetadataEndpoint();
-
-// Configure SPAS infrastructure (event publishing, tracing)
-var serviceName = builder.Services.AddSpasServices(builder.Configuration, "product-service");
-
-// In-memory product catalog
+// Register services
 builder.Services.AddSingleton<ProductCatalog>();
+builder.Services.AddSpasMetadata();
+builder.Services.AddSpasServices(builder.Configuration, "product-service");
 
 var app = builder.Build();
-
-app.UseSpasIdentity();
-
-// Service identity
-var identity = new ServiceIdentityBuilder()
-    .WithId("product-service")
-    .WithName("product-service")
-    .WithVersion("1.0.0")
-    .WithBoundedContext("product")
-    .WithDescription("Product catalog browsing service")
-    .AddCapability("product-catalog")
-    .Build();
 
 // GET /products - List all products
 app.MapGet("/products",
@@ -64,32 +38,31 @@ app.MapGet("/products/{id}",
         return product != null ? Results.Ok(product) : Results.NotFound();
     });
 
-// Discover contracts
-var contracts = app.DiscoverSpasMetadata();
-
-var security = new SecurityBuilder()
-    .WithAuthenticationType("jwt")
-    .AddRequiredScope("products.read")
-    .AddDataClassification("public")
-    .Build();
-
-var consistency = new ConsistencyBuilder()
-    .WithQueries("EVENTUAL")
-    .Build();
-
-var network = new NetworkBuilder()
-    .Build();
-
-// Compose metadata
-var composer = new SpasComposer();
-var metadataPath = Path.Combine(AppContext.BaseDirectory, "spas.json");
-composer.ComposeToFile(metadataPath, identity, contracts, security, consistency, network, "MIT");
-
-// Map metadata endpoint
-app.MapSpasMetadataEndpoint(
-    metadataProvider: () => composer.Compose(identity, contracts, security, consistency, network, "MIT"));
-
 app.MapGet("/", () => "Product Service");
 app.MapGet("/health", () => new { status = "healthy", service = "product-service", timestamp = DateTime.UtcNow });
 
-app.Run();
+// Run SPAS service (generates metadata if --generate-metadata, else starts server)
+await app.RunSpasServiceAsync(args, options =>
+{
+    options.ServiceId = "product-service";
+    options.ServiceName = "product-service";
+    options.Version = "1.0.0";
+    options.BoundedContext = "product";
+    options.Description = "Product catalog browsing service";
+    options.AddCapability("product-catalog");
+
+    options.ConfigureConsistency(c => c
+        .WithCommands("ACID")
+        .WithQueries("EVENTUAL"));
+
+    options.ConfigureNetwork(n => n
+        .AddRequiredEgress("localhost:6379"));
+
+    options.ConfigureSecurity(s => s
+        .WithAuthenticationType("jwt")
+        .AddRequiredScope("products.read")
+        .AddRequiredScope("products.write")
+        .AddDataClassification("internal"));
+
+    options.License = "MIT";
+});

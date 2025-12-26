@@ -1,5 +1,9 @@
 # Research: .NET SPAS SDK (Phase 0)
 
+> **Outdated (Historical)**: This research doc references a dev-only runtime metadata endpoint at `/_spas/metadata`.
+> The current supported approach is **offline** metadata archive generation (SDK-triggered) and archive-based publishing; the runtime endpoint workflow has been removed.
+> The original research notes are preserved for historical context.
+
 ## Decisions
 
 - Decision: SDK packaging structure → Multi-package (segregated capabilities)

@@ -4,8 +4,8 @@ services:
   # SPAS Repository Service
   spas-repository:
     build:
-      context: .
-      dockerfile: Dockerfile
+      context: ..
+      dockerfile: repository/Dockerfile
     ports:
       - "3000:3000"
     environment:
@@ -17,7 +17,7 @@ services:
       - SPAS_SCHEMA_PATH=/app/schemas/design-time-metadata-v1.schema.json
     volumes:
       - repository-data:/app/data
-      - ./src:/app/src:ro
+      - ./src:/app/repository/src:ro
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
       interval: 30s

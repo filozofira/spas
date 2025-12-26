@@ -19,6 +19,7 @@ RUN dotnet restore "examples/services/subscription-service/SubscriptionService.c
 
 # Copy source
 COPY ["components/sdk/dotnet/src/", "components/sdk/dotnet/src/"]
+COPY ["components/schemas/", "components/schemas/"]
 COPY ["examples/services/subscription-service/", "examples/services/subscription-service/"]
 
 # Build

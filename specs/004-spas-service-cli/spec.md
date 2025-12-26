@@ -4,7 +4,9 @@
 **Created**: 2025-12-14  
 **Completed**: 2025-12-14  
 **Status**: ✅ Complete (PoC)
-**Input**: User description: "Create spas-service CLI tool which assists developer in publishing SPAS service metadata package to SPAS repository. CLI should support workflow: developer runs spas-service publish command with service-host argument, CLI prompts to start service, then downloads metadata ZIP via GET /_spas/metadata endpoint, and publishes via POST /services/{serviceName}:{version}"
+**Input**: User description: "Create spas-service CLI tool which assists developer in publishing SPAS service metadata package to SPAS repository. CLI should support workflow: developer runs spas-service publish command with service-host argument, CLI prompts to start service, then downloads metadata ZIP via legacy runtime metadata endpoint, and publishes via POST /services/{serviceName}:{version}"
+
+**Note**: The legacy runtime metadata endpoint has been removed in favor of offline metadata archive generation (see `specs/021-sdk-metadata-extraction`). This spec remains as historical context and should be updated to publish from a locally generated `service.metadata.zip` artifact instead of downloading from a running service.
 
 ## Overview
 
@@ -15,7 +17,7 @@ The `spas-service` CLI is a command-line tool that streamlines the SPAS service 
 1. Developer develops a service using a SPAS SDK (e.g., .NET SDK)
 2. Developer runs `spas-service publish <service-host>` command
 3. CLI prompts developer to start service and wait for confirmation
-4. CLI downloads the metadata archive from service's `/_spas/metadata` endpoint
+4. CLI downloads the metadata archive from the legacy runtime metadata endpoint
 5. CLI publishes the archive to SPAS Repository via `POST /services/{serviceName}:{version}`
 
 ## User Scenarios & Testing *(mandatory)*
@@ -30,7 +32,7 @@ A developer has completed building a SPAS-compliant service using the .NET SDK. 
 
 **Acceptance Scenarios**:
 
-1. **Given** a SPAS SDK service at `http://localhost:5000` exposing `/_spas/metadata`, **When** the developer runs `spas-service publish http://localhost:5000 --repo http://localhost:3000` and presses Enter after starting the service, **Then** the CLI downloads the metadata archive and publishes it to the Repository successfully.
+1. **Given** a SPAS SDK service at `http://localhost:5000` exposing the legacy runtime metadata endpoint, **When** the developer runs `spas-service publish http://localhost:5000 --repo http://localhost:3000` and presses Enter after starting the service, **Then** the CLI downloads the metadata archive and publishes it to the Repository successfully.
 
 2. **Given** a successful publish, **When** the developer queries `GET /services/{serviceName}` on the Repository, **Then** the published service metadata is returned.
 
@@ -94,8 +96,8 @@ A developer wants to download a service's metadata archive from the Repository t
 
 ### Edge Cases
 
-- What happens when the service is not running or `/_spas/metadata` returns 404? → CLI fails with clear error: "Service metadata endpoint not available. Ensure service is running in Development mode."
-- What happens when the service `/_spas/metadata` returns non-Development mode response? → CLI fails with hint: "Metadata endpoint disabled. Set ASPNETCORE_ENVIRONMENT=Development"
+- What happens when the service is not running or the legacy runtime metadata endpoint returns 404? → CLI fails with clear error: "Service metadata endpoint not available. Ensure service is running in Development mode."
+- What happens when the service legacy runtime metadata endpoint returns non-Development mode response? → CLI fails with hint: "Metadata endpoint disabled. Set ASPNETCORE_ENVIRONMENT=Development"
 - What happens when Repository rejects the archive (validation error)? → CLI displays Repository's error message verbatim
 - What happens when Repository returns 409 Conflict (duplicate version)? → CLI displays: "Version already published. Increment version or use --force to republish" (--force deferred)
 - What happens when network fails mid-download or mid-upload? → CLI fails with clear network error, suggests retry
@@ -106,7 +108,7 @@ A developer wants to download a service's metadata archive from the Repository t
 
 ### Functional Requirements
 
-- **FR-001**: CLI MUST provide `spas-service publish <service-host>` command that downloads metadata from `/_spas/metadata` and publishes to Repository
+- **FR-001**: CLI MUST provide `spas-service publish <service-host>` command that downloads metadata from the legacy runtime metadata endpoint and publishes to Repository
 - **FR-002**: CLI MUST prompt user with "Start your service at {service-host} and press Enter to continue..." before attempting download
 - **FR-003**: CLI MUST extract `serviceName` and `version` from the downloaded `spas.json` to construct the Repository publish URL
 - **FR-004**: CLI MUST publish via `POST /services/{serviceName}:{version}` with multipart form-data containing the archive
@@ -145,7 +147,7 @@ A developer wants to download a service's metadata archive from the Repository t
 
 ## Assumptions
 
-- The SPAS SDK is already configured correctly and `/_spas/metadata` endpoint works as documented
+- The SPAS SDK is already configured correctly and legacy runtime metadata endpoint works as documented
 - The SPAS Repository is running and accessible at the configured URL
 - The developer has network access to both the service and Repository
 - The metadata archive format from SDK matches Repository expectations (alignment verified as Phase 3 pre-work)
@@ -153,7 +155,7 @@ A developer wants to download a service's metadata archive from the Repository t
 
 ## Dependencies
 
-- SPAS .NET SDK's `/_spas/metadata` endpoint (already implemented)
+- SPAS .NET SDK legacy runtime metadata endpoint (historical)
 - SPAS Repository's publish and download APIs (already implemented)
 - Archive format alignment between SDK and Repository (Phase 3 Task 1 pre-work)
 

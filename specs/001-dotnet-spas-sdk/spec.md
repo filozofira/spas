@@ -6,6 +6,10 @@
 **Status**: ✅ Complete (PoC)  
 **Input**: User description: ".Net SPAS SDK component to support building .Net SPAS compliant services."
 
+> **Outdated (Historical)**: This spec includes references to a dev-only runtime metadata endpoint at `/_spas/metadata`.
+> The current supported approach is **offline** metadata archive generation (SDK-triggered) and archive-based publishing; the runtime endpoint workflow has been removed.
+> The original text is preserved for historical context.
+
 ## User Scenarios & Testing _(mandatory)_
 
 <!--

@@ -1,3 +1,7 @@
+using System.Reflection;
+using System.Text.Json;
+using Json.Schema;
+
 namespace Spas.Sdk.Metadata.Validation;
 
 /// <summary>
@@ -19,91 +23,80 @@ public class ValidationResult
 
 /// <summary>
 /// Validates SPAS metadata against JSON schema.
-/// Note: PoC implementation provides basic validation.
-/// Production would use a full JSON Schema validator library.
+/// Validates generated spas.json against the design-time schema.
 /// </summary>
 public class SchemaValidator
 {
+    private static readonly Lazy<JsonSchema> DesignTimeSchema = new(LoadDesignTimeSchema);
+
     /// <summary>
-    /// Validates a JSON string for basic structure.
+    /// Validates a SPAS design-time metadata JSON string (spas.json) against the embedded
+    /// design-time schema.
     /// </summary>
     public ValidationResult Validate(string json)
     {
-        try
-        {
-            using var doc = System.Text.Json.JsonDocument.Parse(json);
-            var root = doc.RootElement;
-
-            var errors = new List<string>();
-
-            // Check required top-level properties
-            if (!root.TryGetProperty("identity", out _))
-            {
-                errors.Add("Missing required property: identity");
-            }
-
-            if (!root.TryGetProperty("contracts", out _))
-            {
-                errors.Add("Missing required property: contracts");
-            }
-
-            // Validate identity structure
-            if (root.TryGetProperty("identity", out var identity))
-            {
-                if (!identity.TryGetProperty("name", out _))
-                {
-                    errors.Add("Missing required property: identity.name");
-                }
-                if (!identity.TryGetProperty("version", out _))
-                {
-                    errors.Add("Missing required property: identity.version");
-                }
-            }
-
-            return errors.Count > 0
-                ? ValidationResult.Failure(errors.ToArray())
-                : ValidationResult.Success();
-        }
-        catch (System.Text.Json.JsonException ex)
-        {
-            return ValidationResult.Failure($"Invalid JSON: {ex.Message}");
-        }
+        return ValidateAgainstSchema(json, DesignTimeSchema.Value);
     }
 
     /// <summary>
     /// Validates data against a JSON schema.
-    /// PoC: Basic implementation checking required fields.
-    /// Production: Use JSON Schema validator library (e.g., Json.Schema.Net).
     /// </summary>
     public ValidationResult ValidateAgainstSchema(string data, string schema)
     {
+        return ValidateAgainstSchema(data, JsonSchema.FromText(schema));
+    }
+
+    private static ValidationResult ValidateAgainstSchema(string data, JsonSchema schema)
+    {
         try
         {
-            using var dataDoc = System.Text.Json.JsonDocument.Parse(data);
-            using var schemaDoc = System.Text.Json.JsonDocument.Parse(schema);
+            using var dataDoc = JsonDocument.Parse(data);
+            var validationResult = schema.Evaluate(
+                dataDoc,
+                new EvaluationOptions { OutputFormat = OutputFormat.List });
 
-            var errors = new List<string>();
-
-            // Extract required fields from schema
-            if (schemaDoc.RootElement.TryGetProperty("required", out var required))
+            if (validationResult.IsValid)
             {
-                foreach (var requiredField in required.EnumerateArray())
-                {
-                    var fieldName = requiredField.GetString();
-                    if (fieldName != null && !dataDoc.RootElement.TryGetProperty(fieldName, out _))
-                    {
-                        errors.Add($"Missing required field: {fieldName}");
-                    }
-                }
+                return ValidationResult.Success();
             }
 
-            return errors.Count > 0
-                ? ValidationResult.Failure(errors.ToArray())
-                : ValidationResult.Success();
+            var errors = validationResult.Errors?.Select(e => e.ToString()).ToList() ?? new List<string>();
+
+            if (errors.Count == 0)
+            {
+                errors.Add(validationResult.ToString() ?? "Schema validation failed (no error details returned).");
+            }
+
+            return ValidationResult.Failure(errors.ToArray());
         }
-        catch (System.Text.Json.JsonException ex)
+        catch (JsonException ex)
         {
             return ValidationResult.Failure($"Invalid JSON: {ex.Message}");
         }
+        catch (Exception ex)
+        {
+            return ValidationResult.Failure($"Schema validation failed: {ex.Message}");
+        }
+    }
+
+    private static JsonSchema LoadDesignTimeSchema()
+    {
+        var assembly = typeof(SchemaValidator).Assembly;
+        var resourceName = assembly
+            .GetManifestResourceNames()
+            .FirstOrDefault(n => n.EndsWith("design-time-metadata-v1.schema.json", StringComparison.OrdinalIgnoreCase));
+
+        if (resourceName == null)
+        {
+            throw new InvalidOperationException(
+                "Embedded schema resource 'design-time-metadata-v1.schema.json' not found in Spas.Sdk.Metadata assembly.");
+        }
+
+        using var stream = assembly.GetManifestResourceStream(resourceName)
+            ?? throw new InvalidOperationException($"Embedded resource '{resourceName}' could not be opened.");
+
+        using var reader = new StreamReader(stream);
+        var schemaJson = reader.ReadToEnd();
+        return JsonSchema.FromText(schemaJson);
     }
 }

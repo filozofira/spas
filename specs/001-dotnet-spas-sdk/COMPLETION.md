@@ -4,6 +4,10 @@
 **Status**: Ready for Development/Testing Use  
 **Production Status**: Requires hardening per [SECURITY.md](SECURITY.md)
 
+> **Outdated (Historical)**: This completion report references a dev-only runtime metadata endpoint at `/_spas/metadata`.
+> The current supported approach is **offline** metadata archive generation (SDK-triggered) and archive-based publishing; the runtime endpoint workflow has been removed.
+> The original report text is preserved for historical context.
+
 ---
 
 ## 🎯 Delivered Capabilities

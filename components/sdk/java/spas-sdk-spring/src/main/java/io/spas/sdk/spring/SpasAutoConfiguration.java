@@ -4,18 +4,23 @@ import io.spas.sdk.core.config.SpasConfiguration;
 import io.spas.sdk.core.context.SpasContext;
 import io.spas.sdk.events.EventPublisher;
 import io.spas.sdk.events.EventPublisherConfig;
+import io.spas.sdk.metadata.generation.MetadataGenerationConstants;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.boot.ApplicationRunner;
+import org.springframework.boot.SpringApplication;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.Bean;
+
+import java.nio.file.Path;
 
 /**
  * Spring Boot auto-configuration for SPAS SDK.
  * 
  * Registers:
  * - SpasContextFilter: Extracts trace/identity context from HTTP headers
- * - SpasMetadataController: Exposes /_spas/metadata endpoint
  * - EventPublisher: Publishes events to sidecar
  * 
  * Enabled when:
@@ -36,13 +41,25 @@ public class SpasAutoConfiguration {
         return new SpasContextFilter();
     }
     
-    /**
-     * Registers SpasMetadataController to expose /_spas/metadata endpoint.
-     * The controller reads spas.json from classpath (generated at compile time).
-     */
     @Bean
-    public SpasMetadataController spasMetadataController(SpasProperties properties) {
-        return new SpasMetadataController(properties);
+    public SpasMetadataArchiveGenerator spasMetadataArchiveGenerator() {
+        return new SpasMetadataArchiveGenerator();
+    }
+
+    @Bean
+    @ConditionalOnProperty(name = MetadataGenerationConstants.GENERATE_METADATA_PROPERTY, havingValue = "true")
+    public ApplicationRunner spasGenerateMetadataRunner(
+        SpasMetadataArchiveGenerator generator,
+        ConfigurableApplicationContext applicationContext) {
+        return args -> {
+            Path zipPath = generator.writeArchiveFromSystemProperties();
+            if (zipPath == null) {
+                throw new IllegalStateException("Unable to generate metadata archive: zip path was null");
+            }
+
+            int exitCode = SpringApplication.exit(applicationContext, () -> 0);
+            System.exit(exitCode);
+        };
     }
     
     /**

@@ -51,20 +51,20 @@
 
 ### Tests for User Story 1
 
-- [ ] T011 [P] [US1] Unit test for isValidServiceName in components/cli/spas-service/test/utils/config.test.ts
-- [ ] T012 [P] [US1] Unit test for findGitRoot in components/cli/spas-service/test/utils/git.test.ts
-- [ ] T013 [P] [US1] Unit test for WorkspaceService.create() in components/cli/spas-service/test/services/workspace-service.test.ts
+- [X] T011 [P] [US1] Unit test for isValidServiceName in components/cli/spas-service/test/utils/config.test.ts
+- [X] T012 [P] [US1] Unit test for findGitRoot in components/cli/spas-service/test/utils/git.test.ts
+- [X] T013 [P] [US1] Unit test for WorkspaceService.create() in components/cli/spas-service/test/services/workspace-service.test.ts
 
 ### Implementation for User Story 1
 
-- [ ] T014 [US1] Create README template in components/cli/spas-service/templates/readme.eta (FR-022, FR-023, FR-024, FR-025)
-- [ ] T015 [US1] Create prompt trigger template in components/cli/spas-service/templates/prompt-trigger.eta (FR-006)
-- [ ] T016 [US1] Implement init command handler in components/cli/spas-service/src/commands/init.ts
-- [ ] T017 [US1] Register init command in components/cli/spas-service/src/index.ts
-- [ ] T018 [US1] Copy design-time-metadata-v1.schema.json to workspace .spas/schemas/ (FR-004) - update WorkspaceService
-- [ ] T019 [US1] Add --output, --force, --json, --verbose flags to init command (FR-007, FR-008, FR-010, FR-011)
-- [ ] T020 [US1] Implement JSON output format in init command (FR-010, FR-012)
-- [ ] T021 [US1] Unit test for init command in components/cli/spas-service/test/commands/init.test.ts
+- [X] T014 [US1] Create README template in components/cli/spas-service/templates/readme.eta (FR-022, FR-023, FR-024, FR-025)
+- [X] T015 [US1] Create prompt trigger template in components/cli/spas-service/templates/prompt-trigger.eta (FR-006)
+- [X] T016 [US1] Implement init command handler in components/cli/spas-service/src/commands/init.ts
+- [X] T017 [US1] Register init command in components/cli/spas-service/src/index.ts
+- [X] T018 [US1] Copy design-time-metadata-v1.schema.json to workspace .spas/schemas/ (FR-004) - update WorkspaceService
+- [X] T019 [US1] Add --output, --force, --json, --verbose flags to init command (FR-007, FR-008, FR-010, FR-011)
+- [X] T020 [US1] Implement JSON output format in init command (FR-010, FR-012)
+- [X] T021 [US1] Unit test for init command in components/cli/spas-service/test/commands/init.test.ts
 
 **Checkpoint**: `spas-service init <name>` creates workspace with README, directories, and schema. Agent prompt NOT yet implemented.
 

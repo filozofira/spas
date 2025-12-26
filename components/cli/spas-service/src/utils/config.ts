@@ -3,6 +3,7 @@
  * Resolves repository URL from multiple sources with priority
  */
 
+import { resolve, join } from 'path';
 import type { CliConfig } from '../types.js';
 
 /**
@@ -82,7 +83,6 @@ export function isValidServiceName(name: string): boolean {
  * @returns Absolute path to the workspace
  */
 export function resolveWorkspacePath(serviceName: string, outputDir?: string): string {
-  const { resolve, join } = require('path');
   const baseDir = outputDir ? resolve(outputDir) : process.cwd();
   return join(baseDir, serviceName);
 }

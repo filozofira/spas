@@ -4,13 +4,9 @@
 
 import { existsSync, mkdirSync, writeFileSync, rmSync, copyFileSync } from 'fs';
 import { join, relative, dirname } from 'path';
-import { fileURLToPath } from 'url';
 import type { CommandResult } from '../types.js';
 import { renderTemplate } from '../utils/templates.js';
-
-// Get the directory path of the current module
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
+import { getSchemaSourcePath } from '../utils/paths.js';
 
 /**
  * WorkspaceService handles service workspace creation and validation
@@ -70,15 +66,7 @@ export class WorkspaceService {
       writeFileSync(join(workspacePath, 'README.md'), readmeContent, 'utf-8');
 
       // Copy design-time-metadata-v1.schema.json from components/schemas/
-      const schemaSourcePath = join(
-        __dirname,
-        '..',
-        '..',
-        '..',
-        '..',
-        'schemas',
-        'design-time-metadata-v1.schema.json'
-      );
+      const schemaSourcePath = getSchemaSourcePath();
       const schemaDestPath = join(
         workspacePath,
         '.spas',

@@ -61,6 +61,8 @@ The workspace at `<%= it.workspaceRoot %>/{NAME}/` has the following structure:
 
 <%~ include('partials/validation-checklists', it) %>
 
+<%~ include('partials/sdk-patterns', it) %>
+
 ## Error Handling
 
 If any error occurs:

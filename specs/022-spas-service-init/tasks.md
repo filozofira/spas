@@ -123,12 +123,12 @@
 
 ### Implementation for User Story 4
 
-- [ ] T041 [US4] Create sdk-patterns.eta partial in components/cli/spas-service/templates/partials/sdk-patterns.eta
-- [ ] T042 [US4] Add Java/Spring patterns to sdk-patterns.eta (FR-017): project structure, annotations, EventPublisher
-- [ ] T043 [US4] Add .NET patterns to sdk-patterns.eta (FR-017): project structure, attributes, ISpasEventPublisher
-- [ ] T044 [US4] Add spas.json generation patterns for both stacks to sdk-patterns.eta
-- [ ] T045 [US4] Add schema generation patterns (endpoints/, events/) to sdk-patterns.eta
-- [ ] T046 [US4] Include sdk-patterns.eta in agent-prompt.eta
+- [X] T041 [US4] Create sdk-patterns.eta partial in components/cli/spas-service/templates/partials/sdk-patterns.eta
+- [X] T042 [US4] Add Java/Spring patterns to sdk-patterns.eta (FR-017): project structure, annotations, EventPublisher
+- [X] T043 [US4] Add .NET patterns to sdk-patterns.eta (FR-017): project structure, attributes, ISpasEventPublisher
+- [X] T044 [US4] Add spas.json generation patterns for both stacks to sdk-patterns.eta
+- [X] T045 [US4] Add schema generation patterns (endpoints/, events/) to sdk-patterns.eta
+- [X] T046 [US4] Include sdk-patterns.eta in agent-prompt.eta
 
 **Checkpoint**: Agent prompt has stack-specific patterns for Java and .NET.
 

@@ -1,168 +1,102 @@
 package io.spas.sdk.spring;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.spas.sdk.core.util.KebabCaseConverter;
 import io.spas.sdk.metadata.JacksonConfiguration;
 import io.spas.sdk.metadata.annotations.SpasCommand;
-import io.spas.sdk.metadata.model.EndpointContract;
-import io.spas.sdk.metadata.model.EndpointType;
-import io.spas.sdk.metadata.model.CommandContract;
-import io.spas.sdk.metadata.model.EventContract;
-import io.spas.sdk.metadata.model.ProducedEventRef;
-import io.spas.sdk.metadata.model.Protocol;
-import io.spas.sdk.metadata.model.Consistency;
-import io.spas.sdk.metadata.model.ConsistencyLevel;
-import io.spas.sdk.metadata.model.QueryConsistencyLevel;
-import io.spas.sdk.metadata.model.Security;
-import io.spas.sdk.metadata.model.Authentication;
-import io.spas.sdk.metadata.model.AuthType;
-import io.spas.sdk.metadata.model.DataClassification;
-import io.spas.sdk.metadata.model.ServiceMetadata;
-import io.spas.sdk.metadata.model.Network;
 import io.spas.sdk.metadata.annotations.SpasEvent;
 import io.spas.sdk.metadata.annotations.SpasQuery;
 import io.spas.sdk.metadata.annotations.SpasService;
+import io.spas.sdk.metadata.model.Authentication;
+import io.spas.sdk.metadata.model.AuthType;
+import io.spas.sdk.metadata.model.CommandContract;
+import io.spas.sdk.metadata.model.Consistency;
+import io.spas.sdk.metadata.model.ConsistencyLevel;
+import io.spas.sdk.metadata.model.DataClassification;
+import io.spas.sdk.metadata.model.EndpointContract;
+import io.spas.sdk.metadata.model.EndpointType;
+import io.spas.sdk.metadata.model.EventContract;
+import io.spas.sdk.metadata.model.Network;
+import io.spas.sdk.metadata.model.ProducedEventRef;
+import io.spas.sdk.metadata.model.Protocol;
+import io.spas.sdk.metadata.model.QueryConsistencyLevel;
+import io.spas.sdk.metadata.model.Security;
+import io.spas.sdk.metadata.model.ServiceMetadata;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.ClassPathScanningCandidateComponentProvider;
 import org.springframework.core.io.ClassPathResource;
-import org.springframework.core.io.Resource;
-import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import org.springframework.core.type.filter.AnnotationTypeFilter;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
 import org.springframework.util.StreamUtils;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.charset.StandardCharsets;
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
-import java.lang.reflect.Method;
-import java.lang.annotation.Annotation;
-import java.util.*;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
 /**
- * REST controller that exposes SPAS service metadata at /_spas/metadata.
- * 
- * <p>Returns a ZIP archive containing:</p>
- * <ul>
- *   <li>spas.json - The service metadata generated at runtime</li>
- *   <li>schemas/*.json - Contract schemas for commands, queries, and events</li>
- * </ul>
- * 
- * <p>Schema resolution strategy:</p>
- * <ol>
- *   <li>First, looks for pre-generated schema files in classpath (schemas/*.json)</li>
- *   <li>If not found, generates schemas dynamically from annotated Java types</li>
- * </ol>
- * 
- * <p>This endpoint is used by:</p>
- * <ul>
- *   <li>spas-service CLI to fetch and publish metadata to the repository</li>
- *   <li>Development tools for service introspection</li>
- *   <li>Sidecar for runtime contract validation</li>
- * </ul>
- * 
- * <p>The endpoint can be disabled via configuration:
- * {@code spas.metadata.enabled=false}</p>
+ * Generates the SPAS metadata archive ZIP offline (no HTTP endpoint).
  */
-@RestController
-@RequestMapping("/_spas")
-public class SpasMetadataController {
+public class SpasMetadataArchiveGenerator {
 
-    private static final Logger log = Logger.getLogger(SpasMetadataController.class.getName());
+    private static final Logger log = Logger.getLogger(SpasMetadataArchiveGenerator.class.getName());
     private static final String SPAS_JSON_ENTRY = "spas.json";
-    private static final String SCHEMAS_PATTERN = "classpath*:schemas/**/*.json";
 
-    private final SpasProperties properties;
     private final SpasSchemaGenerator schemaGenerator;
     private final ObjectMapper objectMapper;
-    private final SpasMetadataArchiveGenerator archiveGenerator;
-    private volatile byte[] cachedArchive;
 
-    public SpasMetadataController(SpasProperties properties) {
-        this.properties = properties;
+    public SpasMetadataArchiveGenerator() {
         this.schemaGenerator = new SpasSchemaGenerator();
         this.objectMapper = JacksonConfiguration.getObjectMapper();
-        this.archiveGenerator = new SpasMetadataArchiveGenerator();
     }
 
     /**
-     * Returns the service metadata as a ZIP archive containing spas.json and schemas.
-     * 
-     * @return ZIP archive with spas.json and schema files.
+     * Generates a ZIP archive containing spas.json and referenced schemas.
+     * Returns null when no @SpasService is found.
      */
-    @GetMapping(value = "/metadata", produces = "application/zip")
-    public ResponseEntity<byte[]> getMetadata() {
-        // Check if metadata endpoint is enabled
-        if (!properties.getMetadata().isEnabled()) {
-            return ResponseEntity.status(404)
-                .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
-                .body("{\"error\": \"Metadata endpoint is disabled\", \"hint\": \"Set spas.metadata.enabled=true to enable\"}".getBytes(StandardCharsets.UTF_8));
-        }
-
-        // Check environment restriction if configured
-        String allowedEnv = properties.getMetadata().getAllowedEnvironment();
-        if (allowedEnv != null && !allowedEnv.isBlank()) {
-            String currentEnv = System.getenv("SPRING_PROFILES_ACTIVE");
-            if (currentEnv == null) {
-                currentEnv = System.getProperty("spring.profiles.active", "default");
-            }
-
-            if (!isEnvironmentAllowed(allowedEnv, currentEnv)) {
-                return ResponseEntity.status(404)
-                    .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
-                    .body(("{\"error\": \"Metadata endpoint is not available in this environment\", " +
-                          "\"environment\": \"" + currentEnv + "\", " +
-                          "\"hint\": \"Enable in " + allowedEnv + " mode\"}").getBytes(StandardCharsets.UTF_8));
-            }
-        }
-
+    public byte[] generateArchive() {
         try {
-            // Use cached archive if available
-            if (cachedArchive != null) {
-                return buildZipResponse(cachedArchive);
+            ServiceMetadata metadata = buildMetadataAtRuntime();
+            if (metadata == null) {
+                log.warning("No @SpasService found on classpath; cannot generate spas.json.");
+                return null;
             }
 
-            byte[] archive = archiveGenerator.generateArchive();
-            if (archive == null) {
-                log.warning("No @SpasService found on classpath; cannot generate spas.json at runtime.");
-                return ResponseEntity.status(404)
-                    .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
-                    .body("{\"error\": \"@SpasService not found\", \"hint\": \"Annotate your service application/config class with @SpasService\"}".getBytes(StandardCharsets.UTF_8));
-            }
-            
-            // Cache the archive since it's effectively static (derived from annotations)
-            cachedArchive = archive;
-            
-            log.fine("Serving metadata archive (" + archive.length + " bytes)");
-            return buildZipResponse(archive);
+            String spasJsonContent = objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(metadata);
 
-        } catch (Exception e) {
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            try (ZipOutputStream zos = new ZipOutputStream(baos)) {
+                addStringToZip(zos, SPAS_JSON_ENTRY, spasJsonContent);
+
+                Map<String, String> schemas = collectSchemas(metadata);
+                for (Map.Entry<String, String> entry : schemas.entrySet()) {
+                    addStringToZip(zos, entry.getKey(), entry.getValue());
+                }
+            }
+
+            return baos.toByteArray();
+        } catch (IOException e) {
             log.log(Level.SEVERE, "Failed to create metadata archive", e);
-            return ResponseEntity.internalServerError()
-                .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
-                .body(("{\"error\": \"Failed to create metadata archive\", \"message\": \"" + 
-                      e.getMessage().replace("\"", "'") + "\"}").getBytes(StandardCharsets.UTF_8));
+            return null;
         }
-    }
-
-    private ResponseEntity<byte[]> buildZipResponse(byte[] archive) {
-        return ResponseEntity.ok()
-            .header(HttpHeaders.CONTENT_TYPE, "application/zip")
-            .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"spas-metadata.zip\"")
-            .body(archive);
     }
 
     private void addStringToZip(ZipOutputStream zos, String entryName, String content) throws IOException {
@@ -172,61 +106,21 @@ public class SpasMetadataController {
         zos.closeEntry();
     }
 
-    private boolean isEnvironmentAllowed(String allowedEnv, String currentEnv) {
-        if (allowedEnv == null || allowedEnv.isBlank()) {
-            return true;
-        }
-        if ("*".equalsIgnoreCase(allowedEnv)) {
-            return true;
-        }
-
-        String normalizedAllowed = normalizeEnvName(allowedEnv);
-
-        // Spring can supply a comma-separated list of active profiles
-        for (String part : currentEnv.split(",")) {
-            String normalizedCurrent = normalizeEnvName(part);
-            if (normalizedAllowed.equalsIgnoreCase(normalizedCurrent)) {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    private String normalizeEnvName(String env) {
-        String trimmed = env == null ? "" : env.trim();
-        if (trimmed.equalsIgnoreCase("dev")) return "development";
-        if (trimmed.equalsIgnoreCase("development")) return "development";
-        return trimmed;
-    }
-
-    /**
-     * Collects schemas from classpath or generates them dynamically.
-     * 
-     * <p>Strategy:</p>
-     * <ol>
-     *   <li>Parse spas.json to find all schemaRef values</li>
-     *   <li>For each schemaRef, try to load from classpath</li>
-     *   <li>If not found in classpath, scan for annotated types and generate</li>
-     * </ol>
-     */
     private Map<String, String> collectSchemas(ServiceMetadata metadata) {
         Map<String, String> schemas = new HashMap<>();
-        
+
         try {
             Set<String> schemaRefs = extractSchemaRefs(metadata);
-            
+
             if (schemaRefs.isEmpty()) {
                 log.fine("No schema references found in spas.json");
                 return schemas;
             }
-            
+
             log.fine("Found " + schemaRefs.size() + " schema references in spas.json");
-            
-            // Try to load each schema from classpath first
-            PathMatchingResourcePatternResolver resolver = new PathMatchingResourcePatternResolver();
+
             Set<String> missingSchemas = new HashSet<>();
-            
+
             for (String schemaRef : schemaRefs) {
                 ClassPathResource schemaResource = new ClassPathResource(schemaRef);
                 if (schemaResource.exists()) {
@@ -239,24 +133,19 @@ public class SpasMetadataController {
                     missingSchemas.add(schemaRef);
                 }
             }
-            
-            // Generate missing schemas dynamically
+
             if (!missingSchemas.isEmpty()) {
                 log.info("Generating " + missingSchemas.size() + " schemas dynamically");
                 Map<String, String> generatedSchemas = generateMissingSchemas(missingSchemas, metadata);
                 schemas.putAll(generatedSchemas);
             }
-            
         } catch (IOException e) {
             log.log(Level.WARNING, "Failed to collect schemas", e);
         }
-        
+
         return schemas;
     }
 
-    /**
-     * Extracts all schemaRef values from spas.json.
-     */
     private Set<String> extractSchemaRefs(ServiceMetadata metadata) {
         Set<String> refs = new HashSet<>();
 
@@ -352,7 +241,6 @@ public class SpasMetadataController {
                 license
             );
         } catch (IllegalStateException e) {
-            // Fail fast with a clear error for invalid metadata declarations.
             throw e;
         } catch (Exception e) {
             log.log(Level.WARNING, "Failed to build spas.json metadata at runtime", e);
@@ -670,35 +558,29 @@ public class SpasMetadataController {
         return null;
     }
 
-    /**
-     * Generates schemas for schema references that weren't found in classpath.
-     * Scans for classes annotated with @SpasEvent that match the schema refs.
-     */
     private Map<String, String> generateMissingSchemas(Set<String> missingSchemas, ServiceMetadata metadata) {
         Map<String, String> generated = new HashMap<>();
-        
+
         try {
-            // Find the base package by scanning for @SpasService
             String basePackage = findBasePackage();
             if (basePackage == null) {
                 log.warning("Could not determine base package for schema scanning");
                 return generated;
             }
-            
+
             log.fine("Scanning package " + basePackage + " for annotated types");
-            
-            // Scan for classes with @SpasEvent annotation (events are RUNTIME-retained)
-            ClassPathScanningCandidateComponentProvider scanner = 
+
+            ClassPathScanningCandidateComponentProvider scanner =
                 new ClassPathScanningCandidateComponentProvider(false);
             scanner.addIncludeFilter(new AnnotationTypeFilter(SpasEvent.class));
-            
+
             Set<BeanDefinition> candidates = scanner.findCandidateComponents(basePackage);
-            
+
             for (BeanDefinition bd : candidates) {
                 try {
                     Class<?> clazz = Class.forName(bd.getBeanClassName());
                     SpasEvent eventAnnotation = clazz.getAnnotation(SpasEvent.class);
-                    
+
                     if (eventAnnotation != null) {
                         String schemaRef = eventAnnotation.schemaRef();
                         if (schemaRef == null || schemaRef.isBlank()) {
@@ -722,7 +604,6 @@ public class SpasMetadataController {
                 }
             }
 
-            // Generate endpoint schemas by scanning @RestController classes and mapping annotations (spring-web only)
             if (metadata != null && metadata.endpoints() != null) {
                 Map<String, Method> routeToMethod = scanHttpHandlers(basePackage);
                 for (EndpointContract endpoint : metadata.endpoints()) {
@@ -755,19 +636,17 @@ public class SpasMetadataController {
                     log.fine("Generated endpoint schema for " + schemaRef + " from " + handlerMethod.getDeclaringClass().getSimpleName() + "#" + handlerMethod.getName());
                 }
             }
-            
-            // Log any schemas we couldn't generate
+
             for (String missing : missingSchemas) {
                 if (!generated.containsKey(missing)) {
-                    log.warning("Could not generate schema for: " + missing + 
+                    log.warning("Could not generate schema for: " + missing +
                         ". Create the file or annotate a class with @SpasEvent(schemaRef=\"" + missing + "\")");
                 }
             }
-            
         } catch (Exception e) {
             log.log(Level.WARNING, "Failed to generate schemas dynamically", e);
         }
-        
+
         return generated;
     }
 
@@ -805,7 +684,6 @@ public class SpasMetadataController {
                     for (String cp : classPaths) {
                         for (String mp : methodPaths) {
                             String full = joinPaths(cp, mp);
-                            // Prefer first discovered mapping
                             routeToMethod.putIfAbsent(full, method);
                         }
                     }
@@ -828,8 +706,6 @@ public class SpasMetadataController {
                 || annName.equals("org.springframework.web.bind.annotation.PatchMapping")
                 || annName.equals("org.springframework.web.bind.annotation.RequestMapping")) {
                 String[] paths = extractPaths(ann);
-                // If no explicit path/value is provided, Spring maps the method to the class-level path.
-                // Represent that as an empty path segment so callers can joinPaths(classPath, "").
                 return paths.length > 0 ? paths : new String[]{""};
             }
         }
@@ -906,27 +782,21 @@ public class SpasMetadataController {
         return returnType;
     }
 
-    /**
-     * Finds the base package by looking for a class annotated with @SpasService.
-     */
     private String findBasePackage() {
         try {
-            // Scan common base packages - start broad and narrow down
             String[] commonBases = {"io", "com", "org", "net"};
-            
+
             for (String base : commonBases) {
-                ClassPathScanningCandidateComponentProvider scanner = 
+                ClassPathScanningCandidateComponentProvider scanner =
                     new ClassPathScanningCandidateComponentProvider(false);
                 scanner.addIncludeFilter(new AnnotationTypeFilter(SpasService.class));
-                
+
                 Set<BeanDefinition> candidates = scanner.findCandidateComponents(base);
                 if (!candidates.isEmpty()) {
                     String className = candidates.iterator().next().getBeanClassName();
                     if (className != null) {
-                        // Return package up to the service class
                         int lastDot = className.lastIndexOf('.');
                         if (lastDot > 0) {
-                            // Go up one level to get the base package
                             String pkg = className.substring(0, lastDot);
                             int secondLastDot = pkg.lastIndexOf('.');
                             return secondLastDot > 0 ? pkg.substring(0, secondLastDot) : pkg;

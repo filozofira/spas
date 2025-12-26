@@ -37,12 +37,12 @@ description: "Task list for feature implementation"
 
 **Independent Test**: From a service project root, run the supported “generate metadata” invocation and verify a ZIP archive is written and the process terminates successfully.
 
-- [ ] T010 [P] [US1] Create .NET SDK offline generator entrypoint in components/sdk/dotnet/src/Spas.Sdk.Metadata/Generation/MetadataArchiveGenerator.cs
-- [ ] T011 [US1] Wire .NET generator to existing discovery/composition in components/sdk/dotnet/src/Spas.Sdk.Metadata/Extensions/WebApplicationDiscoveryExtensions.cs
-- [ ] T012 [P] [US1] Add .NET unit tests for generator “writes zip and includes spas.json” in components/sdk/dotnet/test/Spas.Sdk.Metadata.Tests/MetadataArchiveGeneratorTests.cs
-- [ ] T013 [P] [US1] Extract Java archive-building logic out of components/sdk/java/spas-sdk-spring/src/main/java/io/spas/sdk/spring/SpasMetadataController.java into components/sdk/java/spas-sdk-spring/src/main/java/io/spas/sdk/spring/SpasMetadataArchiveGenerator.java
-- [ ] T014 [US1] Add Java offline trigger hook (system property) in components/sdk/java/spas-sdk-spring/src/main/java/io/spas/sdk/spring/SpasAutoConfiguration.java using an ApplicationRunner/CommandLineRunner that generates then exits
-- [ ] T015 [P] [US1] Add Java unit tests for generator “writes zip and includes spas.json” in components/sdk/java/spas-sdk-spring/src/test/java/io/spas/sdk/spring/SpasMetadataArchiveGeneratorTest.java
+- [x] T010 [P] [US1] Create .NET SDK offline generator entrypoint in components/sdk/dotnet/src/Spas.Sdk.Metadata/Generation/MetadataArchiveGenerator.cs
+- [x] T011 [US1] Wire .NET generator to existing discovery/composition in components/sdk/dotnet/src/Spas.Sdk.Metadata/Extensions/WebApplicationDiscoveryExtensions.cs
+- [x] T012 [P] [US1] Add .NET unit tests for generator “writes zip and includes spas.json” in components/sdk/dotnet/test/Spas.Sdk.Metadata.Tests/MetadataArchiveGeneratorTests.cs
+- [x] T013 [P] [US1] Extract Java archive-building logic out of components/sdk/java/spas-sdk-spring/src/main/java/io/spas/sdk/spring/SpasMetadataController.java into components/sdk/java/spas-sdk-spring/src/main/java/io/spas/sdk/spring/SpasMetadataArchiveGenerator.java
+- [x] T014 [US1] Add Java offline trigger hook (system property) in components/sdk/java/spas-sdk-spring/src/main/java/io/spas/sdk/spring/SpasAutoConfiguration.java using an ApplicationRunner/CommandLineRunner that generates then exits
+- [x] T015 [P] [US1] Add Java unit tests for generator “writes zip and includes spas.json” in components/sdk/java/spas-sdk-spring/src/test/java/io/spas/sdk/spring/SpasMetadataArchiveGeneratorTest.java
 
 ---
 

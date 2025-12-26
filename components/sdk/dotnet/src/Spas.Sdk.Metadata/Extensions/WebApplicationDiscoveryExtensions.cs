@@ -1,6 +1,7 @@
 using Spas.Sdk.Metadata.Attributes;
 using Spas.Sdk.Metadata.Builders;
 using Spas.Sdk.Metadata.Discovery;
+using Spas.Sdk.Metadata.Generation;
 using Spas.Sdk.Metadata.Models;
 using System.Reflection;
 
@@ -70,6 +71,17 @@ public static class WebApplicationDiscoveryExtensions
         }
 
         return builder.Build();
+    }
+
+    public static Task<string> GenerateSpasMetadataArchiveAsync(
+        this object app,
+        ServiceIdentity identity,
+        string? outputDirectory = null,
+        Assembly? assemblyToScan = null,
+        CancellationToken cancellationToken = default)
+    {
+        var generator = MetadataArchiveGenerator.CreateDefault();
+        return generator.GenerateAsync(app, identity, outputDirectory, assemblyToScan, cancellationToken);
     }
 
     private static void DiscoverEndpointsFromWebApplication(object app, ContractsBuilder builder)

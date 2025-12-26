@@ -4,11 +4,18 @@ import io.spas.sdk.core.config.SpasConfiguration;
 import io.spas.sdk.core.context.SpasContext;
 import io.spas.sdk.events.EventPublisher;
 import io.spas.sdk.events.EventPublisherConfig;
+import io.spas.sdk.metadata.generation.MetadataGenerationConstants;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.boot.ApplicationRunner;
+import org.springframework.boot.SpringApplication;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.Bean;
+
+import java.nio.file.Files;
+import java.nio.file.Path;
 
 /**
  * Spring Boot auto-configuration for SPAS SDK.
@@ -43,6 +50,37 @@ public class SpasAutoConfiguration {
     @Bean
     public SpasMetadataController spasMetadataController(SpasProperties properties) {
         return new SpasMetadataController(properties);
+    }
+
+    @Bean
+    public SpasMetadataArchiveGenerator spasMetadataArchiveGenerator() {
+        return new SpasMetadataArchiveGenerator();
+    }
+
+    @Bean
+    @ConditionalOnProperty(name = MetadataGenerationConstants.GENERATE_METADATA_PROPERTY, havingValue = "true")
+    public ApplicationRunner spasGenerateMetadataRunner(
+        SpasMetadataArchiveGenerator generator,
+        ConfigurableApplicationContext applicationContext) {
+        return args -> {
+            String outputDirProp = System.getProperty(MetadataGenerationConstants.OUTPUT_DIRECTORY_PROPERTY);
+            Path outputDir = (outputDirProp == null || outputDirProp.isBlank())
+                ? Path.of(MetadataGenerationConstants.DEFAULT_OUTPUT_DIRECTORY_NAME)
+                : Path.of(outputDirProp);
+
+            Files.createDirectories(outputDir);
+            Path zipPath = outputDir.resolve(MetadataGenerationConstants.DEFAULT_ARCHIVE_FILE_NAME);
+
+            byte[] archive = generator.generateArchive();
+            if (archive == null) {
+                throw new IllegalStateException("Unable to generate metadata archive: @SpasService not found or generation failed");
+            }
+
+            Files.write(zipPath, archive);
+
+            int exitCode = SpringApplication.exit(applicationContext, () -> 0);
+            System.exit(exitCode);
+        };
     }
     
     /**

@@ -16,7 +16,7 @@ class EndpointDiscoveryTest {
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
     @Test
-    void generatedSpasJson_includesHttpVerbInMethodPath_withoutStartingServer() throws Exception {
+    void generatedSpasJson_methodPathIsPathOnly_withoutStartingServer() throws Exception {
         SpasMetadataArchiveGenerator generator = new SpasMetadataArchiveGenerator();
         byte[] archive = generator.generateArchive();
         assertNotNull(archive);
@@ -38,19 +38,19 @@ class EndpointDiscoveryTest {
 
             if ("create-order".equals(name)) {
                 assertEquals("Http", protocol);
-                assertEquals("POST /api/orders", methodPath);
+                assertEquals("/api/orders", methodPath);
                 foundPostOrders = true;
             }
 
             if ("get-order".equals(name)) {
                 assertEquals("Http", protocol);
-                assertEquals("GET /api/orders/{id}", methodPath);
+                assertEquals("/api/orders/{id}", methodPath);
                 foundGetOrder = true;
             }
         }
 
-        assertTrue(foundPostOrders, "Expected endpoint 'create-order' with methodPath 'POST /api/orders'");
-        assertTrue(foundGetOrder, "Expected endpoint 'get-order' with methodPath 'GET /api/orders/{id}'");
+        assertTrue(foundPostOrders, "Expected endpoint 'create-order' with methodPath '/api/orders'");
+        assertTrue(foundGetOrder, "Expected endpoint 'get-order' with methodPath '/api/orders/{id}'");
     }
 
     private static String readZipEntryText(byte[] zipBytes, String entryName) throws Exception {

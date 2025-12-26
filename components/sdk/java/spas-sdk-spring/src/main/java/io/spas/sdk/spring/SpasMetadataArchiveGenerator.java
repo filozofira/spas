@@ -75,9 +75,9 @@ public class SpasMetadataArchiveGenerator {
      * Generates a ZIP archive containing spas.json and referenced schemas.
      * Returns null when no @SpasService is found.
      */
-    public byte[] generateArchive() {
+    public byte[] generateArchive(SpasServiceOptions options) {
         try {
-            ServiceMetadata metadata = buildMetadataAtRuntime();
+            ServiceMetadata metadata = buildMetadataAtRuntime(options);
             if (metadata == null) {
                 log.warning("No @SpasService found on classpath; cannot generate spas.json.");
                 return null;
@@ -103,6 +103,14 @@ public class SpasMetadataArchiveGenerator {
     }
 
     /**
+     * Generates a ZIP archive containing spas.json and referenced schemas.
+     * Returns null when no @SpasService is found.
+     */
+    public byte[] generateArchive() {
+        return generateArchive(null);
+    }
+
+    /**
      * Writes the metadata archive ZIP to disk.
      * <p>
      * Output semantics:
@@ -122,7 +130,27 @@ public class SpasMetadataArchiveGenerator {
         Files.createDirectories(outputDir);
         Path zipPath = outputDir.resolve(MetadataGenerationConstants.DEFAULT_ARCHIVE_FILE_NAME);
 
-        byte[] archive = generateArchive();
+        byte[] archive = generateArchive(null);
+        if (archive == null) {
+            throw new IllegalStateException("Unable to generate metadata archive: @SpasService not found or generation failed");
+        }
+
+        Files.write(zipPath, archive);
+        return zipPath;
+    }
+
+    /**
+     * Writes the metadata archive ZIP to disk, applying optional overrides.
+     */
+    public Path writeArchive(Path outputDirectory, SpasServiceOptions options) throws IOException {
+        Path outputDir = (outputDirectory == null || outputDirectory.toString().isBlank())
+            ? Path.of(MetadataGenerationConstants.DEFAULT_OUTPUT_DIRECTORY_NAME)
+            : outputDirectory;
+
+        Files.createDirectories(outputDir);
+        Path zipPath = outputDir.resolve(MetadataGenerationConstants.DEFAULT_ARCHIVE_FILE_NAME);
+
+        byte[] archive = generateArchive(options);
         if (archive == null) {
             throw new IllegalStateException("Unable to generate metadata archive: @SpasService not found or generation failed");
         }
@@ -219,7 +247,7 @@ public class SpasMetadataArchiveGenerator {
         return refs;
     }
 
-    private ServiceMetadata buildMetadataAtRuntime() {
+    private ServiceMetadata buildMetadataAtRuntime(SpasServiceOptions options) {
         try {
             Class<?> serviceClass = findServiceClass();
             if (serviceClass == null) {
@@ -231,7 +259,9 @@ public class SpasMetadataArchiveGenerator {
                 return null;
             }
 
-            String basePackage = findBasePackage();
+            String basePackage = (options != null && options.getBasePackage() != null && !options.getBasePackage().isBlank())
+                ? options.getBasePackage()
+                : findBasePackage();
             if (basePackage == null || basePackage.isBlank()) {
                 basePackage = serviceClass.getPackageName();
             }
@@ -242,40 +272,64 @@ public class SpasMetadataArchiveGenerator {
 
             validateCommandProducedEvents(commands, events);
 
-            List<String> capabilities = service.capabilities().length > 0
-                ? Arrays.asList(service.capabilities())
-                : List.of();
+            List<String> capabilities = (options != null && !options.getCapabilities().isEmpty())
+                ? List.copyOf(options.getCapabilities())
+                : (service.capabilities().length > 0 ? Arrays.asList(service.capabilities()) : List.of());
 
-            Consistency consistency = new Consistency(
-                ConsistencyLevel.ACID,
-                QueryConsistencyLevel.EVENTUAL
-            );
+            Consistency consistency = (options != null && options.getConsistency() != null)
+                ? options.getConsistency()
+                : new Consistency(ConsistencyLevel.ACID, QueryConsistencyLevel.EVENTUAL);
 
-            Security security = new Security(
-                new Authentication(AuthType.NONE, null),
-                List.of(DataClassification.INTERNAL)
-            );
+            Security security = (options != null && options.getSecurity() != null)
+                ? options.getSecurity()
+                : new Security(new Authentication(AuthType.NONE, null), List.of(DataClassification.INTERNAL));
 
-            Network network = new Network(List.of());
+            Network network = (options != null && options.getNetwork() != null)
+                ? options.getNetwork()
+                : new Network(List.of());
 
-            String description = (service.description() == null || service.description().isBlank())
-                ? null
-                : service.description();
-            String license = (service.license() == null || service.license().isBlank())
-                ? null
-                : service.license();
+            String description = null;
+            if (options != null && options.getDescription() != null && !options.getDescription().isBlank()) {
+                description = options.getDescription();
+            } else if (service.description() != null && !service.description().isBlank()) {
+                description = service.description();
+            }
 
-            String serviceName = (service.name() == null || service.name().isBlank())
-                ? service.id()
-                : service.name();
+            String license = null;
+            if (options != null && options.getLicense() != null && !options.getLicense().isBlank()) {
+                license = options.getLicense();
+            } else if (service.license() != null && !service.license().isBlank()) {
+                license = service.license();
+            }
+
+            String serviceId = (options != null && options.getServiceId() != null && !options.getServiceId().isBlank())
+                ? options.getServiceId()
+                : service.id();
+
+            String serviceName = null;
+            if (options != null && options.getServiceName() != null && !options.getServiceName().isBlank()) {
+                serviceName = options.getServiceName();
+            } else if (service.name() != null && !service.name().isBlank()) {
+                serviceName = service.name();
+            } else {
+                serviceName = serviceId;
+            }
+
+            String version = (options != null && options.getVersion() != null && !options.getVersion().isBlank())
+                ? options.getVersion()
+                : service.version();
+
+            String boundedContext = (options != null && options.getBoundedContext() != null && !options.getBoundedContext().isBlank())
+                ? options.getBoundedContext()
+                : service.boundedContext();
 
             return new ServiceMetadata(
                 ServiceMetadata.SCHEMA_VERSION,
-                service.id(),
+                serviceId,
                 serviceName,
                 description,
-                service.version(),
-                service.boundedContext(),
+                version,
+                boundedContext,
                 capabilities,
                 endpoints,
                 commands,
@@ -417,13 +471,10 @@ public class SpasMetadataArchiveGenerator {
                     }
 
                     String[] methodPaths = extractMethodMappingPaths(method);
-                    String httpVerb = extractHttpVerb(method);
                     String methodPath = null;
                     if (methodPaths.length > 0) {
                         String routePath = joinPaths(classPaths[0], methodPaths[0]);
-                        methodPath = httpVerb != null && !httpVerb.isBlank()
-                            ? httpVerb + " " + routePath
-                            : routePath;
+                        methodPath = normalizeMethodPath(routePath);
                     }
 
                     if (cmd != null) {
@@ -437,7 +488,7 @@ public class SpasMetadataArchiveGenerator {
                             kebabName,
                             EndpointType.COMMAND,
                             defaultProtocol,
-                            methodPath != null ? methodPath : cmd.path(),
+                            methodPath != null ? methodPath : normalizeMethodPath(cmd.path()),
                             cmd.version(),
                             schemaRef,
                             description
@@ -455,7 +506,7 @@ public class SpasMetadataArchiveGenerator {
                             kebabName,
                             EndpointType.QUERY,
                             defaultProtocol,
-                            methodPath != null ? methodPath : qry.path(),
+                            methodPath != null ? methodPath : normalizeMethodPath(qry.path()),
                             qry.version(),
                             schemaRef,
                             description
@@ -468,6 +519,32 @@ public class SpasMetadataArchiveGenerator {
         }
 
         return endpoints;
+    }
+
+    private static String normalizeMethodPath(String methodPath) {
+        if (methodPath == null) {
+            return null;
+        }
+
+        String trimmed = methodPath.trim();
+        if (trimmed.isBlank()) {
+            return trimmed;
+        }
+
+        // If a legacy value includes an HTTP verb prefix, strip it (e.g., "GET /path" -> "/path").
+        int firstSpace = trimmed.indexOf(' ');
+        if (firstSpace > 0 && firstSpace < trimmed.length() - 1) {
+            String maybePath = trimmed.substring(firstSpace + 1).trim();
+            if (maybePath.startsWith("/")) {
+                trimmed = maybePath;
+            }
+        }
+
+        if (!trimmed.startsWith("/")) {
+            trimmed = "/" + trimmed;
+        }
+
+        return trimmed;
     }
 
     private List<CommandContract> scanCommands(String basePackage) {
@@ -688,8 +765,17 @@ public class SpasMetadataArchiveGenerator {
 
             for (String missing : missingSchemas) {
                 if (!generated.containsKey(missing)) {
-                    log.warning("Could not generate schema for: " + missing +
-                        ". Create the file or annotate a class with @SpasEvent(schemaRef=\"" + missing + "\")");
+                    if (missing.startsWith("schemas/events/")) {
+                        log.warning("Could not generate schema for: " + missing +
+                            ". Either add that schema file to the classpath, or annotate the event payload class with @SpasEvent(schemaRef=\"" + missing + "\").");
+                    } else if (missing.startsWith("schemas/endpoints/")) {
+                        log.warning("Could not generate schema for: " + missing +
+                            ". Either add that schema file to the classpath, or ensure the endpoint handler method has a discoverable payload type (e.g., a @RequestBody parameter or a ResponseEntity<T> return type). " +
+                            "If you set a custom schemaRef, ensure it matches the handler payload type and is set on @SpasCommand/@SpasQuery.");
+                    } else {
+                        log.warning("Could not generate schema for: " + missing +
+                            ". Either add that schema file to the classpath, or ensure a matching annotated type exists for dynamic schema generation.");
+                    }
                 }
             }
         } catch (Exception e) {
@@ -735,10 +821,15 @@ public class SpasMetadataArchiveGenerator {
                     for (String cp : classPaths) {
                         for (String mp : methodPaths) {
                             String full = joinPaths(cp, mp);
-                            String key = httpVerb != null && !httpVerb.isBlank()
+                            // Primary key: path-only (matches EndpointContract.methodPath)
+                            String pathOnlyKey = normalizeMethodPath(full);
+                            routeToMethod.putIfAbsent(pathOnlyKey, method);
+
+                            // Legacy key: verb + path (kept for backward compatibility)
+                            String legacyKey = httpVerb != null && !httpVerb.isBlank()
                                 ? httpVerb + " " + full
                                 : full;
-                            routeToMethod.putIfAbsent(key, method);
+                            routeToMethod.putIfAbsent(legacyKey, method);
                         }
                     }
                 }

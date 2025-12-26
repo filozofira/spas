@@ -24,7 +24,7 @@ spas-compose services pull <service-name> <version>
 3. Author the choreography:
 
 - Edit `choreography.yaml` and add JSONata files under `transformations/`, or
-- Use the `/spas.compose` agent prompt to propose and generate mappings.
+- Use the `/spas.compose` agent prompt (requires `DOMAIN:<name>`) to propose and generate mappings.
 
 4. Build runnable artifacts and start the domain:
 
@@ -49,6 +49,12 @@ It also writes agent prompt files under `.github/` at the git root (if detected)
 ```bash
 spas-compose init e-commerce
 cd e-commerce
+```
+
+When invoking the agent, always include the domain selector:
+
+```text
+/spas.compose DOMAIN:e-commerce Analyze services and propose choreography
 ```
 
 #### `spas-compose services pull <name> <version>`

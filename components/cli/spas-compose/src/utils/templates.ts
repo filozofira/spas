@@ -49,7 +49,7 @@ spas-compose services pull fulfillment-service 1.0.0
 Use the \`/spas.compose\` agent prompt to analyze service contracts and generate choreography:
 
 \`\`\`
-/spas.compose Analyze order-service and fulfillment-service contracts.
+/spas.compose DOMAIN:${workspaceName} Analyze order-service and fulfillment-service contracts.
 Propose topic mappings and generate transformations.
 \`\`\`
 

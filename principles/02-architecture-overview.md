@@ -109,7 +109,9 @@ flowchart LR
 - **Iterative refinement**: Feedback loop between Propose and Generate phases
 - **Guardrails**: Validation phase catches errors before deployment
 
-To use: Run `spas-compose init <domain>` then run `spas-compose services pull <service-name> <service-version>` for each service you wish to use, and finally invoke the agent with `/spas.compose` in GitHub Copilot Chat.
+To use: Run `spas-compose init <domain>` then run `spas-compose services pull <service-name> <service-version>` for each service you wish to use, and finally invoke the agent with `/spas.compose DOMAIN:<domain> ...` in GitHub Copilot Chat.
+
+**Note**: The agent requires an explicit domain selector: `/spas.compose DOMAIN:<domain> ...`.
 
 ## Communication Model
 

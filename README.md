@@ -82,7 +82,7 @@ See the runnable domain examples for concrete compositions:
 
 SPAS includes GitHub Copilot agent prompts for AI-assisted workflows:
 
-- **`/spas.compose`** — Domain choreography authoring with AI guidance
+- **`/spas.compose`** — Domain choreography authoring with AI guidance (always include `DOMAIN:<name>`)
 - **SpecKit agents** — Structured specification, planning, and implementation
 
 See [.github/agents/README.md](.github/agents/README.md) for usage and available agents.

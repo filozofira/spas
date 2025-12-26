@@ -57,7 +57,7 @@ Created domain workspace: e-commerce/
 └── transformations/
 
 Agent prompt available at: .github/agents/spas-compose.md
-Run `/spas.compose` to start AI-assisted composition.
+Run `/spas.compose DOMAIN:e-commerce ...` to start AI-assisted composition.
 ```
 
 **Output (--json)**:

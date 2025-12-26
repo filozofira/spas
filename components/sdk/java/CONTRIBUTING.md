@@ -58,7 +58,7 @@ mvn surefire:test -Dsurefire.rerunFailingTestsCount=1
 
 ### Schema Alignment
 
-The SDK produces `spas.json` that must validate against [design-time-metadata-v1.schema.json](../schemas/design-time-metadata-v1.schema.json).
+The SDK produces `spas.json` that must validate against [design-time-metadata-v1.schema.json](../../schemas/design-time-metadata-v1.schema.json).
 
 **Before adding new metadata fields**:
 
@@ -155,7 +155,7 @@ Before submitting a PR:
 
 ### Adding a new metadata field
 
-1. Update schema: [../schemas/design-time-metadata-v1.schema.json](../schemas/design-time-metadata-v1.schema.json)
+1. Update schema: [../../schemas/design-time-metadata-v1.schema.json](../../schemas/design-time-metadata-v1.schema.json)
 2. Add property to relevant model class (e.g., `ServiceMetadata`, `ContractDefinition`)
 3. Add annotation attribute if user-facing (e.g., `@SpasEvent(description = "...")`)
 4. Update annotation processor to read and emit field

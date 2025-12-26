@@ -21,7 +21,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <EmbeddedResource Include="..\..\..\schemas\design-time-metadata-v1.schema.json" Link="Schemas\design-time-metadata-v1.schema.json" />
+    <EmbeddedResource Include="..\..\..\..\schemas\design-time-metadata-v1.schema.json" Link="Schemas\design-time-metadata-v1.schema.json" />
   </ItemGroup>
 
   <ItemGroup>

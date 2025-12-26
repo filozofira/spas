@@ -59,7 +59,7 @@ spas-service pull order-service 1.0.0 --repo http://localhost:3000 --output ./ar
 
 ### Additional Resources
 
-- [Design-Time Metadata Schema](../../sdk/schemas/design-time-metadata-v1.schema.json)
+- [Design-Time Metadata Schema](../../schemas/design-time-metadata-v1.schema.json)
 
 ## For Contributors
 

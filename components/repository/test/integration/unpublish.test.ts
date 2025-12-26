@@ -18,7 +18,12 @@ describe('Unpublish Endpoint Integration', () => {
   let storage: SqliteStorageProvider;
   const baseURL = 'http://localhost:3002';
   const dbPath = path.join(__dirname, '../fixtures/test-unpublish.db');
-  const spasSchemaPath = path.join(__dirname, '../../node_modules/@spas/schemas/design-time-metadata-v1.schema.json');
+  const spasSchemaPath = path.resolve(
+    __dirname,
+    '../../..',
+    'schemas',
+    'design-time-metadata-v1.schema.json'
+  );
 
   beforeAll(async () => {
     // Clean up test database

@@ -52,7 +52,7 @@ dotnet watch test --project src/Spas.Sdk.Metadata.Tests
 
 ### Schema Alignment
 
-The SDK produces `spas.json` that must validate against [design-time-metadata-v1.schema.json](../schemas/design-time-metadata-v1.schema.json).
+The SDK produces `spas.json` that must validate against [design-time-metadata-v1.schema.json](../../schemas/design-time-metadata-v1.schema.json).
 
 **Before adding new metadata fields**:
 1. Check if field exists in schema
@@ -113,7 +113,7 @@ Before submitting a PR:
 
 ### Adding a new metadata field
 
-1. Update schema: [../schemas/design-time-metadata-v1.schema.json](../schemas/design-time-metadata-v1.schema.json)
+1. Update schema: [../../schemas/design-time-metadata-v1.schema.json](../../schemas/design-time-metadata-v1.schema.json)
 2. Add property to relevant model class (e.g., `ServiceMetadata`, `ContractDefinition`)
 3. Add builder method (e.g., `SecurityBuilder.WithDataClassification(...)`)
 4. Update `SpasComposer.Compose()` to serialize field

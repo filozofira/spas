@@ -19,7 +19,7 @@ RUN dotnet restore "examples/services/order-service/OrderService.csproj"
 
 # Copy source
 COPY ["components/sdk/dotnet/src/", "components/sdk/dotnet/src/"]
-COPY ["components/sdk/schemas/", "components/sdk/schemas/"]
+COPY ["components/schemas/", "components/schemas/"]
 COPY ["examples/services/order-service/", "examples/services/order-service/"]
 
 # Build

@@ -106,7 +106,7 @@ Design-time metadata does not include `runtime`.
 
 Canonical schema:
 
-- [components/sdk/schemas/design-time-metadata-v1.schema.json](../../components/sdk/schemas/design-time-metadata-v1.schema.json)
+- [components/schemas/design-time-metadata-v1.schema.json](../../components/schemas/design-time-metadata-v1.schema.json)
 
 ## Example (Design-Time, PoC Simplified)
 

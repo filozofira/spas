@@ -19,7 +19,12 @@ describe('Search Endpoints Integration', () => {
   const baseURL = 'http://localhost:3001';
   const dbPath = path.join(__dirname, '../fixtures/test-search.db');
   const validArchivePath = path.join(__dirname, '../fixtures/valid-service.zip');
-  const spasSchemaPath = path.join(__dirname, '../../node_modules/@spas/schemas/design-time-metadata-v1.schema.json');
+  const spasSchemaPath = path.resolve(
+    __dirname,
+    '../../..',
+    'schemas',
+    'design-time-metadata-v1.schema.json'
+  );
 
   beforeAll(async () => {
     // Clean up test database

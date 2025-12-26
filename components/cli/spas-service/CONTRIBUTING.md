@@ -232,5 +232,5 @@ Don't update specs for:
 - **Feature spec**: [specs/004-spas-service-cli](../../../specs/004-spas-service-cli/)
 - **CLI principles**: [principles/component/13-cli.md](../../../principles/component/13-cli.md)
 - **Repository integration**: [principles/component/11-repository.md](../../../principles/component/11-repository.md)
-- **Metadata schema**: [components/sdk/schemas/design-time-metadata-v1.schema.json](../../sdk/schemas/design-time-metadata-v1.schema.json)
+- **Metadata schema**: [components/schemas/design-time-metadata-v1.schema.json](../../schemas/design-time-metadata-v1.schema.json)
 - **Versioning strategy**: [principles/governance/23-versioning-strategy.md](../../../principles/governance/23-versioning-strategy.md)

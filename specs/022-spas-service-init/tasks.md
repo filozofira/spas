@@ -97,19 +97,19 @@
 
 ### Implementation for User Story 3
 
-- [ ] T028 [US3] Create workflow-phases.eta partial in components/cli/spas-service/templates/partials/workflow-phases.eta
-- [ ] T029 [US3] Implement Phase 1 (Analyze) in workflow-phases.eta (FR-014)
-- [ ] T030 [US3] Implement Phase 2 (Project Structure) in workflow-phases.eta (FR-014)
-- [ ] T031 [US3] Implement Phase 3 (Service Metadata) in workflow-phases.eta (FR-014, FR-018)
-- [ ] T032 [US3] Implement Phase 4 (Storage Layer) in workflow-phases.eta (FR-014)
-- [ ] T033 [US3] Implement Phase 5 (Endpoints & Model) in workflow-phases.eta (FR-014)
-- [ ] T034 [US3] Implement Phase 6 (Events) in workflow-phases.eta (FR-014)
-- [ ] T035 [US3] Implement Phase 7 (Sidecar Integration) in workflow-phases.eta (FR-014, FR-016)
-- [ ] T036 [US3] Implement Phase 8 (Runtime) in workflow-phases.eta (FR-014)
-- [ ] T037 [US3] Implement Phase 9 (Validate & Next Steps) in workflow-phases.eta (FR-014)
-- [ ] T038 [US3] Add Confirmation Gates pattern between phases (FR-015)
-- [ ] T039 [US3] Create validation-checklists.eta partial in components/cli/spas-service/templates/partials/validation-checklists.eta (FR-019)
-- [ ] T040 [US3] Include workflow-phases.eta and validation-checklists.eta in agent-prompt.eta
+- [X] T028 [US3] Create workflow-phases.eta partial in components/cli/spas-service/templates/partials/workflow-phases.eta
+- [X] T029 [US3] Implement Phase 1 (Analyze) in workflow-phases.eta (FR-014)
+- [X] T030 [US3] Implement Phase 2 (Project Structure) in workflow-phases.eta (FR-014)
+- [X] T031 [US3] Implement Phase 3 (Service Metadata) in workflow-phases.eta (FR-014, FR-018)
+- [X] T032 [US3] Implement Phase 4 (Storage Layer) in workflow-phases.eta (FR-014)
+- [X] T033 [US3] Implement Phase 5 (Endpoints & Model) in workflow-phases.eta (FR-014)
+- [X] T034 [US3] Implement Phase 6 (Events) in workflow-phases.eta (FR-014)
+- [X] T035 [US3] Implement Phase 7 (Sidecar Integration) in workflow-phases.eta (FR-014, FR-016)
+- [X] T036 [US3] Implement Phase 8 (Runtime) in workflow-phases.eta (FR-014)
+- [X] T037 [US3] Implement Phase 9 (Validate & Next Steps) in workflow-phases.eta (FR-014)
+- [X] T038 [US3] Add Confirmation Gates pattern between phases (FR-015)
+- [X] T039 [US3] Create validation-checklists.eta partial in components/cli/spas-service/templates/partials/validation-checklists.eta (FR-019)
+- [X] T040 [US3] Include workflow-phases.eta and validation-checklists.eta in agent-prompt.eta
 
 **Checkpoint**: Agent prompt has complete 9-phase workflow with confirmation gates. SDK patterns not yet detailed.
 

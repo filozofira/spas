@@ -33,6 +33,10 @@ function getEta(): Eta {
 /**
  * Render a template with Eta
  * 
+ * Uses Eta's file-based rendering which supports:
+ * - Includes: <%~ include('partials/workflow-phases', it) %>
+ * - Partials in templates/partials/ directory
+ * 
  * @param templateName Name of the template file (without .eta extension)
  * @param data Data to pass to the template
  * @returns Rendered template content
@@ -41,12 +45,12 @@ export function renderTemplate(templateName: string, data: Record<string, unknow
   const etaInstance = getEta();
   
   try {
-    // Read the template file
-    const templatePath = join(TEMPLATE_DIR, `${templateName}.eta`);
-    const templateContent = readFileSync(templatePath, 'utf-8');
+    // Use Eta's render method which supports includes and partials
+    const rendered = etaInstance.render(templateName, data);
     
-    // Render the template
-    const rendered = etaInstance.renderString(templateContent, data);
+    if (rendered === undefined) {
+      throw new Error(`Template "${templateName}" returned undefined`);
+    }
     
     return rendered;
   } catch (error) {

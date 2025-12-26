@@ -68,8 +68,13 @@ spas:
 ```
 
 **Key Packages** (.csproj):
-- `Microsoft.NET.Sdk.Web` (net8.0)
-- `Spas.Sdk:1.0.0`
+- SDK: `Microsoft.NET.Sdk.Web`
+- Target: `net10.0`
+- SPAS packages (use `Version="1.0.0-*"` for local feed):
+  - `Spas.Sdk.Core`
+  - `Spas.Sdk.Metadata`
+  - `Spas.Sdk.Events`
+  - `Spas.Sdk.Observability`
 
 **Event Publishing**:
 ```csharp

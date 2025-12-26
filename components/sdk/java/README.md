@@ -10,6 +10,23 @@ The Java SDK for building **SPAS (Self-contained, Portable, Adaptable Services)*
 
 ## For Users
 
+### Local Development Setup
+
+When developing services that reference SPAS SDK packages, you need to build and install the SDK to your local Maven repository:
+
+**One-time setup:**
+```bash
+cd components/sdk/java
+mvn clean install
+```
+
+This will build all SDK modules and install them to `~/.m2/repository/`, making them available for other projects to reference.
+
+**After SDK changes:**
+```bash
+mvn clean install
+```
+
 ### Quick Start
 
 1. Run the reference sample-service:

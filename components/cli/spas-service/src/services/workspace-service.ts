@@ -137,8 +137,6 @@ export class WorkspaceService {
           files: [
             `${serviceName}/README.md`,
             `${serviceName}/src/`,
-            `${serviceName}/schemas/endpoints/`,
-            `${serviceName}/schemas/events/`,
             `${serviceName}/metadata/`,
             `${serviceName}/.spas/schemas/design-time-metadata-v1.schema.json`,
             agentRelativePath,

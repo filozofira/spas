@@ -447,14 +447,16 @@ management:
 <Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
-    <TargetFramework>net8.0</TargetFramework>
+    <TargetFramework>net10.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="8.0.0" />
-    <PackageReference Include="Spas.Sdk" Version="1.0.0" />
+    <PackageReference Include="Spas.Sdk.Core" Version="1.0.0-*" />
+    <PackageReference Include="Spas.Sdk.Metadata" Version="1.0.0-*" />
+    <PackageReference Include="Spas.Sdk.Events" Version="1.0.0-*" />
+    <PackageReference Include="Spas.Sdk.Observability" Version="1.0.0-*" />
   </ItemGroup>
 
 </Project>
@@ -479,12 +481,18 @@ builder.Services.AddSingleton<I{Entity}Repository, InMemory{Entity}Repository>()
 builder.Services.AddScoped<I{Entity}Service, {Entity}Service>();
 
 // Configure SPAS SDK
-builder.Services.AddSpasEventPublisher(options =>
+builder.Services.AddSpasMetadata();
+builder.Services.AddSpasServices(builder.Configuration, "{name}");
+
+// Configure EventPublisher for sidecar communication
+builder.Services.AddSingleton<EventPublisher>(sp =>
 {
-    options.SidecarUrl = builder.Configuration["Spas:SidecarUrl"] 
-        ?? "http://localhost:3001";
-    options.ServiceId = builder.Configuration["Spas:ServiceId"] 
-        ?? "{name}";
+    var config = builder.Configuration;
+    var sidecarUrl = config["Spas:SidecarUrl"] ?? "http://localhost:3001";
+    var serviceName = config["Spas:ServiceName"] ?? "{name}";
+    
+    var httpClient = new HttpClient { BaseAddress = new Uri(sidecarUrl) };
+    return new EventPublisher(httpClient, serviceName);
 });
 
 var app = builder.Build();
@@ -500,7 +508,7 @@ app.Run();
 #### Event Class with [SpasEvent] Attribute
 
 ```csharp
-using Spas.Sdk.Attributes;
+using Spas.Sdk.Metadata.Attributes;
 
 namespace {Name}.Api.Events;
 
@@ -508,7 +516,7 @@ namespace {Name}.Api.Events;
 /// Event published when a new {entity} is created.
 /// CloudEvents type: com.{context}.{entity}-created
 /// </summary>
-[SpasEvent("{entity}-created", Version = "1.0.0")]
+[SpasEvent("{entity}-created", "1.0.0")]
 public record {Entity}CreatedEvent(
     string Id,
     string CustomerId,
@@ -529,8 +537,10 @@ public record {Entity}CreatedEvent(
 
 ```csharp
 using Microsoft.AspNetCore.Mvc;
+using Spas.Sdk.Metadata.Attributes;
 using {Name}.Api.Models;
 using {Name}.Api.Services;
+using {Name}.Api.Events;
 
 namespace {Name}.Api.Controllers;
 
@@ -549,7 +559,12 @@ public class {Entity}Controller : ControllerBase
     /// Command: Create{Entity}
     /// Produces: {entity}-created event
     /// </summary>
+    /// <remarks>
+    /// SPAS Pattern: Apply [SpasCommand] to both action AND request/response DTOs.
+    /// Use Produces property to link events: Produces = new[] { typeof({Entity}CreatedEvent) }
+    /// </remarks>
     [HttpPost]
+    [SpasCommand("create-{entity}", "1.0", Produces = new[] { typeof({Entity}CreatedEvent) })]
     [ProducesResponseType(typeof({Entity}Response), StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<ActionResult<{Entity}Response>> Create(
@@ -566,6 +581,7 @@ public class {Entity}Controller : ControllerBase
     /// Query: Get{Entity}
     /// </summary>
     [HttpGet("{id}")]
+    [SpasQuery("get-{entity}", "1.0")]
     [ProducesResponseType(typeof({Entity}Response), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult<{Entity}Response>> GetById(string id)
@@ -581,6 +597,7 @@ public class {Entity}Controller : ControllerBase
     /// Query: List{Entities}
     /// </summary>
     [HttpGet]
+    [SpasQuery("list-{entity}s", "1.0")]
     [ProducesResponseType(typeof(IEnumerable<{Entity}Response>), StatusCodes.Status200OK)]
     public async Task<ActionResult<IEnumerable<{Entity}Response>>> List()
     {
@@ -611,18 +628,29 @@ public interface I{Entity}Service
 using {Name}.Api.Events;
 using {Name}.Api.Models;
 using {Name}.Api.Repositories;
-using Spas.Sdk;
+using Spas.Sdk.Events.Publish;
 
 namespace {Name}.Api.Services;
 
 public class {Entity}Service : I{Entity}Service
 {
     private readonly I{Entity}Repository _repository;
-    private readonly ISpasEventPublisher _eventPublisher;
+    
+    /// <summary>
+    /// Publishes events to the sidecar for distribution.
+    /// </summary>
+    /// <remarks>
+    /// IMPORTANT: Use concrete EventPublisher class, not ISpasEventPublisher interface.
+    /// The SDK extracts event metadata from the [SpasEvent] attribute at runtime.
+    /// </remarks>
+    /// <example>
+    /// await _eventPublisher.PublishAsync&lt;OrderCreatedEvent&gt;(new OrderCreatedEvent(...));
+    /// </example>
+    private readonly EventPublisher _eventPublisher;
 
     public {Entity}Service(
         I{Entity}Repository repository,
-        ISpasEventPublisher eventPublisher)
+        EventPublisher eventPublisher)
     {
         _repository = repository;
         _eventPublisher = eventPublisher;
@@ -646,7 +674,8 @@ public class {Entity}Service : I{Entity}Service
         var saved = await _repository.SaveAsync(entity);
 
         // Publish event to sidecar
-        await _eventPublisher.PublishAsync(new {Entity}CreatedEvent(
+        // NOTE: Use generic method PublishAsync<TEvent>() - extracts metadata from [SpasEvent]
+        await _eventPublisher.PublishAsync<{Entity}CreatedEvent>(new {Entity}CreatedEvent(
             saved.Id,
             saved.CustomerId,
             saved.Items.Select(i => new {Entity}CreatedEvent.LineItem(
@@ -663,6 +692,68 @@ public class {Entity}Service : I{Entity}Service
 
     public Task<IEnumerable<{Entity}>> GetAllAsync()
         => _repository.GetAllAsync();
+}
+```
+
+#### DTOs with SDK Attributes
+
+**CRITICAL**: Apply `[SpasCommand]` or `[SpasQuery]` to request/response DTOs for endpoint schema generation.
+
+```csharp
+using Spas.Sdk.Metadata.Attributes;
+
+namespace {Name}.Api.Models;
+
+/// <summary>
+/// Request DTO for Create{Entity} command.
+/// </summary>
+/// <remarks>
+/// SPAS Pattern: Apply [SpasCommand] to request/response DTOs for automatic JSON schema generation.
+/// The SDK will generate schemas/endpoints/create-{entity}.schema.json from this type.
+/// </remarks>
+[SpasCommand("create-{entity}", "1.0")]
+public class Create{Entity}Request
+{
+    public string CustomerId { get; set; } = string.Empty;
+    public List<LineItem> Items { get; set; } = new();
+    
+    public decimal CalculateTotal() => Items.Sum(i => i.Quantity * i.UnitPrice);
+}
+
+/// <summary>
+/// Response DTO for Create{Entity} command.
+/// </summary>
+[SpasCommand("create-{entity}", "1.0")]
+public class Create{Entity}Response
+{
+    public string Id { get; set; } = string.Empty;
+    public string Status { get; set; } = "created";
+    public decimal Total { get; set; }
+    public DateTimeOffset CreatedAt { get; set; }
+}
+
+/// <summary>
+/// Domain model returned by Get{Entity} query.
+/// </summary>
+/// <remarks>
+/// SPAS Pattern: Apply [SpasQuery] for query response schema generation.
+/// </remarks>
+[SpasQuery("get-{entity}", "1.0")]
+public class {Entity}
+{
+    public string Id { get; set; } = string.Empty;
+    public string CustomerId { get; set; } = string.Empty;
+    public List<LineItem> Items { get; set; } = new();
+    public decimal Total { get; set; }
+    public string Status { get; set; } = "pending";
+    public DateTimeOffset CreatedAt { get; set; }
+}
+
+public class LineItem
+{
+    public string ProductId { get; set; } = string.Empty;
+    public int Quantity { get; set; }
+    public decimal UnitPrice { get; set; }
 }
 ```
 

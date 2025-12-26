@@ -2,10 +2,11 @@
 
 **Feature Branch**: `022-spas-service-init`  
 **Created**: 2025-12-26  
-**Status**: Draft  
+**Completed**: 2025-12-23
+**Status**: ✅ Complete (PoC)
 **Input**: User description: "Add spas-service init command that scaffolds a language-agnostic workspace for developing a SPAS-compliant service, plus generates a rich AI agent prompt that guides developers through service scaffolding via a systematic human-in-the-loop workflow."
 
-## User Scenarios & Testing *(mandatory)*
+## User Scenarios & Testing _(mandatory)_
 
 ### User Story 1 - Initialize Service Workspace (Priority: P1)
 
@@ -18,6 +19,7 @@ As a developer, I want to initialize a new SPAS service workspace so that I have
 **Acceptance Scenarios**:
 
 1. **Given** an empty directory, **When** I run `spas-service init order-service`, **Then** a folder `order-service/` is created with:
+
    - `README.md` containing workflow instructions, example `/spas.service` invocations, and links to SDK docs
    - `src/` empty directory for service code
    - `schemas/` empty directory for event/endpoint schemas
@@ -25,6 +27,7 @@ As a developer, I want to initialize a new SPAS service workspace so that I have
    - `.spas/schemas/design-time-metadata-v1.schema.json` for AI agent reference
 
 2. **Given** I run `spas-service init order-service`, **When** the command completes, **Then** agent prompt files are created at git root (if detected) or workspace parent:
+
    - `.github/agents/spas.service.agent.md` (full agent instructions)
    - `.github/prompts/spas.service.prompt.md` (SpecKit trigger file)
 
@@ -49,6 +52,7 @@ As a developer, I want to use an AI agent to scaffold my SPAS service code based
 **Acceptance Scenarios**:
 
 1. **Given** a service workspace exists, **When** developer runs `/spas.service NAME:order-service STACK:java CONTEXT:orders Create service with CreateOrder command that produces order-created event`, **Then** the AI agent:
+
    - Validates required tokens (NAME, STACK, CONTEXT) are present
    - Reads workspace structure from `{workspaceRoot}/{NAME}/`
    - Proposes project structure appropriate for the stack
@@ -77,6 +81,7 @@ As a developer, I want the AI agent to follow a systematic workflow with confirm
 2. **Given** agent proposes project structure, **When** developer provides feedback like "use Gradle instead of Maven", **Then** agent revises proposal and prompts again.
 
 3. **Given** developer confirms at each phase, **When** all phases complete, **Then** agent has executed:
+
    - Phase 1 (Analyze): Parse tokens, validate workspace, confirm understanding
    - Phase 2 (Project Structure): Propose stack-appropriate structure, scaffold if approved
    - Phase 3 (Service Metadata): Propose identity/security/license per design-time schema, scaffold if approved
@@ -102,6 +107,7 @@ As a developer, I want the agent to generate idiomatic code for my chosen stack,
 **Acceptance Scenarios**:
 
 1. **Given** `STACK:java`, **When** agent generates project, **Then** it creates:
+
    - Maven or Gradle build file with spas-sdk-spring dependency
    - Main application class with SPAS SDK integration
    - Command handler class with appropriate annotations
@@ -109,6 +115,7 @@ As a developer, I want the agent to generate idiomatic code for my chosen stack,
    - Produces correct `spas.json` with kebab-case event names
 
 2. **Given** `STACK:dotnet`, **When** agent generates project, **Then** it creates:
+
    - `.csproj` with Spas.Sdk.AspNetCore package reference
    - Program.cs with SPAS service registration
    - Command handler with appropriate attributes
@@ -132,6 +139,7 @@ As a developer using `spas-service init` in my own project (without SPAS repo ac
 **Acceptance Scenarios**:
 
 1. **Given** generated agent prompt, **Then** it documents:
+
    - Event publishing contract (POST /publish + required headers: traceparent, x-service-name, x-event-name, x-correlation-id)
    - Context propagation patterns
    - Metadata schema structure (commands, endpoints, events, produces[] relationship)
@@ -155,7 +163,7 @@ As a developer using `spas-service init` in my own project (without SPAS repo ac
 - What happens when developer skips a phase? → Agent allows skipping optional phases (Storage, Runtime) but warns about incomplete service.
 - What happens when `--json` flag is used? → CLI outputs structured JSON result for tooling integration.
 
-## Requirements *(mandatory)*
+## Requirements _(mandatory)_
 
 ### Functional Requirements
 
@@ -202,7 +210,7 @@ As a developer using `spas-service init` in my own project (without SPAS repo ac
 - **Agent Prompt**: Generated markdown at `.github/agents/spas.service.agent.md` containing all AI-assisted development instructions.
 - **Design-Time Metadata Schema**: JSON Schema defining the structure of `spas.json` that SDKs must produce.
 
-## Success Criteria *(mandatory)*
+## Success Criteria _(mandatory)_
 
 ### Measurable Outcomes
 

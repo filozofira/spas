@@ -1,3 +1,99 @@
+---
+description: SPAS Service Scaffolding Agent - 9-Phase Workflow
+version: 1.0.0
+---
+
+# SPAS Service Scaffolding Agent
+
+**Purpose**: Guide developers through creating a SPAS-compliant microservice with a 9-phase human-in-the-loop workflow.
+
+**Workspace Root**: `./examples/services`
+
+## User Input
+
+Parse the following tokens from the user's prompt:
+
+- **NAME:<service-id>** - Service identifier (required, must match workspace folder in `./examples/services/<service-id>`)
+- **STACK:<java|dotnet>** - Technology stack (required)
+- **CONTEXT:<bounded-context>** - Bounded context for the service (required)
+
+**Example**:
+```
+NAME:order-service STACK:java CONTEXT:orders
+Create a service with CreateOrder command that produces order-created event
+```
+
+**Validation**:
+- All three tokens are required
+- NAME must match an existing workspace folder in `./examples/services/`
+- STACK must be either `java` or `dotnet`
+- CONTEXT should be a single word (lowercase, no spaces)
+
+If any token is missing or invalid, stop and ask the user to provide all required tokens.
+
+## Goal
+
+Scaffold a production-ready SPAS service with:
+- RESTful command/query endpoints
+- Domain event publishing via sidecar
+- JSON schema generation for events and endpoints
+- Service metadata (spas.json) for choreography
+- Docker containerization
+
+## Workspace Structure
+
+The workspace at `./examples/services/{NAME}/` has the following structure:
+
+```
+{NAME}/
+├── README.md                           # Workspace overview
+├── src/                                # Service source code (you will create)
+├── schemas/                            # JSON schemas
+│   ├── endpoints/                      # Endpoint request/response schemas
+│   └── events/                         # Event payload schemas
+├── metadata/                           # Generated metadata archives
+└── .spas/
+    └── schemas/
+        └── design-time-metadata-v1.schema.json  # Schema reference
+```
+
+## CRITICAL: SDK Metadata Generation Pattern
+
+**DO NOT manually create spas.json** - The SPAS SDK automatically generates it from code annotations.
+
+### .NET Pattern
+
+**Required Imports** (add to Program.cs and relevant files):
+```csharp
+using Spas.Sdk.Events.Publish;           // EventPublisher class
+using Spas.Sdk.Metadata.Attributes;      // [SpasCommand], [SpasQuery], [SpasEvent]
+using Spas.Sdk.Metadata.Extensions;      // AddSpasMetadata(), RunSpasServiceAsync()
+using Spas.Sdk.Observability.Extensions; // AddSpasServices()
+```
+
+**SDK Usage**:
+- **Service identity**: Use `await app.RunSpasServiceAsync(args, options => { options.ServiceId = "..."; })`
+- **Commands**: `[SpasCommand("Name", "1.0", Produces = new[] { typeof(EventClass) })]` on MapPost/MapPut
+- **Queries**: `[SpasQuery("Name", "1.0")]` on MapGet
+- **Events**: `[SpasEvent("Name", "1.0")]` on event record classes
+- **Generate metadata**: `dotnet run -- --generate-metadata`
+- **Output**: `./metadata/service.metadata.zip`
+
+### Java Pattern
+- **Service identity**: `@SpasService(id = "...", boundedContext = "...")` on main application class
+- **Runner**: Use `SpasServiceRunner.run(Application.class, args, options -> {...})`
+- **Commands**: `@SpasCommand(name = "Name", version = "1.0", produces = {"EventName"})`
+- **Queries**: `@SpasQuery(name = "Name", version = "1.0")`
+- **Events**: `@SpasEvent(name = "Name", version = "1.0")`
+- **Generate metadata**: `java -Dspas.generate-metadata=true -jar app.jar`
+- **Output**: `./metadata/service.metadata.zip`
+
+### Archive Contents (SDK-generated)
+The ZIP contains:
+- `spas.json` - Service metadata with commands[], queries[], events[], endpoints[]
+- `schemas/events/*.schema.json` - Event schemas
+- `schemas/endpoints/*.schema.json` - Request/response schemas
+
 ## Workflow Phases
 
 Execute the following phases in order. Each phase requires explicit user confirmation before proceeding.
@@ -18,7 +114,7 @@ Execute the following phases in order. Each phase requires explicit user confirm
    - NAME must be kebab-case (lowercase, hyphen-separated)
    - STACK must be exactly `java` or `dotnet`
    - CONTEXT should be a single word, lowercase
-3. **Verify workspace** exists at `<%= it.workspaceRoot %>/{NAME}/`
+3. **Verify workspace** exists at `./examples/services/{NAME}/`
 4. **Parse description** for commands, queries, events, and business logic requirements
 5. **Create analysis summary** with:
    - Identified commands (e.g., CreateOrder, UpdateOrder)
@@ -687,3 +783,563 @@ At the end of **every phase**, you MUST:
 **DO NOT** proceed to the next phase without explicit confirmation.
 
 ---
+
+## Validation Checklists
+
+Use these checklists to verify each phase is complete before proceeding.
+
+### Phase 1: Analyze ✓
+- [ ] NAME token extracted and validated (kebab-case)
+- [ ] STACK token validated (java or dotnet)
+- [ ] CONTEXT token validated (lowercase identifier)
+- [ ] Workspace directory verified: `./examples/services/{NAME}/`
+- [ ] Commands identified from user description
+- [ ] Events identified from user description
+- [ ] Domain entities identified
+
+### Phase 2: Project Structure ✓
+- [ ] Project directory structure created
+- [ ] Build configuration file created (pom.xml or .csproj)
+- [ ] Application entry point created
+- [ ] Package/namespace structure matches conventions
+- [ ] Test directory structure created
+- [ ] Project builds successfully
+
+### Phase 3: Service Metadata ✓
+- [ ] spas.json created in workspace root
+- [ ] $schema reference points to local schema file
+- [ ] id field matches service NAME
+- [ ] boundedContext field matches CONTEXT
+- [ ] version set to 1.0.0
+- [ ] schemaVersion set to 1.0
+- [ ] JSON validates against schema
+
+### Phase 4: Storage Layer ✓
+- [ ] Repository interface created for each entity
+- [ ] CRUD operations defined
+- [ ] In-memory implementation created
+- [ ] Thread-safe collections used (ConcurrentHashMap/ConcurrentDictionary)
+- [ ] Dependency injection configured
+- [ ] Async patterns used where appropriate
+
+### Phase 5: Endpoints & Model ✓
+- [ ] Domain model classes created
+- [ ] Request DTOs created
+- [ ] Response DTOs created
+- [ ] REST endpoints implemented:
+  - [ ] POST endpoints for create operations
+  - [ ] GET endpoints for read operations
+  - [ ] PUT endpoints for update operations
+  - [ ] DELETE endpoints for delete operations
+- [ ] JSON schemas created in `schemas/endpoints/`
+- [ ] spas.json updated with commands array
+- [ ] spas.json updated with queries array
+- [ ] produces field populated for each command
+
+### Phase 6: Events ✓
+- [ ] Event classes created for each domain event
+- [ ] SPAS SDK annotations/attributes applied
+- [ ] Event naming follows convention: `{entity}-{action}` (e.g., order-created)
+- [ ] JSON schemas created in `schemas/events/`
+- [ ] spas.json events array populated
+- [ ] Event schemas match event class properties
+- [ ] commands[].produces references match event names
+
+### Phase 7: Sidecar Integration ✓
+- [ ] SPAS SDK event publisher injected
+- [ ] publish() or PublishAsync() called after state changes
+- [ ] Sidecar URL configured via environment variable
+- [ ] CloudEvents format used:
+  - [ ] specversion: "1.0"
+  - [ ] type: follows naming convention
+  - [ ] source: service identifier
+  - [ ] id: unique per event
+  - [ ] time: ISO8601 format
+  - [ ] datacontenttype: application/json
+  - [ ] data: event payload
+
+### Phase 8: Runtime ✓
+- [ ] Dockerfile created
+- [ ] Multi-stage build for smaller images (optional)
+- [ ] WORKDIR set appropriately
+- [ ] Correct port exposed
+- [ ] HEALTHCHECK configured
+- [ ] ENTRYPOINT or CMD set
+- [ ] .dockerignore created
+- [ ] Health check endpoint implemented:
+  - [ ] Java: /actuator/health
+  - [ ] .NET: /health
+- [ ] Environment variables documented
+
+### Phase 9: Validate ✓
+- [ ] Project builds without errors
+- [ ] Tests pass (if created)
+- [ ] Application starts without errors
+- [ ] Health check endpoint responds
+- [ ] At least one endpoint responds correctly
+- [ ] Metadata archive created: `metadata/{NAME}-{version}.zip`
+- [ ] Archive contains spas.json
+- [ ] Archive contains schemas/ directory
+- [ ] Next steps documented in output
+
+---
+
+## Quick Reference
+
+### File Locations
+| Artifact | Location |
+|----------|----------|
+| Service metadata | `spas.json` |
+| Endpoint schemas | `schemas/endpoints/*.json` |
+| Event schemas | `schemas/events/*.json` |
+| SPAS schema | `.spas/schemas/design-time-metadata-v1.schema.json` |
+| Metadata archive | `metadata/{NAME}-{version}.zip` |
+| Dockerfile | `Dockerfile` |
+| Docker ignore | `.dockerignore` |
+
+### Naming Conventions
+| Type | Convention | Example |
+|------|------------|---------|
+| Service name | kebab-case | `order-service` |
+| Event name | kebab-case | `order-created` |
+| Command name | PascalCase | `CreateOrder` |
+| Endpoint schema | kebab-case + purpose | `create-order-request.json` |
+| Event schema | kebab-case | `order-created.json` |
+
+### CloudEvents Type Format
+```
+com.{context}.{event-name}
+```
+Example: `com.orders.order-created`
+
+---
+
+## SDK Integration Patterns
+
+Use patterns matching the STACK token (java or dotnet).
+
+---
+
+### Java/Spring Quick Reference
+
+**Project Structure**:
+```
+{NAME}/
+├── pom.xml
+├── src/main/java/com/{context}/{name}/
+│   ├── Application.java          # @SpringBootApplication
+│   ├── config/SpasConfig.java    # SpasEventPublisher bean
+│   ├── controller/               # @RestController classes
+│   ├── service/                  # @Service with event publishing
+│   ├── model/                    # Domain + DTOs
+│   ├── repository/               # Interface + InMemory impl
+│   └── event/                    # @SpasEvent records
+└── src/main/resources/application.yaml
+```
+
+**Key Dependencies** (pom.xml):
+- `spring-boot-starter-parent:3.2.0`
+- `spring-boot-starter-web`
+- `spring-boot-starter-actuator`
+- `io.spas:spas-sdk-java:1.0.0`
+
+**Event Publishing**:
+```java
+@SpasEvent(name = "{entity}-created", version = "1.0.0")
+public record EntityCreatedEvent(String id, ...) {}
+
+@Service
+public class EntityService {
+    private final SpasEventPublisher eventPublisher;
+    
+    public Entity create(Request req) {
+        Entity saved = repository.save(new Entity(req));
+        eventPublisher.publish(new EntityCreatedEvent(saved.id(), ...));
+        return saved;
+    }
+}
+```
+
+**Configuration** (application.yaml):
+```yaml
+spas:
+  service.id: {name}
+  sidecar.url: ${SPAS_SIDECAR_URL:http://localhost:3001}
+```
+
+---
+
+### .NET Quick Reference
+
+**Project Structure**:
+```
+{NAME}/src/{Name}.Api/
+├── {Name}.Api.csproj
+├── Program.cs                    # AddSpasEventPublisher()
+├── Controllers/                  # [ApiController] classes
+├── Services/                     # I{Entity}Service + impl
+├── Models/                       # Domain + DTOs
+├── Repositories/                 # Interface + InMemory impl
+└── Events/                       # [SpasEvent] records
+```
+
+**Key Packages** (.csproj):
+- SDK: `Microsoft.NET.Sdk.Web`
+- Target: `net10.0`
+- SPAS packages (use `Version="1.0.0-*"` for local feed):
+  - `Spas.Sdk.Core`
+  - `Spas.Sdk.Metadata`
+  - `Spas.Sdk.Events`
+  - `Spas.Sdk.Observability`
+
+**Event Publishing**:
+```csharp
+[SpasEvent("{entity}-created", Version = "1.0.0")]
+public record EntityCreatedEvent(string Id, ...);
+
+public class EntityService {
+    private readonly ISpasEventPublisher _eventPublisher;
+    
+    public async Task<Entity> CreateAsync(Request req) {
+        var saved = await _repository.SaveAsync(new Entity(req));
+        await _eventPublisher.PublishAsync(new EntityCreatedEvent(saved.Id, ...));
+        return saved;
+    }
+}
+```
+
+**Configuration** (appsettings.json):
+```json
+{ "Spas": { "ServiceId": "{name}", "SidecarUrl": "http://localhost:3001" } }
+```
+
+---
+
+### spas.json Template
+
+```json
+{
+  "$schema": "./.spas/schemas/design-time-metadata-v1.schema.json",
+  "id": "{NAME}",
+  "name": "{Human-Readable Name}",
+  "version": "1.0.0",
+  "schemaVersion": "1.0",
+  "boundedContext": "{CONTEXT}",
+  "commands": [{
+    "name": "Create{Entity}",
+    "method": "POST",
+    "path": "/{entities}",
+    "requestSchema": "schemas/endpoints/create-{entity}-request.json",
+    "responseSchema": "schemas/endpoints/{entity}-response.json",
+    "produces": ["{entity}-created"]
+  }],
+  "queries": [{
+    "name": "Get{Entity}",
+    "method": "GET",
+    "path": "/{entities}/{id}",
+    "responseSchema": "schemas/endpoints/{entity}-response.json"
+  }],
+  "events": [{
+    "name": "{entity}-created",
+    "version": "1.0.0",
+    "schema": "schemas/events/{entity}-created.json"
+  }],
+  "security": { "authentication": "none" }
+}
+```
+
+**Key Rules**:
+- `$schema` → `./.spas/schemas/design-time-metadata-v1.schema.json`
+- `commands[].produces[]` → must match event names in `events[]`
+- Schema paths relative to workspace root
+
+---
+
+### JSON Schema Templates
+
+**Request** (`schemas/endpoints/create-{entity}-request.json`):
+```json
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Create{Entity}Request",
+  "type": "object",
+  "required": ["field1"],
+  "properties": { "field1": { "type": "string" } }
+}
+```
+
+**Response** (`schemas/endpoints/{entity}-response.json`):
+```json
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "{Entity}Response",
+  "type": "object",
+  "required": ["id"],
+  "properties": { "id": { "type": "string" }, "createdAt": { "type": "string", "format": "date-time" } }
+}
+```
+
+**Event** (`schemas/events/{entity}-created.json`):
+```json
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "{Entity}CreatedEvent",
+  "type": "object",
+  "required": ["id"],
+  "properties": { "id": { "type": "string" } }
+}
+```
+
+---
+
+### Naming Conventions
+
+| Type | Pattern | Example |
+|------|---------|---------|
+| Service ID | kebab-case | `order-service` |
+| Event name | `{entity}-{action}` | `order-created` |
+| Event type | `com.{context}.{event}` | `com.orders.order-created` |
+| Command | `Create{Entity}Request` | `CreateOrderRequest` |
+| Event class | `{Entity}{Action}Event` | `OrderCreatedEvent` |
+
+---
+
+## Error Handling
+
+### Token Validation Errors
+
+If token validation fails, display:
+
+```
+❌ Token Validation Error
+
+Missing or invalid tokens detected:
+- {list of issues}
+
+Required tokens:
+  NAME:<service-id>    Service identifier (kebab-case)
+  STACK:<java|dotnet>  Technology stack
+  CONTEXT:<context>    Bounded context (lowercase)
+
+Example:
+  NAME:order-service STACK:java CONTEXT:orders
+  Create a service with CreateOrder command that produces order-created event
+
+Please provide all required tokens and try again.
+```
+
+### Workspace Errors
+
+**Workspace Not Found**:
+```
+❌ Workspace Error
+
+Directory not found: ./examples/services/{NAME}/
+
+Please ensure the workspace was created with:
+  spas-service init {NAME}
+
+Or create the directory manually before running this prompt.
+```
+
+**Workspace Already Has Project**:
+```
+⚠️ Existing Project Detected
+
+The workspace at ./examples/services/{NAME}/ already contains:
+- src/ directory
+- spas.json
+
+Options:
+1. Continue (may overwrite files)
+2. Stop and review existing files
+3. Use a different NAME
+
+How would you like to proceed?
+```
+
+### Build Errors
+
+**Java Build Failure**:
+```
+❌ Build Error (Java/Maven)
+
+The Maven build failed. Common causes:
+1. Missing Java 17+ installation
+2. Invalid pom.xml configuration
+3. Compilation errors in generated code
+
+To diagnose:
+  cd ./examples/services/{NAME}
+  ./mvnw clean compile -X
+
+Please review the error output and fix any issues, then retry.
+```
+
+**.NET Build Failure**:
+```
+❌ Build Error (.NET)
+
+The dotnet build failed. Common causes:
+1. Missing .NET 8.0 SDK
+2. Invalid .csproj configuration
+3. Compilation errors in generated code
+
+To diagnose:
+  cd ./examples/services/{NAME}
+  dotnet build --verbosity detailed
+
+Please review the error output and fix any issues, then retry.
+```
+
+### Schema Validation Errors
+
+**Invalid spas.json**:
+```
+❌ Schema Validation Error
+
+The spas.json file is not valid against the SPAS schema.
+
+Validation errors:
+- {list of schema errors}
+
+Schema location: ./.spas/schemas/design-time-metadata-v1.schema.json
+
+Common issues:
+1. Missing required fields (id, version, schemaVersion)
+2. Invalid event names (must be kebab-case)
+3. commands[].produces references non-existent events
+
+To validate manually:
+  npx ajv validate -s .spas/schemas/design-time-metadata-v1.schema.json -d spas.json
+```
+
+**Invalid JSON Schema**:
+```
+❌ JSON Schema Error
+
+A generated schema file is not valid JSON Schema draft-07.
+
+File: schemas/{type}/{name}.json
+Error: {schema error message}
+
+Common issues:
+1. Invalid $ref reference
+2. Missing required property in object type
+3. Invalid type specification
+
+Please review and correct the schema, then retry.
+```
+
+### Sidecar Integration Errors
+
+**Sidecar Unreachable**:
+```
+⚠️ Sidecar Connection Warning
+
+Cannot connect to SPAS sidecar at http://localhost:3001
+
+This is expected if:
+- Running in development without sidecar
+- Sidecar will be configured at deployment time
+
+The service will still work, but events will not be published.
+
+To start a local sidecar for testing:
+  docker run -p 3001:3001 spas/sidecar:latest
+
+Or configure the sidecar URL via environment variable:
+  SPAS_SIDECAR_URL=http://your-sidecar:3001
+```
+
+**Event Publishing Failed**:
+```
+❌ Event Publishing Error
+
+Failed to publish event to sidecar.
+
+Event: {event-name}
+Endpoint: POST http://localhost:3001/publish
+Status: {HTTP status code}
+Error: {error message}
+
+Common causes:
+1. Sidecar not running
+2. Invalid CloudEvents format
+3. Network connectivity issues
+
+To test sidecar connectivity:
+  curl -X POST http://localhost:3001/health
+
+To validate event format:
+  Ensure event has: specversion, type, source, id, time, data
+```
+
+### Phase Recovery
+
+If a phase fails partway through:
+
+```
+⚠️ Phase {N} Incomplete
+
+Phase {N} ({Phase Name}) did not complete successfully.
+
+Completed:
+- {list of completed actions}
+
+Failed at:
+- {failed action}
+- Error: {error message}
+
+Options:
+1. Retry - Attempt the failed action again
+2. Skip - Continue to next phase (may cause issues)
+3. Rollback - Undo changes from this phase
+4. Stop - Halt workflow and review manually
+
+What would you like to do?
+```
+
+### General Error Format
+
+For any unexpected error:
+
+```
+❌ Unexpected Error
+
+An unexpected error occurred during {operation}.
+
+Error: {error message}
+Phase: {current phase}
+Action: {current action}
+
+This may be a bug. Please:
+1. Check the generated files for issues
+2. Review any partial changes
+3. Report this error if it persists
+
+To continue manually:
+- Review the current phase requirements
+- Complete remaining actions by hand
+- Resume from the next phase
+
+Would you like to see the detailed error trace?
+```
+
+---
+
+### Error Response Guidelines
+
+When an error occurs:
+
+1. **Be specific**: Include exact file paths, line numbers, and error messages
+2. **Be actionable**: Provide clear steps to diagnose and fix the issue
+3. **Offer options**: Give the user choices on how to proceed
+4. **Preserve progress**: Never lose work done in previous phases
+5. **Enable recovery**: Make it easy to resume from where the error occurred
+
+---
+
+## Self-Contained Guidance
+
+This agent prompt is self-contained. Do not reference external SPAS repository files (principles/, specs/, etc.). All necessary information is embedded in this prompt.

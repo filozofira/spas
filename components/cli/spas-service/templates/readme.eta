@@ -101,7 +101,7 @@ After implementing your service, generate the metadata archive:
 ./mvnw clean package  # Produces target/metadata.zip
 
 # .NET
-dotnet build          # Produces bin/Debug/net8.0/metadata.zip
+dotnet build          # Produces bin/Debug/net10.0/metadata.zip
 ```
 
 ## Publish to Repository
@@ -133,6 +133,108 @@ Add the SPAS SDK package:
 ```bash
 dotnet add package Spas.Sdk --version 1.0.0
 ```
+
+## SDK Quick Reference
+
+### .NET Patterns
+
+**Event Publishing:**
+```csharp
+// IMPORTANT: Use concrete EventPublisher class (NOT ISpasEventPublisher interface)
+using Spas.Sdk.Events.Publish;
+
+// Register in Program.cs
+builder.Services.AddSingleton<EventPublisher>(sp =>
+{
+    var config = builder.Configuration;
+    var sidecarUrl = config["Spas:SidecarUrl"] ?? "http://localhost:3001";
+    var serviceName = config["Spas:ServiceName"] ?? "<%= it.serviceName %>";
+    
+    var httpClient = new HttpClient { BaseAddress = new Uri(sidecarUrl) };
+    return new EventPublisher(httpClient, serviceName);
+});
+
+// Use generic method in services
+await _eventPublisher.PublishAsync<OrderCreatedEvent>(eventData);
+```
+
+**Metadata Attributes:**
+```csharp
+using Spas.Sdk.Metadata.Attributes;
+
+// Apply to controller actions AND DTOs for schema generation
+[SpasCommand("create-order", "1.0", Produces = new[] { typeof(OrderCreatedEvent) })]
+public async Task<ActionResult<Response>> CreateOrder([FromBody] Request request)
+
+// Apply to request/response DTOs - REQUIRED for endpoint schemas
+[SpasCommand("create-order", "1.0")]
+public class CreateOrderRequest { /* properties */ }
+
+// Apply to events - REQUIRED for event schemas
+[SpasEvent("order-created", "1.0.0")]
+public class OrderCreatedEvent { /* properties */ }
+```
+
+**Metadata Generation:**
+```bash
+dotnet run -- --generate-metadata
+# Output: ./metadata/service.metadata.zip
+```
+
+### Java Patterns
+
+**Event Publishing:**
+```java
+import io.spas.sdk.events.EventPublisher;
+
+// Configure bean
+@Bean
+public EventPublisher eventPublisher() {
+    return new EventPublisher(
+        EventPublisherConfig.builder()
+            .sidecarUrl("http://localhost:3001")
+            .serviceName("<%= it.serviceName %>")
+            .build()
+    );
+}
+
+// Publish events
+eventPublisher.publish(new OrderCreatedEvent(...));
+```
+
+**Metadata Annotations:**
+```java
+import io.spas.sdk.annotations.*;
+
+// Main application
+@SpasService(id = "<%= it.serviceName %>", boundedContext = "context")
+public class Application {
+    public static void main(String[] args) {
+        SpasServiceRunner.run(Application.class, args);
+    }
+}
+
+// Controller endpoints
+@SpasCommand(name = "create-order", version = "1.0", produces = {"order-created"})
+@SpasQuery(name = "get-order", version = "1.0")
+
+// Event classes
+@SpasEvent(name = "order-created", version = "1.0.0")
+public class OrderCreatedEvent { /* fields */ }
+```
+
+**Metadata Generation:**
+```bash
+java -Dspas.generate-metadata=true -jar target/app.jar
+# Output: ./metadata/service.metadata.zip
+```
+
+### Common Gotchas
+
+1. **EventPublisher is concrete** - .NET uses `EventPublisher` class, not `ISpasEventPublisher` interface
+2. **DTOs need attributes** - Apply `[SpasCommand]`/`[SpasQuery]` to request/response classes for schema generation
+3. **Generic method** - Use `PublishAsync<TEvent>()` in .NET for type-safe publishing
+4. **Event linkage** - Use `Produces` property to link commands to events: `Produces = new[] { typeof(Event) }`
 
 ## Event Publishing
 

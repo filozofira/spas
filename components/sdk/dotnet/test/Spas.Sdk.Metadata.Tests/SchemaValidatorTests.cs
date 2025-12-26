@@ -100,4 +100,34 @@ public class SchemaValidatorTests
         Assert.False(result.IsValid);
         Assert.NotEmpty(result.Errors);
     }
+
+    [Fact]
+    public void ValidateAgainstSchema_WithInvalidData_ReturnsDescriptiveErrors()
+    {
+        // Arrange
+        var validator = new SchemaValidator();
+        var schema = @"{
+            ""type"": ""object"",
+            ""properties"": {
+                ""name"": { ""type"": ""string"" },
+                ""count"": { ""type"": ""integer"" }
+            },
+            ""required"": [""name""]
+        }";
+        var data = JsonSerializer.Serialize(new { count = "not-a-number" });
+
+        // Act
+        var result = validator.ValidateAgainstSchema(data, schema);
+
+        // Assert
+        Assert.False(result.IsValid);
+        Assert.NotEmpty(result.Errors);
+        
+        // Verify errors contain location and meaningful message
+        var errorText = string.Join("; ", result.Errors);
+        Assert.Contains("At '", errorText); // Should have location prefix
+        Assert.True(
+            errorText.Contains("required") || errorText.Contains("type") || errorText.Contains("name"),
+            $"Error should describe the validation issue. Got: {errorText}");
+    }
 }

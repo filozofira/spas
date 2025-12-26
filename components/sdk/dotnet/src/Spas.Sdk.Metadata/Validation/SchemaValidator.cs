@@ -60,11 +60,11 @@ public class SchemaValidator
                 return ValidationResult.Success();
             }
 
-            var errors = validationResult.Errors?.Select(e => e.ToString()).ToList() ?? new List<string>();
+            var errors = ExtractValidationErrors(validationResult);
 
             if (errors.Count == 0)
             {
-                errors.Add(validationResult.ToString() ?? "Schema validation failed (no error details returned).");
+                errors.Add("Schema validation failed (no error details returned).");
             }
 
             return ValidationResult.Failure(errors.ToArray());
@@ -76,6 +76,36 @@ public class SchemaValidator
         catch (Exception ex)
         {
             return ValidationResult.Failure($"Schema validation failed: {ex.Message}");
+        }
+    }
+
+    private static List<string> ExtractValidationErrors(EvaluationResults results)
+    {
+        var errors = new List<string>();
+        CollectErrors(results, errors);
+        return errors;
+    }
+
+    private static void CollectErrors(EvaluationResults results, List<string> errors)
+    {
+        // Extract errors from this node
+        if (results.Errors != null)
+        {
+            foreach (var error in results.Errors)
+            {
+                var path = results.InstanceLocation.ToString();
+                var location = string.IsNullOrEmpty(path) ? "root" : path;
+                errors.Add($"At '{location}': {error.Key} - {error.Value}");
+            }
+        }
+
+        // Recurse into nested results
+        if (results.Details != null)
+        {
+            foreach (var detail in results.Details)
+            {
+                CollectErrors(detail, errors);
+            }
         }
     }
 

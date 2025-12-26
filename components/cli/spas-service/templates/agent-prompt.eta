@@ -57,6 +57,43 @@ The workspace at `<%= it.workspaceRoot %>/{NAME}/` has the following structure:
         └── design-time-metadata-v1.schema.json  # Schema reference
 ```
 
+## CRITICAL: SDK Metadata Generation Pattern
+
+**DO NOT manually create spas.json** - The SPAS SDK automatically generates it from code annotations.
+
+### .NET Pattern
+
+**Required Imports** (add to Program.cs and relevant files):
+```csharp
+using Spas.Sdk.Events.Publish;           // EventPublisher class
+using Spas.Sdk.Metadata.Attributes;      // [SpasCommand], [SpasQuery], [SpasEvent]
+using Spas.Sdk.Metadata.Extensions;      // AddSpasMetadata(), RunSpasServiceAsync()
+using Spas.Sdk.Observability.Extensions; // AddSpasServices()
+```
+
+**SDK Usage**:
+- **Service identity**: Use `await app.RunSpasServiceAsync(args, options => { options.ServiceId = "..."; })`
+- **Commands**: `[SpasCommand("Name", "1.0", Produces = new[] { typeof(EventClass) })]` on MapPost/MapPut
+- **Queries**: `[SpasQuery("Name", "1.0")]` on MapGet
+- **Events**: `[SpasEvent("Name", "1.0")]` on event record classes
+- **Generate metadata**: `dotnet run -- --generate-metadata`
+- **Output**: `./metadata/service.metadata.zip`
+
+### Java Pattern
+- **Service identity**: `@SpasService(id = "...", boundedContext = "...")` on main application class
+- **Runner**: Use `SpasServiceRunner.run(Application.class, args, options -> {...})`
+- **Commands**: `@SpasCommand(name = "Name", version = "1.0", produces = {"EventName"})`
+- **Queries**: `@SpasQuery(name = "Name", version = "1.0")`
+- **Events**: `@SpasEvent(name = "Name", version = "1.0")`
+- **Generate metadata**: `java -Dspas.generate-metadata=true -jar app.jar`
+- **Output**: `./metadata/service.metadata.zip`
+
+### Archive Contents (SDK-generated)
+The ZIP contains:
+- `spas.json` - Service metadata with commands[], queries[], events[], endpoints[]
+- `schemas/events/*.schema.json` - Event schemas
+- `schemas/endpoints/*.schema.json` - Request/response schemas
+
 <%~ include('partials/workflow-phases', it) %>
 
 <%~ include('partials/validation-checklists', it) %>

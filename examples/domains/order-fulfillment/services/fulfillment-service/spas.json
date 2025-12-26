@@ -8,24 +8,6 @@
   "capabilities": [],
   "endpoints": [
     {
-      "name": "update-shipment-status",
-      "type": "Command",
-      "protocol": "Http",
-      "methodPath": "/api/fulfillments/{id}/status",
-      "version": "1.0.0",
-      "schemaRef": "schemas/endpoints/update-status-request.schema.json",
-      "description": "Updates a shipment's status (e.g., packed/shipped/delivered); emits ShipmentStatusChanged on success"
-    },
-    {
-      "name": "get-shipment-by-order-id",
-      "type": "Query",
-      "protocol": "Http",
-      "methodPath": "/api/fulfillments/by-order/{orderId}",
-      "version": "1.0.0",
-      "schemaRef": "schemas/endpoints/shipment-response.schema.json",
-      "description": "Finds the shipment associated with a given orderId"
-    },
-    {
       "name": "get-shipment",
       "type": "Query",
       "protocol": "Http",
@@ -40,8 +22,26 @@
       "protocol": "Http",
       "methodPath": "/api/fulfillments",
       "version": "1.0.0",
-      "schemaRef": "schemas/endpoints/response-entity.schema.json",
+      "schemaRef": "schemas/endpoints/shipment-response.schema.json",
       "description": "Lists all known shipments (demo endpoint; may return in-memory state)"
+    },
+    {
+      "name": "get-shipment-by-order-id",
+      "type": "Query",
+      "protocol": "Http",
+      "methodPath": "/api/fulfillments/by-order/{orderId}",
+      "version": "1.0.0",
+      "schemaRef": "schemas/endpoints/shipment-response.schema.json",
+      "description": "Finds the shipment associated with a given orderId"
+    },
+    {
+      "name": "update-shipment-status",
+      "type": "Command",
+      "protocol": "Http",
+      "methodPath": "/api/fulfillments/{id}/status",
+      "version": "1.0.0",
+      "schemaRef": "schemas/endpoints/update-status-request.schema.json",
+      "description": "Updates a shipment's status (e.g., packed/shipped/delivered); emits ShipmentStatusChanged on success"
     },
     {
       "name": "create-shipment",
@@ -97,16 +97,23 @@
   },
   "security": {
     "authentication": {
-      "type": "None"
+      "type": "JWT",
+      "requiredScopes": [
+        "orders.read",
+        "orders.write"
+      ]
     },
     "dataClassification": [
       "internal"
     ]
   },
   "network": {
-    "requiredEgress": []
+    "requiredEgress": [
+      "localhost:6379"
+    ]
   },
-  "publishedAt": "2025-12-22T09:46:51.964Z",
+  "license": "MIT",
+  "publishedAt": "2025-12-26T15:07:28.423Z",
   "runtime": {
     "digest": "sha256:TODO_UPDATE_AFTER_BUILD",
     "repository": "spas-examples/fulfillment-service",

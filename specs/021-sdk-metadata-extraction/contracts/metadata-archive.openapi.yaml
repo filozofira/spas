@@ -16,6 +16,13 @@ paths:
       description: |
         Conceptual operation: generate a ZIP file containing spas.json and referenced schemas.
 
+        Output semantics (cross-language):
+        - Output override is treated as a DIRECTORY path, not a file path
+        - If omitted, the output directory defaults to `./metadata`
+        - The archive filename is fixed as `service.metadata.zip`
+        - The output directory is created if missing
+        - If `service.metadata.zip` already exists at the target location, it is overwritten
+
         Implementations:
         - .NET: `dotnet run -- --generate-metadata` (optional `--output <path>`)
         - Java: `-Dspas.generate-metadata=true` (optional output override property)

@@ -21,11 +21,11 @@ description: "Task list for feature implementation"
 
 ## Phase 2: Foundational (Blocking Prerequisites)
 
-- [ ] T005 Add shared constants for offline generation flags and defaults in components/sdk/dotnet/src/Spas.Sdk.Metadata/Generation/MetadataGenerationConstants.cs
-- [ ] T006 Add shared constants for offline generation flags and defaults in components/sdk/java/spas-sdk-metadata/src/main/java/io/spas/sdk/metadata/generation/MetadataGenerationConstants.java
-- [ ] T007 [P] Add .NET helper to read ZIP entries for assertions in components/sdk/dotnet/test/Spas.Sdk.Metadata.Tests/Helpers/ZipAssert.cs
-- [ ] T008 [P] Add Java helper to read ZIP entries for assertions in components/sdk/java/spas-sdk-spring/src/test/java/io/spas/sdk/spring/helpers/ZipAssert.java
-- [ ] T009 Add a minimal cross-language definition of output override semantics to specs/021-sdk-metadata-extraction/contracts/metadata-archive.openapi.yaml
+- [x] T005 Add shared constants for offline generation flags and defaults in components/sdk/dotnet/src/Spas.Sdk.Metadata/Generation/MetadataGenerationConstants.cs
+- [x] T006 Add shared constants for offline generation flags and defaults in components/sdk/java/spas-sdk-metadata/src/main/java/io/spas/sdk/metadata/generation/MetadataGenerationConstants.java
+- [x] T007 [P] Add .NET helper to read ZIP entries for assertions in components/sdk/dotnet/test/Spas.Sdk.Metadata.Tests/Helpers/ZipAssert.cs
+- [x] T008 [P] Add Java helper to read ZIP entries for assertions in components/sdk/java/spas-sdk-spring/src/test/java/io/spas/sdk/spring/helpers/ZipAssert.java
+- [x] T009 Add a minimal cross-language definition of output override semantics to specs/021-sdk-metadata-extraction/contracts/metadata-archive.openapi.yaml
 
 **Checkpoint**: Foundation ready - user story implementation can now begin.
 

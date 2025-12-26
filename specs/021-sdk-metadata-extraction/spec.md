@@ -3,7 +3,7 @@
 **Feature Branch**: `021-sdk-metadata-extraction`  
 **Created**: 2025-12-26  
 **Status**: Draft  
-**Input**: User description: "SDK Metadata Archive Extraction - Extend both .NET and Java SDKs to support extracting the complete metadata archive to disk without requiring the _spas/metadata endpoint to be called. A .Net and Java service developer needs to generate the complete SPAS metadata archive, with identical output format as the current SDK extraction (see \".\\examples\\services\\metadata\\order-service-1.0.0.zip\"). Metadata design-time schema must not be changed and implementation should encapsulate metadata generation logic inside SDK as much as possible, thus requiring minimal service developer effort. Ideally developers can use dotnet (or mvn variant) run command with --generate-metadata argument as well as optional --output argument which defaults to ./metadata folder path in service root. _metadata endpoint functionality must be removed as well as .Net ComposeToFile method and its usage. All example services must be updated to use new model."
+**Input**: User description: "SDK Metadata Archive Extraction - Extend both .NET and Java SDKs to support extracting the complete metadata archive to disk without requiring the _spas/metadata endpoint to be called. A .Net and Java service developer needs to generate the complete SPAS metadata archive, with identical output format as the current SDK extraction (see \".\\examples\\services\\metadata\\order-service-1.0.0.zip\"). Metadata design-time schema must not be changed and implementation should encapsulate metadata generation logic inside SDK as much as possible, thus requiring minimal service developer effort. Ideally developers can generate metadata via a CLI trigger (e.g., for .NET: `dotnet run -- --generate-metadata` with optional `--output`). _metadata endpoint functionality must be removed as well as .Net ComposeToFile method and its usage. All example services must be updated to use new model."
 
 ## User Scenarios & Testing *(mandatory)*
 
@@ -17,7 +17,7 @@ A .NET or Java service developer wants to generate the complete SPAS metadata ar
 
 **Acceptance Scenarios**:
 
-1. **Given** a .NET SPAS service project, **When** the developer runs the supported `--generate-metadata` invocation, **Then** a metadata archive ZIP is written and the process exits without starting the HTTP server.
+1. **Given** a .NET SPAS service project, **When** the developer runs `dotnet run -- --generate-metadata` (optionally with `--output <path>`), **Then** a metadata archive ZIP is written and the process exits without starting the HTTP server.
 2. **Given** a Java SPAS service project, **When** the developer enables metadata generation via the system property trigger, **Then** a metadata archive ZIP is written and the process exits without starting the HTTP server.
 3. **Given** a service that defines commands, queries, and events, **When** metadata is generated, **Then** the archive contains `spas.json` and the required schema files for those contracts.
 4. **Given** the order-service example, **When** metadata is generated, **Then** the archive file list (paths inside the ZIP) matches the reference archive `.\\examples\\services\\metadata\\order-service-1.0.0.zip`.
@@ -100,7 +100,7 @@ A platform maintainer wants to remove runtime metadata endpoint functionality an
 
 ### Functional Requirements
 
-- **FR-001**: The .NET SDK MUST support a `--generate-metadata` trigger that generates the complete metadata archive to disk.
+- **FR-001**: The .NET SDK MUST support a metadata generation trigger via process arguments (invoked as `dotnet run -- --generate-metadata`) that generates the complete metadata archive to disk.
 - **FR-002**: The Java SDK MUST support a metadata generation trigger via a system property (e.g., `-Dspas.generate-metadata=true`) that generates the complete metadata archive to disk.
 - **FR-003**: When metadata generation is triggered, the service MUST NOT start its HTTP server.
 - **FR-004**: The generated archive MUST include `spas.json` plus all required schemas needed to interpret the declared contracts.
@@ -118,6 +118,7 @@ A platform maintainer wants to remove runtime metadata endpoint functionality an
 - **FR-015**: All example services MUST be updated to the new model and successfully generate archives.
 - **FR-016**: In metadata generation mode, the SDK MUST be able to populate `endpoints[]` by initializing the service enough to discover routes without opening listening ports.
 - **FR-017**: In metadata generation mode, the SDK MUST NOT perform outbound network calls as part of metadata generation.
+- **FR-018**: In metadata generation mode, required service identity fields (`id`, `name`, `version`, `boundedContext`) MUST be sourced from the service's existing code-defined identity (the same identity used at runtime), not duplicated in a separate metadata-only configuration.
 
 ### Key Entities *(include if feature involves data)*
 
@@ -139,9 +140,17 @@ A platform maintainer wants to remove runtime metadata endpoint functionality an
 
 - Metadata generation is invoked from a directory that can be identified as a service project root.
 - The SDK can discover the necessary contracts and schemas without contacting a running service.
+- Services already define service identity in code (or expose a single code path the SDK can invoke) so the generator can reuse it during metadata generation.
 
 ## Decisions
 
 - Java metadata generation is triggered primarily via a system property (e.g., `-Dspas.generate-metadata=true`).
 - Default output filename is fixed to `service.metadata.zip` (written under `./metadata` by default).
 - Endpoint population uses “initialize for discovery without listening”: the service is initialized enough to build the route map so `endpoints[]` can be populated, but it does not open ports or accept traffic.
+
+## Clarifications
+
+### Session 2025-12-26
+
+- Q: For .NET, what is the canonical invocation to pass app args through `dotnet run`? → A: Use `dotnet run -- --generate-metadata` (and `--output <path>` after `--` when needed).
+- Q: In metadata generation mode, where should service identity come from? → A: Reuse the service's existing code-defined identity (same identity used at runtime).

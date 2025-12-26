@@ -3,6 +3,8 @@
 **Feature**: 004-spas-service-cli  
 **Version**: 1.0.0 (PoC)
 
+**Note**: The runtime metadata endpoint `/_spas/metadata` has been removed in favor of offline metadata archive generation (see `specs/021-sdk-metadata-extraction`). This quickstart describes the earlier PoC workflow and needs updating for the new offline archive flow.
+
 ## Installation
 
 ```bash

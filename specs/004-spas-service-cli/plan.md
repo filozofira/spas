@@ -3,6 +3,8 @@
 **Branch**: `004-spas-service-cli` | **Date**: 2025-12-14 | **Spec**: [spec.md](./spec.md)
 **Input**: Feature specification from `/specs/004-spas-service-cli/spec.md`
 
+**Note**: The runtime metadata endpoint `/_spas/metadata` has been removed in favor of offline metadata archive generation (see `specs/021-sdk-metadata-extraction`). This plan describes the earlier PoC workflow and needs updating for the new offline archive flow.
+
 ## Summary
 
 Implement `spas-service` CLI tool that enables developers to publish SPAS service metadata to the Repository with a single command. The CLI downloads metadata archives from running services via `/_spas/metadata` endpoint and publishes to the Repository. **Prerequisite**: Align SDK archive format with Repository expectations before CLI implementation.

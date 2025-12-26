@@ -3,6 +3,8 @@
 **Input**: Design documents from `/specs/004-spas-service-cli/`
 **Prerequisites**: plan.md ✅, spec.md ✅, research.md ✅, data-model.md ✅, quickstart.md ✅
 
+**Note**: The runtime metadata endpoint `/_spas/metadata` has been removed in favor of offline metadata archive generation (see `specs/021-sdk-metadata-extraction`). This task list describes the earlier PoC workflow and needs updating for the new offline archive flow.
+
 **Tech Stack**: Node.js 20 LTS, TypeScript 5.x (strict), Commander.js, axios, adm-zip, form-data, Jest
 **Tests**: Unit tests and integration tests included per Constitution requirements.
 

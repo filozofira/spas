@@ -3,6 +3,8 @@
 **Feature**: 004-spas-service-cli  
 **Created**: 2025-12-14
 
+**Note**: The runtime metadata endpoint `/_spas/metadata` has been removed in favor of offline metadata archive generation (see `specs/021-sdk-metadata-extraction`). This data model describes the earlier PoC workflow and needs updating for the new offline archive flow.
+
 ## Overview
 
 The `spas-service` CLI is a stateless command-line tool. It does not persist data but operates on:

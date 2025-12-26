@@ -3,6 +3,8 @@
 **Feature**: 004-spas-service-cli  
 **Created**: 2025-12-14
 
+**Note**: The runtime metadata endpoint `/_spas/metadata` has been removed in favor of offline metadata archive generation (see `specs/021-sdk-metadata-extraction`). This research describes the earlier PoC workflow and needs updating for the new offline archive flow.
+
 ## Phase 0 Research Tasks
 
 ### 1. SDK Archive Format vs Repository Expectations

@@ -5,6 +5,8 @@
 **Completed**: 2025-01  
 **Tests**: 48/48 passing
 
+**Note**: The runtime metadata endpoint `/_spas/metadata` has been removed in favor of offline metadata archive generation (see `specs/021-sdk-metadata-extraction`). This completion summary describes the earlier PoC workflow and needs updating for the new offline archive flow.
+
 ## ⚠️ Critical Bug Fix (December 15, 2025)
 
 **Issue**: Runtime metadata not being passed to Repository in normal publish mode

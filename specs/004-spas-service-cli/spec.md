@@ -6,6 +6,8 @@
 **Status**: ✅ Complete (PoC)
 **Input**: User description: "Create spas-service CLI tool which assists developer in publishing SPAS service metadata package to SPAS repository. CLI should support workflow: developer runs spas-service publish command with service-host argument, CLI prompts to start service, then downloads metadata ZIP via GET /_spas/metadata endpoint, and publishes via POST /services/{serviceName}:{version}"
 
+**Note**: The runtime metadata endpoint `/_spas/metadata` has been removed in favor of offline metadata archive generation (see `specs/021-sdk-metadata-extraction`). This spec remains as historical context and should be updated to publish from a locally generated `service.metadata.zip` artifact instead of downloading from a running service.
+
 ## Overview
 
 The `spas-service` CLI is a command-line tool that streamlines the SPAS service publishing workflow. It bridges the gap between local service development (using SPAS SDKs) and the SPAS Repository, enabling developers to publish their service metadata with a single command.

@@ -77,6 +77,26 @@ This is both a correctness requirement (determinism in CI) and a security constr
 
 ---
 
+## Phase 8 Notes (E2E Verification)
+
+- Java example services may appear to “hang” when run normally because `mvn spring-boot:run` / `java -jar ...` starts the embedded server and blocks as expected.
+- For offline metadata generation, the `spas.generate-metadata=true` trigger must run without starting the embedded web server.
+- Fix: the Spring SDK now forces `spring.main.web-application-type=none` when `spas.generate-metadata=true` (via an EnvironmentPostProcessor) and disables tracing in that mode.
+
+### Verified E2E commands (Windows / PowerShell)
+
+- **.NET (order-service)** (from `examples/services/order-service/`):
+  - `dotnet run -- --generate-metadata`
+  - Output: `./metadata/service.metadata.zip`
+
+- **Java (basket-service)** (from `examples/services/basket-service/`):
+  - Build: `mvn -DskipTests clean package`
+  - Generate (PowerShell-safe):
+    - `java --% -Dspas.generate-metadata=true -Dspas.metadata.output=./out -jar target/basket-service-1.0.0-SNAPSHOT.jar`
+  - Output: `./out/service.metadata.zip`
+
+---
+
 ### 4. Output location, naming, and overwrite semantics
 
 **Task**: Define stable output conventions and how they map across .NET and Java.

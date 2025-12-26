@@ -220,10 +220,12 @@ if (args.Any(a => string.Equals(a, MetadataGenerationConstants.GenerateMetadataA
     if (!TryGetOutputDirectory(args, out var outputDirectory))
     {
         Console.Error.WriteLine("Missing value for --output <path>.");
+        Console.Error.WriteLine("Usage: dotnet run -- --generate-metadata --output <path>");
         Environment.ExitCode = 2;
         return;
     }
 
+    Console.WriteLine("Generating SPAS metadata archive (offline; no listening ports)...");
     var archivePath = await app.GenerateSpasMetadataArchiveAsync(
         identity,
         outputDirectory: outputDirectory,

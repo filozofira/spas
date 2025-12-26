@@ -83,7 +83,6 @@ description: "Task list for feature implementation"
 
 **Independent Test**: Validate generated `spas.json` against `components/sdk/schemas/design-time-metadata-v1.schema.json`.
 
-- [ ] T029 [US4] Add a .NET validation step before writing the ZIP in components/sdk/dotnet/src/Spas.Sdk.Metadata/Generation/MetadataArchiveGenerator.cs using components/sdk/dotnet/src/Spas.Sdk.Metadata/Validation/SchemaValidator.cs
 - [x] T029 [US4] Add a .NET validation step before writing the ZIP in components/sdk/dotnet/src/Spas.Sdk.Metadata/Generation/MetadataArchiveGenerator.cs using components/sdk/dotnet/src/Spas.Sdk.Metadata/Validation/SchemaValidator.cs
 - [x] T030 [P] [US4] Add .NET unit test that invalid metadata fails with actionable error in components/sdk/dotnet/test/Spas.Sdk.Metadata.Tests/MetadataArchiveGeneratorTests.cs
 - [x] T031 [US4] Add Java JSON-schema validation dependency (test scope) to components/sdk/java/spas-sdk-spring/pom.xml
@@ -116,9 +115,9 @@ description: "Task list for feature implementation"
 
 ## Phase 8: Polish & Cross-Cutting Concerns
 
-- [ ] T047 [P] Add a regression test that order-service generated ZIP entry list matches reference in examples/services/order-service/Program.cs (smoke run instructions) and components/sdk/dotnet/test/Spas.Sdk.Metadata.Tests/Fixtures/ReferenceZipEntries.cs
-- [ ] T048 Update references to `/_spas/metadata` in specs/016-java-spas-sdk/quickstart.md and specs/004-spas-service-cli/* to note the endpoint is removed (documentation-only)
-- [ ] T049 Run end-to-end verification commands in specs/021-sdk-metadata-extraction/quickstart.md and record any deltas in specs/021-sdk-metadata-extraction/research.md
+- [x] T047 [P] Add a regression test that order-service generated ZIP entry list matches reference in examples/services/order-service/Program.cs (smoke run instructions) and components/sdk/dotnet/test/Spas.Sdk.Metadata.Tests/Fixtures/ReferenceZipEntries.cs
+- [x] T048 Update references to `/_spas/metadata` in specs/016-java-spas-sdk/quickstart.md and specs/004-spas-service-cli/* to note the endpoint is removed (documentation-only)
+- [x] T049 Run end-to-end verification commands in specs/021-sdk-metadata-extraction/quickstart.md and record any deltas in specs/021-sdk-metadata-extraction/research.md
 
 ---
 

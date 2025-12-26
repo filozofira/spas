@@ -1,0 +1,36 @@
+# Specification Quality Checklist: SDK Metadata Archive Extraction
+
+**Purpose**: Validate specification completeness and quality before proceeding to planning
+**Created**: 2025-12-26
+**Feature**: [specs/021-sdk-metadata-extraction/spec.md](../spec.md)
+
+## Content Quality
+
+- [ ] No implementation details (languages, frameworks, APIs)
+- [x] Focused on user value and business needs
+- [ ] Written for non-technical stakeholders
+- [x] All mandatory sections completed
+
+## Requirement Completeness
+
+- [x] No [NEEDS CLARIFICATION] markers remain
+- [x] Requirements are testable and unambiguous
+- [x] Success criteria are measurable
+- [ ] Success criteria are technology-agnostic (no implementation details)
+- [x] All acceptance scenarios are defined
+- [x] Edge cases are identified
+- [x] Scope is clearly bounded
+- [x] Dependencies and assumptions identified
+
+## Feature Readiness
+
+- [x] All functional requirements have clear acceptance criteria
+- [x] User scenarios cover primary flows
+- [x] Feature meets measurable outcomes defined in Success Criteria
+- [ ] No implementation details leak into specification
+
+## Notes
+
+- Items marked incomplete require spec updates before `/speckit.clarify` or `/speckit.plan`
+- Current spec includes platform-specific triggers (".NET" / "Java", `--generate-metadata`, output override) because the feature is explicitly about SDK developer UX. If strict non-technical phrasing is required, reword to “supported invocation” and keep concrete flags in a developer-facing doc.
+- Clarifications resolved: Java trigger via system property, default zip name fixed, endpoints populated by initializing routes without listening.

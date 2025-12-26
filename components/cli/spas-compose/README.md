@@ -6,36 +6,35 @@ It creates a domain workspace, pulls service contracts from a Repository, and ge
 
 ## For Users
 
+### Install
+
+PoC supports local use only.
+To use the CLI locally before it's published to npm:
+
+```bash
+cd components/cli/spas-compose
+npm install
+npm run build
+npm link
+```
+
+This makes `spas-compose` available globally on your machine.
+To unlink when done:
+
+```bash
+npm unlink -g @spas/cli
+```
+
 ### Typical Workflow
 
-1. Create a domain workspace:
-
-```bash
-spas-compose init <domain>
-cd <domain>
-```
-
-2. Pull the services you want to compose:
-
-```bash
-spas-compose services pull <service-name> <version>
-```
-
+1. Create a domain workspace (see **Init** below)
+2. Pull the services you want to compose (see **Services pull** below)
 3. Author the choreography:
+	- Edit `choreography.yaml` and add JSONata files under `transformations/`, or
+	- Use the `/spas.compose` agent prompt (requires `DOMAIN:<name>`) to propose and generate mappings.
+4. Build runnable artifacts and start the domain (see **Choreography build** below)
 
-- Edit `choreography.yaml` and add JSONata files under `transformations/`, or
-- Use the `/spas.compose` agent prompt (requires `DOMAIN:<name>`) to propose and generate mappings.
-
-4. Build runnable artifacts and start the domain:
-
-```bash
-spas-compose choreography build --docker
-docker compose up
-```
-
-### Commands
-
-#### `spas-compose init <workspace-name>`
+### Init
 
 Creates a domain workspace containing:
 
@@ -57,7 +56,7 @@ When invoking the agent, always include the domain selector:
 /spas.compose DOMAIN:e-commerce Analyze services and propose choreography
 ```
 
-#### `spas-compose services pull <name> <version>`
+### Services pull
 
 Downloads service metadata + schemas from the Repository and saves them under `services/<name>/`.
 
@@ -66,7 +65,7 @@ spas-compose services pull order-service 1.0.0
 spas-compose services pull order-service 1.0.0 --repo http://localhost:3000
 ```
 
-#### `spas-compose choreography build --docker`
+### Choreography build
 
 Generates `docker-compose.yaml` and sidecar config files from `choreography.yaml`.
 

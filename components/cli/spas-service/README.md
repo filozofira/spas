@@ -6,9 +6,30 @@ Command-line tool for creating, publishing, and pulling SPAS service metadata ar
 
 ### Install
 
+PoC supports local use only.
+To use the CLI locally before it's published to npm:
+
 ```bash
-npm install -g @spas/cli
+cd components/cli/spas-service
+npm install
+npm run build
+npm link
 ```
+
+This makes `spas-service` available globally on your machine.
+To unlink when done:
+
+```bash
+npm unlink -g @spas/cli
+```
+
+### Typical Workflow
+
+1. Create a new service workspace (see **Init** below)
+2. Implement the service (recommended: use `/spas.service` after init)
+3. Generate an offline metadata archive using your SDK
+4. Publish the metadata archive to a Repository (see **Publish** below)
+5. (Optional) Pull service metadata archives for inspection/testing (see **Pull** below)
 
 ### Init
 
@@ -158,30 +179,6 @@ spas-service pull order-service 1.0.0 --repo http://localhost:3000 --output ./ar
 ### Additional Resources
 
 - [Design-Time Metadata Schema](../../schemas/design-time-metadata-v1.schema.json)
-
-## Local Development
-
-To use the CLI locally before it's published to npm:
-
-```bash
-cd components/cli/spas-service
-npm install
-npm run build
-npm link
-```
-
-This makes `spas-service` available globally on your machine. You can now run commands like:
-
-```bash
-spas-service init my-service
-spas-service publish --archive ./metadata.zip
-```
-
-To unlink when done:
-
-```bash
-npm unlink -g @spas/cli
-```
 
 ## For Contributors
 

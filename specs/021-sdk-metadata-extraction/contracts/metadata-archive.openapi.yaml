@@ -1,0 +1,31 @@
+openapi: 3.0.3
+info:
+  title: SPAS Metadata Archive (Conceptual Contract)
+  version: 1.0.0
+  description: |
+    This OpenAPI document captures the payload contract of the SPAS metadata archive ZIP.
+
+    Note: The feature 021 implementation produces this archive via offline SDK generation
+    (process arguments/system properties), not via an HTTP endpoint.
+
+paths:
+  /metadata/archive:
+    post:
+      operationId: generateMetadataArchive
+      summary: Generate SPAS metadata archive (offline)
+      description: |
+        Conceptual operation: generate a ZIP file containing spas.json and referenced schemas.
+
+        Implementations:
+        - .NET: `dotnet run -- --generate-metadata` (optional `--output <path>`)
+        - Java: `-Dspas.generate-metadata=true` (optional output override property)
+      responses:
+        "200":
+          description: Metadata archive ZIP
+          content:
+            application/zip:
+              schema:
+                type: string
+                format: binary
+
+components: {}

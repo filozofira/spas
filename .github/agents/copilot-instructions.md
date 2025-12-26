@@ -273,6 +273,8 @@ Auto-generated from all feature plans. Last updated: 2025-12-12
 - C# / .NET 10, Java 17+, Node.js 20 (TypeScript) + Ajv (JSON Schema validation), System.Text.Json (.NET), Spring/Jackson (Java) (018-command-produces-events)
 - TypeScript 5.x (Node.js CLI) + Commander.js (CLI framework) (019-compose-diagram-flow)
 - N/A (template strings in source code) (019-compose-diagram-flow)
+- C# / .NET 10 (SDK + example services), Java 17 (SDK + example services) (021-sdk-metadata-extraction)
+- Filesystem output (metadata ZIP written to `./metadata/service.metadata.zip` by default) (021-sdk-metadata-extraction)
 
 - .NET 10 (target net10.0); Microsoft.Extensions.Logging; System.Text.Json (001-dotnet-spas-sdk)
 

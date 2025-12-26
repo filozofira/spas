@@ -78,12 +78,12 @@
 
 ### Implementation for User Story 2
 
-- [ ] T022 [US2] Create agent-prompt.eta base template in components/cli/spas-service/templates/agent-prompt.eta with YAML frontmatter
-- [ ] T023 [US2] Add User Input section with token parsing (NAME, STACK, CONTEXT) to agent-prompt.eta (FR-013)
-- [ ] T024 [US2] Add Goal section describing service scaffolding purpose to agent-prompt.eta
-- [ ] T025 [US2] Add Workspace Structure section with file layout reference to agent-prompt.eta
-- [ ] T026 [US2] Add Error Handling section for token validation errors to agent-prompt.eta
-- [ ] T027 [US2] Add Example Prompts section with sample invocations to agent-prompt.eta
+- [X] T022 [US2] Create agent-prompt.eta base template in components/cli/spas-service/templates/agent-prompt.eta with YAML frontmatter
+- [X] T023 [US2] Add User Input section with token parsing (NAME, STACK, CONTEXT) to agent-prompt.eta (FR-013)
+- [X] T024 [US2] Add Goal section describing service scaffolding purpose to agent-prompt.eta
+- [X] T025 [US2] Add Workspace Structure section with file layout reference to agent-prompt.eta
+- [X] T026 [US2] Add Error Handling section for token validation errors to agent-prompt.eta
+- [X] T027 [US2] Add Example Prompts section with sample invocations to agent-prompt.eta
 
 **Checkpoint**: Agent prompt has token validation and basic structure. Workflow phases not yet implemented.
 

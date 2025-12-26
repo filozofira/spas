@@ -6,8 +6,6 @@ using Spas.Sdk.Core.Identity;
 using Spas.Sdk.Events.Publish;
 using Spas.Sdk.Metadata.Attributes;
 using Spas.Sdk.Metadata.Builders;
-using Spas.Sdk.Metadata.Composition;
-using Spas.Sdk.Metadata.Dev;
 using Spas.Sdk.Metadata.Extensions;
 using Spas.Sdk.Metadata.Generation;
 using Spas.Sdk.Observability.Extensions;
@@ -20,9 +18,6 @@ builder.Services.AddSpasMetadata(options =>
     options.AssembliesToScan.Add(typeof(Program).Assembly);
     options.AutoGenerateSchemaReferences = true;
 });
-
-// Register dev metadata endpoint
-builder.Services.AddMetadataEndpoint();
 
 // Configure SPAS infrastructure (event publishing, tracing)
 var serviceName = builder.Services.AddSpasServices(builder.Configuration, "subscription-service");
@@ -160,34 +155,6 @@ async (ActivateSubscriptionRequest request, EventPublisher publisher, Subscripti
 
         return Results.Ok(new { subscriptionId = subscription.SubscriptionId, status = "active", orderId = request.OrderId });
     });
-
-// Discover contracts
-var contracts = app.DiscoverSpasMetadata();
-
-var security = new SecurityBuilder()
-    .WithAuthenticationType("jwt")
-    .AddRequiredScope("subscriptions.read")
-    .AddRequiredScope("subscriptions.write")
-    .AddDataClassification("internal")
-    .Build();
-
-var consistency = new ConsistencyBuilder()
-    .WithCommands("ACID")
-    .WithQueries("EVENTUAL")
-    .Build();
-
-var network = new NetworkBuilder()
-    .AddRequiredEgress("localhost:6379")  // Redis
-    .Build();
-
-// Compose metadata
-var composer = new SpasComposer();
-var metadataPath = Path.Combine(AppContext.BaseDirectory, "spas.json");
-composer.ComposeToFile(metadataPath, identity, contracts, security, consistency, network, "MIT");
-
-// Map metadata endpoint
-app.MapSpasMetadataEndpoint(
-    metadataProvider: () => composer.Compose(identity, contracts, security, consistency, network, "MIT"));
 
 app.MapGet("/", () => "Subscription Service");
 app.MapGet("/health", () => new { status = "healthy", service = "subscription-service", timestamp = DateTime.UtcNow });

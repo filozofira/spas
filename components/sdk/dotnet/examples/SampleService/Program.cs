@@ -2,9 +2,6 @@ using Spas.Sdk.Core.Identity;
 using Spas.Sdk.Events.Publish;
 using Spas.Sdk.Metadata.Attributes;
 using Spas.Sdk.Metadata.Builders;
-using Spas.Sdk.Metadata.Composition;
-using Spas.Sdk.Metadata.Dev;
-using Spas.Sdk.Metadata.Extensions;
 using Spas.Sdk.Observability.Extensions;
 using Spas.Sdk.Observability.Tracing;
 
@@ -16,9 +13,6 @@ builder.Services.AddSpasMetadata(options =>
     options.AssembliesToScan.Add(typeof(Program).Assembly);
     options.AutoGenerateSchemaReferences = true;
 });
-
-// Register dev metadata endpoint (enabled only in Development)
-builder.Services.AddMetadataEndpoint();
 
 // Configure all SPAS infrastructure services (event publishing, tracing)
 // Reads: SERVICE_NAME, SIDECAR_HOST, SIDECAR_PORT (or SIDECAR_URL), ZIPKIN_URL
@@ -88,33 +82,6 @@ app.MapGet("/queries/get-order/{id}",
         return Results.Ok(new GetOrderResponse(id, "completed", 99.99m));
     })
     .WithMetadata(new SpasQueryAttribute("GetOrder", "1.0"));
-
-// Discover contracts from attributes
-var contracts = app.DiscoverSpasMetadata();
-
-var security = new SecurityBuilder()
-    .WithAuthenticationType("jwt")
-    .AddRequiredScope("orders.read")
-    .AddRequiredScope("orders.write")
-    .AddDataClassification("internal")
-    .Build();
-
-var consistency = new ConsistencyBuilder()
-    .WithQueries("EVENTUAL")
-    .Build();
-
-var network = new NetworkBuilder()
-    .AddRequiredEgress("localhost:6379")
-    .Build();
-
-// Compose and write spas.json using discovered contracts
-var composer = new SpasComposer();
-var metadataPath = Path.Combine(AppContext.BaseDirectory, "spas.json");
-composer.ComposeToFile(metadataPath, identity, contracts, security, consistency, network, "MIT");
-
-// Map dev-only metadata endpoint (returns ZIP with spas.json + auto-generated schemas)
-app.MapSpasMetadataEndpoint(
-    metadataProvider: () => composer.Compose(identity, contracts, security, consistency, network, "MIT"));
 
 app.MapGet("/", () => "Hello from SPAS Sample Service!");
 

@@ -157,29 +157,4 @@ public class SpasComposerTests
         var endpoint = doc.RootElement.GetProperty("endpoints").EnumerateArray().First();
         Assert.False(endpoint.TryGetProperty("description", out _));
     }
-
-    [Fact]
-    public void ComposeToFile_WritesJsonToFile()
-    {
-        // Arrange
-        var composer = new SpasComposer();
-        var identity = new ServiceIdentityBuilder()
-            .WithId("test-service")
-            .WithName("test-service")
-            .WithVersion("1.0.0")
-            .WithBoundedContext("test")
-            .Build();
-        var tempFile = Path.Combine(Path.GetTempPath(), "spas-test.json");
-
-        // Act
-        composer.ComposeToFile(tempFile, identity);
-
-        // Assert
-        Assert.True(File.Exists(tempFile));
-        var content = File.ReadAllText(tempFile);
-        Assert.Contains("test-service", content);
-
-        // Cleanup
-        File.Delete(tempFile);
-    }
 }

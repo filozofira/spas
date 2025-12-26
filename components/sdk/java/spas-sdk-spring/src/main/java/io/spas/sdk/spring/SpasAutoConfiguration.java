@@ -21,7 +21,6 @@ import java.nio.file.Path;
  * 
  * Registers:
  * - SpasContextFilter: Extracts trace/identity context from HTTP headers
- * - SpasMetadataController: Exposes /_spas/metadata endpoint
  * - EventPublisher: Publishes events to sidecar
  * 
  * Enabled when:
@@ -42,15 +41,6 @@ public class SpasAutoConfiguration {
         return new SpasContextFilter();
     }
     
-    /**
-     * Registers SpasMetadataController to expose /_spas/metadata endpoint.
-     * The controller reads spas.json from classpath (generated at compile time).
-     */
-    @Bean
-    public SpasMetadataController spasMetadataController(SpasProperties properties) {
-        return new SpasMetadataController(properties);
-    }
-
     @Bean
     public SpasMetadataArchiveGenerator spasMetadataArchiveGenerator() {
         return new SpasMetadataArchiveGenerator();

@@ -23,7 +23,7 @@ public class SpasConfig
     public string ServiceVersion { get; set; } = "1.0.0";
 
     /// <summary>
-    /// Gets or sets whether development features are enabled (e.g., metadata endpoint).
+    /// Gets or sets whether development features are enabled.
     /// Should be disabled in production environments.
     /// </summary>
     public bool DevelopmentMode { get; set; } = false;
@@ -74,23 +74,4 @@ public class EventPublishingConfig
     /// Default: 3.
     /// </summary>
     public int MaxRetryAttempts { get; set; } = 3;
-}
-
-/// <summary>
-/// Configuration for the metadata development endpoint.
-/// </summary>
-public class MetadataEndpointConfig
-{
-    /// <summary>
-    /// Gets or sets whether the metadata endpoint is enabled.
-    /// Should only be true in development environments.
-    /// Default: false.
-    /// </summary>
-    public bool Enabled { get; set; } = false;
-
-    /// <summary>
-    /// Gets or sets the endpoint path for metadata access.
-    /// Default: /_spas/metadata
-    /// </summary>
-    public string EndpointPath { get; set; } = "/_spas/metadata";
 }

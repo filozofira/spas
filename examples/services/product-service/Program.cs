@@ -3,8 +3,6 @@ using ProductService.Services;
 using Spas.Sdk.Core.Identity;
 using Spas.Sdk.Metadata.Attributes;
 using Spas.Sdk.Metadata.Builders;
-using Spas.Sdk.Metadata.Composition;
-using Spas.Sdk.Metadata.Dev;
 using Spas.Sdk.Metadata.Extensions;
 using Spas.Sdk.Metadata.Generation;
 using Spas.Sdk.Observability.Extensions;
@@ -17,9 +15,6 @@ builder.Services.AddSpasMetadata(options =>
     options.AssembliesToScan.Add(typeof(Program).Assembly);
     options.AutoGenerateSchemaReferences = true;
 });
-
-// Register dev metadata endpoint
-builder.Services.AddMetadataEndpoint();
 
 // Configure SPAS infrastructure (event publishing, tracing)
 var serviceName = builder.Services.AddSpasServices(builder.Configuration, "product-service");
@@ -64,31 +59,6 @@ app.MapGet("/products/{id}",
         var product = catalog.Get(id);
         return product != null ? Results.Ok(product) : Results.NotFound();
     });
-
-// Discover contracts
-var contracts = app.DiscoverSpasMetadata();
-
-var security = new SecurityBuilder()
-    .WithAuthenticationType("jwt")
-    .AddRequiredScope("products.read")
-    .AddDataClassification("public")
-    .Build();
-
-var consistency = new ConsistencyBuilder()
-    .WithQueries("EVENTUAL")
-    .Build();
-
-var network = new NetworkBuilder()
-    .Build();
-
-// Compose metadata
-var composer = new SpasComposer();
-var metadataPath = Path.Combine(AppContext.BaseDirectory, "spas.json");
-composer.ComposeToFile(metadataPath, identity, contracts, security, consistency, network, "MIT");
-
-// Map metadata endpoint
-app.MapSpasMetadataEndpoint(
-    metadataProvider: () => composer.Compose(identity, contracts, security, consistency, network, "MIT"));
 
 app.MapGet("/", () => "Product Service");
 app.MapGet("/health", () => new { status = "healthy", service = "product-service", timestamp = DateTime.UtcNow });

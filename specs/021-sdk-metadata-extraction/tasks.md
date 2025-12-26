@@ -97,19 +97,19 @@ description: "Task list for feature implementation"
 
 **Independent Test**: Build the SDKs and examples and confirm the old endpoint APIs are gone and metadata generation is still possible via the new mechanism.
 
-- [ ] T034 [US5] Remove .NET ComposeToFile API from components/sdk/dotnet/src/Spas.Sdk.Metadata/Composition/SpasComposer.cs
-- [ ] T035 [P] [US5] Update .NET unit tests to remove/replace ComposeToFile coverage in components/sdk/dotnet/test/Spas.Sdk.Metadata.Tests/SpasComposerTests.cs
-- [ ] T036 [US5] Remove .NET runtime metadata endpoint helpers in components/sdk/dotnet/src/Spas.Sdk.Metadata/Dev/MetadataEndpointExtensions.cs and components/sdk/dotnet/src/Spas.Sdk.Metadata/Dev/MetadataEndpointOptions.cs
-- [ ] T037 [US5] Remove endpoint config surface from components/sdk/dotnet/src/Spas.Sdk.Configuration/SpasConfig.cs (remove EndpointPath or equivalent)
-- [ ] T038 [US5] Remove Java runtime controller class components/sdk/java/spas-sdk-spring/src/main/java/io/spas/sdk/spring/SpasMetadataController.java
-- [ ] T039 [US5] Remove Java auto-configuration wiring and properties for endpoint exposure in components/sdk/java/spas-sdk-spring/src/main/java/io/spas/sdk/spring/SpasAutoConfiguration.java and components/sdk/java/spas-sdk-spring/src/main/java/io/spas/sdk/spring/SpasProperties.java
-- [ ] T040 [P] [US5] Update Java tests to remove endpoint controller tests and cover offline generator instead in components/sdk/java/spas-sdk-spring/src/test/java/io/spas/sdk/spring/SpasMetadataControllerTest.java
-- [ ] T041 [P] [US5] Remove ComposeToFile usage from examples/services/order-service/Program.cs
-- [ ] T042 [P] [US5] Remove ComposeToFile usage from examples/services/product-service/Program.cs
-- [ ] T043 [P] [US5] Remove ComposeToFile usage from examples/services/subscription-service/Program.cs
-- [ ] T044 [P] [US5] Remove ComposeToFile usage from examples/services/inventory-service/Program.cs
-- [ ] T045 [P] [US5] Remove ComposeToFile usage from components/sdk/dotnet/examples/SampleService/Program.cs
-- [ ] T046 [P] [US5] Update Java example services docs/commands to use the system property trigger in examples/services/basket-service/README.md and examples/services/fulfillment-service/README.md
+- [x] T034 [US5] Remove .NET ComposeToFile API from components/sdk/dotnet/src/Spas.Sdk.Metadata/Composition/SpasComposer.cs
+- [x] T035 [P] [US5] Update .NET unit tests to remove/replace ComposeToFile coverage in components/sdk/dotnet/test/Spas.Sdk.Metadata.Tests/SpasComposerTests.cs
+- [x] T036 [US5] Remove .NET runtime metadata endpoint helpers in components/sdk/dotnet/src/Spas.Sdk.Metadata/Dev/MetadataEndpointExtensions.cs and components/sdk/dotnet/src/Spas.Sdk.Metadata/Dev/MetadataEndpointOptions.cs
+- [x] T037 [US5] Remove endpoint config surface from components/sdk/dotnet/src/Spas.Sdk.Configuration/SpasConfig.cs (remove EndpointPath or equivalent)
+- [x] T038 [US5] Remove Java runtime controller class components/sdk/java/spas-sdk-spring/src/main/java/io/spas/sdk/spring/SpasMetadataController.java
+- [x] T039 [US5] Remove Java auto-configuration wiring and properties for endpoint exposure in components/sdk/java/spas-sdk-spring/src/main/java/io/spas/sdk/spring/SpasAutoConfiguration.java and components/sdk/java/spas-sdk-spring/src/main/java/io/spas/sdk/spring/SpasProperties.java
+- [x] T040 [P] [US5] Update Java tests to remove endpoint controller tests and cover offline generator instead in components/sdk/java/spas-sdk-spring/src/test/java/io/spas/sdk/spring/SpasMetadataControllerTest.java
+- [x] T041 [P] [US5] Remove ComposeToFile usage from examples/services/order-service/Program.cs
+- [x] T042 [P] [US5] Remove ComposeToFile usage from examples/services/product-service/Program.cs
+- [x] T043 [P] [US5] Remove ComposeToFile usage from examples/services/subscription-service/Program.cs
+- [x] T044 [P] [US5] Remove ComposeToFile usage from examples/services/inventory-service/Program.cs
+- [x] T045 [P] [US5] Remove ComposeToFile usage from components/sdk/dotnet/examples/SampleService/Program.cs
+- [x] T046 [P] [US5] Update Java example services docs/commands to use the system property trigger in examples/services/basket-service/README.md and examples/services/fulfillment-service/README.md
 
 ---
 

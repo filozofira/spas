@@ -4,6 +4,7 @@ using Spas.Sdk.Metadata.Dev;
 using Spas.Sdk.Metadata.Extensions;
 using Spas.Sdk.Metadata.Models;
 using Spas.Sdk.Metadata.Schema;
+using Spas.Sdk.Metadata.Validation;
 
 namespace Spas.Sdk.Metadata.Generation;
 
@@ -12,15 +13,18 @@ public class MetadataArchiveGenerator
     private readonly MetadataArchiveWriter _archiveWriter;
     private readonly SchemaGenerator _schemaGenerator;
     private readonly SpasComposer _composer;
+    private readonly SchemaValidator _schemaValidator;
 
     public MetadataArchiveGenerator(
         MetadataArchiveWriter archiveWriter,
         SchemaGenerator schemaGenerator,
-        SpasComposer composer)
+        SpasComposer composer,
+        SchemaValidator schemaValidator)
     {
         _archiveWriter = archiveWriter;
         _schemaGenerator = schemaGenerator;
         _composer = composer;
+        _schemaValidator = schemaValidator;
     }
 
     public static MetadataArchiveGenerator CreateDefault()
@@ -28,7 +32,8 @@ public class MetadataArchiveGenerator
         return new MetadataArchiveGenerator(
             new MetadataArchiveWriter(),
             new SchemaGenerator(),
-            new SpasComposer());
+            new SpasComposer(),
+            new SchemaValidator());
     }
 
     public async Task<string> GenerateAsync(
@@ -53,6 +58,15 @@ public class MetadataArchiveGenerator
 
         var contracts = app.DiscoverSpasMetadata();
         var spasJson = _composer.Compose(identity, contracts);
+
+        var validation = _schemaValidator.Validate(spasJson);
+        if (!validation.IsValid)
+        {
+            var errorText = validation.Errors.Count > 0
+                ? string.Join("; ", validation.Errors)
+                : "Unknown schema validation error.";
+            throw new InvalidOperationException($"Generated spas.json failed schema validation: {errorText}");
+        }
 
         var targetAssembly = assemblyToScan ?? Assembly.GetEntryAssembly() ?? Assembly.GetExecutingAssembly();
         var schemas = await _schemaGenerator.GenerateSchemasFromAssemblyAsync(targetAssembly);

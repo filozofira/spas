@@ -157,4 +157,45 @@ public class MetadataArchiveGeneratorTests
             }
         }
     }
+
+    [Fact]
+    public async Task GenerateAsync_WhenSpasJsonIsSchemaInvalid_FailsWithActionableError()
+    {
+        var tempRoot = Path.Combine(Path.GetTempPath(), "spas-metadata-tests", Guid.NewGuid().ToString("N"));
+        Directory.CreateDirectory(tempRoot);
+
+        try
+        {
+            var builder = WebApplication.CreateBuilder();
+            builder.Services.AddSpasMetadata(options =>
+            {
+                options.AssembliesToScan.Add(typeof(MetadataArchiveGeneratorTests).Assembly);
+            });
+
+            var app = builder.Build();
+
+            // Invalid per design-time-metadata-v1.schema.json (must be kebab-case)
+            var identity = new ServiceIdentityBuilder()
+                .WithId("INVALID_ID")
+                .WithName("test-service")
+                .WithVersion("1.0.0")
+                .WithBoundedContext("test")
+                .Build();
+
+            var ex = await Assert.ThrowsAsync<InvalidOperationException>(() =>
+                app.GenerateSpasMetadataArchiveAsync(
+                    identity,
+                    outputDirectory: tempRoot,
+                    assemblyToScan: typeof(MetadataArchiveGeneratorTests).Assembly));
+
+            Assert.Contains("schema validation", ex.Message, StringComparison.OrdinalIgnoreCase);
+        }
+        finally
+        {
+            if (Directory.Exists(tempRoot))
+            {
+                Directory.Delete(tempRoot, recursive: true);
+            }
+        }
+    }
 }

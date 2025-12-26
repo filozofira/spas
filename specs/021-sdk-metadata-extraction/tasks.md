@@ -84,10 +84,11 @@ description: "Task list for feature implementation"
 **Independent Test**: Validate generated `spas.json` against `components/sdk/schemas/design-time-metadata-v1.schema.json`.
 
 - [ ] T029 [US4] Add a .NET validation step before writing the ZIP in components/sdk/dotnet/src/Spas.Sdk.Metadata/Generation/MetadataArchiveGenerator.cs using components/sdk/dotnet/src/Spas.Sdk.Metadata/Validation/SchemaValidator.cs
-- [ ] T030 [P] [US4] Add .NET unit test that invalid metadata fails with actionable error in components/sdk/dotnet/test/Spas.Sdk.Metadata.Tests/MetadataArchiveGeneratorTests.cs
-- [ ] T031 [US4] Add Java JSON-schema validation dependency (test scope) to components/sdk/java/spas-sdk-spring/pom.xml
-- [ ] T032 [US4] Embed the schema file for validation into components/sdk/java/spas-sdk-spring/src/test/resources/schemas/design-time-metadata-v1.schema.json (copied from components/sdk/schemas/design-time-metadata-v1.schema.json)
-- [ ] T033 [US4] Add Java unit test that generated spas.json validates against the embedded schema in components/sdk/java/spas-sdk-spring/src/test/java/io/spas/sdk/spring/SpasJsonSchemaValidationTest.java
+- [x] T029 [US4] Add a .NET validation step before writing the ZIP in components/sdk/dotnet/src/Spas.Sdk.Metadata/Generation/MetadataArchiveGenerator.cs using components/sdk/dotnet/src/Spas.Sdk.Metadata/Validation/SchemaValidator.cs
+- [x] T030 [P] [US4] Add .NET unit test that invalid metadata fails with actionable error in components/sdk/dotnet/test/Spas.Sdk.Metadata.Tests/MetadataArchiveGeneratorTests.cs
+- [x] T031 [US4] Add Java JSON-schema validation dependency (test scope) to components/sdk/java/spas-sdk-spring/pom.xml
+- [x] T032 [US4] Embed the schema file for validation into components/sdk/java/spas-sdk-spring/src/test/resources/schemas/design-time-metadata-v1.schema.json (copied from components/sdk/schemas/design-time-metadata-v1.schema.json)
+- [x] T033 [US4] Add Java unit test that generated spas.json validates against the embedded schema in components/sdk/java/spas-sdk-spring/src/test/java/io/spas/sdk/spring/SpasJsonSchemaValidationTest.java
 
 ---
 

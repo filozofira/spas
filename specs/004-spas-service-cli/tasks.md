@@ -3,7 +3,7 @@
 **Input**: Design documents from `/specs/004-spas-service-cli/`
 **Prerequisites**: plan.md ✅, spec.md ✅, research.md ✅, data-model.md ✅, quickstart.md ✅
 
-**Note**: The runtime metadata endpoint `/_spas/metadata` has been removed in favor of offline metadata archive generation (see `specs/021-sdk-metadata-extraction`). This task list describes the earlier PoC workflow and needs updating for the new offline archive flow.
+**Note**: The legacy runtime metadata endpoint has been removed in favor of offline metadata archive generation (see `specs/021-sdk-metadata-extraction`). This task list describes the earlier PoC workflow and needs updating for the new offline archive flow.
 
 **Tech Stack**: Node.js 20 LTS, TypeScript 5.x (strict), Commander.js, axios, adm-zip, form-data, Jest
 **Tests**: Unit tests and integration tests included per Constitution requirements.
@@ -57,7 +57,7 @@
 - [X] T017 [P] Create retry utility in `components/cli/spas-service/src/utils/retry.ts` (exponential backoff: max 5 retries, 1s initial, 2x multiplier, 16s max delay)
 - [X] T018 [P] Create output formatter in `components/cli/spas-service/src/utils/output.ts` (success/error messages with chalk coloring, verbose mode support)
 - [X] T019 [P] Create archive reader service in `components/cli/spas-service/src/services/archive-reader.ts` (extract spas.json from ZIP to get ServiceIdentity)
-- [X] T020 [P] Create metadata client service in `components/cli/spas-service/src/services/metadata-client.ts` (GET /_spas/metadata endpoint with retry, return Buffer)
+- [X] T020 [P] Create metadata client service in `components/cli/spas-service/src/services/metadata-client.ts` (legacy runtime metadata endpoint with retry, return Buffer)
 - [X] T021 [P] Create repository client service in `components/cli/spas-service/src/services/repository-client.ts` (POST /services/{id}:{version} multipart, GET /services/{id}/versions/{version}/download)
 - [X] T022 Create CLI entry point in `components/cli/spas-service/src/index.ts` (Commander.js setup with version, help, global --repo option)
 

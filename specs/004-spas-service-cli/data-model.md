@@ -3,7 +3,7 @@
 **Feature**: 004-spas-service-cli  
 **Created**: 2025-12-14
 
-**Note**: The runtime metadata endpoint `/_spas/metadata` has been removed in favor of offline metadata archive generation (see `specs/021-sdk-metadata-extraction`). This data model describes the earlier PoC workflow and needs updating for the new offline archive flow.
+**Note**: The legacy runtime metadata endpoint has been removed in favor of offline metadata archive generation (see `specs/021-sdk-metadata-extraction`). This data model describes the earlier PoC workflow and needs updating for the new offline archive flow.
 
 ## Overview
 
@@ -58,9 +58,9 @@ spas-service pull <name> <version> [--repo <url>] [--output <dir>]
 
 ## External Data Contracts
 
-### SDK Metadata Endpoint
+### SDK Metadata Endpoint (Legacy - Removed)
 
-**Endpoint**: `GET /_spas/metadata`
+**Endpoint**: (removed)
 
 **Response**: 
 - Content-Type: `application/zip`

@@ -19,6 +19,7 @@ RUN dotnet restore "examples/services/inventory-service/InventoryService.csproj"
 
 # Copy source
 COPY ["components/sdk/dotnet/src/", "components/sdk/dotnet/src/"]
+COPY ["components/sdk/schemas/", "components/sdk/schemas/"]
 COPY ["examples/services/inventory-service/", "examples/services/inventory-service/"]
 
 # Build

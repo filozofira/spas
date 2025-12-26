@@ -3,13 +3,13 @@
 **Feature**: 004-spas-service-cli  
 **Created**: 2025-12-14
 
-**Note**: The runtime metadata endpoint `/_spas/metadata` has been removed in favor of offline metadata archive generation (see `specs/021-sdk-metadata-extraction`). This research describes the earlier PoC workflow and needs updating for the new offline archive flow.
+**Note**: The legacy runtime metadata endpoint has been removed in favor of offline metadata archive generation (see `specs/021-sdk-metadata-extraction`). This research describes the earlier PoC workflow and needs updating for the new offline archive flow.
 
 ## Phase 0 Research Tasks
 
 ### 1. SDK Archive Format vs Repository Expectations
 
-**Task**: Compare SDK's `/_spas/metadata` output structure with Repository test fixtures
+**Task**: Compare SDK's legacy runtime metadata output structure with Repository test fixtures
 
 **Finding**: Format Mismatch Identified
 
@@ -102,7 +102,7 @@
 
 **Rationale**:
 
-1. SDK's `/_spas/metadata` already produces complete ZIP archive (spas.json + schemas)
+1. SDK's legacy runtime metadata output already produces complete ZIP archive (spas.json + schemas)
 2. Separate `pack` command would duplicate SDK functionality
 3. Single command reduces developer cognitive load
 4. `--dry-run` provides inspection capability originally planned for `metadata get`
@@ -133,7 +133,7 @@ All NEEDS CLARIFICATION items have been resolved:
 
 Before CLI implementation can proceed, SDK must be updated:
 
-1. **T001a**: Compare SDK's `/_spas/metadata` output with Repository fixtures - **DONE** (this research)
+1. **T001a**: Compare SDK's legacy runtime metadata output with Repository fixtures - **DONE** (this research)
 2. **T001b**: Update `MetadataArchiveWriter` to produce correct field names (`id` not `serviceId`, etc.)
 3. **T001c**: Update `MetadataArchiveWriter` to use categorized schema paths (`schemas/endpoints/`, `schemas/events/`)
 4. **T001d**: Update SDK tests to validate correct format

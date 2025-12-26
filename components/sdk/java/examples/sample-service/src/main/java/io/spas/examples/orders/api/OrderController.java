@@ -23,7 +23,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * - No state changes
  * - Generate endpoint contracts in spas.json
  * 
- * The /_spas/metadata endpoint generates spas.json at runtime.
+ * Metadata is generated offline into a design-time archive.
  * (Compile-time generation is optional and disabled by default.)
  * The EventPublisher automatically propagates trace context (traceparent) and identity
  * context (x-user-id, x-tenant-id, x-correlation-id) to the sidecar.

@@ -3,6 +3,9 @@
 **Feature**: 021-sdk-metadata-extraction  
 **Created**: 2025-12-26
 
+> **Historical note**: This research doc references the runtime metadata endpoint at `/_spas/metadata` as part of documenting its removal.
+> References are preserved for context; the supported approach is offline archive generation and archive-based publishing.
+
 ## Phase 0 Research Tasks
 
 ### 1. Reference ZIP format and required internal paths

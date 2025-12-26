@@ -48,7 +48,7 @@ Add the SPAS SDK dependencies to your `pom.xml`:
 
 Metadata generation:
 
-- The runtime metadata endpoint `GET /_spas/metadata` has been removed in favor of offline archive generation (see `specs/021-sdk-metadata-extraction/quickstart.md`).
+- The legacy runtime metadata endpoint has been removed in favor of offline archive generation (see `specs/021-sdk-metadata-extraction/quickstart.md`).
 - Compile-time generation is optional and disabled by default.
 
 To opt-in to compile-time generation, configure the annotation processor and enable it via compiler args:

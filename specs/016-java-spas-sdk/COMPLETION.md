@@ -4,6 +4,10 @@
 **Date Completed**: December 19, 2025  
 **Implementation Status**: ✅ Complete (PoC) - All 76 tasks (100%)
 
+> **Outdated (Historical)**: This completion report includes references to a runtime metadata endpoint at `/_spas/metadata`.
+> The current supported approach is **offline** metadata archive generation (SDK-triggered) and archive-based publishing; the runtime endpoint workflow has been removed.
+> The original report text is preserved for historical context.
+
 ---
 
 ## Summary

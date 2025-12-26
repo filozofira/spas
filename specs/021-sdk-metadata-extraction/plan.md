@@ -5,6 +5,9 @@
 
 **Note**: This template is filled in by the `/speckit.plan` command. See `.specify/templates/commands/plan.md` for the execution workflow.
 
+> **Historical note**: This plan references the runtime metadata endpoint at `/_spas/metadata` as part of documenting its removal.
+> References are preserved for context; the supported approach is offline archive generation and archive-based publishing.
+
 ## Summary
 
 Add a first-class “offline metadata generation” mode to both the .NET and Java SDKs that writes the complete SPAS metadata archive ZIP to disk without starting the HTTP server and without calling `/_spas/metadata`. The output must match the existing SDK archive structure (reference: `examples/services/metadata/order-service-1.0.0.zip`) and `spas.json` must remain compliant with the existing design-time schema (no schema changes allowed). As part of this change, remove the runtime metadata endpoint features (both SDKs) and remove the .NET `SpasComposer.ComposeToFile` API and its usages across examples.

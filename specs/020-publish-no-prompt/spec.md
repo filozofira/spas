@@ -28,7 +28,7 @@ A developer has their SPAS service already running and wants to publish metadata
 
 **Acceptance Scenarios**:
 
-1. **Given** a running SPAS SDK service at `http://localhost:5000`, **When** the developer runs `spas-service publish http://localhost:5000`, **Then** the CLI immediately attempts to download metadata from `/_spas/metadata` without prompting.
+1. **Given** a running SPAS SDK service at `http://localhost:5000`, **When** the developer runs `spas-service publish http://localhost:5000`, **Then** the CLI immediately attempts to download metadata from the legacy runtime metadata endpoint without prompting.
 2. **Given** a running service, **When** the publish command is executed in a non-interactive environment (CI/CD), **Then** the command completes without hanging or requiring stdin input.
 3. **Given** a service that is not yet running, **When** the CLI attempts to download metadata, **Then** the CLI fails with a clear error message indicating the service is unreachable.
 

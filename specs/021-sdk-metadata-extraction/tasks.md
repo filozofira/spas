@@ -5,6 +5,9 @@ description: "Task list for feature implementation"
 
 # Tasks: SDK Metadata Archive Extraction
 
+> **Historical note**: This task list references the runtime metadata endpoint at `/_spas/metadata` as part of documenting its removal.
+> References are preserved for context; the supported approach is offline archive generation and archive-based publishing.
+
 **Input**: Design documents from `/specs/021-sdk-metadata-extraction/`
 **Prerequisites**: plan.md (required), spec.md (required), research.md, data-model.md, quickstart.md, contracts/
 

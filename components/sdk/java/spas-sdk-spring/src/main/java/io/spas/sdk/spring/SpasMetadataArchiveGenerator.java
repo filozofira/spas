@@ -747,7 +747,29 @@ public class SpasMetadataArchiveGenerator {
                         continue;
                     }
 
+                    // Match using the path-only key used by scanHttpHandlers.
+                    String normalizedRoutePath = normalizeMethodPath(routePath);
                     Method handlerMethod = routeToMethod.get(routePath);
+                    if (handlerMethod == null && normalizedRoutePath != null) {
+                        handlerMethod = routeToMethod.get(normalizedRoutePath);
+                    }
+
+                    // Fallback: try legacy verb+path keys.
+                    if (handlerMethod == null && normalizedRoutePath != null && endpoint.type() != null) {
+                        String guessedVerb = endpoint.type() == EndpointType.COMMAND
+                            ? "POST"
+                            : endpoint.type() == EndpointType.QUERY
+                                ? "GET"
+                                : null;
+
+                        if (guessedVerb != null) {
+                            handlerMethod = routeToMethod.get(guessedVerb + " " + normalizedRoutePath);
+                            if (handlerMethod == null) {
+                                handlerMethod = routeToMethod.get(guessedVerb + " " + routePath);
+                            }
+                        }
+                    }
+
                     if (handlerMethod == null) {
                         continue;
                     }
@@ -952,13 +974,52 @@ public class SpasMetadataArchiveGenerator {
             Type generic = method.getGenericReturnType();
             if (generic instanceof ParameterizedType pt) {
                 Type[] args = pt.getActualTypeArguments();
-                if (args.length == 1 && args[0] instanceof Class<?> c) {
-                    return c;
+                if (args.length == 1) {
+                    Class<?> unwrapped = unwrapToSchemaClass(args[0]);
+                    if (unwrapped != null) {
+                        return unwrapped;
+                    }
                 }
             }
         }
 
         return returnType;
+    }
+
+    /**
+     * Best-effort conversion from a generic Type to a concrete Class for schema generation.
+     *
+     * We prefer the payload type (e.g., List<Foo> -> Foo) because the schema generator accepts only Class<?>
+     * and because endpoint schemas typically describe request/response payloads rather than framework wrappers.
+     */
+    private Class<?> unwrapToSchemaClass(Type type) {
+        if (type == null) {
+            return null;
+        }
+
+        if (type instanceof Class<?> c) {
+            return c;
+        }
+
+        if (type instanceof ParameterizedType pt) {
+            Type raw = pt.getRawType();
+            if (raw instanceof Class<?> rawClass) {
+                // For common collection wrappers, prefer the element type.
+                if (java.util.Collection.class.isAssignableFrom(rawClass) || java.lang.Iterable.class.isAssignableFrom(rawClass)) {
+                    Type[] args = pt.getActualTypeArguments();
+                    if (args.length == 1) {
+                        Class<?> element = unwrapToSchemaClass(args[0]);
+                        if (element != null) {
+                            return element;
+                        }
+                    }
+                }
+
+                return rawClass;
+            }
+        }
+
+        return null;
     }
 
     private String findBasePackage() {

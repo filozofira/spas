@@ -1,41 +1,41 @@
 Write-Host "Publishing Services to SPAS Service Registry"
 
-spas-service publish --archive ./metadata/order-service-1.0.0.zip `
+spas-service publish --archive ./order-service/metadata/service.metadata.zip `
 --image-repository spas-examples/order-service `
 --image-tag 1.0.0 `
---image-digest sha256:c45c924de1ed9d31633e495430b9a4bd0525babe4703f445694789e803e751a2
+--image-digest sha256:TODO_UPDATE_AFTER_BUILD
 
 Write-Host "Published Order Service"
 
-spas-service publish --archive ./metadata/inventory-service-1.0.0.zip `
+spas-service publish --archive ./inventory-service/metadata/service.metadata.zip `
 --image-repository spas-examples/inventory-service `
 --image-tag 1.0.0 `
---image-digest sha256:b2216d668e9130721dd0ab291e97a39f3de4b56e7b3451895e2422642dd80d33
+--image-digest sha256:TODO_UPDATE_AFTER_BUILD
 
 Write-Host "Published Inventory Service"
 
-spas-service publish --archive ./metadata/product-service-1.0.0.zip `
+spas-service publish --archive ./product-service/metadata/service.metadata.zip `
 --image-repository spas-examples/product-service `
 --image-tag 1.0.0 `
---image-digest sha256:7a572302b2a4cc48e5e01abb523ff21a54122f7c31f3057e3f48ae9c9f0f2c127a572302b2a4cc48e5e01abb523ff21a54122f7c31f3057e3f48ae9c9f0f2c12
+--image-digest sha256:TODO_UPDATE_AFTER_BUILD
 
 Write-Host "Published Product Service"
 
-spas-service publish --archive ./metadata/subscription-service-1.0.0.zip `
+spas-service publish --archive ./subscription-service/metadata/service.metadata.zip `
 --image-repository spas-examples/subscription-service `
 --image-tag 1.0.0 `
---image-digest sha256:98ed8036c20440548030630b7a99d5372871f49e3bbb40d428b64404090105bb
+--image-digest sha256:TODO_UPDATE_AFTER_BUILD
 
 Write-Host "Published Subscription Service"
 
-spas-service publish --archive ./metadata/fulfillment-service-1.0.0.zip `
+spas-service publish --archive ./fulfillment-service/metadata/service.metadata.zip `
 --image-repository spas-examples/fulfillment-service `
 --image-tag 1.0.0 `
 --image-digest sha256:TODO_UPDATE_AFTER_BUILD
 
 Write-Host "Published Fulfillment Service"
 
-spas-service publish --archive ./metadata/basket-service-1.0.0.zip `
+spas-service publish --archive ./basket-service/metadata/service.metadata.zip `
 --image-repository spas-examples/basket-service `
 --image-tag 1.0.0 `
 --image-digest sha256:TODO_UPDATE_AFTER_BUILD

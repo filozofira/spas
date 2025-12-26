@@ -52,14 +52,14 @@ description: "Task list for feature implementation"
 
 **Independent Test**: Run generation with default settings and with an output override and confirm the archive is written to the correct location.
 
-- [ ] T016 [US2] Implement .NET argument parsing for `--generate-metadata` and optional `--output <path>` in examples/services/order-service/Program.cs
-- [ ] T017 [P] [US2] Apply the same .NET argument parsing pattern to examples/services/product-service/Program.cs
-- [ ] T018 [P] [US2] Apply the same .NET argument parsing pattern to examples/services/subscription-service/Program.cs
-- [ ] T019 [P] [US2] Apply the same .NET argument parsing pattern to examples/services/inventory-service/Program.cs
-- [ ] T020 [US2] Implement default output directory creation + overwrite behavior in components/sdk/dotnet/src/Spas.Sdk.Metadata/Generation/MetadataArchiveGenerator.cs
-- [ ] T021 [P] [US2] Add .NET unit tests for default output and overwrite behavior in components/sdk/dotnet/test/Spas.Sdk.Metadata.Tests/MetadataArchiveGeneratorTests.cs
-- [ ] T022 [US2] Implement Java output override property `spas.metadata.output` and default `./metadata` in components/sdk/java/spas-sdk-spring/src/main/java/io/spas/sdk/spring/SpasMetadataArchiveGenerator.java
-- [ ] T023 [P] [US2] Add Java unit tests for default output and overwrite behavior in components/sdk/java/spas-sdk-spring/src/test/java/io/spas/sdk/spring/SpasMetadataArchiveGeneratorTest.java
+- [x] T016 [US2] Implement .NET argument parsing for `--generate-metadata` and optional `--output <path>` in examples/services/order-service/Program.cs
+- [x] T017 [P] [US2] Apply the same .NET argument parsing pattern to examples/services/product-service/Program.cs
+- [x] T018 [P] [US2] Apply the same .NET argument parsing pattern to examples/services/subscription-service/Program.cs
+- [x] T019 [P] [US2] Apply the same .NET argument parsing pattern to examples/services/inventory-service/Program.cs
+- [x] T020 [US2] Implement default output directory creation + overwrite behavior in components/sdk/dotnet/src/Spas.Sdk.Metadata/Generation/MetadataArchiveGenerator.cs
+- [x] T021 [P] [US2] Add .NET unit tests for default output and overwrite behavior in components/sdk/dotnet/test/Spas.Sdk.Metadata.Tests/MetadataArchiveGeneratorTests.cs
+- [x] T022 [US2] Implement Java output override property `spas.metadata.output` and default `./metadata` in components/sdk/java/spas-sdk-spring/src/main/java/io/spas/sdk/spring/SpasMetadataArchiveGenerator.java
+- [x] T023 [P] [US2] Add Java unit tests for default output and overwrite behavior in components/sdk/java/spas-sdk-spring/src/test/java/io/spas/sdk/spring/SpasMetadataArchiveGeneratorTest.java
 
 ---
 

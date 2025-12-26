@@ -3,6 +3,7 @@ using NJsonSchema.Generation;
 using System.Reflection;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using System.Text.Json.Nodes;
 using Spas.Sdk.Metadata.Attributes;
 
 namespace Spas.Sdk.Metadata.Schema;
@@ -89,16 +90,60 @@ public class SchemaGenerator
         // Generate schema using NJsonSchema with camelCase settings
         var schema = JsonSchema.FromType(type, settings);
         var schemaJson = schema.ToJson();
-        
-        // Parse schema JSON and replace $schema value with draft-07
-        var schemaObj = JsonSerializer.Deserialize<Dictionary<string, object>>(schemaJson)!;
-        // Set $schema to draft-07 string (plain string, not JsonElement)
-        schemaObj["$schema"] = "http://json-schema.org/draft-07/schema#";
-        
-        // Serialize back to JSON string (per ADR-039: JSON Schema draft-07 compliance)
-        var options = new JsonSerializerOptions { WriteIndented = true };
-        var jsonString = JsonSerializer.Serialize(schemaObj, options);
-        
+
+        var schemaNode = JsonNode.Parse(schemaJson)?.AsObject()
+            ?? throw new InvalidOperationException("Failed to parse generated schema JSON.");
+
+        NormalizeSchemaPropertyNamesToCamelCase(schemaNode);
+        schemaNode["$schema"] = "http://json-schema.org/draft-07/schema#";
+
+        var jsonString = schemaNode.ToJsonString(new JsonSerializerOptions { WriteIndented = true });
         return await Task.FromResult(jsonString);
+    }
+
+    private static void NormalizeSchemaPropertyNamesToCamelCase(JsonNode node)
+    {
+        if (node is JsonObject obj)
+        {
+            if (obj.TryGetPropertyValue("properties", out var propertiesNode) && propertiesNode is JsonObject propertiesObj)
+            {
+                var renames = propertiesObj
+                    .Select(kvp => new { OldName = kvp.Key, NewName = JsonNamingPolicy.CamelCase.ConvertName(kvp.Key) })
+                    .Where(x => x.NewName != x.OldName)
+                    .ToList();
+
+                foreach (var rename in renames)
+                {
+                    if (propertiesObj.TryGetPropertyValue(rename.OldName, out var value))
+                    {
+                        propertiesObj.Remove(rename.OldName);
+                        propertiesObj[rename.NewName] = value;
+                    }
+                }
+
+                if (obj.TryGetPropertyValue("required", out var requiredNode) && requiredNode is JsonArray requiredArray)
+                {
+                    for (var i = 0; i < requiredArray.Count; i++)
+                    {
+                        if (requiredArray[i] is JsonValue requiredValue && requiredValue.TryGetValue<string>(out var requiredName))
+                        {
+                            requiredArray[i] = JsonNamingPolicy.CamelCase.ConvertName(requiredName);
+                        }
+                    }
+                }
+            }
+
+            foreach (var child in obj.Select(kvp => kvp.Value).Where(v => v != null))
+            {
+                NormalizeSchemaPropertyNamesToCamelCase(child!);
+            }
+        }
+        else if (node is JsonArray arr)
+        {
+            foreach (var child in arr.Where(v => v != null))
+            {
+                NormalizeSchemaPropertyNamesToCamelCase(child!);
+            }
+        }
     }
 }

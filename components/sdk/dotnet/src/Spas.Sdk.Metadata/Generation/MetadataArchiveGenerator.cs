@@ -43,10 +43,13 @@ public class MetadataArchiveGenerator
             throw new ArgumentNullException(nameof(app));
         }
 
-        outputDirectory ??= MetadataGenerationConstants.DefaultOutputDirectoryName;
-        Directory.CreateDirectory(outputDirectory);
+        if (string.IsNullOrWhiteSpace(outputDirectory))
+        {
+            outputDirectory = MetadataGenerationConstants.DefaultOutputDirectoryName;
+        }
 
-        var archivePath = Path.Combine(outputDirectory, MetadataGenerationConstants.DefaultArchiveFileName);
+        var archivePath = Path.GetFullPath(Path.Combine(outputDirectory, MetadataGenerationConstants.DefaultArchiveFileName));
+        Directory.CreateDirectory(Path.GetDirectoryName(archivePath)!);
 
         var contracts = app.DiscoverSpasMetadata();
         var spasJson = _composer.Compose(identity, contracts);

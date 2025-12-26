@@ -7,6 +7,7 @@ import io.spas.sdk.metadata.annotations.SpasCommand;
 import io.spas.sdk.metadata.annotations.SpasEvent;
 import io.spas.sdk.metadata.annotations.SpasQuery;
 import io.spas.sdk.metadata.annotations.SpasService;
+import io.spas.sdk.metadata.generation.MetadataGenerationConstants;
 import io.spas.sdk.metadata.model.Authentication;
 import io.spas.sdk.metadata.model.AuthType;
 import io.spas.sdk.metadata.model.CommandContract;
@@ -38,6 +39,8 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -97,6 +100,48 @@ public class SpasMetadataArchiveGenerator {
             log.log(Level.SEVERE, "Failed to create metadata archive", e);
             return null;
         }
+    }
+
+    /**
+     * Writes the metadata archive ZIP to disk.
+     * <p>
+     * Output semantics:
+     * <ul>
+     *   <li>Output override is treated as a DIRECTORY path</li>
+     *   <li>If omitted (null/blank), defaults to {@code ./metadata}</li>
+     *   <li>Filename is fixed as {@code service.metadata.zip}</li>
+     *   <li>Output directory is created if missing</li>
+     *   <li>If the target file exists, it is overwritten</li>
+     * </ul>
+     */
+    public Path writeArchive(Path outputDirectory) throws IOException {
+        Path outputDir = (outputDirectory == null || outputDirectory.toString().isBlank())
+            ? Path.of(MetadataGenerationConstants.DEFAULT_OUTPUT_DIRECTORY_NAME)
+            : outputDirectory;
+
+        Files.createDirectories(outputDir);
+        Path zipPath = outputDir.resolve(MetadataGenerationConstants.DEFAULT_ARCHIVE_FILE_NAME);
+
+        byte[] archive = generateArchive();
+        if (archive == null) {
+            throw new IllegalStateException("Unable to generate metadata archive: @SpasService not found or generation failed");
+        }
+
+        Files.write(zipPath, archive);
+        return zipPath;
+    }
+
+    /**
+     * Writes the archive using the standard system-property override:
+     * {@code -Dspas.metadata.output=<dir>}.
+     */
+    public Path writeArchiveFromSystemProperties() throws IOException {
+        String outputDirProp = System.getProperty(MetadataGenerationConstants.OUTPUT_DIRECTORY_PROPERTY);
+        Path outputDir = (outputDirProp == null || outputDirProp.isBlank())
+            ? null
+            : Path.of(outputDirProp);
+
+        return writeArchive(outputDir);
     }
 
     private void addStringToZip(ZipOutputStream zos, String entryName, String content) throws IOException {

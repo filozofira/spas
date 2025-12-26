@@ -9,6 +9,7 @@ using Spas.Sdk.Metadata.Builders;
 using Spas.Sdk.Metadata.Composition;
 using Spas.Sdk.Metadata.Dev;
 using Spas.Sdk.Metadata.Extensions;
+using Spas.Sdk.Metadata.Generation;
 using Spas.Sdk.Observability.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -190,5 +191,44 @@ app.MapSpasMetadataEndpoint(
 
 app.MapGet("/", () => "Subscription Service");
 app.MapGet("/health", () => new { status = "healthy", service = "subscription-service", timestamp = DateTime.UtcNow });
+
+static bool TryGetOutputDirectory(string[] args, out string? outputDirectory)
+{
+    outputDirectory = null;
+
+    for (var i = 0; i < args.Length; i++)
+    {
+        if (string.Equals(args[i], MetadataGenerationConstants.OutputDirectoryArgument, StringComparison.OrdinalIgnoreCase))
+        {
+            if (i + 1 >= args.Length || string.IsNullOrWhiteSpace(args[i + 1]))
+            {
+                return false;
+            }
+
+            outputDirectory = args[i + 1];
+            return true;
+        }
+    }
+
+    return true;
+}
+
+if (args.Any(a => string.Equals(a, MetadataGenerationConstants.GenerateMetadataArgument, StringComparison.OrdinalIgnoreCase)))
+{
+    if (!TryGetOutputDirectory(args, out var outputDirectory))
+    {
+        Console.Error.WriteLine("Missing value for --output <path>.");
+        Environment.ExitCode = 2;
+        return;
+    }
+
+    var archivePath = await app.GenerateSpasMetadataArchiveAsync(
+        identity,
+        outputDirectory: outputDirectory,
+        assemblyToScan: typeof(Program).Assembly);
+
+    Console.WriteLine($"SPAS metadata archive generated at: {archivePath}");
+    return;
+}
 
 app.Run();

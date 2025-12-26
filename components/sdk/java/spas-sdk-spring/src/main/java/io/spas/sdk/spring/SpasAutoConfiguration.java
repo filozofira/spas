@@ -14,7 +14,6 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.Bean;
 
-import java.nio.file.Files;
 import java.nio.file.Path;
 
 /**
@@ -63,20 +62,10 @@ public class SpasAutoConfiguration {
         SpasMetadataArchiveGenerator generator,
         ConfigurableApplicationContext applicationContext) {
         return args -> {
-            String outputDirProp = System.getProperty(MetadataGenerationConstants.OUTPUT_DIRECTORY_PROPERTY);
-            Path outputDir = (outputDirProp == null || outputDirProp.isBlank())
-                ? Path.of(MetadataGenerationConstants.DEFAULT_OUTPUT_DIRECTORY_NAME)
-                : Path.of(outputDirProp);
-
-            Files.createDirectories(outputDir);
-            Path zipPath = outputDir.resolve(MetadataGenerationConstants.DEFAULT_ARCHIVE_FILE_NAME);
-
-            byte[] archive = generator.generateArchive();
-            if (archive == null) {
-                throw new IllegalStateException("Unable to generate metadata archive: @SpasService not found or generation failed");
+            Path zipPath = generator.writeArchiveFromSystemProperties();
+            if (zipPath == null) {
+                throw new IllegalStateException("Unable to generate metadata archive: zip path was null");
             }
-
-            Files.write(zipPath, archive);
 
             int exitCode = SpringApplication.exit(applicationContext, () -> 0);
             System.exit(exitCode);

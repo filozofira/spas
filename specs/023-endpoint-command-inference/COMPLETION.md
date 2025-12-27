@@ -347,4 +347,18 @@ Java template used singular `event/` folder but actual basket-service example us
 - `templates/partials/sdk-patterns-compact.eta`
 - `templates/partials/workflow-phases.eta`
 
+### Java SDK GroupId Emphasis
+
+Agents were generating `com.spas` instead of the correct `io.spas` groupId for SDK dependencies, causing Maven to fail finding packages. Added explicit warning comments in templates.
+
+| Issue | Before | After |
+|-------|--------|-------|
+| SDK comment | `<!-- SPAS SDK -->` | `<!-- SPAS SDK (groupId must be io.spas, NOT com.spas) -->` |
+| Compact note | `**Key Dependencies** (pom.xml):` | `**Key Dependencies** (pom.xml) - IMPORTANT: groupId must be \`io.spas\`:` |
+
+**Files Updated**:
+
+- `templates/partials/sdk-patterns.eta`
+- `templates/partials/sdk-patterns-compact.eta`
+
 ---

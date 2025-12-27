@@ -21,7 +21,7 @@ Use patterns matching the STACK token (java or dotnet).
 └── src/main/resources/application.yaml
 ```
 
-**Key Dependencies** (pom.xml):
+**Key Dependencies** (pom.xml) - IMPORTANT: groupId must be `io.spas`:
 - `spring-boot-starter-parent:3.2.0`
 - `spring-boot-starter-web`
 - `spring-boot-starter-actuator`

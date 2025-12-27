@@ -88,7 +88,7 @@ Use the patterns matching the STACK token (java or dotnet).
             <artifactId>spring-boot-starter-validation</artifactId>
         </dependency>
         
-        <!-- SPAS SDK -->
+        <!-- SPAS SDK (groupId must be io.spas, NOT com.spas) -->
         <dependency>
             <groupId>io.spas</groupId>
             <artifactId>spas-sdk-spring</artifactId>

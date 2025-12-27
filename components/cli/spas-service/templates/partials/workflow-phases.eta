@@ -576,7 +576,7 @@ Proceed to Phase 9 (Validate & Generate Metadata)? (yes/no)
 
 **Actions**:
 1. **Build the service**:
-   - **Java**: `./mvnw clean package -DskipTests` or `./gradlew build -x test`
+   - **Java**: `mvn clean package -DskipTests` or `./gradlew build -x test`
    - **.NET**: `dotnet build`
 
 2. **Generate offline metadata archive** (CRITICAL):
@@ -653,7 +653,7 @@ Validation:
 Next Steps:
 1. Review generated code in src/
 2. Run locally:
-   - Java: ./mvnw spring-boot:run
+   - Java: mvn spring-boot:run
    - .NET: dotnet run
 3. Test endpoints:
    - curl http://localhost:8080/{endpoint}

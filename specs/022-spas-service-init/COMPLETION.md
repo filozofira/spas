@@ -286,7 +286,7 @@ Examples: order-service, payment-gateway, user-auth
     - Simple `{Entity}Store` instead of Repository/Service interfaces
     - DTOs as record types
     - Removed `Endpoints/`, `Repositories/` folders that don't exist in examples
-11. **JAVA_HOME Requirement Documented**: Updated readme.eta and error-handling.eta to document `JAVA_HOME` environment variable requirement for Java/Maven projects. Maven wrapper (`mvnw`) requires `JAVA_HOME` to be set. Added troubleshooting commands for both PowerShell and bash/zsh
+11. **Changed from Maven Wrapper to System Maven**: Replaced `./mvnw` commands with `mvn` in all templates (readme.eta, workflow-phases.eta, error-handling.eta, prompt-trigger.eta). Maven wrapper requires additional files that the agent wasn't generating; using system `mvn` matches how SPAS's own Java projects work (basket-service, fulfillment-service, Java SDK). Updated prerequisites to specify "JDK 17+ with Maven" instead of JAVA_HOME requirement
 
 ---
 

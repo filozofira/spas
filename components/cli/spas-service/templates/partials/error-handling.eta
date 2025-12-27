@@ -59,22 +59,20 @@ How would you like to proceed?
 ❌ Build Error (Java/Maven)
 
 The Maven build failed. Common causes:
-1. JAVA_HOME environment variable not set (run: echo %JAVA_HOME% or echo $JAVA_HOME)
+1. Maven not installed (run: mvn --version)
 2. Missing Java 17+ installation
-3. Invalid pom.xml configuration
-4. Compilation errors in generated code
+3. JAVA_HOME not set (optional but recommended)
+4. Invalid pom.xml configuration
+5. Compilation errors in generated code
 
-To fix JAVA_HOME (Windows PowerShell):
-  $env:JAVA_HOME = "C:\Program Files\Java\jdk-17"  # Adjust path to your JDK
-  [Environment]::SetEnvironmentVariable("JAVA_HOME", $env:JAVA_HOME, "User")
-
-To fix JAVA_HOME (bash/zsh):
-  export JAVA_HOME=/usr/lib/jvm/java-17-openjdk  # Adjust path to your JDK
-  echo 'export JAVA_HOME=/usr/lib/jvm/java-17-openjdk' >> ~/.bashrc
+To install Maven:
+  - Windows: winget install Apache.Maven
+  - macOS: brew install maven
+  - Linux: sudo apt install maven
 
 To diagnose build issues:
   cd <%= it.workspaceRoot %>/{NAME}
-  ./mvnw clean compile -X
+  mvn clean compile -X
 
 Please review the error output and fix any issues, then retry.
 ```

@@ -30,10 +30,10 @@
 
 **⚠️ CRITICAL**: These changes remove DTO attribute targets, which will cause compile errors in examples until Phase 5 completes
 
-- [ ] T003 Modify SpasCommandAttribute to remove Class|Struct from AttributeUsage in components/sdk/dotnet/src/Spas.Sdk.Metadata/Attributes/SpasContractAttributes.cs
-- [ ] T004 [P] Modify SpasQueryAttribute to remove Class|Struct from AttributeUsage in components/sdk/dotnet/src/Spas.Sdk.Metadata/Attributes/SpasContractAttributes.cs
-- [ ] T005 Update SpasContractAttributesTests.cs to verify attributes can only target methods/delegates in components/sdk/dotnet/test/Spas.Sdk.Metadata.Tests/SpasContractAttributesTests.cs
-- [ ] T006 Run attribute tests to verify changes with `dotnet test --filter "SpasContractAttributes"` in components/sdk/dotnet/
+- [X] T003 Modify SpasCommandAttribute to remove Class|Struct from AttributeUsage in components/sdk/dotnet/src/Spas.Sdk.Metadata/Attributes/SpasContractAttributes.cs
+- [X] T004 [P] Modify SpasQueryAttribute to remove Class|Struct from AttributeUsage in components/sdk/dotnet/src/Spas.Sdk.Metadata/Attributes/SpasContractAttributes.cs
+- [X] T005 Update SpasContractAttributesTests.cs to verify attributes can only target methods/delegates in components/sdk/dotnet/test/Spas.Sdk.Metadata.Tests/SpasContractAttributesTests.cs
+- [X] T006 Run attribute tests to verify changes with `dotnet test --filter "SpasContractAttributes"` in components/sdk/dotnet/
 
 **Checkpoint**: Attributes restricted to methods only. Example services will not compile until Phase 5.
 

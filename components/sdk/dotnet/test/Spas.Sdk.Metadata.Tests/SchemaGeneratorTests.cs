@@ -116,14 +116,11 @@ public class SchemaGeneratorTests
 }
 
 // Test types for schema generation unit tests
-[SpasCommand("TestCommand", "1.0")]
 public record TestCommandForSchema(Guid CommandId, string Data);
 
-[SpasQuery("TestQuery", "1.0")]
 public record TestQueryForSchema(string QueryId, int PageSize);
 
 [SpasEvent("TestEvent", "1.0", EventType = "com.test.event")]
 public record TestEventForSchema(Guid EventId, DateTime Timestamp, string Message);
 
-[SpasCommand("TestWithAutoSchema", "1.0")]
 public record TestCommandWithAutoSchema(Guid Id);

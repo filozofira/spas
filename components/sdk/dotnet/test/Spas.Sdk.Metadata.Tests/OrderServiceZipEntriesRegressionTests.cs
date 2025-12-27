@@ -97,13 +97,10 @@ public sealed class OrderServiceZipEntriesRegressionTests
     }
 
     // Test-double contract types that produce the required schema filenames
-    [SpasCommand("CreateOrder", "1.0")]
     internal sealed record CreateOrderRequest(string CustomerId, int ItemCount);
 
-    [SpasCommand("ConfirmOrder", "1.0")]
     internal sealed record ConfirmOrderRequest(Guid OrderId);
 
-    [SpasCommand("UpdateShipmentStatus", "1.0")]
     internal sealed record UpdateShipmentStatusRequest(Guid OrderId, string Status);
 
     [SpasEvent("OrderCreated", "1.0")]

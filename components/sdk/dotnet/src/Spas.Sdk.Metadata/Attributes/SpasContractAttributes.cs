@@ -18,9 +18,9 @@ internal static class AttributeHelpers
 
 /// <summary>
 /// Marks an endpoint as a SPAS command and provides contract metadata.
-/// Apply to minimal API endpoints or controller actions, or to request/response types for auto-schema generation.
+/// Apply to minimal API endpoints or controller actions.
 /// </summary>
-[AttributeUsage(AttributeTargets.Method | AttributeTargets.Delegate | AttributeTargets.Class | AttributeTargets.Struct, AllowMultiple = false)]
+[AttributeUsage(AttributeTargets.Method | AttributeTargets.Delegate, AllowMultiple = false)]
 public class SpasCommandAttribute : Attribute
 {
     /// <summary>
@@ -67,9 +67,9 @@ public class SpasCommandAttribute : Attribute
 
 /// <summary>
 /// Marks an endpoint as a SPAS query and provides contract metadata.
-/// Apply to minimal API endpoints or controller actions, or to request/response types for auto-schema generation.
+/// Apply to minimal API endpoints or controller actions.
 /// </summary>
-[AttributeUsage(AttributeTargets.Method | AttributeTargets.Delegate | AttributeTargets.Class | AttributeTargets.Struct, AllowMultiple = false)]
+[AttributeUsage(AttributeTargets.Method | AttributeTargets.Delegate, AllowMultiple = false)]
 public class SpasQueryAttribute : Attribute
 {
     /// <summary>

@@ -117,14 +117,14 @@
 
 ### Implementation for User Story 3
 
-- [ ] T029 [P] [US3] Remove SpasCommand attributes from all DTOs in examples/services/order-service/DTOs/
-- [ ] T030 [P] [US3] Remove SpasCommand attributes from all DTOs in examples/services/inventory-service/ (if present)
-- [ ] T031 [P] [US3] Remove SpasCommand attributes from all DTOs in examples/services/subscription-service/ (if present)
-- [ ] T032 [P] [US3] Remove SpasCommand attributes from all DTOs in examples/services/basket-service/ (if present)
-- [ ] T033 [P] [US3] Remove SpasCommand attributes from all DTOs in examples/services/fulfillment-service/ (if present)
-- [ ] T034 [P] [US3] Remove SpasCommand attributes from all DTOs in examples/services/product-service/ (if present)
-- [ ] T035 [US3] Run metadata generation for order-service to verify equivalent output
-- [ ] T036 [US3] Verify all example services compile after DTO attribute removal with `dotnet build` in examples/services/
+- [X] T029 [P] [US3] Remove SpasCommand attributes from all DTOs in examples/services/order-service/DTOs/
+- [X] T030 [P] [US3] Remove SpasCommand attributes from all DTOs in examples/services/inventory-service/ (if present)
+- [X] T031 [P] [US3] Remove SpasCommand attributes from all DTOs in examples/services/subscription-service/ (if present)
+- [X] T032 [P] [US3] Remove SpasCommand attributes from all DTOs in examples/services/basket-service/ (if present) - N/A (Java service)
+- [X] T033 [P] [US3] Remove SpasCommand attributes from all DTOs in examples/services/fulfillment-service/ (if present) - N/A (Java service)
+- [X] T034 [P] [US3] Remove SpasCommand attributes from all DTOs in examples/services/product-service/ (if present) - N/A (no attributes)
+- [X] T035 [US3] Run metadata generation for order-service to verify equivalent output - verified via Docker build
+- [X] T036 [US3] Verify all example services compile after DTO attribute removal with `dotnet build` in examples/services/
 
 **Checkpoint**: All example services cleaned up. No DTO classes have SPAS attributes.
 

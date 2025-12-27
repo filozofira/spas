@@ -319,4 +319,18 @@ Scaffolded Java projects failed to compile with 20+ "cannot find symbol" errors.
 - `templates/partials/sdk-patterns.eta`
 - `templates/partials/sdk-patterns-compact.eta`
 
+### Java Version Template Fix
+
+The pom.xml template hardcoded `<java.version>17</java.version>`, causing projects to always target Java 17 even when a newer JDK is installed.
+
+| Issue | Before | After |
+|-------|--------|-------|
+| Java version | Hardcoded `17` | Default `21` with comment: "Use your installed JDK version (17 minimum, 21+ recommended)" |
+
+This allows agents and developers to adjust the version to match their installed JDK while clarifying the minimum requirement.
+
+**Files Updated**:
+
+- `templates/partials/sdk-patterns.eta`
+
 ---

@@ -1,0 +1,212 @@
+# Feature 023: SDK Simplification for AI-Assisted Development - Completion Report
+
+## Summary
+
+**Feature**: Endpoint-centric schema inference and simplified event publishing API  
+**Status**: ✅ COMPLETE  
+**Date Completed**: 2025-12-27  
+**Branch**: `023-endpoint-command-inference`
+
+### Key Outcomes
+
+1. **Endpoint-Centric Schema Inference**: DTOs no longer require `[SpasCommand]` attributes—schemas are inferred from endpoint handler parameters
+2. **Simplified Event Publishing API**: Only type-safe `PublishAsync<TEvent>()` is publicly accessible; error-prone string overload is now internal
+3. **Example Services Cleaned Up**: All 6 example service DTOs have redundant attributes removed
+4. **Agent Prompts Updated**: 5 template files updated to reflect new patterns
+5. **175 Tests Passing**: Comprehensive test coverage including reflection-based visibility tests
+
+---
+
+## Completed User Stories
+
+### US1: Plain DTO Schema Inference (Priority: P1) ✅
+
+**Implementation Highlights**:
+- `[SpasCommand]` and `[SpasQuery]` attributes restricted to methods only (removed `Class|Struct` targets)
+- `GetRequestBodyType()` extracts DTO type from endpoint delegate parameters
+- `SchemaGenerator.GenerateSchemaForType()` generates JSON schema without requiring attributes
+- Schema deduplication ensures same DTO type produces single schema file
+- NJsonSchema integration with camelCase property naming
+
+**Key Files**:
+- [SpasContractAttributes.cs](../../components/sdk/dotnet/src/Spas.Sdk.Metadata/Attributes/SpasContractAttributes.cs)
+- [SchemaGenerator.cs](../../components/sdk/dotnet/src/Spas.Sdk.Metadata/Schema/SchemaGenerator.cs)
+- [WebApplicationDiscoveryExtensions.cs](../../components/sdk/dotnet/src/Spas.Sdk.Metadata/Extensions/WebApplicationDiscoveryExtensions.cs)
+- [MetadataArchiveGenerator.cs](../../components/sdk/dotnet/src/Spas.Sdk.Metadata/Generation/MetadataArchiveGenerator.cs)
+
+### US2: AI Agent Service Scaffolding (Priority: P1) ✅
+
+**Implementation Highlights**:
+- Agent prompt templates updated to show plain DTOs (no attributes)
+- EventPublisher patterns updated to use `PublishAsync<TEvent>()`
+- Validation checklists updated to reflect new requirements
+- Integration tests verify plain DTO endpoints produce valid metadata archives
+
+**Key Files**:
+- [sdk-patterns.eta](../../components/cli/spas-service/templates/partials/sdk-patterns.eta)
+- [readme.eta](../../components/cli/spas-service/templates/readme.eta)
+- [workflow-phases.eta](../../components/cli/spas-service/templates/partials/workflow-phases.eta)
+- [sdk-patterns-compact.eta](../../components/cli/spas-service/templates/partials/sdk-patterns-compact.eta)
+- [validation-checklists.eta](../../components/cli/spas-service/templates/partials/validation-checklists.eta)
+
+### US3: Remove DTO Attributes from Existing Services (Priority: P2) ✅
+
+**Implementation Highlights**:
+- Removed `[SpasCommand]` from 6 DTO files across 3 .NET services
+- Added XML documentation comments to cleaned DTOs
+- Verified all services build successfully via Docker
+- Java services (basket-service, fulfillment-service) already compliant—no changes needed
+
+**Cleaned DTOs**:
+- `order-service`: CreateOrderRequest, ConfirmOrderRequest, ShipmentStatusRequest
+- `inventory-service`: ReserveStockRequest
+- `subscription-service`: CreateSubscriptionRequest, ActivateSubscriptionRequest
+
+### US4: Simplified Event Publishing API (Priority: P1) ✅
+
+**Implementation Highlights**:
+- `PublishAsync(string eventName, object payload)` changed from `public` to `internal`
+- Generic `PublishAsync<TEvent>(object payload)` remains the only public method
+- Reflection-based tests verify accessibility at compile time
+- Existing tests updated to use generic overload
+
+**Key Files**:
+- [EventPublisher.cs](../../components/sdk/dotnet/src/Spas.Sdk.Events/Publish/EventPublisher.cs)
+- [EventPublisherTests.cs](../../components/sdk/dotnet/test/Spas.Sdk.Events.Tests/EventPublisherTests.cs)
+
+---
+
+## Validation and Test Results
+
+### Test Suite Results
+
+| Test Suite | Tests | Status |
+|------------|-------|--------|
+| Spas.Sdk.Core.Tests | 20 | ✅ PASS |
+| Spas.Sdk.Metadata.Tests | 125 | ✅ PASS |
+| Spas.Sdk.Events.Tests | 18 | ✅ PASS |
+| Spas.Sdk.Observability.Tests | 12 | ✅ PASS |
+| **Total** | **175** | ✅ PASS |
+
+### Integration Test Results
+
+| Scenario | Status |
+|----------|--------|
+| Plain DTO endpoints produce valid metadata archive | ✅ PASS |
+| Nested plain DTOs include nested types in schema | ✅ PASS |
+| Schema deduplication for shared DTO types | ✅ PASS |
+| Event publisher generic method functionality | ✅ PASS |
+| Event publisher string overload is internal | ✅ PASS |
+| All example services build via Docker | ✅ PASS |
+| Metadata archive validation script | ✅ PASS |
+
+---
+
+## Requirements Traceability
+
+| Requirement | Description | Status | Validation |
+|-------------|-------------|--------|------------|
+| FR-001 | Infer JSON schema from endpoint parameter type | ✅ | Unit tests T007-T011 |
+| FR-002 | Ignore `[SpasCommand]` on DTO types | ✅ | Attribute restriction |
+| FR-003 | Generate schema at `schemas/endpoints/{name}.schema.json` | ✅ | Integration tests |
+| FR-004 | Handle endpoints with no request body | ✅ | Unit test T008 |
+| FR-005 | Handle endpoints with primitive types | ✅ | Unit test T009 |
+| FR-006 | Deduplicate schema for shared DTO types | ✅ | Unit test T010 |
+| FR-007 | Same inference for `[SpasQuery]` endpoints | ✅ | Implementation |
+| FR-008 | Only `PublishAsync<TEvent>` public | ✅ | Reflection test T019 |
+| FR-009 | Clear exception for missing `[SpasEvent]` | ✅ | Unit test T021 |
+| FR-010 | Internal implementation unchanged | ✅ | Existing tests pass |
+
+---
+
+## Key Files Changed
+
+| File | Change Type | Purpose |
+|------|-------------|---------|
+| SpasContractAttributes.cs | Modified | Removed Class\|Struct from AttributeUsage |
+| SchemaGenerator.cs | Modified | Added GenerateSchemaForType(Type) method |
+| WebApplicationDiscoveryExtensions.cs | Modified | Added GetRequestBodyType() helper |
+| MetadataArchiveGenerator.cs | Modified | Schema deduplication, type-based generation |
+| EventPublisher.cs | Modified | Changed string overload to internal |
+| EventPublisherTests.cs | Modified | Added accessibility tests, updated to generic |
+| sdk-patterns.eta | Modified | Removed DTO attribute requirements |
+| readme.eta | Modified | Updated "Common Gotchas" section |
+| workflow-phases.eta | Modified | Updated EventPublisher patterns |
+| sdk-patterns-compact.eta | Modified | Updated EventPublisher patterns |
+| validation-checklists.eta | Modified | Updated checklist items |
+| README.md (SDK) | Modified | Updated metadata generation description |
+| 6 example service DTOs | Modified | Removed SpasCommand attributes |
+
+---
+
+## Breaking Changes
+
+### Intentional Breaking Change
+
+**`[SpasCommand]` and `[SpasQuery]` cannot be applied to classes/structs**
+
+- **Impact**: Existing code with these attributes on DTO classes will fail to compile
+- **Migration**: Remove the attributes from DTO classes; they are no longer needed
+- **Rationale**: Forces endpoint-centric pattern, eliminates "forgot to decorate DTO" errors
+
+### API Visibility Change
+
+**`PublishAsync(string eventName, object payload)` is now internal**
+
+- **Impact**: Code calling this method directly will fail to compile
+- **Migration**: Use `PublishAsync<TEvent>(payload)` instead
+- **Rationale**: Prevents AI agents from bypassing type safety
+
+---
+
+## Success Criteria Met
+
+| Criteria | Target | Actual | Status |
+|----------|--------|--------|--------|
+| SC-001 | Metadata generation <30s | ~1s | ✅ |
+| SC-002 | Example services equivalent metadata | Verified | ✅ |
+| SC-003 | AI-generated plain DTOs work | Templates updated | ✅ |
+| SC-004 | Documentation simplified | 5 templates updated | ✅ |
+| SC-005 | Zero DTO attributes in examples | 0 | ✅ |
+| SC-006 | String publish not accessible | Internal | ✅ |
+
+---
+
+## Lines of Code Changed
+
+| Category | Estimate |
+|----------|----------|
+| Source Code (SDK) | ~150 |
+| Tests | ~200 |
+| Templates | ~50 |
+| Documentation | ~30 |
+| Example Services | ~40 |
+| **Total** | ~470 |
+
+---
+
+## Known Limitations
+
+1. **Java SDK Already Compliant**: Java SDK was already endpoint-centric with single-method EventPublisher—no changes needed
+2. **Primitive Type Schemas**: Endpoints with primitive request types skip schema generation (by design)
+3. **No Schema Override on DTO**: All schema configuration now comes from endpoint attributes only
+
+---
+
+## Backward Compatibility
+
+- ⚠️ Breaking: `[SpasCommand]`/`[SpasQuery]` on classes will not compile
+- ⚠️ Breaking: `PublishAsync(string, object)` is not accessible from consuming code
+- ✅ Compatible: All existing `PublishAsync<TEvent>()` calls work unchanged
+- ✅ Compatible: Endpoint attributes work unchanged
+- ✅ Compatible: Generated metadata format unchanged
+
+---
+
+## Migration Guide
+
+See [quickstart.md](./quickstart.md) for detailed migration steps:
+
+1. Remove `[SpasCommand]` attributes from DTO classes
+2. Replace any `PublishAsync(string, object)` calls with `PublishAsync<TEvent>()`
+3. Regenerate metadata with `dotnet run -- --generate-metadata`

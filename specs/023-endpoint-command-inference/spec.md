@@ -2,7 +2,8 @@
 
 **Feature Branch**: `023-endpoint-command-inference`  
 **Created**: 2025-12-27  
-**Status**: Draft  
+**Completed**: 2025-12-27
+**Status**: ✅ Complete (PoC)  
 **Input**: User description: "Simplify .Net SDK to support Endpoint-Centric Command Schema Inference. Allow plain DTOs without [SpasCommand] attribute. Simplify EventPublisher to expose only the type-safe generic method. Reduces 'forgot to decorate DTO' and 'used wrong publish method' errors from developers and AI agents."
 
 ## User Scenarios & Testing *(mandatory)*

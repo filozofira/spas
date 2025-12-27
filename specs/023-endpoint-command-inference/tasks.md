@@ -141,6 +141,8 @@
 - [X] T041 Run metadata archive validation script with `.\scripts\validate-metadata-archives.ps1`
 - [X] T042 Commit all changes with message "feat(sdk): implement endpoint-centric schema inference and event API simplification"
 
+**Checkpoint**: Implementation complete. All tests pass. COMPLETION.md created.
+
 ---
 
 ## Dependencies & Execution Order

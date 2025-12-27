@@ -17,7 +17,7 @@ Use patterns matching the STACK token (java or dotnet).
 │   ├── service/                  # @Service with event publishing
 │   ├── model/                    # Domain + DTOs
 │   ├── repository/               # Interface + InMemory impl
-│   └── event/                    # @SpasEvent records
+│   └── events/                   # @SpasEvent records
 └── src/main/resources/application.yaml
 ```
 

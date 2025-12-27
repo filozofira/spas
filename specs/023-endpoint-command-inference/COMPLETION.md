@@ -333,4 +333,18 @@ This allows agents and developers to adjust the version to match their installed
 
 - `templates/partials/sdk-patterns.eta`
 
+### Java Events Folder Name Fix
+
+Java template used singular `event/` folder but actual basket-service example uses plural `events/`. This caused agents to generate inconsistent folder names.
+
+| Issue | Before | After |
+|-------|--------|-------|
+| Java events folder | `event/` (singular) | `events/` (plural, matches basket-service) |
+
+**Files Updated**:
+
+- `templates/partials/sdk-patterns.eta`
+- `templates/partials/sdk-patterns-compact.eta`
+- `templates/partials/workflow-phases.eta`
+
 ---

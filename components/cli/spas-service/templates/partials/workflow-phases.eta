@@ -62,7 +62,7 @@ Proceed to Phase 2 (Project Structure)? (yes/no)
    │   │   ├── service/                    # Business logic services
    │   │   ├── model/                      # Domain entities
    │   │   ├── repository/                 # Data access interfaces
-   │   │   └── event/                      # Event classes
+   │   │   └── events/                     # Event classes
    │   └── resources/
    │       └── application.yaml
    └── test/java/com/{context}/{name}/

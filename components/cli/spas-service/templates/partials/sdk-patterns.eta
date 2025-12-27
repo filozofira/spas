@@ -29,7 +29,7 @@ Use the patterns matching the STACK token (java or dotnet).
 │   │   │   ├── repository/
 │   │   │   │   ├── {Entity}Repository.java
 │   │   │   │   └── InMemory{Entity}Repository.java
-│   │   │   └── event/
+│   │   │   └── events/
 │   │   │       └── {Entity}CreatedEvent.java
 │   │   └── resources/
 │   │       └── application.yaml

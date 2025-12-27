@@ -381,4 +381,20 @@ All 5 modules matching basket-service:
 - `templates/partials/sdk-patterns.eta`
 - `templates/partials/sdk-patterns-compact.eta`
 
+### SDK Availability Clarification
+
+Agents were generating code with notes like "SDK integration when packages become available" - thinking the SDK wasn't installed yet. Added explicit statements that SDK is already available in local repositories.
+
+| Template | Added Note |
+|----------|------------|
+| readme.eta | "The SPAS Java SDK is already installed in your local Maven repository. No additional setup required." |
+| sdk-patterns.eta | "**IMPORTANT**: The SDK is already installed and available" with paths |
+| sdk-patterns-compact.eta | "SDK is already installed" one-liner with paths |
+
+**Files Updated**:
+
+- `templates/readme.eta`
+- `templates/partials/sdk-patterns.eta`
+- `templates/partials/sdk-patterns-compact.eta`
+
 ---

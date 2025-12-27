@@ -113,14 +113,38 @@ spas-service publish ./metadata/<%= it.serviceName %>-<version>.zip
 
 ## SDK Integration
 
+**Note**: The SPAS Java SDK is already installed in your local Maven repository (`~/.m2/repository/io/spas/`). 
+The .NET SDK is available via a local NuGet feed. No additional setup required.
+
 ### Java (Spring Boot)
 
-Add the SPAS SDK dependency to `pom.xml`:
+Add the SPAS SDK dependencies to `pom.xml`:
 
 ```xml
+<!-- SPAS SDK (groupId must be io.spas) - already in local Maven repo -->
+<dependency>
+    <groupId>io.spas</groupId>
+    <artifactId>spas-sdk-core</artifactId>
+    <version>1.0.0-SNAPSHOT</version>
+</dependency>
+<dependency>
+    <groupId>io.spas</groupId>
+    <artifactId>spas-sdk-metadata</artifactId>
+    <version>1.0.0-SNAPSHOT</version>
+</dependency>
+<dependency>
+    <groupId>io.spas</groupId>
+    <artifactId>spas-sdk-events</artifactId>
+    <version>1.0.0-SNAPSHOT</version>
+</dependency>
 <dependency>
     <groupId>io.spas</groupId>
     <artifactId>spas-sdk-spring</artifactId>
+    <version>1.0.0-SNAPSHOT</version>
+</dependency>
+<dependency>
+    <groupId>io.spas</groupId>
+    <artifactId>spas-sdk-observability</artifactId>
     <version>1.0.0-SNAPSHOT</version>
 </dependency>
 ```

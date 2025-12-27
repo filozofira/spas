@@ -2,6 +2,8 @@
 
 Use patterns matching the STACK token (java or dotnet).
 
+**SDK is already installed**: Java in `~/.m2/repository/io/spas/`, .NET in `%USERPROFILE%\.nuget\local-feed`
+
 ---
 
 ### Java/Spring Quick Reference

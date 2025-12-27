@@ -3,6 +3,10 @@
 This section provides idiomatic code patterns for integrating with the SPAS SDK.
 Use the patterns matching the STACK token (java or dotnet).
 
+**IMPORTANT**: The SDK is already installed and available:
+- **Java**: SDK modules are in local Maven repository (`~/.m2/repository/io/spas/`)
+- **.NET**: SDK packages are in local NuGet feed (`%USERPROFILE%\.nuget\local-feed`)
+
 ---
 
 ### Java/Spring Patterns

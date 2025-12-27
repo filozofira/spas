@@ -73,6 +73,27 @@ To install Maven:
 To diagnose build issues:
   cd <%= it.workspaceRoot %>/{NAME}
   mvn clean compile -X
+```
+
+**SPAS SDK Dependency Not Found (Java)**:
+```
+❌ SPAS SDK Not Found
+
+Maven cannot resolve io.spas dependencies.
+
+CRITICAL: Verify your pom.xml has correct coordinates:
+  - groupId must be "io.spas" (NOT "com.spas")
+  - version must be "1.0.0-SNAPSHOT" (NOT "1.0.0")
+  - Required artifacts: spas-sdk-core, spas-sdk-metadata, spas-sdk-events, 
+                        spas-sdk-spring, spas-sdk-observability
+
+The SDK is already installed in your local Maven repository:
+  ~/.m2/repository/io/spas/
+
+If artifacts are missing, rebuild the SDK:
+  cd components/sdk/java
+  mvn clean install
+```
 
 Please review the error output and fix any issues, then retry.
 ```

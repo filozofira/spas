@@ -67,7 +67,88 @@ Proceed to Phase 2 (Project Structure)? (yes/no)
    │       └── application.yaml
    └── test/java/com/{context}/{name}/
    ```
-2. Create `pom.xml` with Spring Boot 3.x, SPAS SDK dependency
+2. Create `pom.xml` (SDK is already in local Maven repo at `~/.m2/repository/io/spas/`):
+   ```xml
+   <?xml version="1.0" encoding="UTF-8"?>
+   <project xmlns="http://maven.apache.org/POM/4.0.0"
+            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+            xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 
+            http://maven.apache.org/xsd/maven-4.0.0.xsd">
+       <modelVersion>4.0.0</modelVersion>
+       
+       <parent>
+           <groupId>org.springframework.boot</groupId>
+           <artifactId>spring-boot-starter-parent</artifactId>
+           <version>3.4.1</version>
+           <relativePath/>
+       </parent>
+       
+       <groupId>com.{context}</groupId>
+       <artifactId>{name}</artifactId>
+       <version>1.0.0-SNAPSHOT</version>
+       
+       <properties>
+           <!-- Use your installed JDK version (17 minimum, 21+ recommended) -->
+           <java.version>21</java.version>
+           <spas-sdk.version>1.0.0-SNAPSHOT</spas-sdk.version>
+       </properties>
+       
+       <dependencies>
+           <!-- SPAS SDK (groupId must be io.spas, NOT com.spas) -->
+           <dependency>
+               <groupId>io.spas</groupId>
+               <artifactId>spas-sdk-core</artifactId>
+               <version>${spas-sdk.version}</version>
+           </dependency>
+           <dependency>
+               <groupId>io.spas</groupId>
+               <artifactId>spas-sdk-metadata</artifactId>
+               <version>${spas-sdk.version}</version>
+           </dependency>
+           <dependency>
+               <groupId>io.spas</groupId>
+               <artifactId>spas-sdk-events</artifactId>
+               <version>${spas-sdk.version}</version>
+           </dependency>
+           <dependency>
+               <groupId>io.spas</groupId>
+               <artifactId>spas-sdk-spring</artifactId>
+               <version>${spas-sdk.version}</version>
+           </dependency>
+           <dependency>
+               <groupId>io.spas</groupId>
+               <artifactId>spas-sdk-observability</artifactId>
+               <version>${spas-sdk.version}</version>
+           </dependency>
+           
+           <!-- Spring Boot -->
+           <dependency>
+               <groupId>org.springframework.boot</groupId>
+               <artifactId>spring-boot-starter-web</artifactId>
+           </dependency>
+           <dependency>
+               <groupId>org.springframework.boot</groupId>
+               <artifactId>spring-boot-starter-actuator</artifactId>
+           </dependency>
+           
+           <!-- Testing -->
+           <dependency>
+               <groupId>org.springframework.boot</groupId>
+               <artifactId>spring-boot-starter-test</artifactId>
+               <scope>test</scope>
+           </dependency>
+       </dependencies>
+       
+       <build>
+           <plugins>
+               <plugin>
+                   <groupId>org.springframework.boot</groupId>
+                   <artifactId>spring-boot-maven-plugin</artifactId>
+               </plugin>
+           </plugins>
+       </build>
+   </project>
+   ```
 3. Create `application.yaml` with service configuration
 
 **For .NET (STACK:dotnet)**:

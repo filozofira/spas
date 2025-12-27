@@ -397,4 +397,32 @@ Agents were generating code with notes like "SDK integration when packages becom
 - `templates/partials/sdk-patterns.eta`
 - `templates/partials/sdk-patterns-compact.eta`
 
+### Java pom.xml Template Content Fix
+
+The workflow-phases.eta for Java only said "Create pom.xml with Spring Boot 3.x, SPAS SDK dependency" without showing actual content. The .NET section had full `.csproj` content but Java didn't, causing agents to invent wrong coordinates.
+
+| Issue | Before | After |
+|-------|--------|-------|
+| Java pom.xml | One-line instruction only | Full pom.xml template with all 5 SDK modules |
+| SDK location note | None | "SDK is already in local Maven repo at `~/.m2/repository/io/spas/`" |
+
+**Files Updated**:
+
+- `templates/partials/workflow-phases.eta`
+
+### Maven Dependency Error Handling
+
+Added explicit error handling section for SPAS SDK dependency resolution failures.
+
+| Addition | Content |
+|----------|---------|
+| New error section | "SPAS SDK Dependency Not Found (Java)" |
+| Key warnings | groupId must be `io.spas` NOT `com.spas`; version must be `1.0.0-SNAPSHOT` |
+| Required artifacts | spas-sdk-core, spas-sdk-metadata, spas-sdk-events, spas-sdk-spring, spas-sdk-observability |
+| Recovery steps | Instructions to rebuild SDK if missing |
+
+**Files Updated**:
+
+- `templates/partials/error-handling.eta`
+
 ---

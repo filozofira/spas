@@ -258,6 +258,14 @@ The following bugs were identified in agent prompt templates and fixed after ini
 | -------------------- | --------------------- | --------------------------------- |
 | spas-local feed path | `~/.nuget/local-feed` | `%USERPROFILE%\.nuget\local-feed` |
 
+### Security Configuration Fix
+
+| Issue                      | Wrong                                            | Correct                                                                                    |
+| -------------------------- | ------------------------------------------------ | ------------------------------------------------------------------------------------------ |
+| .NET `ConfigureSecurity()` | `s.WithAuthenticationType("jwt")` only           | `s.WithAuthenticationType("jwt").AddRequiredScope(...).AddDataClassification("internal")` |
+
+The schema requires `security.dataClassification` (minItems: 1). The .NET example was missing this required field; the Java example was already correct.
+
 **Files Updated**:
 
 - `templates/agent-prompt.eta`

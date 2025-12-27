@@ -80,6 +80,7 @@ This writes `./metadata/service.metadata.zip` (containing `spas.json` + referenc
 
 **Metadata Generation:**
 
+- **Minimal APIs only** — endpoints must use `app.MapPost`, `app.MapGet`, etc.; controller-based routing is not supported
 - Endpoint-centric: `[SpasCommand]`, `[SpasQuery]` on handlers; `[SpasEvent]` on event types
 - DTOs are plain classes (no attributes required) — schemas inferred automatically
 - Fluent builders for identity, contracts, security, consistency, network

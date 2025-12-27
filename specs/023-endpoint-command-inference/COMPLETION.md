@@ -273,6 +273,15 @@ The schema requires `security.dataClassification` (minItems: 1). The .NET exampl
 | .NET SDK version    | ".NET 8.0 SDK"                                               | ".NET 10.0 SDK" (matches SDK's `net10.0` target framework)                                    |
 | Prerequisites style | Separate bullet points for Java and .NET                     | Single line with choice: "Depending on chosen framework: **Java** (...) or **.NET** (...)"   |
 
+### Minimal API Limitation Documented
+
+| Issue                        | Description                                                                                 |
+| ---------------------------- | ------------------------------------------------------------------------------------------- |
+| Controller-based routing     | Not supported — .NET SDK discovers endpoints only from `app.MapPost`, `app.MapGet`, etc.   |
+| Agent prompt updated         | Added "(Minimal APIs only — controller-based routing not supported)" to SDK Usage section  |
+| readme.eta updated           | Added as first item in Common Gotchas: "Minimal APIs only"                                 |
+| SDK README.md updated        | Added limitation to Features > Metadata Generation section                                 |
+
 **Files Updated**:
 
 - `templates/agent-prompt.eta`

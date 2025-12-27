@@ -230,10 +230,11 @@ java -Dspas.generate-metadata=true -jar target/app.jar
 
 ### Common Gotchas
 
-1. **EventPublisher is concrete** - .NET uses `EventPublisher` class, not `ISpasEventPublisher` interface
-2. **DTOs are plain classes** - No attributes needed on DTOs; schema is inferred from endpoint parameters
-3. **Generic method** - Use `PublishAsync<TEvent>()` in .NET for type-safe publishing
-4. **Event linkage** - Use `Produces` property to link commands to events: `Produces = new[] { typeof(Event) }`
+1. **Minimal APIs only** - .NET SDK discovers endpoints from `app.MapPost`/`app.MapGet`; controller-based routing is not supported
+2. **EventPublisher is concrete** - .NET uses `EventPublisher` class, not `ISpasEventPublisher` interface
+3. **DTOs are plain classes** - No attributes needed on DTOs; schema is inferred from endpoint parameters
+4. **Generic method** - Use `PublishAsync<TEvent>()` in .NET for type-safe publishing
+5. **Event linkage** - Use `Produces` property to link commands to events: `Produces = new[] { typeof(Event) }`
 
 ## Event Publishing
 

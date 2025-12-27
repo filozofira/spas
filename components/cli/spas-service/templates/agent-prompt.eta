@@ -71,7 +71,7 @@ using Spas.Sdk.Metadata.Extensions;      // AddSpasMetadata(), RunSpasServiceAsy
 using Spas.Sdk.Observability.Extensions; // AddSpasServices()
 ```
 
-**SDK Usage**:
+**SDK Usage** (Minimal APIs only — controller-based routing not supported):
 - **Service identity**: Use `await app.RunSpasServiceAsync(args, options => { options.ServiceId = "..."; })`
 - **Commands**: `[SpasCommand("Name", "1.0", Produces = new[] { typeof(EventClass) })]` on MapPost/MapPut
 - **Queries**: `[SpasQuery("Name", "1.0")]` on MapGet

@@ -157,21 +157,31 @@ builder.Services.AddSingleton<EventPublisher>(sp =>
 await _eventPublisher.PublishAsync<OrderCreatedEvent>(eventData);
 ```
 
-**Metadata Attributes:**
+**Metadata Attributes (Minimal APIs):**
 ```csharp
 using Spas.Sdk.Metadata.Attributes;
 
-// Apply to controller actions AND DTOs for schema generation
-[SpasCommand("create-order", "1.0", Produces = new[] { typeof(OrderCreatedEvent) })]
-public async Task<ActionResult<Response>> CreateOrder([FromBody] Request request)
+// Apply to minimal API endpoint handlers
+app.MapPost("/orders", [SpasCommand("create-order", "1.0", Produces = new[] { typeof(OrderCreatedEvent) })]
+    async (CreateOrderRequest request, OrderService service) =>
+    {
+        var result = await service.CreateAsync(request);
+        return Results.Created($"/orders/{result.Id}", result);
+    });
 
-// Apply to request/response DTOs - REQUIRED for endpoint schemas
-[SpasCommand("create-order", "1.0")]
-public class CreateOrderRequest { /* properties */ }
+app.MapGet("/orders/{id}", [SpasQuery("get-order", "1.0")]
+    async (string id, OrderService service) =>
+    {
+        var order = await service.GetByIdAsync(id);
+        return order is not null ? Results.Ok(order) : Results.NotFound();
+    });
+
+// DTOs are plain classes - no attributes needed (schema inferred from endpoint parameters)
+public record CreateOrderRequest(string CustomerId, List<LineItem> Items);
 
 // Apply to events - REQUIRED for event schemas
 [SpasEvent("order-created", "1.0.0")]
-public class OrderCreatedEvent { /* properties */ }
+public record OrderCreatedEvent(string OrderId, string CustomerId, decimal Total);
 ```
 
 **Metadata Generation:**

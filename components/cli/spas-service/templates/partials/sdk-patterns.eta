@@ -402,43 +402,31 @@ management:
 
 ---
 
-### .NET Patterns
+### .NET Patterns (Minimal APIs Only)
+
+> **Note:** The .NET SDK only supports minimal API endpoints (`app.MapPost`, `app.MapGet`, etc.). 
+> Controller-based routing is not supported for metadata discovery.
 
 #### Project Structure
 
 ```
 {NAME}/
-├── src/
-│   └── {Name}.Api/
-│       ├── {Name}.Api.csproj
-│       ├── Program.cs
-│       ├── appsettings.json
-│       ├── Controllers/
-│       │   └── {Entity}Controller.cs
-│       ├── Services/
-│       │   ├── I{Entity}Service.cs
-│       │   └── {Entity}Service.cs
-│       ├── Models/
-│       │   ├── {Entity}.cs
-│       │   ├── Create{Entity}Request.cs
-│       │   └── {Entity}Response.cs
-│       ├── Repositories/
-│       │   ├── I{Entity}Repository.cs
-│       │   └── InMemory{Entity}Repository.cs
-│       └── Events/
-│           └── {Entity}CreatedEvent.cs
-├── test/
-│   └── {Name}.Api.Tests/
-│       ├── {Name}.Api.Tests.csproj
-│       └── {Entity}ServiceTests.cs
-├── spas.json
-├── schemas/
-│   ├── endpoints/
-│   │   ├── create-{entity}-request.json
-│   │   └── create-{entity}-response.json
-│   └── events/
-│       └── {entity}-created.json
-└── metadata/
+├── {Name}.csproj
+├── Program.cs
+├── appsettings.json
+├── Dockerfile
+├── DTOs/
+│   ├── Create{Entity}Request.cs
+│   └── Create{Entity}Response.cs
+├── Models/
+│   └── {Entity}.cs
+├── Services/
+│   └── {Entity}Store.cs
+├── Events/
+│   └── {Entity}CreatedEvent.cs
+├── metadata/
+│   └── service.metadata.zip
+└── README.md
 ```
 
 #### .csproj Template
@@ -462,23 +450,25 @@ management:
 </Project>
 ```
 
-#### Program.cs Entry Point
+#### Program.cs with Inline Endpoints (Minimal APIs)
 
 ```csharp
-using {Name}.Api.Repositories;
-using {Name}.Api.Services;
-using Spas.Sdk;
+using {Name}.DTOs;
+using {Name}.Models;
+using {Name}.Events;
+using {Name}.Services;
+using Spas.Sdk.Metadata.Attributes;
+using Spas.Sdk.Metadata.Extensions;
+using Spas.Sdk.Events.Publish;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container
-builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddHealthChecks();
 
 // Register application services
-builder.Services.AddSingleton<I{Entity}Repository, InMemory{Entity}Repository>();
-builder.Services.AddScoped<I{Entity}Service, {Entity}Service>();
+builder.Services.AddSingleton<{Entity}Store>();
 
 // Configure SPAS SDK
 builder.Services.AddSpasMetadata();
@@ -487,9 +477,8 @@ builder.Services.AddSpasServices(builder.Configuration, "{name}");
 // Configure EventPublisher for sidecar communication
 builder.Services.AddSingleton<EventPublisher>(sp =>
 {
-    var config = builder.Configuration;
-    var sidecarUrl = config["Spas:SidecarUrl"] ?? "http://localhost:3001";
-    var serviceName = config["Spas:ServiceName"] ?? "{name}";
+    var sidecarUrl = Environment.GetEnvironmentVariable("SIDECAR_URL") ?? "http://localhost:7000";
+    var serviceName = Environment.GetEnvironmentVariable("SERVICE_NAME") ?? "{name}";
     
     var httpClient = new HttpClient { BaseAddress = new Uri(sidecarUrl) };
     return new EventPublisher(httpClient, serviceName);
@@ -497,12 +486,62 @@ builder.Services.AddSingleton<EventPublisher>(sp =>
 
 var app = builder.Build();
 
-app.UseHttpsRedirection();
-app.UseAuthorization();
-app.MapControllers();
 app.MapHealthChecks("/health");
 
-app.Run();
+// Define minimal API endpoints inline with SPAS attributes
+// Command: Create a new {entity} - produces {entity}-created event
+app.MapPost("/{entity}s",
+    [SpasCommand("Create{Entity}", "1.0", 
+        Description = "Creates a new {entity}",
+        Produces = new[] { typeof({Entity}CreatedEvent) })]
+    async (Create{Entity}Request request, EventPublisher publisher, {Entity}Store store) =>
+    {
+        var entity = new {Entity}
+        {
+            Id = Guid.NewGuid().ToString(),
+            // Map request properties to entity
+        };
+        
+        store.Add(entity);
+        
+        var eventData = new {Entity}CreatedEvent(entity.Id, entity.CustomerId, DateTimeOffset.UtcNow);
+        await publisher.PublishAsync(eventData);
+        
+        return Results.Created($"/{entity}s/{entity.Id}", Create{Entity}Response.From(entity));
+    });
+
+// Query: Get {entity} by ID
+app.MapGet("/{entity}s/{id}",
+    [SpasQuery("Get{Entity}", "1.0", Description = "Retrieves a {entity} by ID")]
+    ({Entity}Store store, string id) =>
+    {
+        var entity = store.GetById(id);
+        return entity is not null ? Results.Ok(entity) : Results.NotFound();
+    });
+
+// Query: List all {entity}s
+app.MapGet("/{entity}s",
+    [SpasQuery("List{Entity}s", "1.0", Description = "Lists all {entity}s")]
+    ({Entity}Store store) => Results.Ok(store.GetAll()));
+
+// Run with SPAS service identity
+await app.RunSpasServiceAsync(args, options =>
+{
+    options.ServiceId = "{name}";
+    options.ServiceName = "{Human-Readable Name}";
+    options.Version = "1.0.0";
+    options.BoundedContext = "{context}";
+    options.Description = "{description}";
+    
+    options.AddCapability("{entity}-management");
+    
+    options.ConfigureConsistency(c => c.WithCommands("ACID").WithQueries("EVENTUAL"));
+    options.ConfigureSecurity(s => s
+        .WithAuthenticationType("jwt")
+        .AddRequiredScope("{entity}.read")
+        .AddRequiredScope("{entity}.write")
+        .AddDataClassification("internal"));
+});
 ```
 
 #### Event Class with [SpasEvent] Attribute
@@ -510,311 +549,55 @@ app.Run();
 ```csharp
 using Spas.Sdk.Metadata.Attributes;
 
-namespace {Name}.Api.Events;
+namespace {Name}.Events;
 
 /// <summary>
 /// Event published when a new {entity} is created.
 /// CloudEvents type: com.{context}.{entity}-created
 /// </summary>
-[SpasEvent("{entity}-created", "1.0.0")]
+[SpasEvent("{Entity}Created", "1.0.0")]
 public record {Entity}CreatedEvent(
     string Id,
     string CustomerId,
-    IReadOnlyList<LineItem> Items,
-    decimal Total,
+    DateTimeOffset CreatedAt
+);
+```
+
+#### DTOs
+
+```csharp
+namespace {Name}.DTOs;
+
+public record Create{Entity}Request(
+    string CustomerId,
+    List<LineItem> Items
+);
+
+public record Create{Entity}Response(
+    string Id,
+    string CustomerId,
     DateTimeOffset CreatedAt
 )
 {
-    public record LineItem(
-        string ProductId,
-        int Quantity,
-        decimal UnitPrice
-    );
+    public static Create{Entity}Response From({Entity} entity) => 
+        new(entity.Id, entity.CustomerId, entity.CreatedAt);
 }
+
+public record LineItem(string ProductId, int Quantity);
 ```
 
-#### Controller with Command Handler
+#### Simple Store (In-Memory)
 
 ```csharp
-using Microsoft.AspNetCore.Mvc;
-using Spas.Sdk.Metadata.Attributes;
-using {Name}.Api.Models;
-using {Name}.Api.Services;
-using {Name}.Api.Events;
+namespace {Name}.Services;
 
-namespace {Name}.Api.Controllers;
-
-[ApiController]
-[Route("[controller]")]
-public class {Entity}Controller : ControllerBase
+public class {Entity}Store
 {
-    private readonly I{Entity}Service _service;
-
-    public {Entity}Controller(I{Entity}Service service)
-    {
-        _service = service;
-    }
-
-    /// <summary>
-    /// Command: Create{Entity}
-    /// Produces: {entity}-created event
-    /// </summary>
-    /// <remarks>
-    /// SPAS Pattern: Apply [SpasCommand] to both action AND request/response DTOs.
-    /// Use Produces property to link events: Produces = new[] { typeof({Entity}CreatedEvent) }
-    /// </remarks>
-    [HttpPost]
-    [SpasCommand("create-{entity}", "1.0", Produces = new[] { typeof({Entity}CreatedEvent) })]
-    [ProducesResponseType(typeof({Entity}Response), StatusCodes.Status201Created)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public async Task<ActionResult<{Entity}Response>> Create(
-        [FromBody] Create{Entity}Request request)
-    {
-        var entity = await _service.CreateAsync(request);
-        return CreatedAtAction(
-            nameof(GetById),
-            new { id = entity.Id },
-            {Entity}Response.From(entity));
-    }
-
-    /// <summary>
-    /// Query: Get{Entity}
-    /// </summary>
-    [HttpGet("{id}")]
-    [SpasQuery("get-{entity}", "1.0")]
-    [ProducesResponseType(typeof({Entity}Response), StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<ActionResult<{Entity}Response>> GetById(string id)
-    {
-        var entity = await _service.GetByIdAsync(id);
-        if (entity is null)
-            return NotFound();
-        
-        return Ok({Entity}Response.From(entity));
-    }
-
-    /// <summary>
-    /// Query: List{Entities}
-    /// </summary>
-    [HttpGet]
-    [SpasQuery("list-{entity}s", "1.0")]
-    [ProducesResponseType(typeof(IEnumerable<{Entity}Response>), StatusCodes.Status200OK)]
-    public async Task<ActionResult<IEnumerable<{Entity}Response>>> List()
-    {
-        var entities = await _service.GetAllAsync();
-        return Ok(entities.Select({Entity}Response.From));
-    }
-}
-```
-
-#### Service Interface
-
-```csharp
-using {Name}.Api.Models;
-
-namespace {Name}.Api.Services;
-
-public interface I{Entity}Service
-{
-    Task<{Entity}> CreateAsync(Create{Entity}Request request);
-    Task<{Entity}?> GetByIdAsync(string id);
-    Task<IEnumerable<{Entity}>> GetAllAsync();
-}
-```
-
-#### Service Implementation with Event Publishing
-
-```csharp
-using {Name}.Api.Events;
-using {Name}.Api.Models;
-using {Name}.Api.Repositories;
-using Spas.Sdk.Events.Publish;
-
-namespace {Name}.Api.Services;
-
-public class {Entity}Service : I{Entity}Service
-{
-    private readonly I{Entity}Repository _repository;
+    private readonly List<{Entity}> _entities = new();
     
-    /// <summary>
-    /// Publishes events to the sidecar for distribution.
-    /// </summary>
-    /// <remarks>
-    /// IMPORTANT: Use concrete EventPublisher class, not ISpasEventPublisher interface.
-    /// The SDK extracts event metadata from the [SpasEvent] attribute at runtime.
-    /// </remarks>
-    /// <example>
-    /// await _eventPublisher.PublishAsync&lt;OrderCreatedEvent&gt;(new OrderCreatedEvent(...));
-    /// </example>
-    private readonly EventPublisher _eventPublisher;
-
-    public {Entity}Service(
-        I{Entity}Repository repository,
-        EventPublisher eventPublisher)
-    {
-        _repository = repository;
-        _eventPublisher = eventPublisher;
-    }
-
-    /// <summary>
-    /// Creates a new {entity} and publishes {entity}-created event.
-    /// </summary>
-    public async Task<{Entity}> CreateAsync(Create{Entity}Request request)
-    {
-        // Create entity
-        var entity = new {Entity}(
-            Id: Guid.NewGuid().ToString(),
-            CustomerId: request.CustomerId,
-            Items: request.Items,
-            Total: request.CalculateTotal(),
-            CreatedAt: DateTimeOffset.UtcNow
-        );
-
-        // Persist
-        var saved = await _repository.SaveAsync(entity);
-
-        // Publish event to sidecar
-        // NOTE: Use generic method PublishAsync<TEvent>() - extracts metadata from [SpasEvent]
-        await _eventPublisher.PublishAsync<{Entity}CreatedEvent>(new {Entity}CreatedEvent(
-            saved.Id,
-            saved.CustomerId,
-            saved.Items.Select(i => new {Entity}CreatedEvent.LineItem(
-                i.ProductId, i.Quantity, i.UnitPrice)).ToList(),
-            saved.Total,
-            saved.CreatedAt
-        ));
-
-        return saved;
-    }
-
-    public Task<{Entity}?> GetByIdAsync(string id)
-        => _repository.GetByIdAsync(id);
-
-    public Task<IEnumerable<{Entity}>> GetAllAsync()
-        => _repository.GetAllAsync();
-}
-```
-
-#### DTOs (Plain Classes - No Attributes Required)
-
-DTOs are plain C# classes or records. The SDK automatically infers JSON schemas from endpoint parameters.
-**No `[SpasCommand]` or `[SpasQuery]` attributes are needed on DTOs** - only on endpoint handlers.
-
-```csharp
-namespace {Name}.Api.Models;
-
-/// <summary>
-/// Request DTO for Create{Entity} command.
-/// Plain class - schema is automatically inferred from endpoint parameter type.
-/// </summary>
-public class Create{Entity}Request
-{
-    public string CustomerId { get; set; } = string.Empty;
-    public List<LineItem> Items { get; set; } = new();
-    
-    public decimal CalculateTotal() => Items.Sum(i => i.Quantity * i.UnitPrice);
-}
-
-/// <summary>
-/// Response DTO for Create{Entity} command.
-/// </summary>
-public class Create{Entity}Response
-{
-    public string Id { get; set; } = string.Empty;
-    public string Status { get; set; } = "created";
-    public decimal Total { get; set; }
-    public DateTimeOffset CreatedAt { get; set; }
-}
-
-/// <summary>
-/// Domain model returned by Get{Entity} query.
-/// </summary>
-public class {Entity}
-{
-    public string Id { get; set; } = string.Empty;
-    public string CustomerId { get; set; } = string.Empty;
-    public List<LineItem> Items { get; set; } = new();
-    public decimal Total { get; set; }
-    public string Status { get; set; } = "pending";
-    public DateTimeOffset CreatedAt { get; set; }
-}
-
-public class LineItem
-{
-    public string ProductId { get; set; } = string.Empty;
-    public int Quantity { get; set; }
-    public decimal UnitPrice { get; set; }
-}
-```
-
-#### Repository Interface
-
-```csharp
-using {Name}.Api.Models;
-
-namespace {Name}.Api.Repositories;
-
-public interface I{Entity}Repository
-{
-    Task<{Entity}> SaveAsync({Entity} entity);
-    Task<{Entity}?> GetByIdAsync(string id);
-    Task<IEnumerable<{Entity}>> GetAllAsync();
-    Task DeleteAsync(string id);
-}
-```
-
-#### In-Memory Repository Implementation
-
-```csharp
-using {Name}.Api.Models;
-using System.Collections.Concurrent;
-
-namespace {Name}.Api.Repositories;
-
-public class InMemory{Entity}Repository : I{Entity}Repository
-{
-    private readonly ConcurrentDictionary<string, {Entity}> _store = new();
-
-    public Task<{Entity}> SaveAsync({Entity} entity)
-    {
-        _store[entity.Id] = entity;
-        return Task.FromResult(entity);
-    }
-
-    public Task<{Entity}?> GetByIdAsync(string id)
-    {
-        _store.TryGetValue(id, out var entity);
-        return Task.FromResult(entity);
-    }
-
-    public Task<IEnumerable<{Entity}>> GetAllAsync()
-    {
-        return Task.FromResult<IEnumerable<{Entity}>>(_store.Values.ToList());
-    }
-
-    public Task DeleteAsync(string id)
-    {
-        _store.TryRemove(id, out _);
-        return Task.CompletedTask;
-    }
-}
-```
-
-#### appsettings.json
-
-```json
-{
-  "Logging": {
-    "LogLevel": {
-      "Default": "Information",
-      "Microsoft.AspNetCore": "Warning"
-    }
-  },
-  "AllowedHosts": "*",
-  "Spas": {
-    "ServiceId": "{name}",
-    "SidecarUrl": "http://localhost:3001"
-  }
+    public void Add({Entity} entity) => _entities.Add(entity);
+    public {Entity}? GetById(string id) => _entities.FirstOrDefault(e => e.Id == id);
+    public IEnumerable<{Entity}> GetAll() => _entities.AsReadOnly();
 }
 ```
 

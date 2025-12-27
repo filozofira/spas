@@ -90,7 +90,17 @@ Use the patterns matching the STACK token (java or dotnet).
         <!-- SPAS SDK -->
         <dependency>
             <groupId>io.spas</groupId>
-            <artifactId>spas-sdk-java</artifactId>
+            <artifactId>spas-sdk-spring</artifactId>
+            <version>${spas-sdk.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.spas</groupId>
+            <artifactId>spas-sdk-events</artifactId>
+            <version>${spas-sdk.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.spas</groupId>
+            <artifactId>spas-sdk-metadata</artifactId>
             <version>${spas-sdk.version}</version>
         </dependency>
         
@@ -118,13 +128,42 @@ Use the patterns matching the STACK token (java or dotnet).
 ```java
 package com.{context}.{name};
 
-import org.springframework.boot.SpringApplication;
+import io.spas.sdk.metadata.annotations.SpasService;
+import io.spas.sdk.metadata.model.Authentication;
+import io.spas.sdk.metadata.model.AuthType;
+import io.spas.sdk.metadata.model.Consistency;
+import io.spas.sdk.metadata.model.ConsistencyLevel;
+import io.spas.sdk.metadata.model.DataClassification;
+import io.spas.sdk.metadata.model.Network;
+import io.spas.sdk.metadata.model.QueryConsistencyLevel;
+import io.spas.sdk.metadata.model.Security;
+import io.spas.sdk.spring.SpasServiceRunner;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
+import java.util.List;
+
+/**
+ * {Human-Readable Name} - A SPAS-compliant service.
+ */
 @SpringBootApplication
+@SpasService(
+    id = "{name}",
+    name = "{Human-Readable Name}",
+    boundedContext = "{context}",
+    version = "1.0.0",
+    description = "{Service description}"
+)
 public class Application {
     public static void main(String[] args) {
-        SpringApplication.run(Application.class, args);
+        SpasServiceRunner.run(Application.class, args, options -> {
+            options.setConsistency(new Consistency(ConsistencyLevel.ACID, QueryConsistencyLevel.EVENTUAL));
+            options.setNetwork(new Network(List.of("localhost:5432")));
+            options.setSecurity(new Security(
+                new Authentication(AuthType.JWT, List.of("{entity}.read", "{entity}.write")),
+                List.of(DataClassification.INTERNAL)
+            ));
+            options.setLicense("MIT");
+        });
     }
 }
 ```
@@ -134,29 +173,25 @@ public class Application {
 ```java
 package com.{context}.{name}.config;
 
-import io.spas.sdk.SpasEventPublisher;
-import io.spas.sdk.SpasEventPublisherConfig;
-import org.springframework.beans.factory.annotation.Value;
+import io.spas.sdk.core.config.SpasConfiguration;
+import io.spas.sdk.events.EventPublisher;
+import io.spas.sdk.events.EventPublisherConfig;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+
+import java.time.Duration;
 
 @Configuration
 public class SpasConfig {
     
-    @Value("${spas.sidecar.url:http://localhost:3001}")
-    private String sidecarUrl;
-    
-    @Value("${spas.service.id}")
-    private String serviceId;
-    
     @Bean
-    public SpasEventPublisher spasEventPublisher() {
-        return new SpasEventPublisher(
-            SpasEventPublisherConfig.builder()
-                .sidecarUrl(sidecarUrl)
-                .source("/" + serviceId)
-                .build()
-        );
+    public EventPublisher eventPublisher() {
+        SpasConfiguration spasConfig = new SpasConfiguration();
+        EventPublisherConfig config = EventPublisherConfig.builder()
+            .sidecarUrl(spasConfig.getSidecarUrl().toString())
+            .timeout(Duration.ofSeconds(5))
+            .build();
+        return new EventPublisher(config, spasConfig.getServiceName());
     }
 }
 ```
@@ -166,7 +201,7 @@ public class SpasConfig {
 ```java
 package com.{context}.{name}.event;
 
-import io.spas.sdk.annotation.SpasEvent;
+import io.spas.sdk.metadata.annotations.SpasEvent;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.List;
@@ -176,7 +211,7 @@ import java.util.List;
  * 
  * CloudEvents type: com.{context}.{entity}-created
  */
-@SpasEvent(name = "{entity}-created", version = "1.0.0")
+@SpasEvent(type = "{Entity}Created", version = "1.0.0", description = "Emitted when a {entity} is created")
 public record {Entity}CreatedEvent(
     String id,
     String customerId,
@@ -258,7 +293,7 @@ package com.{context}.{name}.service;
 import com.{context}.{name}.event.{Entity}CreatedEvent;
 import com.{context}.{name}.model.*;
 import com.{context}.{name}.repository.{Entity}Repository;
-import io.spas.sdk.SpasEventPublisher;
+import io.spas.sdk.events.EventPublisher;
 import org.springframework.stereotype.Service;
 import java.time.Instant;
 import java.util.List;
@@ -269,11 +304,11 @@ import java.util.UUID;
 public class {Entity}Service {
     
     private final {Entity}Repository repository;
-    private final SpasEventPublisher eventPublisher;
+    private final EventPublisher eventPublisher;
     
     public {Entity}Service(
             {Entity}Repository repository,
-            SpasEventPublisher eventPublisher) {
+            EventPublisher eventPublisher) {
         this.repository = repository;
         this.eventPublisher = eventPublisher;
     }

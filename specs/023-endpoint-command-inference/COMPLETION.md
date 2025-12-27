@@ -291,4 +291,32 @@ The schema requires `security.dataClassification` (minItems: 1). The .NET exampl
 - `templates/partials/error-handling.eta`
 - `dist/templates/` (mirrored all changes)
 
+### Java SDK API Accuracy Fix
+
+Scaffolded Java projects failed to compile with 20+ "cannot find symbol" errors. Templates documented a fictional SDK API that didn't match the actual implementation.
+
+| Template (Wrong) | Actual SDK (Correct) |
+|------------------|----------------------|
+| `io.spas.sdk.SpasEventPublisher` | `io.spas.sdk.events.EventPublisher` |
+| `io.spas.sdk.SpasEventPublisherConfig` | `io.spas.sdk.events.EventPublisherConfig` |
+| `io.spas.sdk.annotation.SpasEvent` | `io.spas.sdk.metadata.annotations.SpasEvent` |
+| `io.spas.sdk.core.SpasServiceRunner` | `io.spas.sdk.spring.SpasServiceRunner` |
+| `io.spas.sdk.core.config.Consistency` | `io.spas.sdk.metadata.model.Consistency` |
+| `io.spas.sdk.core.config.Security` | `io.spas.sdk.metadata.model.Security` |
+| `io.spas.sdk.core.config.Network` | `io.spas.sdk.metadata.model.Network` |
+| `@SpasEvent(name = "...")` | `@SpasEvent(type = "...")` |
+| `spas-sdk-java` (single artifact) | `spas-sdk-spring` + `spas-sdk-events` + `spas-sdk-metadata` (modular) |
+
+**Changes Applied**:
+
+1. **pom.xml**: Changed `spas-sdk-java` to individual modules: `spas-sdk-spring`, `spas-sdk-events`, `spas-sdk-metadata`
+2. **Application.java**: Added `@SpasService` annotation and `SpasServiceRunner.run()` with imports from `io.spas.sdk.spring` and `io.spas.sdk.metadata.model.*`
+3. **SpasConfig.java**: Changed to use `EventPublisher` from `io.spas.sdk.events` and `SpasConfiguration` from `io.spas.sdk.core.config`
+4. **Service class**: Changed `SpasEventPublisher` to `EventPublisher`
+
+**Files Updated**:
+
+- `templates/partials/sdk-patterns.eta`
+- `templates/partials/sdk-patterns-compact.eta`
+
 ---

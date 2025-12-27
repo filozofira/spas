@@ -11,8 +11,8 @@ Use patterns matching the STACK token (java or dotnet).
 {NAME}/
 ├── pom.xml
 ├── src/main/java/com/{context}/{name}/
-│   ├── Application.java          # @SpringBootApplication
-│   ├── config/SpasConfig.java    # SpasEventPublisher bean
+│   ├── Application.java          # @SpringBootApplication + @SpasService + SpasServiceRunner
+│   ├── config/SpasConfig.java    # EventPublisher bean
 │   ├── controller/               # @RestController classes
 │   ├── service/                  # @Service with event publishing
 │   ├── model/                    # Domain + DTOs
@@ -25,7 +25,9 @@ Use patterns matching the STACK token (java or dotnet).
 - `spring-boot-starter-parent:3.2.0`
 - `spring-boot-starter-web`
 - `spring-boot-starter-actuator`
-- `io.spas:spas-sdk-java:1.0.0-SNAPSHOT`
+- `io.spas:spas-sdk-spring:1.0.0-SNAPSHOT`
+- `io.spas:spas-sdk-events:1.0.0-SNAPSHOT`
+- `io.spas:spas-sdk-metadata:1.0.0-SNAPSHOT`
 
 **Event Publishing**:
 ```java

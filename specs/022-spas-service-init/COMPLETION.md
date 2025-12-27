@@ -287,6 +287,7 @@ Examples: order-service, payment-gateway, user-auth
     - DTOs as record types
     - Removed `Endpoints/`, `Repositories/` folders that don't exist in examples
 11. **Changed from Maven Wrapper to System Maven**: Replaced `./mvnw` commands with `mvn` in all templates (readme.eta, workflow-phases.eta, error-handling.eta, prompt-trigger.eta). Maven wrapper requires additional files that the agent wasn't generating; using system `mvn` matches how SPAS's own Java projects work (basket-service, fulfillment-service, Java SDK). Updated prerequisites to specify "JDK 17+ with Maven" instead of JAVA_HOME requirement
+12. **Fixed SDK Version Mismatch**: Templates specified `1.0.0` but actual Java SDK publishes as `1.0.0-SNAPSHOT`. Updated sdk-patterns.eta, sdk-patterns-compact.eta, and readme.eta to use correct version. This fixes "artifact not found" errors when building services that reference the locally-installed SDK
 
 ---
 

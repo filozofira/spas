@@ -25,7 +25,7 @@ Use patterns matching the STACK token (java or dotnet).
 - `spring-boot-starter-parent:3.2.0`
 - `spring-boot-starter-web`
 - `spring-boot-starter-actuator`
-- `io.spas:spas-sdk-java:1.0.0`
+- `io.spas:spas-sdk-java:1.0.0-SNAPSHOT`
 
 **Event Publishing**:
 ```java

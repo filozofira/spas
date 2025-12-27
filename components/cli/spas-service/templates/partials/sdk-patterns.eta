@@ -70,7 +70,7 @@ Use the patterns matching the STACK token (java or dotnet).
     
     <properties>
         <java.version>17</java.version>
-        <spas-sdk.version>1.0.0</spas-sdk.version>
+        <spas-sdk.version>1.0.0-SNAPSHOT</spas-sdk.version>
     </properties>
     
     <dependencies>

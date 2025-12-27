@@ -361,4 +361,24 @@ Agents were generating `com.spas` instead of the correct `io.spas` groupId for S
 - `templates/partials/sdk-patterns.eta`
 - `templates/partials/sdk-patterns-compact.eta`
 
+### Java SDK Dependencies Completeness Fix
+
+Templates only listed 3 SDK modules but basket-service example uses all 5. Added missing `spas-sdk-core` and `spas-sdk-observability` modules.
+
+| Issue | Before | After |
+|-------|--------|-------|
+| SDK modules | 3 (spring, events, metadata) | 5 (core, metadata, events, spring, observability) |
+
+All 5 modules matching basket-service:
+- `spas-sdk-core` - SpasTrace, SpasContext, configuration
+- `spas-sdk-metadata` - Annotations, metadata generation
+- `spas-sdk-events` - EventPublisher
+- `spas-sdk-spring` - SpasServiceRunner, Spring Boot integration
+- `spas-sdk-observability` - Distributed tracing, metrics
+
+**Files Updated**:
+
+- `templates/partials/sdk-patterns.eta`
+- `templates/partials/sdk-patterns-compact.eta`
+
 ---

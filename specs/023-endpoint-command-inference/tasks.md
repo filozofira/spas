@@ -19,7 +19,7 @@
 
 **Purpose**: Prepare workspace and verify existing test baseline
 
-- [ ] T001 Verify all existing SDK tests pass before modifications by running `dotnet test` in components/sdk/dotnet/
+- [X] T001 Verify all existing SDK tests pass before modifications by running `dotnet test` in components/sdk/dotnet/
 - [ ] T002 Create feature branch checkpoint commit with message "chore: baseline before 023-endpoint-command-inference changes"
 
 ---

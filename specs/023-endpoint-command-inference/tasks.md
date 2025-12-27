@@ -75,16 +75,16 @@
 
 ### Tests for User Story 4
 
-- [ ] T019 [P] [US4] Add test verifying PublishAsync(string, object) is internal (reflection test) in components/sdk/dotnet/test/Spas.Sdk.Events.Tests/EventPublisherTests.cs
-- [ ] T020 [P] [US4] Add test verifying PublishAsync<TEvent> remains public and functional in components/sdk/dotnet/test/Spas.Sdk.Events.Tests/EventPublisherTests.cs
-- [ ] T021 [P] [US4] Add test for InvalidOperationException when event type lacks SpasEvent attribute in components/sdk/dotnet/test/Spas.Sdk.Events.Tests/EventPublisherTests.cs
+- [X] T019 [P] [US4] Add test verifying PublishAsync(string, object) is internal (reflection test) in components/sdk/dotnet/test/Spas.Sdk.Events.Tests/EventPublisherTests.cs
+- [X] T020 [P] [US4] Add test verifying PublishAsync<TEvent> remains public and functional in components/sdk/dotnet/test/Spas.Sdk.Events.Tests/EventPublisherTests.cs
+- [X] T021 [P] [US4] Add test for InvalidOperationException when event type lacks SpasEvent attribute in components/sdk/dotnet/test/Spas.Sdk.Events.Tests/EventPublisherTests.cs
 
 ### Implementation for User Story 4
 
-- [ ] T022 [US4] Change PublishAsync(string eventName, object payload) visibility from public to internal in components/sdk/dotnet/src/Spas.Sdk.Events/Publish/EventPublisher.cs
-- [ ] T023 [US4] Verify generic PublishAsync<TEvent> still calls internal method correctly in components/sdk/dotnet/src/Spas.Sdk.Events/Publish/EventPublisher.cs
-- [ ] T024 [US4] Add or verify clear InvalidOperationException when TEvent lacks SpasEvent attribute in components/sdk/dotnet/src/Spas.Sdk.Events/Publish/EventPublisher.cs
-- [ ] T025 [US4] Run US4 tests to verify implementation with `dotnet test --filter "EventPublisher"` in components/sdk/dotnet/
+- [X] T022 [US4] Change PublishAsync(string eventName, object payload) visibility from public to internal in components/sdk/dotnet/src/Spas.Sdk.Events/Publish/EventPublisher.cs
+- [X] T023 [US4] Verify generic PublishAsync<TEvent> still calls internal method correctly in components/sdk/dotnet/src/Spas.Sdk.Events/Publish/EventPublisher.cs
+- [X] T024 [US4] Add or verify clear InvalidOperationException when TEvent lacks SpasEvent attribute in components/sdk/dotnet/src/Spas.Sdk.Events/Publish/EventPublisher.cs
+- [X] T025 [US4] Run US4 tests to verify implementation with `dotnet test --filter "EventPublisher"` in components/sdk/dotnet/
 
 **Checkpoint**: Event publishing API simplified. Only type-safe method is publicly accessible.
 

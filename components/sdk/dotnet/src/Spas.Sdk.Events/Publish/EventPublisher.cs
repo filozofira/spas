@@ -59,7 +59,11 @@ public class EventPublisher
     /// <returns>A task representing the asynchronous publish operation.</returns>
     /// <exception cref="ArgumentNullException">Thrown when eventName or payload is null.</exception>
     /// <exception cref="HttpRequestException">Thrown when the sidecar returns an error response.</exception>
-    public async Task PublishAsync(string eventName, object payload)
+    /// <remarks>
+    /// This method is internal to prevent AI agents and developers from bypassing type safety.
+    /// Use the generic PublishAsync&lt;TEvent&gt; method instead, which enforces [SpasEvent] attribute presence.
+    /// </remarks>
+    internal async Task PublishAsync(string eventName, object payload)
     {
         if (eventName == null)
         {

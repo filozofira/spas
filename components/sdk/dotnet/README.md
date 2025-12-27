@@ -80,7 +80,8 @@ This writes `./metadata/service.metadata.zip` (containing `spas.json` + referenc
 
 **Metadata Generation:**
 
-- Attribute-based: `[SpasCommand]`, `[SpasQuery]`, `[SpasEvent]`
+- Endpoint-centric: `[SpasCommand]`, `[SpasQuery]` on handlers; `[SpasEvent]` on event types
+- DTOs are plain classes (no attributes required) — schemas inferred automatically
 - Fluent builders for identity, contracts, security, consistency, network
 - Validates generated `spas.json` against design-time schema
 - Kebab-case normalization: `OrderCreated` → `order-created`

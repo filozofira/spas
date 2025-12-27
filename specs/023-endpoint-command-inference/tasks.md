@@ -134,12 +134,12 @@
 
 **Purpose**: Documentation, validation, and final cleanup
 
-- [ ] T037 [P] Update SDK README.md to reflect simplified DTO usage in components/sdk/dotnet/README.md
-- [ ] T038 [P] Update CONVENTIONS.md to remove DTO decoration requirements in components/sdk/CONVENTIONS.md
-- [ ] T039 Run quickstart.md validation steps to verify migration guide accuracy
-- [ ] T040 Run full SDK test suite with `dotnet test` in components/sdk/dotnet/
-- [ ] T041 Run metadata archive validation script with `.\scripts\validate-metadata-archives.ps1`
-- [ ] T042 Commit all changes with message "feat(sdk): implement endpoint-centric schema inference and event API simplification"
+- [X] T037 [P] Update SDK README.md to reflect simplified DTO usage in components/sdk/dotnet/README.md
+- [X] T038 [P] Update CONVENTIONS.md to remove DTO decoration requirements in components/sdk/CONVENTIONS.md
+- [X] T039 Run quickstart.md validation steps to verify migration guide accuracy
+- [X] T040 Run full SDK test suite with `dotnet test` in components/sdk/dotnet/
+- [X] T041 Run metadata archive validation script with `.\scripts\validate-metadata-archives.ps1`
+- [X] T042 Commit all changes with message "feat(sdk): implement endpoint-centric schema inference and event API simplification"
 
 ---
 

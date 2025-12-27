@@ -82,9 +82,9 @@ using Spas.Sdk.Observability.Extensions; // AddSpasServices()
 ### Java Pattern
 - **Service identity**: `@SpasService(id = "...", boundedContext = "...")` on main application class
 - **Runner**: Use `SpasServiceRunner.run(Application.class, args, options -> {...})`
-- **Commands**: `@SpasCommand(name = "Name", version = "1.0", produces = {"EventName"})`
-- **Queries**: `@SpasQuery(name = "Name", version = "1.0")`
-- **Events**: `@SpasEvent(name = "Name", version = "1.0")`
+- **Commands**: `@SpasCommand(name = "Name", version = "1.0", path = "/path", produces = {EventClass.class})`
+- **Queries**: `@SpasQuery(name = "Name", version = "1.0", path = "/path")`
+- **Events**: `@SpasEvent(type = "Name", version = "1.0")`
 - **Generate metadata**: `java -Dspas.generate-metadata=true -jar app.jar`
 - **Output**: `./metadata/service.metadata.zip`
 

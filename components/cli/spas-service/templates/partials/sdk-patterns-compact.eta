@@ -29,12 +29,12 @@ Use patterns matching the STACK token (java or dotnet).
 
 **Event Publishing**:
 ```java
-@SpasEvent(name = "{entity}-created", version = "1.0.0")
+@SpasEvent(type = "entity-created", version = "1.0.0")
 public record EntityCreatedEvent(String id, ...) {}
 
 @Service
 public class EntityService {
-    private final SpasEventPublisher eventPublisher;
+    private final EventPublisher eventPublisher;
     
     public Entity create(Request req) {
         Entity saved = repository.save(new Entity(req));
@@ -48,7 +48,7 @@ public class EntityService {
 ```yaml
 spas:
   service.id: {name}
-  sidecar.url: ${SPAS_SIDECAR_URL:http://localhost:3001}
+  sidecar.url: ${SIDECAR_URL:http://localhost:7000}
 ```
 
 ---

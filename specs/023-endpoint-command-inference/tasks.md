@@ -47,21 +47,21 @@
 
 ### Tests for User Story 1
 
-- [ ] T007 [P] [US1] Add test for schema inference from plain DTO parameter in components/sdk/dotnet/test/Spas.Sdk.Metadata.Tests/WebApplicationDiscoveryExtensionsTests.cs
-- [ ] T008 [P] [US1] Add test for endpoint with no request body parameter in components/sdk/dotnet/test/Spas.Sdk.Metadata.Tests/WebApplicationDiscoveryExtensionsTests.cs
-- [ ] T009 [P] [US1] Add test for endpoint with primitive parameter type in components/sdk/dotnet/test/Spas.Sdk.Metadata.Tests/WebApplicationDiscoveryExtensionsTests.cs
-- [ ] T010 [P] [US1] Add test for deduplication when multiple endpoints use same DTO in components/sdk/dotnet/test/Spas.Sdk.Metadata.Tests/MetadataArchiveGeneratorTests.cs
-- [ ] T011 [P] [US1] Add test for nested complex types in DTO schema in components/sdk/dotnet/test/Spas.Sdk.Metadata.Tests/SchemaGeneratorTests.cs
+- [X] T007 [P] [US1] Add test for schema inference from plain DTO parameter in components/sdk/dotnet/test/Spas.Sdk.Metadata.Tests/WebApplicationDiscoveryExtensionsTests.cs
+- [X] T008 [P] [US1] Add test for endpoint with no request body parameter in components/sdk/dotnet/test/Spas.Sdk.Metadata.Tests/WebApplicationDiscoveryExtensionsTests.cs
+- [X] T009 [P] [US1] Add test for endpoint with primitive parameter type in components/sdk/dotnet/test/Spas.Sdk.Metadata.Tests/WebApplicationDiscoveryExtensionsTests.cs
+- [X] T010 [P] [US1] Add test for deduplication when multiple endpoints use same DTO in components/sdk/dotnet/test/Spas.Sdk.Metadata.Tests/MetadataArchiveGeneratorTests.cs
+- [X] T011 [P] [US1] Add test for nested complex types in DTO schema in components/sdk/dotnet/test/Spas.Sdk.Metadata.Tests/SchemaGeneratorTests.cs
 
 ### Implementation for User Story 1
 
-- [ ] T012 [US1] Add GenerateSchemaForType method that accepts Type parameter (no attribute required) in components/sdk/dotnet/src/Spas.Sdk.Metadata/Schema/SchemaGenerator.cs
-- [ ] T013 [US1] Add helper method to extract request body parameter type from endpoint delegate in components/sdk/dotnet/src/Spas.Sdk.Metadata/Extensions/WebApplicationDiscoveryExtensions.cs
-- [ ] T014 [US1] Modify ProcessEndpoint to call parameter extraction and pass type to schema generator in components/sdk/dotnet/src/Spas.Sdk.Metadata/Extensions/WebApplicationDiscoveryExtensions.cs
-- [ ] T015 [US1] Update MetadataArchiveGenerator to accept parameter type for schema generation in components/sdk/dotnet/src/Spas.Sdk.Metadata/Generation/MetadataArchiveGenerator.cs
-- [ ] T016 [US1] Add logic to skip schema generation for primitive types and null parameters in components/sdk/dotnet/src/Spas.Sdk.Metadata/Generation/MetadataArchiveGenerator.cs
-- [ ] T017 [US1] Add schema path deduplication tracking when same DTO used by multiple endpoints in components/sdk/dotnet/src/Spas.Sdk.Metadata/Generation/MetadataArchiveGenerator.cs
-- [ ] T018 [US1] Run US1 tests to verify implementation with `dotnet test --filter "US1|PlainDto|ParameterInference"` in components/sdk/dotnet/
+- [X] T012 [US1] Add GenerateSchemaForType method that accepts Type parameter (no attribute required) in components/sdk/dotnet/src/Spas.Sdk.Metadata/Schema/SchemaGenerator.cs
+- [X] T013 [US1] Add helper method to extract request body parameter type from endpoint delegate in components/sdk/dotnet/src/Spas.Sdk.Metadata/Extensions/WebApplicationDiscoveryExtensions.cs
+- [X] T014 [US1] Modify ProcessEndpoint to call parameter extraction and pass type to schema generator in components/sdk/dotnet/src/Spas.Sdk.Metadata/Extensions/WebApplicationDiscoveryExtensions.cs
+- [X] T015 [US1] Update MetadataArchiveGenerator to accept parameter type for schema generation in components/sdk/dotnet/src/Spas.Sdk.Metadata/Generation/MetadataArchiveGenerator.cs
+- [X] T016 [US1] Add logic to skip schema generation for primitive types and null parameters in components/sdk/dotnet/src/Spas.Sdk.Metadata/Generation/MetadataArchiveGenerator.cs
+- [X] T017 [US1] Add schema path deduplication tracking when same DTO used by multiple endpoints in components/sdk/dotnet/src/Spas.Sdk.Metadata/Generation/MetadataArchiveGenerator.cs
+- [X] T018 [US1] Run US1 tests to verify implementation with `dotnet test --filter "US1|PlainDto|ParameterInference"` in components/sdk/dotnet/
 
 **Checkpoint**: Plain DTO schema inference working. Endpoint-centric metadata generation complete.
 

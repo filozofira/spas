@@ -11,6 +11,12 @@ public class ContractsBuilder
     private readonly List<CommandContract> _commands = new();
     private readonly List<EventContract> _events = new();
 
+    /// <summary>
+    /// Mapping of endpoint schemaRef to the Type that should be used for schema generation.
+    /// Enables endpoint-centric schema inference from plain DTOs.
+    /// </summary>
+    public Dictionary<string, Type> EndpointRequestBodyTypes { get; } = new();
+
     private static string? TrimToNull(string? value)
     {
         return string.IsNullOrWhiteSpace(value) ? null : value;
@@ -19,7 +25,15 @@ public class ContractsBuilder
     /// <summary>
     /// Adds an endpoint (command or query).
     /// </summary>
-    public ContractsBuilder AddEndpoint(string name, string type, string protocol, string methodPath, string version, string schemaRef, string? description = null)
+    /// <param name="name">Endpoint name</param>
+    /// <param name="type">Type (Command or Query)</param>
+    /// <param name="protocol">Protocol (Http)</param>
+    /// <param name="methodPath">HTTP method and path</param>
+    /// <param name="version">Version</param>
+    /// <param name="schemaRef">Schema reference path</param>
+    /// <param name="description">Optional description</param>
+    /// <param name="requestBodyType">Optional request body type for schema inference</param>
+    public ContractsBuilder AddEndpoint(string name, string type, string protocol, string methodPath, string version, string schemaRef, string? description = null, Type? requestBodyType = null)
     {
         _endpoints.Add(new EndpointContract
         {
@@ -31,6 +45,13 @@ public class ContractsBuilder
             SchemaRef = schemaRef,
             Description = TrimToNull(description)
         });
+
+        // Store the request body type for schema generation if provided
+        if (requestBodyType != null && !string.IsNullOrWhiteSpace(schemaRef))
+        {
+            EndpointRequestBodyTypes.TryAdd(schemaRef, requestBodyType);
+        }
+
         return this;
     }
 

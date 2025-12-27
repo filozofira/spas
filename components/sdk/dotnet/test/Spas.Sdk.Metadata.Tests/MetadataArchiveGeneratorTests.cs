@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Http;
 using Spas.Sdk.Metadata.Attributes;
 using Spas.Sdk.Metadata.Builders;
 using Spas.Sdk.Metadata.Extensions;
@@ -198,4 +199,68 @@ public class MetadataArchiveGeneratorTests
             }
         }
     }
+
+    // T010: Test for deduplication when multiple endpoints use same DTO (US1)
+    [Fact]
+    public void ContractsBuilder_WithSameTypeForMultipleEndpoints_DeduplicatesTypeMapping()
+    {
+        var builder = new ContractsBuilder();
+
+        // Two endpoints using the same DTO type with the same schema reference
+        builder.AddEndpoint(
+            name: "create-order",
+            type: "Command",
+            protocol: "Http",
+            methodPath: "/api/orders",
+            version: "1.0.0",
+            schemaRef: "schemas/endpoints/order-request.schema.json",
+            requestBodyType: typeof(SharedOrderDto));
+
+        builder.AddEndpoint(
+            name: "update-order",
+            type: "Command",
+            protocol: "Http",
+            methodPath: "/api/orders/{id}",
+            version: "1.0.0",
+            schemaRef: "schemas/endpoints/order-request.schema.json",
+            requestBodyType: typeof(SharedOrderDto));
+
+        // Verify only one type mapping exists (deduplication)
+        Assert.Single(builder.EndpointRequestBodyTypes);
+        Assert.Equal(typeof(SharedOrderDto), builder.EndpointRequestBodyTypes["schemas/endpoints/order-request.schema.json"]);
+    }
+
+    // T010: Test that different DTOs get different schema entries
+    [Fact]
+    public void ContractsBuilder_WithDifferentTypesForEndpoints_StoresBothTypeMappings()
+    {
+        var builder = new ContractsBuilder();
+
+        builder.AddEndpoint(
+            name: "create-order",
+            type: "Command",
+            protocol: "Http",
+            methodPath: "/api/orders",
+            version: "1.0.0",
+            schemaRef: "schemas/endpoints/create-order.schema.json",
+            requestBodyType: typeof(SharedOrderDto));
+
+        builder.AddEndpoint(
+            name: "create-customer",
+            type: "Command",
+            protocol: "Http",
+            methodPath: "/api/customers",
+            version: "1.0.0",
+            schemaRef: "schemas/endpoints/create-customer.schema.json",
+            requestBodyType: typeof(SharedCustomerDto));
+
+        // Verify both type mappings exist
+        Assert.Equal(2, builder.EndpointRequestBodyTypes.Count);
+        Assert.Equal(typeof(SharedOrderDto), builder.EndpointRequestBodyTypes["schemas/endpoints/create-order.schema.json"]);
+        Assert.Equal(typeof(SharedCustomerDto), builder.EndpointRequestBodyTypes["schemas/endpoints/create-customer.schema.json"]);
+    }
 }
+
+// Test DTOs for deduplication tests
+public record SharedOrderDto(string OrderId, decimal Amount);
+public record SharedCustomerDto(string CustomerId, string Name);

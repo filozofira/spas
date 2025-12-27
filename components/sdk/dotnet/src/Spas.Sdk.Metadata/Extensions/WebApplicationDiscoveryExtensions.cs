@@ -57,6 +57,9 @@ public static class WebApplicationDiscoveryExtensions
                 $"Failed to discover endpoints: {ex.Message}. Ensure DiscoverSpasMetadata() is called after all endpoints are mapped.", ex);
         }
 
+        // Store the builder for schema generation (T015 - enables endpoint-centric schema inference)
+        ContractsBuilderStorage.Store(app, builder);
+
         return builder.Build();
     }
 
@@ -264,6 +267,9 @@ public static class WebApplicationDiscoveryExtensions
 
             var httpVerb = TryGetHttpVerb(metadata);
 
+            // Extract request body type for schema inference (T013)
+            var requestBodyType = ExtractRequestBodyParameterType(endpoint);
+
             // metadata is an EndpointMetadataCollection which implements IEnumerable<object>
             // Look for our SPAS attributes in the metadata collection
             foreach (var item in (System.Collections.IEnumerable)metadata)
@@ -287,7 +293,8 @@ public static class WebApplicationDiscoveryExtensions
                         methodPath: finalPath,
                         version: commandAttr.Version,
                         schemaRef: schemaRef,
-                        description: commandAttr.Description);
+                        description: commandAttr.Description,
+                        requestBodyType: requestBodyType);
                     return true; // Only one SPAS attribute per endpoint
                 }
 
@@ -305,7 +312,8 @@ public static class WebApplicationDiscoveryExtensions
                         methodPath: finalPath,
                         version: queryAttr.Version,
                         schemaRef: schemaRef,
-                        description: queryAttr.Description);
+                        description: queryAttr.Description,
+                        requestBodyType: requestBodyType);
                     return true; // Only one SPAS attribute per endpoint
                 }
             }
@@ -454,5 +462,132 @@ public static class WebApplicationDiscoveryExtensions
         }
 
         return results;
+    }
+
+    /// <summary>
+    /// Extracts the request body parameter type from the endpoint delegate.
+    /// This enables schema inference from plain DTOs without requiring [SpasCommand] on the DTO.
+    /// </summary>
+    /// <param name="endpoint">The endpoint object from ASP.NET Core routing</param>
+    /// <returns>The Type of the request body parameter, or null if no complex body is found</returns>
+    internal static Type? ExtractRequestBodyParameterType(object endpoint)
+    {
+        try
+        {
+            // Get the RequestDelegate from the endpoint
+            var requestDelegateProperty = endpoint.GetType().GetProperty("RequestDelegate");
+            if (requestDelegateProperty == null)
+            {
+                return null;
+            }
+
+            var requestDelegate = requestDelegateProperty.GetValue(endpoint);
+            if (requestDelegate == null)
+            {
+                return null;
+            }
+
+            // The RequestDelegate wraps the actual handler method
+            // We need to look at the endpoint metadata for the handler delegate info
+            var metadataProperty = endpoint.GetType().GetProperty("Metadata");
+            if (metadataProperty?.GetValue(endpoint) is not System.Collections.IEnumerable metadata)
+            {
+                return null;
+            }
+
+            // Look for MethodInfo in the metadata collection
+            foreach (var item in metadata)
+            {
+                if (item == null) continue;
+
+                // Check for method info metadata (varies by ASP.NET version)
+                var itemType = item.GetType();
+
+                // Look for the actual method parameter types
+                if (itemType.FullName?.Contains("MethodInfo") == true && item is MethodInfo methodInfo)
+                {
+                    return FindRequestBodyType(methodInfo.GetParameters());
+                }
+
+                // Also check for RouteEndpointBuilder which may expose the Delegate
+                var delegateProperty = itemType.GetProperty("Delegate", BindingFlags.Public | BindingFlags.Instance);
+                if (delegateProperty?.GetValue(item) is Delegate del)
+                {
+                    return FindRequestBodyType(del.Method.GetParameters());
+                }
+            }
+
+            return null;
+        }
+        catch
+        {
+            return null;
+        }
+    }
+
+    /// <summary>
+    /// Finds the first complex type parameter that would be the request body.
+    /// Skips primitives, strings, HttpContext, CancellationToken, and framework types.
+    /// </summary>
+    private static Type? FindRequestBodyType(ParameterInfo[] parameters)
+    {
+        foreach (var param in parameters)
+        {
+            var paramType = param.ParameterType;
+
+            // Skip common framework types
+            if (IsFrameworkType(paramType))
+            {
+                continue;
+            }
+
+            // Skip primitive types and strings
+            if (IsPrimitiveOrSimpleType(paramType))
+            {
+                continue;
+            }
+
+            // Found a complex type - this is likely the request body
+            return paramType;
+        }
+
+        return null;
+    }
+
+    /// <summary>
+    /// Checks if a type is a common framework/infrastructure type that should be skipped.
+    /// </summary>
+    private static bool IsFrameworkType(Type type)
+    {
+        var fullName = type.FullName ?? "";
+        return fullName.StartsWith("Microsoft.AspNetCore.", StringComparison.Ordinal)
+            || fullName.StartsWith("System.Threading.", StringComparison.Ordinal)
+            || type == typeof(CancellationToken)
+            || type.Name == "HttpContext"
+            || type.Name == "HttpRequest"
+            || type.Name == "HttpResponse"
+            || type.Name == "ClaimsPrincipal"
+            || type.Name == "IFormFile"
+            || type.Name == "IFormFileCollection";
+    }
+
+    /// <summary>
+    /// Checks if a type is primitive or simple (string, Guid, DateTime, etc.) that doesn't need schema generation.
+    /// </summary>
+    public static bool IsPrimitiveOrSimpleType(Type type)
+    {
+        // Handle nullable types
+        var underlyingType = Nullable.GetUnderlyingType(type) ?? type;
+
+        return underlyingType.IsPrimitive
+            || underlyingType == typeof(string)
+            || underlyingType == typeof(decimal)
+            || underlyingType == typeof(Guid)
+            || underlyingType == typeof(DateTime)
+            || underlyingType == typeof(DateTimeOffset)
+            || underlyingType == typeof(TimeSpan)
+            || underlyingType == typeof(DateOnly)
+            || underlyingType == typeof(TimeOnly)
+            || underlyingType.IsEnum;
     }
 }

@@ -277,6 +277,7 @@ Auto-generated from all feature plans. Last updated: 2025-12-12
 - [if applicable, e.g., PostgreSQL, CoreData, files or N/A] (022-spas-service-init)
 - TypeScript 5.3+, Node.js 20+ + Commander.js 11.x (CLI), Eta 4.x (templating), chalk 4.x (output) (022-spas-service-init)
 - N/A (file system only) (022-spas-service-init)
+- C# / .NET 10.0 + NJsonSchema 11.1.0, JsonSchema.Net 6.0.0, ASP.NET Core Minimal APIs (023-endpoint-command-inference)
 
 - .NET 10 (target net10.0); Microsoft.Extensions.Logging; System.Text.Json (001-dotnet-spas-sdk)
 

@@ -2,6 +2,7 @@
 
 **Purpose**: Validate specification completeness and quality before proceeding to planning  
 **Created**: 2025-12-27  
+**Updated**: 2025-12-27 (Phase 1 complete)
 **Feature**: [spec.md](../spec.md)
 
 ## Content Quality
@@ -29,12 +30,18 @@
 - [x] Feature meets measurable outcomes defined in Success Criteria
 - [x] No implementation details leak into specification
 
+## Planning Status
+
+- [x] Phase 0: Research complete ([research.md](../research.md))
+- [x] Phase 1: Design complete ([data-model.md](../data-model.md), [quickstart.md](../quickstart.md))
+- [x] Constitution Check: PASSED (pre-design and post-design)
+- [x] Agent context updated
+- [ ] Phase 2: Tasks generation (pending `/speckit.tasks`)
+
 ## Notes
 
 - All checklist items pass validation.
 - **Scope clarification (2025-12-27)**: DTOs should have NO attributes at all—`[SpasCommand]` is only for endpoints.
 - **Scope expansion (2025-12-27)**: Added EventPublisher API simplification (User Story 4, FR-008 through FR-010, SC-006) to prevent AI agents from using the wrong publish method.
-- The spec now covers two related simplifications under the theme "reduce API surface for AI errors":
-  1. Command/Query: Infer schema from endpoint parameter, ignore DTO attributes
-  2. Events: Hide explicit eventName overload, require type-safe generic method
-- Ready for `/speckit.plan`.
+- **Java SDK confirmed (2025-12-27)**: Java SDK already has endpoint-centric inference and single-method EventPublisher. No changes needed for Java.
+- Ready for `/speckit.tasks`.

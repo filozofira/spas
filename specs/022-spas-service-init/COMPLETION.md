@@ -286,6 +286,7 @@ Examples: order-service, payment-gateway, user-auth
     - Simple `{Entity}Store` instead of Repository/Service interfaces
     - DTOs as record types
     - Removed `Endpoints/`, `Repositories/` folders that don't exist in examples
+11. **JAVA_HOME Requirement Documented**: Updated readme.eta and error-handling.eta to document `JAVA_HOME` environment variable requirement for Java/Maven projects. Maven wrapper (`mvnw`) requires `JAVA_HOME` to be set. Added troubleshooting commands for both PowerShell and bash/zsh
 
 ---
 

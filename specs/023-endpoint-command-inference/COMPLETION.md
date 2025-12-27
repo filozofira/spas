@@ -266,6 +266,13 @@ The following bugs were identified in agent prompt templates and fixed after ini
 
 The schema requires `security.dataClassification` (minItems: 1). The .NET example was missing this required field; the Java example was already correct.
 
+### Prerequisites Version Fix
+
+| Issue               | Wrong                                                        | Correct                                                                                       |
+| ------------------- | ------------------------------------------------------------ | --------------------------------------------------------------------------------------------- |
+| .NET SDK version    | ".NET 8.0 SDK"                                               | ".NET 10.0 SDK" (matches SDK's `net10.0` target framework)                                    |
+| Prerequisites style | Separate bullet points for Java and .NET                     | Single line with choice: "Depending on chosen framework: **Java** (...) or **.NET** (...)"   |
+
 **Files Updated**:
 
 - `templates/agent-prompt.eta`

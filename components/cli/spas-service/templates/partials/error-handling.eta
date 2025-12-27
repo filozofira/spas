@@ -75,7 +75,7 @@ Please review the error output and fix any issues, then retry.
 ❌ Build Error (.NET)
 
 The dotnet build failed. Common causes:
-1. Missing .NET 8.0 SDK
+1. Missing .NET 10.0 SDK
 2. Invalid .csproj configuration
 3. Compilation errors in generated code
 

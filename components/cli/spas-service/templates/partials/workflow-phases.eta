@@ -433,7 +433,7 @@ Proceed to Phase 7 (Sidecar Integration)? (yes/no)
 **Actions**:
 1. Add SPAS SDK event publisher to command handlers:
    - **Java**: Inject `SpasEventPublisher` and call `publish(event)`
-   - **.NET**: Inject `ISpasEventPublisher` and call `PublishAsync(event)`
+   - **.NET**: Inject `EventPublisher` and call `PublishAsync<TEvent>(event)`
 2. Configure sidecar endpoint in application config:
    - Default: `http://localhost:3001`
    - Environment variable: `SPAS_SIDECAR_URL`
@@ -481,13 +481,14 @@ public class OrderService {
 **.NET Example**:
 ```csharp
 public class OrderService {
-    private readonly ISpasEventPublisher _eventPublisher;
+    private readonly EventPublisher _eventPublisher;
     private readonly IOrderRepository _repository;
 
     public async Task<Order> CreateOrderAsync(CreateOrderRequest request) {
         var order = await _repository.SaveAsync(new Order(request));
         
-        await _eventPublisher.PublishAsync(new OrderCreatedEvent(
+        // Use generic method for type-safe event publishing
+        await _eventPublisher.PublishAsync<OrderCreatedEvent>(new OrderCreatedEvent(
             order.Id,
             order.CustomerId,
             order.Items,

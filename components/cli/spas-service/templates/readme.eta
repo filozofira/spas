@@ -232,7 +232,7 @@ java -Dspas.generate-metadata=true -jar target/app.jar
 ### Common Gotchas
 
 1. **EventPublisher is concrete** - .NET uses `EventPublisher` class, not `ISpasEventPublisher` interface
-2. **DTOs need attributes** - Apply `[SpasCommand]`/`[SpasQuery]` to request/response classes for schema generation
+2. **DTOs are plain classes** - No attributes needed on DTOs; schema is inferred from endpoint parameters
 3. **Generic method** - Use `PublishAsync<TEvent>()` in .NET for type-safe publishing
 4. **Event linkage** - Use `Produces` property to link commands to events: `Produces = new[] { typeof(Event) }`
 

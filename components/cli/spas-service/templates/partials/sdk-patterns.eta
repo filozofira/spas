@@ -695,23 +695,18 @@ public class {Entity}Service : I{Entity}Service
 }
 ```
 
-#### DTOs with SDK Attributes
+#### DTOs (Plain Classes - No Attributes Required)
 
-**CRITICAL**: Apply `[SpasCommand]` or `[SpasQuery]` to request/response DTOs for endpoint schema generation.
+DTOs are plain C# classes or records. The SDK automatically infers JSON schemas from endpoint parameters.
+**No `[SpasCommand]` or `[SpasQuery]` attributes are needed on DTOs** - only on endpoint handlers.
 
 ```csharp
-using Spas.Sdk.Metadata.Attributes;
-
 namespace {Name}.Api.Models;
 
 /// <summary>
 /// Request DTO for Create{Entity} command.
+/// Plain class - schema is automatically inferred from endpoint parameter type.
 /// </summary>
-/// <remarks>
-/// SPAS Pattern: Apply [SpasCommand] to request/response DTOs for automatic JSON schema generation.
-/// The SDK will generate schemas/endpoints/create-{entity}.schema.json from this type.
-/// </remarks>
-[SpasCommand("create-{entity}", "1.0")]
 public class Create{Entity}Request
 {
     public string CustomerId { get; set; } = string.Empty;
@@ -723,7 +718,6 @@ public class Create{Entity}Request
 /// <summary>
 /// Response DTO for Create{Entity} command.
 /// </summary>
-[SpasCommand("create-{entity}", "1.0")]
 public class Create{Entity}Response
 {
     public string Id { get; set; } = string.Empty;
@@ -735,10 +729,6 @@ public class Create{Entity}Response
 /// <summary>
 /// Domain model returned by Get{Entity} query.
 /// </summary>
-/// <remarks>
-/// SPAS Pattern: Apply [SpasQuery] for query response schema generation.
-/// </remarks>
-[SpasQuery("get-{entity}", "1.0")]
 public class {Entity}
 {
     public string Id { get; set; } = string.Empty;

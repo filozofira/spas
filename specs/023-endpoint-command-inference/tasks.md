@@ -98,12 +98,12 @@
 
 ### Tests for User Story 2
 
-- [ ] T026 [P] [US2] Add integration test that scaffolds service with plain DTOs and validates metadata output in components/sdk/dotnet/test/Spas.Sdk.Metadata.Tests/MetadataArchiveGeneratorTests.cs
+- [X] T026 [P] [US2] Add integration test that scaffolds service with plain DTOs and validates metadata output in components/sdk/dotnet/test/Spas.Sdk.Metadata.Tests/MetadataArchiveGeneratorTests.cs
 
 ### Implementation for User Story 2
 
-- [ ] T027 [US2] Update AI agent context/prompts to remove DTO attribute requirements in specs/023-endpoint-command-inference/ (documentation task)
-- [ ] T028 [US2] Run full metadata generation test suite with `dotnet test --filter "MetadataArchive"` in components/sdk/dotnet/
+- [X] T027 [US2] Update AI agent context/prompts to remove DTO attribute requirements in specs/023-endpoint-command-inference/ (documentation task)
+- [X] T028 [US2] Run full metadata generation test suite with `dotnet test --filter "MetadataArchive"` in components/sdk/dotnet/
 
 **Checkpoint**: AI-generated services work without DTO attributes.
 

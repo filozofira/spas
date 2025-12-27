@@ -61,7 +61,7 @@ Use these checklists to verify each phase is complete before proceeding.
 
 ### Phase 7: Sidecar Integration ✓
 - [ ] SPAS SDK event publisher injected
-- [ ] publish() or PublishAsync() called after state changes
+- [ ] publish() or PublishAsync<TEvent>() called after state changes
 - [ ] Sidecar URL configured via environment variable
 - [ ] CloudEvents format used:
   - [ ] specversion: "1.0"

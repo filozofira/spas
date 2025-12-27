@@ -82,11 +82,12 @@ spas:
 public record EntityCreatedEvent(string Id, ...);
 
 public class EntityService {
-    private readonly ISpasEventPublisher _eventPublisher;
+    private readonly EventPublisher _eventPublisher;
     
     public async Task<Entity> CreateAsync(Request req) {
         var saved = await _repository.SaveAsync(new Entity(req));
-        await _eventPublisher.PublishAsync(new EntityCreatedEvent(saved.Id, ...));
+        // Use generic method for type-safe event publishing
+        await _eventPublisher.PublishAsync<EntityCreatedEvent>(new EntityCreatedEvent(saved.Id, ...));
         return saved;
     }
 }

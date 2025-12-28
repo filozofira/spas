@@ -1,0 +1,7 @@
+## Known Limitations
+
+- **/incoming endpoint**: Cannot customize path. Expects CloudEvents format.
+- **Array handling**: JSONata returns object (not array) for single elements. Use `$append`.
+- **Single bounded context**: Each service belongs to one context only.
+- **Choreography naming**: Must follow pattern in `choreographies/` directory.
+- **Transformation paths**: Must be relative to domain root. No absolute paths.

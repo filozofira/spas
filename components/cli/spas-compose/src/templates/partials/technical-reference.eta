@@ -1,0 +1,317 @@
+## Technical Reference
+
+### CloudEvents Type Format
+
+The sidecar automatically constructs CloudEvents-compliant event envelopes. The `type` field follows this format:
+
+```
+com.{service-name}.{event-name-kebab}
+```
+
+**Construction Rules:**
+1. **Service Name**: From `x-service-name` header (full service name as-is)
+   - `order-service` -> `order-service`
+   - `inventory-service` -> `inventory-service`
+2. **Event Name**: From `x-event-name` header (kebab-case)
+   - `order-created` -> `order-created`
+   - `stock-reserved` -> `stock-reserved`
+
+**Examples:**
+```yaml
+# Service: order-service
+# Event: order-created
+-> CloudEvents type: com.order-service.order-created
+
+# Service: inventory-service  
+# Event: stock-reserved
+-> CloudEvents type: com.inventory-service.stock-reserved
+```
+
+**Why this matters:** Enables consistent event type format across all services and supports event filtering by service or event type.
+
+### Sidecar Configuration Schema
+
+Sidecar configurations define how sidecars route events and commands to service endpoints.
+
+**Essential Structure:**
+| Field | Type | Description |
+|-------|------|-------------|
+| `inbound` | array | Event subscriptions & command handlers (sidecar -> service) |
+| `outbound` | array | Event publication routing (service -> topics) |
+
+**Inbound Entry** (event or command -> service invocation):
+- `kind`: `"event"` (pub/sub) or `"command"` (request-response)
+- `topic` or `command`: Subscription identifier
+- `transform`: JSONata file path (optional)
+- `invokeEndpoint`: Service HTTP path to invoke (e.g., `"/incoming"`)
+
+**Outbound Entry** (service events -> topic routing):
+- `topic`: Target topic/stream name
+- `eventType`: CloudEvents type for routing (optional)
+- `transform`: JSONata file path (optional)
+
+**Complete Schema**: `<%= it.domainRoot %>/{DOMAIN}/.spas/schemas/sidecar-config-v1.schema.json`
+
+**Example:**
+```json
+{
+  "inbound": [{
+    "kind": "event",
+    "topic": "orders-requested",
+    "transform": "inbound-order.jsonata",
+    "invokeEndpoint": "/incoming"
+  }],
+  "outbound": [{
+    "topic": "orders-fulfilled",
+    "eventType": "com.example.order.fulfilled"
+  }]
+}
+```
+
+### JSONata Transformation Patterns
+
+**CRITICAL**: JSONata has specific array handling requirements. Follow these patterns:
+
+**Pattern 1: Array Construction (REQUIRED)**
+```jsonata
+// ❌ WRONG - fails when source array has single element
+[item1, item2, item3]
+
+// ✅ CORRECT - always use $append
+$append($append([], item1), item2)
+
+// ✅ CORRECT - single item
+$append([], singleItem)
+
+// ✅ CORRECT - mapping arrays
+$append([], items.{"sku": sku, "quantity": quantity})
+```
+
+**Why**: JSONata returns a single object (not array) when mapping over a single-element array. `$append([], ...)` ensures array output.
+
+**Pattern 2: Object Construction**
+```jsonata
+{
+  "orderId": orderId,
+  "items": $append([], items.{"sku": productId, "qty": quantity}),
+  "timestamp": $now()
+}
+```
+
+**Pattern 3: Conditional Fields**
+```jsonata
+$merge([
+  {"required": value},
+  source.optional ? {"optional": source.optional} : {}
+])
+```
+
+### Sidecar Communication Patterns
+
+Services NEVER call other services directly - all communication via sidecars.
+
+**Event Publishing**: Service calls `POST /publish` with headers `x-service-name`, `x-event-name`. Sidecar publishes CloudEvents type `com.{service}.{event}` to Redis. Consuming sidecar invokes target service endpoint.
+
+**Command Invocation**: Choreography uses `command: name` field. Sidecar resolves endpoint from config, transforms via `inputMapping`, invokes target service, returns response for `outputMapping`.
+
+**Common Mistake:** Direct service calls bypass sidecar (breaks tracing/policy).
+
+### Service Metadata (spas.json) Schema
+
+Service metadata files define service capabilities, contracts, and runtime configuration.
+
+**Essential Structure:**
+| Field | Type | Description |
+|-------|------|-------------|
+| `schemaVersion` | string | Schema version ("runtime-metadata-v1") |
+| `id` | string | Service identifier (kebab-case) |
+| `name` | string | Display name |
+| `version` | string | Semantic version |
+| `boundedContext` | string | Domain context name |
+| `commands` | array | Canonical commands + produced events (authoritative) |
+| `endpoints` | array | Command/Query endpoints |
+| `events` | array | Outbound events only (published by service) |
+| `runtime` | object | Container image/digest info |
+
+**Command Structure (authoritative):**
+- `name`: Canonical command identifier (kebab-case)
+- `produces[]`: Events produced by the command on success
+  - `type`, `version`, `when: "success"`
+
+**Endpoint Structure:**
+- `name`: Endpoint identifier
+- `type`: "Command" or "Query"
+- `protocol`: "Http" or "Grpc"
+- `methodPath`: "POST /api/orders"
+- `version`: Semantic version
+- `schemaRef`: Path to request/response schema
+
+**Event Structure:**
+- `type`: Event type name (kebab-case)
+- `version`: Semantic version
+- `schemaRef`: Path to event schema
+
+**Complete Schema**: `<%= it.domainRoot %>/{DOMAIN}/.spas/schemas/runtime-metadata-v1.schema.json`
+
+**Example:**
+```json
+{
+  "schemaVersion": "runtime-metadata-v1",
+  "id": "order-service",
+  "name": "Order Service",
+  "version": "1.0.0",
+  "boundedContext": "ecommerce",
+  "commands": [
+    {
+      "name": "create-order",
+      "produces": [
+        { "type": "order-created", "version": "1.0", "when": "success" }
+      ]
+    }
+  ],
+  "endpoints": [
+    {
+      "name": "CreateOrder",
+      "type": "Command",
+      "protocol": "Http",
+      "methodPath": "POST /api/orders",
+      "version": "1.0",
+      "schemaRef": "schemas/create-order.schema.json"
+    }
+  ],
+  "events": [
+    {
+      "type": "order-created",
+      "version": "1.0",
+      "schemaRef": "schemas/order-created.schema.json"
+    }
+  ],
+  "runtime": {
+    "image": "spas/order-service",
+    "repository": "localhost:5000",
+    "tag": "1.0.0",
+    "digest": "sha256:abc123..."
+  }
+}
+```
+
+### Field Naming Conventions
+
+**REQUIRED**: All field names MUST use camelCase.
+
+```yaml
+# ✅ CORRECT
+inputMapping:
+  orderId: $.order.orderId
+  customerEmail: $.customer.email
+  itemCount: $.items.length
+
+# ❌ WRONG - will cause null/undefined values
+inputMapping:
+  order_id: $.order.order_id
+  customer-email: $.customer.email
+  item_count: $.items.length
+```
+
+**Consistency Rule**: Match field names across:
+1. Service request/response schemas
+2. Event payloads  
+3. JSONata expressions
+
+**Why**: JavaScript/TypeScript ecosystem convention. Ensures SDK serialization works correctly.
+
+### Choreography -> Sidecar Config Mapping
+
+The choreography.yaml flows generate sidecar configuration files. Use the schema at `<%= it.domainRoot %>/{DOMAIN}/.spas/schemas/sidecar-config-v1.schema.json` to understand the mapping:
+
+| Choreography Field | Sidecar Config Path | Description |
+|-------------------|---------------------|-------------|
+| `flows.*.commands[]` | `inbound[].kind="command"` | Entry point command registration |
+| `flows.*.events[].topic` | `inbound[].topic` | Topic name for event subscription |
+| `flows.*.events[].targets[].command` | (endpoint lookup) | Resolves invokeEndpoint from spas.json |
+| `flows.*.events[].targets[].transform` | `inbound[].transform` | JSONata file path |
+| `flows.*.events[].targets[].service` | (routing) | Determines which config file |
+| `flows.*.events[].source` + event | `outbound[].topic` + `eventType` | Publishing config |
+
+**InboundEntry kinds:**
+- `kind: "event"` - Pub/sub subscription (requires `topic`)
+- `kind: "command"` - Request-response entry point (requires `command`)
+
+### Choreography YAML Schema
+
+Choreography files define event-driven workflows and service interactions between services.
+
+**Execution Flow**: Event -> Topic -> Transform -> Command
+1. **Service A publishes event**: Uses SDK EventPublisher to emit domain event
+2. **Sidecar forwards to topic**: Routes event to configured message topic (Redis/Kafka)
+3. **Service B's sidecar subscribes**: Listens to topic based on choreography configuration
+4. **Transform event -> command**: Applies JSONata transformation (event payload -> command request DTO)
+5. **Invoke command endpoint**: HTTP POST to Service B's command endpoint
+6. **Service B processes**: Executes command logic, may publish new events
+
+This pattern enables **loose coupling**: Services never call each other directly. Choreography defines the "wiring" between services through topics and transformations.
+
+**Essential Structure:**
+| Field | Type | Description |
+|-------|------|-------------|
+| `version` | string | Schema version ("1.0") |
+| `domain` | string | Domain context name |
+| `flows` | object | Named choreography flows (key = flow name) |
+
+**Flow Definition:**
+- `participants`: Array of service names (minimum 2)
+- `commands`: Entry point commands (optional)
+  - `service`, `command` (PascalCase), `endpoint`
+- `events`: Event routing rules (optional if only commands)
+  - `source`: Publishing service (owns the event)
+  - `event`: Event type (kebab-case)
+  - `topic`: Message topic name
+  - `targets`: Subscribing services (empty array = terminal event)
+    - `service`: Subscriber name
+    - `command`: Command to invoke (kebab-case preferred; PascalCase supported)
+    - `transform`: JSONata file path (optional)
+
+**Terminal Events**: Events with `targets: []` are published but have no consumers in this choreography. Used for audit, logging, or future extension.
+
+**Commands vs Events**: Commands = entry points (single target, no transform). Events = coordination (multiple targets, with transform).
+
+**How Topics Work:**
+- Topics decouple publishers from subscribers
+- All events from a bounded context share the same topic
+- Consumers filter by CloudEvents `type` for specific events
+
+**Topic Naming**: `{boundedContext}-events` pattern, lowercase-hyphenated (e.g., `order-events`)
+
+**Complete Schema**: `<%= it.domainRoot %>/{DOMAIN}/.spas/schemas/choreography-v1.schema.json`
+
+**Example:**
+```yaml
+version: "1.0"
+domain: "e-commerce"
+flows:
+  order-fulfillment:
+    participants:
+      - order-service
+      - fulfillment-service
+    commands:
+      - service: order-service
+        command: CreateOrder
+        endpoint: /orders
+    events:
+      - source: order-service
+        event: order-created
+        topic: order-events  # {boundedContext}-events
+        targets:
+          - service: fulfillment-service
+            command: ProcessOrder
+            transform: transformations/fulfillment-service/inbound-order.jsonata
+```
+
+**Key Concept**: The `transform` path points to a JSONata file that maps the `order-created` event payload to the command request DTO expected by fulfillment-service's ProcessOrder endpoint.
+
+### Service Metadata (spas.json) Notes
+
+- Use `commands[].produces[]` (not `endpoints[]`) to determine which events a command can emit.
+- Services publish `events[]` (outbound only). They do not declare subscriptions in metadata.
+
+**Complete Schema**: `<%= it.domainRoot %>/{DOMAIN}/.spas/schemas/runtime-metadata-v1.schema.json`

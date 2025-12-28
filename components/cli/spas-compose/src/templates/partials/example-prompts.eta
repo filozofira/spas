@@ -1,0 +1,11 @@
+## Example Prompts
+
+```
+/spas.compose DOMAIN:public Analyze order-service and fulfillment-service
+
+/spas.compose DOMAIN:public Generate transformation for order-created to fulfillment-service
+
+/spas.compose DOMAIN:internal Review choreography.yaml and identify missing transformations
+
+/spas.compose DOMAIN:partner Add notification-service to order-fulfillment flow
+```

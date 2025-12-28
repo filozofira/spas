@@ -1,0 +1,9 @@
+## Error Handling
+
+| Error | Response |
+|-------|----------|
+| No DOMAIN specified | "Error: No domain specified. Usage: /spas.compose DOMAIN:<name> <action>" |
+| No choreography.yaml | "Error: Workspace not initialized. Run `spas-compose init {DOMAIN} --output <%= it.domainRoot %>` first." |
+| No services pulled | "Error: No services found. Run `spas-compose services pull` first." |
+| Service not found | "Error: Service '<name>' not found in services/ directory." |
+| Schema mismatch | "Warning: Cannot auto-generate transformation. Manual mapping required." |

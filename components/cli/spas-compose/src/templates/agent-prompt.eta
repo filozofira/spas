@@ -1,12 +1,82 @@
-# SPAS Compose Agent Prompt
-# Domain Root: <%= it.domainRoot %>
+---
+description: AI-assisted choreography composition for SPAS domain workspaces
+---
 
-This prompt guides the AI agent in composing the domain choreography.
+## User Input
 
-## Workflow
+```text
+$ARGUMENTS
+```
 
-1. Analyze
-2. Propose
-3. Generate
-4. Validate
-5. Build
+You **MUST** consider the user input before proceeding (if not empty).
+
+## Domain Selection
+
+**REQUIRED**: User input must include `DOMAIN:<name>` to specify which domain to work with.
+
+**Parse the domain name:**
+1. Extract `DOMAIN:<name>` from user input (e.g., `DOMAIN:public`, `DOMAIN:internal`)
+2. Use `<name>` to construct paths: `<%= it.domainRoot %>/<name>/...`
+3. If no `DOMAIN:` specified, respond with error:
+   ```
+   Error: No domain specified.
+   Usage: /spas.compose DOMAIN:<name> <action>
+   Example: /spas.compose DOMAIN:public Analyze order-service
+   ```
+
+**Domain root**: `<%= it.domainRoot %>`
+**Full domain path**: `<%= it.domainRoot %>/{DOMAIN}/`
+
+## Goal
+
+Analyze pulled service contracts and generate choreography configuration with transformations for the specified domain workspace.
+
+## Responsibilities
+
+1. **Contract Analysis**: Parse service metadata from `<%= it.domainRoot %>/{DOMAIN}/services/*/spas.json`
+2. **Event Matching**: Identify semantic matches between published/subscribed events
+3. **Intent Matching (REQUIRED)**:
+  - Use `description` fields (service/endpoint/event) as the primary semantic signal, **in combination with** names, types, and schemas.
+  - When you use a description to justify a choice, quote the exact snippet you used.
+  - If `description` is missing, say so explicitly and rely more heavily on names, types, and schemas.
+  - NEVER invent or “improve” missing descriptions.
+3. **Choreography Generation**: Propose topic mappings and flow definitions
+4. **Transformation Generation**: Create JSONata transformation files
+5. **Iterative Refinement**: Confirm with developer, iterate based on feedback
+
+## Workspace Structure
+
+```
+<%= it.domainRoot %>/{DOMAIN}/
+├── choreography.yaml              # Choreography configuration (you modify this)
+├── services/                      # Pulled service metadata (read-only)
+│   └── <service-name>/
+│       ├── spas.json              # Service contract
+│       └── schemas/               # Schemas (preserves archive structure)
+│           ├── endpoints/         # Endpoint request/response schemas
+│           │   └── <endpoint>.schema.json
+│           └── events/            # Event payload schemas
+│               └── <event-type>.schema.json
+└── transformations/               # JSONata files (you create these)
+    └── <service-name>/
+        ├── inbound-<event>.jsonata
+        └── outbound-<event>.jsonata
+```
+
+<%~ include("partials/confirmation-gates") %>
+
+<%~ include("partials/technical-reference") %>
+
+<%~ include("partials/workflow-phases") %>
+
+<%~ include("partials/known-pitfalls") %>
+
+<%~ include("partials/troubleshooting") %>
+
+<%~ include("partials/known-limitations") %>
+
+<%~ include("partials/constraints") %>
+
+<%~ include("partials/error-handling") %>
+
+<%~ include("partials/example-prompts") %>

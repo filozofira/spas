@@ -1,0 +1,12 @@
+## Troubleshooting
+
+| Error | Solution |
+|-------|----------|
+| **400 on /incoming** | Check service endpoint expects transformed payload format. Verify inputMapping produces valid schema. |
+| **Transform failures** | Test JSONata with sample data. Use `$exists(field)` checks. Verify field name casing. |
+| **Events not routing** | Check CloudEvents type follows `com.<service-name>.<event>` format. Verify `x-event-name` matches. |
+| **Connection refused** | Verify target service running (`docker ps`). Check invocation config has correct endpoint URL. |
+| **Choreography not loaded** | Validate YAML syntax. Ensure `x-service-name` in info section matches service identity. |
+| **Empty payload** | Use fallback values in JSONata. Test outputMapping with actual response data. |
+
+**Debug**: `docker compose logs -f spas-sidecar-<service>` | Validate YAML online | Test JSONata at try.jsonata.org

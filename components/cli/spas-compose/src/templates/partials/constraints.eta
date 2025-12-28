@@ -1,0 +1,9 @@
+## Constraints
+
+| Constraint | Behavior |
+|------------|----------|
+| **Read-only services/** | NEVER modify files in `<%= it.domainRoot %>/{DOMAIN}/services/` |
+| **Preserve existing flows** | When adding flows, preserve all existing flows |
+| **Valid JSONata** | All .jsonata files must have valid syntax |
+| **Confirm before write** | ALWAYS wait for explicit confirmation |
+| **Kebab-case naming** | Topics and file names use lowercase-hyphenated format |

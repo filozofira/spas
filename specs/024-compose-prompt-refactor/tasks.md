@@ -19,9 +19,9 @@
 
 **Goal**: Enforce a gated 5-phase workflow where the agent must stop for confirmation.
 
-- [ ] T006 [US1] Create `components/cli/spas-compose/src/templates/partials/confirmation-gates.eta`
-- [ ] T007 [US1] Create `components/cli/spas-compose/src/templates/partials/workflow-phases.eta` with gates
-- [ ] T008 [US1] Update `components/cli/spas-compose/src/templates/agent-prompt.eta` to include workflow partials
+- [x] T006 [US1] Create `components/cli/spas-compose/src/templates/partials/confirmation-gates.eta`
+- [x] T007 [US1] Create `components/cli/spas-compose/src/templates/partials/workflow-phases.eta` with gates
+- [x] T008 [US1] Update `components/cli/spas-compose/src/templates/agent-prompt.eta` to include workflow partials
 
 ## Phase 4: User Story 2 - Explicit Documentation Updates
 

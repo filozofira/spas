@@ -58,8 +58,8 @@ flowchart LR
 ```
 
 **Diagram Requirements:**
-- **Start node**: Use `Start([Start])` stadium shape, connect to the first service receiving external trigger
-- **End node**: Use `End([End])` stadium shape, connect from all terminal events (no downstream targets)
+- **Start node**: MUST include `Start([Start])` node. Use stadium shape, connect to the first service receiving external trigger
+- **End node**: MUST include `End([End])` node. Use stadium shape, connect from all terminal events (no downstream targets)
 - **Direction**: Use `flowchart LR` for horizontal left-to-right flow
 - **Edge labels**: All arrows between services MUST include event type label `-->|event-name|`
 - **No subgraph**: Do NOT wrap diagram in subgraph, keep flat structure for clarity
@@ -218,8 +218,8 @@ Next steps:
 
 ### Phase Transition Rules
 
-- **Analyze -> Propose**: Only after user confirms understanding of service analysis
-- **Propose -> Generate**: Only after user explicitly confirms with "yes" or provides feedback and confirms
-- **Generate -> Validate**: Automatic, but report what was created before validating
-- **Validate -> Build**: Only after all validation checks pass
-- **Failure Handling**: If validation fails, return to appropriate phase (syntax errors -> Generate, schema mismatches -> Propose)
+- **Analyze → Propose**: Only after user confirms understanding of service analysis
+- **Propose → Generate**: Only after user explicitly confirms with "yes" or provides feedback and confirms
+- **Generate → Validate**: Automatic, but report what was created before validating
+- **Validate → Build**: Only after all validation checks pass
+- **Failure Handling**: If validation fails, return to appropriate phase (syntax errors → Generate, schema mismatches → Propose)

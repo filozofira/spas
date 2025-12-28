@@ -1,7 +1,7 @@
 # Tasks: Refactor spas-compose Agent Prompt
 
 **Feature Branch**: `024-compose-prompt-refactor`
-**Status**: Pending
+**Status**: Complete
 **Spec**: [specs/024-compose-prompt-refactor/spec.md](specs/024-compose-prompt-refactor/spec.md)
 
 ## Phase 1: Setup & Dependencies
@@ -34,14 +34,14 @@
 
 **Goal**: Complete the migration to Eta templates and remove hardcoded strings.
 
-- [ ] T011 [US3] Create `components/cli/spas-compose/src/templates/partials/technical-reference.eta`
-- [ ] T012 [US3] Finalize `components/cli/spas-compose/src/templates/agent-prompt.eta` with all partials
-- [ ] T013 [US3] Update `generateAgentFile` in `components/cli/spas-compose/src/utils/templates.ts` to use `renderAgentPrompt`
-- [ ] T014 [US3] Remove hardcoded prompt strings from `components/cli/spas-compose/src/utils/templates.ts`
+- [x] T011 [US3] Create `components/cli/spas-compose/src/templates/partials/technical-reference.eta`
+- [x] T012 [US3] Finalize `components/cli/spas-compose/src/templates/agent-prompt.eta` with all partials
+- [x] T013 [US3] Update `generateAgentFile` in `components/cli/spas-compose/src/utils/templates.ts` to use `renderAgentPrompt`
+- [x] T014 [US3] Remove hardcoded prompt strings from `components/cli/spas-compose/src/utils/templates.ts`
 
 ## Phase 6: Polish & Verification
 
-- [ ] T015 Add unit tests for template rendering in `components/cli/spas-compose/test/templates.test.ts`
+- [x] T015 Add unit tests for template rendering in `components/cli/spas-compose/test/templates.test.ts`
 
 ## Dependencies
 

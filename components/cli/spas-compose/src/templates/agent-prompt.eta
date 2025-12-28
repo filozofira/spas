@@ -63,22 +63,22 @@ Analyze pulled service contracts and generate choreography configuration with tr
         └── outbound-<event>.jsonata
 ```
 
-<%~ include("partials/confirmation-gates") %>
+<%~ include("partials/confirmation-gates", it) %>
 
-<%~ include("partials/technical-reference") %>
+<%~ include("partials/technical-reference", it) %>
 
-<%~ include("partials/documentation-rules") %>
+<%~ include("partials/documentation-rules", it) %>
 
-<%~ include("partials/workflow-phases") %>
+<%~ include("partials/workflow-phases", it) %>
 
-<%~ include("partials/known-pitfalls") %>
+<%~ include("partials/known-pitfalls", it) %>
 
-<%~ include("partials/troubleshooting") %>
+<%~ include("partials/troubleshooting", it) %>
 
-<%~ include("partials/known-limitations") %>
+<%~ include("partials/known-limitations", it) %>
 
-<%~ include("partials/constraints") %>
+<%~ include("partials/constraints", it) %>
 
-<%~ include("partials/error-handling") %>
+<%~ include("partials/error-handling", it) %>
 
-<%~ include("partials/example-prompts") %>
+<%~ include("partials/example-prompts", it) %>

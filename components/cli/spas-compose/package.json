@@ -7,7 +7,8 @@
     "spas-compose": "./dist/index.js"
   },
   "scripts": {
-    "build": "tsc",
+    "build": "tsc && npm run copy:templates",
+    "copy:templates": "node -e \"const fs = require('fs'); if (fs.existsSync('src/templates')) fs.cpSync('src/templates', 'dist/templates', { recursive: true });\"",
     "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js",
     "test:watch": "node --experimental-vm-modules node_modules/jest/bin/jest.js --watch",
     "test:coverage": "node --experimental-vm-modules node_modules/jest/bin/jest.js --coverage",
@@ -34,7 +35,8 @@
     "js-yaml": "^4.1.0",
     "jsonata": "^2.0.3",
     "axios": "^1.6.2",
-    "chalk": "^4.1.2"
+    "chalk": "^4.1.2",
+    "eta": "^3.5.0"
   },
   "devDependencies": {
     "@types/adm-zip": "^0.5.5",

@@ -6,9 +6,9 @@
 
 ## Phase 1: Setup & Dependencies
 
-- [ ] T001 Add `eta` dependency to `components/cli/spas-compose/package.json`
-- [ ] T002 Add `copy:templates` script to `components/cli/spas-compose/package.json`
-- [ ] T003 Create directory `components/cli/spas-compose/src/templates/partials`
+- [x] T001 Add `eta` dependency to `components/cli/spas-compose/package.json`
+- [x] T002 Add `copy:templates` script to `components/cli/spas-compose/package.json`
+- [x] T003 Create directory `components/cli/spas-compose/src/templates/partials`
 
 ## Phase 2: Foundational (Template Engine)
 

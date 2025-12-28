@@ -1,0 +1,12 @@
+# SPAS Compose Agent Prompt
+# Domain Root: <%= it.domainRoot %>
+
+This prompt guides the AI agent in composing the domain choreography.
+
+## Workflow
+
+1. Analyze
+2. Propose
+3. Generate
+4. Validate
+5. Build

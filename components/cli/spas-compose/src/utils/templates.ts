@@ -2,6 +2,54 @@
  * File templates for workspace initialization
  */
 
+import { Eta } from "eta";
+import { join, dirname } from "path";
+import { fileURLToPath } from "url";
+import { existsSync } from "fs";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+
+function getTemplatesDir(): string {
+  // Check for templates in dist (production) - relative to dist/utils/
+  const distTemplates = join(__dirname, "../../templates");
+  if (existsSync(distTemplates)) {
+    return distTemplates;
+  }
+  
+  // Check for templates in src (development) - relative to src/utils/
+  const srcTemplates = join(__dirname, "../templates");
+  if (existsSync(srcTemplates)) {
+    return srcTemplates;
+  }
+
+  // Fallback for tests or other structures
+  return join(process.cwd(), "src/templates");
+}
+
+// Initialize Eta with the templates directory
+// We use a lazy initialization or try-catch block if we want to be safe, 
+// but for now we assume templates exist if this module is loaded.
+let eta: Eta;
+
+function getEta(): Eta {
+  if (!eta) {
+    eta = new Eta({ 
+      views: getTemplatesDir(),
+      cache: true 
+    });
+  }
+  return eta;
+}
+
+export interface AgentPromptContext {
+  domainRoot: string;
+}
+
+export function renderAgentPrompt(context: AgentPromptContext): string {
+  return getEta().render("agent-prompt", context);
+}
+
 /**
  * Generate workspace README.md content
  */

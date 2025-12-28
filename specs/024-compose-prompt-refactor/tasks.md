@@ -12,8 +12,8 @@
 
 ## Phase 2: Foundational (Template Engine)
 
-- [ ] T004 Refactor `components/cli/spas-compose/src/utils/templates.ts` to initialize Eta
-- [ ] T005 Create skeleton `components/cli/spas-compose/src/templates/agent-prompt.eta`
+- [x] T004 Refactor `components/cli/spas-compose/src/utils/templates.ts` to initialize Eta
+- [x] T005 Create skeleton `components/cli/spas-compose/src/templates/agent-prompt.eta`
 
 ## Phase 3: User Story 1 - Strict Workflow Enforcement
 

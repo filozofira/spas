@@ -2,7 +2,8 @@
 
 **Feature Branch**: `024-compose-prompt-refactor`
 **Created**: 2025-12-28
-**Status**: Draft
+**Completed**: 2025-12-28
+**Status**: ✅ Complete (PoC)
 **Input**: User description: "Refactor the `spas-compose` CLI agent prompt generation to improve maintainability and enforce a stricter, more consistent AI workflow. The goal is to decouple prompt content from the CLI code to enable easier updates and to enhance the agent instructions. Key improvements include adding rigorous confirmation gates at the end of each phase and defining explicit, standalone steps for documentation updates (such as inserting diagrams into READMEs), ensuring the agent reliably follows the intended choreography development process without skipping steps."
 
 ## Clarifications

@@ -113,6 +113,14 @@ describe("generateAgentFile", () => {
   });
 
   describe("phased workflow with validation (US2)", () => {
+    it("should instruct agent to outline workflow phases before starting", () => {
+      const content = generateAgentFile("./examples/ecommerce");
+      expect(content).toContain("Process Initiation (REQUIRED)");
+      expect(content).toContain("display the \"Process Overview\"");
+      expect(content).toContain("1. **Analyze**");
+      expect(content).toContain("5. **Build**");
+    });
+
     it("should contain 5 explicit phases", () => {
       const content = generateAgentFile("./examples/ecommerce");
 
@@ -160,6 +168,12 @@ describe("generateAgentFile", () => {
       expect(mermaidPos).toBeLessThan(phase3Start);
     });
 
+    it("should instruct agent to display choreography steps in Phase 2", () => {
+      const content = generateAgentFile("./examples/ecommerce");
+
+      expect(content).toContain("**Display Steps**: List all steps the choreography goes through");
+    });
+
     it("should contain Start node in diagram template (019-compose-diagram-flow)", () => {
       const content = generateAgentFile("./examples/ecommerce");
 
@@ -193,6 +207,21 @@ describe("generateAgentFile", () => {
       expect(content).toContain("Do you want me to proceed with generating the choreographies?");
       expect(content).toContain("**Confirmation Gate:**");
       expect(content).toContain("(yes/no/feedback)");
+    });
+
+    it("should display completion status in confirmation gates for Phase 3 and 4", () => {
+      const content = generateAgentFile("./examples/ecommerce");
+
+      // Phase 3 status
+      expect(content).toContain("Phase 3 Complete:");
+      expect(content).toContain("Generated {N} transformation files");
+      expect(content).toContain("Updated choreography.yaml");
+
+      // Phase 4 status
+      expect(content).toContain("Phase 4 Complete:");
+      expect(content).toContain("Syntax validation: PASS");
+      expect(content).toContain("Schema validation: PASS");
+      expect(content).toContain("Consistency checks: PASS");
     });
 
     it("should contain validation checklists for Phase 3 and Phase 4", () => {

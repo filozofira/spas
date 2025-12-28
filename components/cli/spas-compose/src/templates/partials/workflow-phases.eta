@@ -1,5 +1,13 @@
 ## Workflow Phases
 
+**Process Overview**:
+The following 5-phase workflow guides the process:
+1. **Analyze**: Read contracts and identify connections
+2. **Propose**: Design choreography and visualize with Mermaid
+3. **Generate**: Create transformation files and config
+4. **Validate**: Check syntax and consistency
+5. **Build**: Prepare for deployment
+
 ### Phase 1: Analyze
 
 **Entry Criteria:** User specifies domain and intent (e.g., "Analyze order-service")
@@ -40,6 +48,7 @@
    - Define flows: `source service` -> `event` -> `target service`
    - Name flows descriptively (e.g., `order-fulfillment-flow`)
    - Identify required transformations (data mapping)
+   - **Display Steps**: List all steps the choreography goes through to help the developer understand what is going to happen.
 
 2. **Visualize**
    - Generate a Mermaid flowchart of the proposed choreography
@@ -142,7 +151,11 @@ flows:
 **Exit Criteria:** All artifacts created, checklist validated
 
 **Confirmation Gate:**
-> "I have generated the transformation files and updated the configuration. Shall I proceed to the Validate phase? (yes/no)"
+> "Phase 3 Complete:
+>   • Generated {N} transformation files
+>   • Updated choreography.yaml
+>
+> Shall I proceed to the Validate phase? (yes/no)"
 
 ---
 
@@ -180,7 +193,12 @@ flows:
 **Exit Criteria:** All validations pass, artifacts ready for deployment
 
 **Confirmation Gate:**
-> "Validation is complete. Shall I proceed to the Build phase? (yes/no)"
+> "Phase 4 Complete:
+>   • Syntax validation: PASS
+>   • Schema validation: PASS
+>   • Consistency checks: PASS
+>
+> Shall I proceed to the Build phase? (yes/no)"
 
 ---
 

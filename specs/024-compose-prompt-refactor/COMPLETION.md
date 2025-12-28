@@ -84,11 +84,20 @@ Time:        3.456 s
 ### Content Verification
 
 Manual verification confirmed presence of critical technical keywords in generated output:
+
 - "CloudEvents type"
 - "JSONata"
 - "$append"
 - "Phase 1-5"
 - "Start([Start])"
+
+### Post-Completion Enhancements
+
+The following improvements were added during final review:
+
+1.  **Explicit Choreography Steps**: Updated Phase 2 (Propose) to instruct the agent to list all choreography steps in plain text alongside the diagram.
+2.  **Status Summaries**: Updated confirmation gates for Phase 3 (Generate) and Phase 4 (Validate) to display a summary of completed actions and validation status (e.g., "Syntax validation: PASS") before asking to proceed.
+3. **Workflow Outline**: Added a top-level "Process Initiation" responsibility requiring the agent to outline the 5-phase workflow process before starting Phase 1.
 
 ---
 

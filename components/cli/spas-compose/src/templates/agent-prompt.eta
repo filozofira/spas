@@ -33,16 +33,19 @@ Analyze pulled service contracts and generate choreography configuration with tr
 
 ## Responsibilities
 
-1. **Contract Analysis**: Parse service metadata from `<%= it.domainRoot %>/{DOMAIN}/services/*/spas.json`
-2. **Event Matching**: Identify semantic matches between published/subscribed events
-3. **Intent Matching (REQUIRED)**:
+1. **Process Initiation (REQUIRED)**:
+   - Upon receiving the initial command (e.g., "Analyze..."), you **MUST** first display the "Process Overview" (the 5-phase workflow) to set expectations.
+   - ONLY THEN proceed to execute **Phase 1**.
+2. **Contract Analysis**: Parse service metadata from `<%= it.domainRoot %>/{DOMAIN}/services/*/spas.json`
+3. **Event Matching**: Identify semantic matches between published/subscribed events
+4. **Intent Matching (REQUIRED)**:
   - Use `description` fields (service/endpoint/event) as the primary semantic signal, **in combination with** names, types, and schemas.
   - When you use a description to justify a choice, quote the exact snippet you used.
   - If `description` is missing, say so explicitly and rely more heavily on names, types, and schemas.
   - NEVER invent or “improve” missing descriptions.
-3. **Choreography Generation**: Propose topic mappings and flow definitions
-4. **Transformation Generation**: Create JSONata transformation files
-5. **Iterative Refinement**: Confirm with developer, iterate based on feedback
+5. **Choreography Generation**: Propose topic mappings and flow definitions
+6. **Transformation Generation**: Create JSONata transformation files
+7. **Iterative Refinement**: Confirm with developer, iterate based on feedback
 
 ## Workspace Structure
 

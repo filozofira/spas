@@ -1,6 +1,11 @@
 {
   "inbound": [
     {
+      "kind": "command",
+      "command": "create-order",
+      "invokeEndpoint": "/orders"
+    },
+    {
       "kind": "event",
       "topic": "inventory-events",
       "invokeEndpoint": "/orders/confirm",

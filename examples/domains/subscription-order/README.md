@@ -1,26 +1,21 @@
 # subscription-order
 
+```mermaid
+flowchart LR
+    Start([Start]) --> SS[subscription-service]
+    SS -->|subscription-created| OS[order-service]
+    OS -->|order-created| IS[inventory-service]
+    IS -->|stock-reserved| OS
+    OS -->|order-confirmed| FS[fulfillment-service]
+    OS -->|order-confirmed| SS
+    FS -->|shipment-created| OS
+    FS -->|shipment-status-changed| OS
+    SS -->|subscription-activated| End([End])
+```
+
 **SPAS Domain Workspace**
 
 This workspace contains choreography configuration for composing SPAS services into a domain context.
-
-## Choreography
-
-```mermaid
-flowchart TD
-    START((Start)) --> sub
-    
-    sub[subscription-service]
-    ord[order-service]
-    inv[inventory-service]
-    
-    sub -->|1. subscription-created| ord
-    ord -->|2. order-created| inv
-    inv -->|3. stock-reserved| ord
-    ord -->|4. order-confirmed| sub
-    
-    sub --> END((End))
-```
 
 ## Structure
 
@@ -39,18 +34,64 @@ subscription-order/
 
 ## Workflow
 
-Follow the standard workflow in [spas-compose CLI](../../../components/cli/spas-compose/README.md).
+### 1. Pull Services
 
-Typical services for this domain:
+Download service metadata from SPAS Repository:
 
-- subscription-service 1.0.0
-- order-service 1.0.0
-- inventory-service 1.0.0
+```bash
+spas-compose services pull <service-name> <version>
+```
+
+**Example:**
+
+```bash
+spas-compose services pull order-service 1.0.0
+spas-compose services pull fulfillment-service 1.0.0
+```
+
+### 2. Compose Choreography
+
+Use the `/spas.compose` agent prompt to analyze service contracts and generate choreography:
+
+```
+/spas.compose DOMAIN:subscription-order Analyze order-service and fulfillment-service contracts.
+Propose topic mappings and generate transformations.
+```
+
+The agent will:
+- Parse service contracts from `services/*/spas.json`
+- Propose event mappings and topic routes
+- Generate JSONata transformation files
+- Update `choreography.yaml`
+
+### 3. Build
+
+Build Docker Compose deployment:
+
+```bash
+spas-compose choreography build --dry-run   # Validate
+spas-compose choreography build --docker    # Generate docker-compose.yaml
+```
+
+### 4. Run
+
+Start services:
+
+```bash
+docker compose up
+```
 
 ## Configuration
 
-Repository configuration (including `SPAS_REPOSITORY_URL` and `--repo`) is documented in [spas-compose CLI](../../../components/cli/spas-compose/README.md).
+### Repository URL
+
+Set repository URL via:
+- `--repo` flag: `spas-compose services pull order-service 1.0.0 --repo http://repo.example.com`
+- Environment: `export SPAS_REPOSITORY_URL=http://repo.example.com`
+- Default: `http://localhost:3000`
 
 ## Documentation
 
-See also: [spas-compose CLI](../../../components/cli/spas-compose/README.md) and [Domain Choreography](../../../principles/component/14-domain-choreography.md).
+- [spas-compose CLI](../../components/cli/spas-compose/README.md)
+- [SPAS Principles](../../principles/README.md)
+- [Domain Choreography](../../principles/component/14-domain-choreography.md)

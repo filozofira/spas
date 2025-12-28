@@ -1,21 +1,19 @@
-/**
- * inbound-subscription-created.jsonata
- * 
- * Transforms: subscription-created (subscription-service) → CreateOrderRequest (order-service)
- * 
- * Source schema: SubscriptionCreatedEvent
- *   - subscriptionId, customerId, productId, quantity, frequency, createdAt
- * 
- * Target schema: CreateOrderRequest
- *   - customerId, items[], total, shippingAddress, referenceId
- */
+/* inbound-subscription-created.jsonata */
+/* Transforms subscription-created (subscription-service) -> create-order (order-service) */
 {
   "customerId": customerId,
-  "items": $append([], {
+  "items": $append([], [{
     "productId": productId,
     "quantity": quantity,
     "price": 0
-  }),
+  }]),
   "total": 0,
-  "referenceId": subscriptionId
+  "referenceId": subscriptionId,
+  "shippingAddress": {
+    "street": "123 Subscription Way",
+    "city": "Cloud City",
+    "state": "WA",
+    "postalCode": "98000",
+    "country": "USA"
+  }
 }

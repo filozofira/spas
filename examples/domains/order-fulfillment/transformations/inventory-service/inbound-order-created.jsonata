@@ -1,7 +1,5 @@
-/*
-  Transforms `order-created` event from `order-service`
-  to `reserve-stock` command for `inventory-service`.
-*/
+/* inbound-order-created.jsonata */
+/* Transforms order-created (order-service) -> reserve-stock (inventory-service) */
 {
   "orderId": orderId,
   "items": $append([], items.{

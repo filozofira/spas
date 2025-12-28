@@ -5,6 +5,13 @@
 **Status**: Draft
 **Input**: User description: "Refactor the `spas-compose` CLI agent prompt generation to improve maintainability and enforce a stricter, more consistent AI workflow. The goal is to decouple prompt content from the CLI code to enable easier updates and to enhance the agent instructions. Key improvements include adding rigorous confirmation gates at the end of each phase and defining explicit, standalone steps for documentation updates (such as inserting diagrams into READMEs), ensuring the agent reliably follows the intended choreography development process without skipping steps."
 
+## Clarifications
+
+### Session 2025-12-28
+- Q: Which template engine should be used for decoupling the prompt content? → A: Mandate `Eta` (matches `spas-service`).
+- Q: How should templates be distributed with the CLI? → A: Embed templates in binary (matches `spas-service`).
+- Q: Should the prompt be split into partials (e.g., technical reference)? → A: Yes, include `technical-reference.eta`.
+
 ## User Scenarios & Testing *(mandatory)*
 
 ### User Story 1 - Strict Workflow Enforcement (Priority: P1)
@@ -54,17 +61,18 @@ As a CLI maintainer, I want the agent prompt content to be stored in separate te
 
 - **Template File Missing**: If a template file is missing at runtime, the CLI should fail gracefully with a clear error message.
 - **Invalid Template Syntax**: If a template contains invalid syntax, the CLI should report the error during generation.
-
+`Eta` 
 ## Requirements *(mandatory)*
 
 ### Functional Requirements
 
-- **FR-001**: The CLI MUST generate the agent prompt using external template files.
+- **FR-001**: The CLI MUST generate the agent prompt using external `Eta` template files.
 - **FR-002**: The agent prompt MUST define a 5-phase workflow (Analyze, Propose, Generate, Validate, Build).
 - **FR-003**: Each phase in the prompt MUST conclude with a mandatory confirmation gate requiring user input to proceed.
 - **FR-004**: The "Propose" phase MUST include a standalone action step to update the workspace `README.md` with the choreography diagram.
 - **FR-005**: The CLI MUST support rendering templates with dynamic context (e.g., domain root).
-
+- **FR-006**: Templates MUST be embedded in the CLI build artifact to avoid runtime file dependencies.
+- **FR-007**: The prompt structure MUST be modularized using partials (e.g., `technical-reference.eta`) for maintainability.
 ### Success Criteria
 
 - **Measurable**: Agent stops at confirmation gates 100% of the time in test runs.

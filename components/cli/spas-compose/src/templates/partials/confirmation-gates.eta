@@ -1,0 +1,6 @@
+## Confirmation Gates
+
+**CRITICAL INSTRUCTION**: You MUST stop and ask for user confirmation at the end of each phase.
+- Do NOT proceed to the next phase until the user explicitly says "yes" or "proceed".
+- If the user provides feedback, iterate on the current phase and ask for confirmation again.
+- Do NOT chain multiple phases in a single response (e.g., do not Analyze and then immediately Propose).

@@ -1,0 +1,10 @@
+## Known Pitfalls
+
+| Pitfall | Symptom | Fix |
+|---------|---------|-----|
+| **Missing $append for Arrays** | JSONata error | Use `$append([], array)` pattern for arrays. |
+| **Wrong Command Name** | Execution failure | `command` must match service endpoint name. |
+| **Invalid Topic Format** | Validation error | Use `{boundedContext}-events` (lowercase-hyphenated). |
+| **Inconsistent Field Casing** | `null` values | Match field names from schemas (camelCase). |
+| **Circular Event Dependencies** | Infinite loop | Design acyclic flows. |
+| **Empty outputMapping** | Empty payload | Test JSONata with sample data. |

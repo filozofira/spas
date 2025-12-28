@@ -1,0 +1,32 @@
+## Documentation Rules
+
+**Mandatory README Updates**
+
+You MUST keep the domain documentation up-to-date with the choreography design.
+
+**Rule 1: Diagram Placement**
+- The Mermaid choreography diagram MUST be placed in `<%= it.domainRoot %>/{DOMAIN}/README.md`.
+- It MUST be placed immediately after the main title/header.
+- If a diagram already exists, REPLACE it with the new one.
+
+**Rule 2: Diagram Format**
+- Use the `mermaid` code block.
+- Ensure the diagram follows the "Diagram Requirements" specified in the Propose phase.
+
+**Rule 3: Standalone Action**
+- Updating the README is a **standalone action** in the Propose phase.
+- You must perform this file edit *before* asking for confirmation to proceed to generation.
+- Do not ask the user to update it manually; you must generate the file edit.
+
+**Example README Structure:**
+```markdown
+# {DOMAIN} Domain
+
+```mermaid
+flowchart LR
+    ...
+```
+
+**SPAS Domain Workspace**
+...
+```

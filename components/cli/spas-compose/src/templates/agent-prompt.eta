@@ -67,6 +67,8 @@ Analyze pulled service contracts and generate choreography configuration with tr
 
 <%~ include("partials/technical-reference") %>
 
+<%~ include("partials/documentation-rules") %>
+
 <%~ include("partials/workflow-phases") %>
 
 <%~ include("partials/known-pitfalls") %>

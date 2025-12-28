@@ -44,6 +44,7 @@
 2. **Visualize**
    - Generate a Mermaid flowchart of the proposed choreography
    - **MUST insert/update the choreography diagram in the domain README.md file** (at top, after title)
+   - **SEE "Documentation Rules" section for strict placement and formatting requirements.**
    - Wait for user confirmation before proceeding to Generate phase
 
 **Choreography Diagram Template:**

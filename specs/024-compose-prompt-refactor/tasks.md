@@ -27,8 +27,8 @@
 
 **Goal**: Ensure the agent treats README updates as a mandatory standalone step.
 
-- [ ] T009 [US2] Create `components/cli/spas-compose/src/templates/partials/documentation-rules.eta`
-- [ ] T010 [US2] Update `components/cli/spas-compose/src/templates/partials/workflow-phases.eta` to include README step
+- [x] T009 [US2] Create `components/cli/spas-compose/src/templates/partials/documentation-rules.eta`
+- [x] T010 [US2] Update `components/cli/spas-compose/src/templates/partials/workflow-phases.eta` to include README step
 
 ## Phase 5: User Story 3 - Decoupled Prompt Templates
 

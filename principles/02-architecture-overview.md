@@ -80,7 +80,9 @@ flowchart LR
 | **Choreography**  | choreography.yaml + JSONata | Domain-specific event routing        |
 | **Schema-driven** | JSON Schema validation      | Contract enforcement at boundaries   |
 
-## AI-in-the-Loop Choreography
+## AI-in-the-Loop
+
+### AI-assisted Choreography
 
 SPAS supports **AI-assisted choreography design** through GitHub Copilot agent integration. The `spas-compose init` command scaffolds a domain workspace with an AI agent prompt (`.github/agents/spas.compose.agent.md`) that guides developers through a structured 5-phase workflow:
 
@@ -112,6 +114,43 @@ flowchart LR
 To use: Run `spas-compose init <domain>` then run `spas-compose services pull <service-name> <service-version>` for each service you wish to use, and finally invoke the agent with `/spas.compose DOMAIN:<domain> ...` in GitHub Copilot Chat.
 
 **Note**: The agent requires an explicit domain selector: `/spas.compose DOMAIN:<domain> ...`.
+
+### AI-assisted Service Development
+
+In addition to domain composition, SPAS supports **AI-assisted service development**. The `spas-service init` command scaffolds a service workspace with an AI agent prompt (`.github/agents/spas.service.agent.md`) that guides implementation and metadata generation through a structured workflow:
+
+```mermaid
+flowchart LR
+  Init[spas-service init] --> A[1. Analyze]
+  A --> S[2. Scaffold]
+  S --> I[3. Implement]
+  I --> E[4. Events]
+  E --> V[5. Validate]
+
+  I -.->|DTOs| SDK[SDK Infers Schema]
+  E -.->|PublishAsync| SC[Sidecar]
+  V --> Repo[(Repository)]
+  V --> Reg[(Registry)]
+```
+
+| Phase        | AI Actions                                        | Human Actions                    |
+| ------------ | ------------------------------------------------- | -------------------------------- |
+| **Analyze**  | Parse tokens, identify commands/events            | Provide name, stack, context     |
+| **Scaffold** | Create project structure, config, storage layer   | Review generated files           |
+| **Implement**| Create endpoints, DTOs, apply SDK annotations     | Review business logic            |
+| **Events**   | Create event classes, integrate publishing        | Verify event triggers            |
+| **Validate** | Build service, generate metadata archive          | Check spas.json and schemas      |
+
+**Key Benefits:**
+
+- **Endpoint-centric**: Plain DTOs define the schema; no complex attributes needed (Spec 023)
+- **Type-safe Events**: Generic `PublishAsync<T>` ensures compile-time safety
+- **Auto-generated Metadata**: SDK extracts schemas from code during build
+- **Standardized Workflow**: Consistent structure across Java and .NET services
+
+To use: Run `spas-service init <service>` then invoke the agent with `/spas.service NAME:<id> STACK:<java|dotnet> CONTEXT:<bounded-context> ...` in GitHub Copilot Chat.
+
+**Note**: The agent requires explicit tokens: `/spas.service NAME:<id> STACK:<java|dotnet> CONTEXT:<bounded-context> ...`.
 
 ## Communication Model
 

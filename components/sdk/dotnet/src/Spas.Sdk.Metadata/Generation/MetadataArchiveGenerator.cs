@@ -1,5 +1,6 @@
 using System.Reflection;
 using Microsoft.AspNetCore.Builder;
+using Spas.Sdk.Metadata.Builders;
 using Spas.Sdk.Metadata.Composition;
 using Spas.Sdk.Metadata.Dev;
 using Spas.Sdk.Metadata.Extensions;
@@ -80,7 +81,17 @@ public class MetadataArchiveGenerator
         }
 
         var targetAssembly = assemblyToScan ?? Assembly.GetEntryAssembly() ?? Assembly.GetExecutingAssembly();
+        
+        // Generate event schemas from assembly (attribute-based)
         var schemas = await _schemaGenerator.GenerateSchemasFromAssemblyAsync(targetAssembly);
+
+        // Generate endpoint schemas from type mappings (T015-T017: endpoint-centric inference)
+        var builder = ContractsBuilderStorage.Retrieve(app);
+        if (builder != null)
+        {
+            await GenerateSchemasFromEndpointsAsync(builder.EndpointRequestBodyTypes, schemas);
+            ContractsBuilderStorage.Remove(app);
+        }
 
         var archiveStream = await _archiveWriter.CreateArchiveAsync(spasJson, schemas);
 
@@ -91,5 +102,42 @@ public class MetadataArchiveGenerator
         }
 
         return archivePath;
+    }
+
+    /// <summary>
+    /// Generates schemas from endpoint request body types.
+    /// This enables schema inference from plain DTOs without requiring [SpasCommand] on the DTO.
+    /// </summary>
+    private async Task GenerateSchemasFromEndpointsAsync(Dictionary<string, Type> endpointTypes, IDictionary<string, object> schemas)
+    {
+        var generatedTypes = new HashSet<Type>();
+
+        foreach (var (schemaRef, bodyType) in endpointTypes)
+        {
+            // Skip if schema already exists (deduplication - T017)
+            if (schemas.ContainsKey(schemaRef))
+            {
+                continue;
+            }
+
+            // Skip primitive/simple types (T016)
+            if (WebApplicationDiscoveryExtensions.IsPrimitiveOrSimpleType(bodyType))
+            {
+                continue;
+            }
+
+            // Skip if we've already generated for this type (deduplication)
+            if (!generatedTypes.Add(bodyType))
+            {
+                continue;
+            }
+
+            // Generate schema for the type
+            var schema = await _schemaGenerator.GenerateSchemaAsync(bodyType);
+            if (schema != null)
+            {
+                schemas[schemaRef] = schema;
+            }
+        }
     }
 }

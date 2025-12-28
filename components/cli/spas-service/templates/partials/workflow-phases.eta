@@ -62,12 +62,93 @@ Proceed to Phase 2 (Project Structure)? (yes/no)
    │   │   ├── service/                    # Business logic services
    │   │   ├── model/                      # Domain entities
    │   │   ├── repository/                 # Data access interfaces
-   │   │   └── event/                      # Event classes
+   │   │   └── events/                     # Event classes
    │   └── resources/
    │       └── application.yaml
    └── test/java/com/{context}/{name}/
    ```
-2. Create `pom.xml` with Spring Boot 3.x, SPAS SDK dependency
+2. Create `pom.xml` (SDK is already in local Maven repo at `~/.m2/repository/io/spas/`):
+   ```xml
+   <?xml version="1.0" encoding="UTF-8"?>
+   <project xmlns="http://maven.apache.org/POM/4.0.0"
+            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+            xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 
+            http://maven.apache.org/xsd/maven-4.0.0.xsd">
+       <modelVersion>4.0.0</modelVersion>
+       
+       <parent>
+           <groupId>org.springframework.boot</groupId>
+           <artifactId>spring-boot-starter-parent</artifactId>
+           <version>3.4.1</version>
+           <relativePath/>
+       </parent>
+       
+       <groupId>com.{context}</groupId>
+       <artifactId>{name}</artifactId>
+       <version>1.0.0-SNAPSHOT</version>
+       
+       <properties>
+           <!-- Use your installed JDK version (17 minimum, 21+ recommended) -->
+           <java.version>21</java.version>
+           <spas-sdk.version>1.0.0-SNAPSHOT</spas-sdk.version>
+       </properties>
+       
+       <dependencies>
+           <!-- SPAS SDK (groupId must be io.spas, NOT com.spas) -->
+           <dependency>
+               <groupId>io.spas</groupId>
+               <artifactId>spas-sdk-core</artifactId>
+               <version>${spas-sdk.version}</version>
+           </dependency>
+           <dependency>
+               <groupId>io.spas</groupId>
+               <artifactId>spas-sdk-metadata</artifactId>
+               <version>${spas-sdk.version}</version>
+           </dependency>
+           <dependency>
+               <groupId>io.spas</groupId>
+               <artifactId>spas-sdk-events</artifactId>
+               <version>${spas-sdk.version}</version>
+           </dependency>
+           <dependency>
+               <groupId>io.spas</groupId>
+               <artifactId>spas-sdk-spring</artifactId>
+               <version>${spas-sdk.version}</version>
+           </dependency>
+           <dependency>
+               <groupId>io.spas</groupId>
+               <artifactId>spas-sdk-observability</artifactId>
+               <version>${spas-sdk.version}</version>
+           </dependency>
+           
+           <!-- Spring Boot -->
+           <dependency>
+               <groupId>org.springframework.boot</groupId>
+               <artifactId>spring-boot-starter-web</artifactId>
+           </dependency>
+           <dependency>
+               <groupId>org.springframework.boot</groupId>
+               <artifactId>spring-boot-starter-actuator</artifactId>
+           </dependency>
+           
+           <!-- Testing -->
+           <dependency>
+               <groupId>org.springframework.boot</groupId>
+               <artifactId>spring-boot-starter-test</artifactId>
+               <scope>test</scope>
+           </dependency>
+       </dependencies>
+       
+       <build>
+           <plugins>
+               <plugin>
+                   <groupId>org.springframework.boot</groupId>
+                   <artifactId>spring-boot-maven-plugin</artifactId>
+               </plugin>
+           </plugins>
+       </build>
+   </project>
+   ```
 3. Create `application.yaml` with service configuration
 
 **For .NET (STACK:dotnet)**:
@@ -115,7 +196,7 @@ Proceed to Phase 2 (Project Structure)? (yes/no)
    <?xml version="1.0" encoding="utf-8"?>
    <configuration>
      <packageSources>
-       <add key="spas-local" value="~/.nuget/local-feed" />
+       <add key="spas-local" value="%USERPROFILE%\.nuget\local-feed" />
        <add key="nuget.org" value="https://api.nuget.org/v3/index.json" />
      </packageSources>
    </configuration>
@@ -169,7 +250,11 @@ Proceed to Phase 3 (Service Registration & Identity)? (yes/no)
        // Optional metadata:
        options.ConfigureConsistency(c => c.WithCommands("ACID").WithQueries("EVENTUAL"));
        options.ConfigureNetwork(n => n.AddRequiredEgress("localhost:6379"));
-       options.ConfigureSecurity(s => s.WithAuthenticationType("jwt"));
+       options.ConfigureSecurity(s => s
+           .WithAuthenticationType("jwt")
+           .AddRequiredScope("resource.read")
+           .AddRequiredScope("resource.write")
+           .AddDataClassification("internal"));
        options.License = "MIT";
    });
    ```
@@ -318,14 +403,14 @@ Proceed to Phase 5 (Endpoints & Model)? (yes/no)
 public class OrdersController : ControllerBase
 {
     [HttpPost]
-    [SpasCommand("CreateOrder", ProducesEvents = new[] { "order-created" })]
+    [SpasCommand("CreateOrder", "1.0.0", Produces = new[] { typeof(OrderCreatedEvent) })]
     public async Task<ActionResult<CreateOrderResponse>> CreateOrder(CreateOrderRequest request)
     {
         // Implementation
     }
 
     [HttpGet("{id}")]
-    [SpasQuery("GetOrder")]
+    [SpasQuery("GetOrder", "1.0.0")]
     public async Task<ActionResult<Order>> GetOrder(string id)
     {
         // Implementation
@@ -340,13 +425,13 @@ public class OrdersController : ControllerBase
 public class OrderController {
     
     @PostMapping
-    @SpasCommand(name = "CreateOrder", producesEvents = {"order-created"})
+    @SpasCommand(name = "CreateOrder", version = "1.0.0", path = "/orders", produces = {OrderCreatedEvent.class})
     public ResponseEntity<CreateOrderResponse> createOrder(@RequestBody CreateOrderRequest request) {
         // Implementation
     }
 
     @GetMapping("/{id}")
-    @SpasQuery(name = "GetOrder")
+    @SpasQuery(name = "GetOrder", version = "1.0.0", path = "/orders/{id}")
     public ResponseEntity<Order> getOrder(@PathVariable String id) {
         // Implementation
     }
@@ -385,7 +470,7 @@ Proceed to Phase 6 (Events)? (yes/no)
 
 **Event Class Example (Java)**:
 ```java
-@SpasEvent(name = "order-created", version = "1.0.0")
+@SpasEvent(type = "OrderCreated", version = "1.0.0")
 public record OrderCreatedEvent(
     String orderId,
     String customerId,
@@ -397,7 +482,7 @@ public record OrderCreatedEvent(
 
 **Event Class Example (.NET)**:
 ```csharp
-[SpasEvent("order-created", Version = "1.0.0")]
+[SpasEvent("OrderCreated", "1.0.0")]
 public record OrderCreatedEvent(
     string OrderId,
     string CustomerId,
@@ -433,33 +518,30 @@ Proceed to Phase 7 (Sidecar Integration)? (yes/no)
 **Actions**:
 1. Add SPAS SDK event publisher to command handlers:
    - **Java**: Inject `SpasEventPublisher` and call `publish(event)`
-   - **.NET**: Inject `ISpasEventPublisher` and call `PublishAsync(event)`
+   - **.NET**: Inject `EventPublisher` and call `PublishAsync<TEvent>(event)`
 2. Configure sidecar endpoint in application config:
-   - Default: `http://localhost:3001`
-   - Environment variable: `SPAS_SIDECAR_URL`
-3. Ensure CloudEvents format with required headers
+   - Default: `http://localhost:7000`
+   - Environment variables: `SIDECAR_URL`, or `SIDECAR_HOST` + `SIDECAR_PORT`
+3. SDK sends raw payload + headers; sidecar wraps into CloudEvents
 
-**Event Publishing Contract**:
+**Event Publishing Contract** (SDK → Sidecar):
 ```
-POST http://localhost:3001/publish
-Content-Type: application/cloudevents+json
+POST http://localhost:7000/publish
+Content-Type: application/json
+x-service-name: {NAME}
+x-event-name: {event-name}
+x-correlation-id: {uuid}
+traceparent: {W3C trace context}
 
-{
-  "specversion": "1.0",
-  "type": "com.{context}.{event-name}",
-  "source": "/{NAME}",
-  "id": "{uuid}",
-  "time": "{ISO8601}",
-  "datacontenttype": "application/json",
-  "data": { ... event payload ... }
-}
+{ ... raw event payload ... }
 ```
+The sidecar constructs the full CloudEvents envelope (type = `com.{service}.{event-name}`).
 
 **Java Example**:
 ```java
 @Service
 public class OrderService {
-    private final SpasEventPublisher eventPublisher;
+    private final EventPublisher eventPublisher;
     private final OrderRepository repository;
 
     public Order createOrder(CreateOrderRequest request) {
@@ -481,13 +563,14 @@ public class OrderService {
 **.NET Example**:
 ```csharp
 public class OrderService {
-    private readonly ISpasEventPublisher _eventPublisher;
+    private readonly EventPublisher _eventPublisher;
     private readonly IOrderRepository _repository;
 
     public async Task<Order> CreateOrderAsync(CreateOrderRequest request) {
         var order = await _repository.SaveAsync(new Order(request));
         
-        await _eventPublisher.PublishAsync(new OrderCreatedEvent(
+        // Use generic method for type-safe event publishing
+        await _eventPublisher.PublishAsync<OrderCreatedEvent>(new OrderCreatedEvent(
             order.Id,
             order.CustomerId,
             order.Items,
@@ -510,7 +593,7 @@ Event publishing added to:
 - CreateOrder -> publishes order-created
 - [etc.]
 
-Sidecar endpoint configured: http://localhost:3001/publish
+Sidecar endpoint configured: http://localhost:7000/publish
 
 Proceed to Phase 8 (Runtime)? (yes/no)
 ```
@@ -546,7 +629,7 @@ Proceed to Phase 8 (Runtime)? (yes/no)
    - **Java**: Spring Actuator `/actuator/health`
    - **.NET**: Health checks middleware `/health`
 3. Configure environment variables:
-   - `SPAS_SIDECAR_URL` - Sidecar endpoint
+   - `SIDECAR_URL` (or `SIDECAR_HOST` + `SIDECAR_PORT`) - Sidecar endpoint
    - `SERVER_PORT` or `ASPNETCORE_URLS` - Application port
 4. Create `.dockerignore` to exclude build artifacts
 
@@ -574,50 +657,49 @@ Proceed to Phase 9 (Validate & Generate Metadata)? (yes/no)
 
 **Actions**:
 1. **Build the service**:
-   - **Java**: `./mvnw clean package -DskipTests` or `./gradlew build -x test`
+   - **Java**: `mvn clean package -DskipTests` or `./gradlew build -x test`
    - **.NET**: `dotnet build`
 
 2. **Generate offline metadata archive** (CRITICAL):
    - **Java**: 
      ```bash
      java -Dspas.generate-metadata=true -jar target/*.jar
-     # Generates metadata/{NAME}-{version}.zip
+     # Generates metadata/service.metadata.zip
      ```
    - **.NET**: 
      ```bash
-     dotnet run -- --generate-metadata
-     # Generates metadata/{NAME}-{version}.zip
+     dotnet run -- --generate-metadata --output ./metadata
+     # Generates metadata/service.metadata.zip
      ```
 
 3. **Extract and validate ZIP contents**:
    ```bash
-   unzip -l metadata/{NAME}-{version}.zip
+   unzip -l metadata/service.metadata.zip
    ```
    
    **Expected contents**:
-   - `spas.json` (runtime metadata with generated schemas)
-   - `schemas/endpoints/{command-name}-request.json` (for each command/query)
-   - `schemas/endpoints/{command-name}-response.json` (for each command/query)
-   - `schemas/events/{event-name}.json` (for each event)
+   - `spas.json` (service metadata with commands[], events[], endpoints[])
+   - `schemas/endpoints/{command-name}.schema.json` (for each command/query)
+   - `schemas/events/{event-name}.schema.json` (for each event)
 
 4. **Validation checklist**:
-   - [ ] `metadata/{NAME}-{version}.zip` file exists
+   - [ ] `metadata/service.metadata.zip` file exists
    - [ ] ZIP contains `spas.json` at root
-   - [ ] ZIP contains `schemas/endpoints/*.json` files
-   - [ ] ZIP contains `schemas/events/*.json` files
+   - [ ] ZIP contains `schemas/endpoints/*.schema.json` files
+   - [ ] ZIP contains `schemas/events/*.schema.json` files
    - [ ] `spas.json` has populated `commands[]` array (not empty)
    - [ ] `spas.json` has populated `events[]` array (if events defined)
-   - [ ] Each command in `spas.json` has valid `requestSchema` and `responseSchema` paths
-   - [ ] Each event in `spas.json` has valid `schema` path
+   - [ ] Each endpoint in `spas.json` has valid `schemaRef` path
+   - [ ] Each event in `spas.json` has valid `schemaRef` path
    - [ ] All schema paths in `spas.json` reference files present in ZIP
 
 5. **Display archive contents**:
    ```bash
    # List all files in metadata archive
-   unzip -l metadata/{NAME}-{version}.zip
+   unzip -l metadata/service.metadata.zip
    
    # Show spas.json from archive
-   unzip -p metadata/{NAME}-{version}.zip spas.json | jq .
+   unzip -p metadata/service.metadata.zip spas.json | jq .
    ```
 
 **Exit Criteria**: 
@@ -636,13 +718,12 @@ Summary:
 - Context: {CONTEXT}
 - Commands: {count}
 - Events: {count}
-- Metadata: metadata/{NAME}-1.0.0.zip
+- Metadata: metadata/service.metadata.zip
 
 Archive Contents:
   spas.json
-  schemas/endpoints/create-order-request.json
-  schemas/endpoints/create-order-response.json
-  schemas/events/order-created.json
+  schemas/endpoints/create-order.schema.json
+  schemas/events/order-created.schema.json
 
 Validation:
   ✓ spas.json present
@@ -653,18 +734,18 @@ Validation:
 Next Steps:
 1. Review generated code in src/
 2. Run locally:
-   - Java: ./mvnw spring-boot:run
+   - Java: mvn spring-boot:run
    - .NET: dotnet run
 3. Test endpoints:
    - curl http://localhost:8080/{endpoint}
 4. Build container:
    - docker build -t {NAME}:1.0.0 .
 5. Publish metadata:
-   - spas-service publish ./metadata/{NAME}-1.0.0.zip
+   - spas-service publish ./metadata/service.metadata.zip
 
 Documentation:
 - README.md - Service overview
-- metadata/{NAME}-1.0.0.zip - Complete service metadata archive
+- metadata/service.metadata.zip - Complete service metadata archive
 ```
 
 ---

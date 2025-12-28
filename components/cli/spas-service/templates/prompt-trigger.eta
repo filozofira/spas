@@ -47,7 +47,7 @@ Full instructions: `.github/agents/spas.service.agent.md`
 ## Next Steps
 
 After scaffolding:
-1. Build the service (`./mvnw package` or `dotnet build`)
+1. Build the service (`mvn package` or `dotnet build`)
 2. Run locally and test endpoints
 3. Generate metadata archive
 4. Publish to SPAS repository: `spas-service publish ./metadata/service.metadata.zip`

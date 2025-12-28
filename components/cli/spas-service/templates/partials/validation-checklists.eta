@@ -61,7 +61,7 @@ Use these checklists to verify each phase is complete before proceeding.
 
 ### Phase 7: Sidecar Integration ✓
 - [ ] SPAS SDK event publisher injected
-- [ ] publish() or PublishAsync() called after state changes
+- [ ] publish() or PublishAsync<TEvent>() called after state changes
 - [ ] Sidecar URL configured via environment variable
 - [ ] CloudEvents format used:
   - [ ] specversion: "1.0"
@@ -91,7 +91,7 @@ Use these checklists to verify each phase is complete before proceeding.
 - [ ] Application starts without errors
 - [ ] Health check endpoint responds
 - [ ] At least one endpoint responds correctly
-- [ ] Metadata archive created: `metadata/{NAME}-{version}.zip`
+- [ ] Metadata archive created: `metadata/service.metadata.zip`
 - [ ] Archive contains spas.json
 - [ ] Archive contains schemas/ directory
 - [ ] Next steps documented in output
@@ -104,10 +104,10 @@ Use these checklists to verify each phase is complete before proceeding.
 | Artifact | Location |
 |----------|----------|
 | Service metadata | `spas.json` |
-| Endpoint schemas | `schemas/endpoints/*.json` |
-| Event schemas | `schemas/events/*.json` |
+| Endpoint schemas | `schemas/endpoints/*.schema.json` |
+| Event schemas | `schemas/events/*.schema.json` |
 | SPAS schema | `.spas/schemas/design-time-metadata-v1.schema.json` |
-| Metadata archive | `metadata/{NAME}-{version}.zip` |
+| Metadata archive | `metadata/service.metadata.zip` |
 | Dockerfile | `Dockerfile` |
 | Docker ignore | `.dockerignore` |
 
@@ -117,8 +117,8 @@ Use these checklists to verify each phase is complete before proceeding.
 | Service name | kebab-case | `order-service` |
 | Event name | kebab-case | `order-created` |
 | Command name | PascalCase | `CreateOrder` |
-| Endpoint schema | kebab-case + purpose | `create-order-request.json` |
-| Event schema | kebab-case | `order-created.json` |
+| Endpoint schema | kebab-case | `create-order.schema.json` |
+| Event schema | kebab-case | `order-created.schema.json` |
 
 ### CloudEvents Type Format
 ```

@@ -11,8 +11,7 @@ This workspace was initialized with `spas-service init` to create a language-agn
 
 ### Prerequisites
 
-- **Java**: JDK 17+ with Maven or Gradle
-- **.NET**: .NET 8.0 SDK
+- Depending on chosen framework: **Java** (JDK 17+ with Maven) or **.NET** (.NET 10.0 SDK)
 - Docker (for containerization)
 - AI agent (GitHub Copilot, Claude, or compatible)
 
@@ -70,13 +69,13 @@ Each phase requires confirmation before proceeding.
 
 ```bash
 # Build
-./mvnw clean package
+mvn clean package
 
 # Run locally
-./mvnw spring-boot:run
+mvn spring-boot:run
 
 # Run tests
-./mvnw test
+mvn test
 ```
 
 ### .NET
@@ -98,7 +97,7 @@ After implementing your service, generate the metadata archive:
 
 ```bash
 # Java
-./mvnw clean package  # Produces target/metadata.zip
+mvn clean package  # Produces target/metadata.zip
 
 # .NET
 dotnet build          # Produces bin/Debug/net10.0/metadata.zip
@@ -114,15 +113,39 @@ spas-service publish ./metadata/<%= it.serviceName %>-<version>.zip
 
 ## SDK Integration
 
+**Note**: The SPAS Java SDK is already installed in your local Maven repository (`~/.m2/repository/io/spas/`). 
+The .NET SDK is available via a local NuGet feed. No additional setup required.
+
 ### Java (Spring Boot)
 
-Add the SPAS SDK dependency to `pom.xml`:
+Add the SPAS SDK dependencies to `pom.xml`:
 
 ```xml
+<!-- SPAS SDK (groupId must be io.spas) - already in local Maven repo -->
+<dependency>
+    <groupId>io.spas</groupId>
+    <artifactId>spas-sdk-core</artifactId>
+    <version>1.0.0-SNAPSHOT</version>
+</dependency>
+<dependency>
+    <groupId>io.spas</groupId>
+    <artifactId>spas-sdk-metadata</artifactId>
+    <version>1.0.0-SNAPSHOT</version>
+</dependency>
+<dependency>
+    <groupId>io.spas</groupId>
+    <artifactId>spas-sdk-events</artifactId>
+    <version>1.0.0-SNAPSHOT</version>
+</dependency>
 <dependency>
     <groupId>io.spas</groupId>
     <artifactId>spas-sdk-spring</artifactId>
-    <version>1.0.0</version>
+    <version>1.0.0-SNAPSHOT</version>
+</dependency>
+<dependency>
+    <groupId>io.spas</groupId>
+    <artifactId>spas-sdk-observability</artifactId>
+    <version>1.0.0-SNAPSHOT</version>
 </dependency>
 ```
 
@@ -131,7 +154,7 @@ Add the SPAS SDK dependency to `pom.xml`:
 Add the SPAS SDK package:
 
 ```bash
-dotnet add package Spas.Sdk --version 1.0.0
+dotnet add package Spas.Sdk --version "1.0.0-*"
 ```
 
 ## SDK Quick Reference
@@ -158,21 +181,31 @@ builder.Services.AddSingleton<EventPublisher>(sp =>
 await _eventPublisher.PublishAsync<OrderCreatedEvent>(eventData);
 ```
 
-**Metadata Attributes:**
+**Metadata Attributes (Minimal APIs):**
 ```csharp
 using Spas.Sdk.Metadata.Attributes;
 
-// Apply to controller actions AND DTOs for schema generation
-[SpasCommand("create-order", "1.0", Produces = new[] { typeof(OrderCreatedEvent) })]
-public async Task<ActionResult<Response>> CreateOrder([FromBody] Request request)
+// Apply to minimal API endpoint handlers
+app.MapPost("/orders", [SpasCommand("create-order", "1.0", Produces = new[] { typeof(OrderCreatedEvent) })]
+    async (CreateOrderRequest request, OrderService service) =>
+    {
+        var result = await service.CreateAsync(request);
+        return Results.Created($"/orders/{result.Id}", result);
+    });
 
-// Apply to request/response DTOs - REQUIRED for endpoint schemas
-[SpasCommand("create-order", "1.0")]
-public class CreateOrderRequest { /* properties */ }
+app.MapGet("/orders/{id}", [SpasQuery("get-order", "1.0")]
+    async (string id, OrderService service) =>
+    {
+        var order = await service.GetByIdAsync(id);
+        return order is not null ? Results.Ok(order) : Results.NotFound();
+    });
+
+// DTOs are plain classes - no attributes needed (schema inferred from endpoint parameters)
+public record CreateOrderRequest(string CustomerId, List<LineItem> Items);
 
 // Apply to events - REQUIRED for event schemas
 [SpasEvent("order-created", "1.0.0")]
-public class OrderCreatedEvent { /* properties */ }
+public record OrderCreatedEvent(string OrderId, string CustomerId, decimal Total);
 ```
 
 **Metadata Generation:**
@@ -231,10 +264,11 @@ java -Dspas.generate-metadata=true -jar target/app.jar
 
 ### Common Gotchas
 
-1. **EventPublisher is concrete** - .NET uses `EventPublisher` class, not `ISpasEventPublisher` interface
-2. **DTOs need attributes** - Apply `[SpasCommand]`/`[SpasQuery]` to request/response classes for schema generation
-3. **Generic method** - Use `PublishAsync<TEvent>()` in .NET for type-safe publishing
-4. **Event linkage** - Use `Produces` property to link commands to events: `Produces = new[] { typeof(Event) }`
+1. **Minimal APIs only** - .NET SDK discovers endpoints from `app.MapPost`/`app.MapGet`; controller-based routing is not supported
+2. **EventPublisher is concrete** - .NET uses `EventPublisher` class, not `ISpasEventPublisher` interface
+3. **DTOs are plain classes** - No attributes needed on DTOs; schema is inferred from endpoint parameters
+4. **Generic method** - Use `PublishAsync<TEvent>()` in .NET for type-safe publishing
+5. **Event linkage** - Use `Produces` property to link commands to events: `Produces = new[] { typeof(Event) }`
 
 ## Event Publishing
 

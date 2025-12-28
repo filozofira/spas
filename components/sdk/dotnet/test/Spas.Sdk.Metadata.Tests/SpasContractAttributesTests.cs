@@ -122,4 +122,38 @@ public class SpasContractAttributesTests
         Assert.NotNull(attributeUsage);
         Assert.True((attributeUsage.ValidOn & AttributeTargets.Class) == AttributeTargets.Class);
     }
+
+    [Fact]
+    public void SpasCommandAttribute_CanOnlyTargetMethodsAndDelegates()
+    {
+        // Arrange
+        var attributeUsage = typeof(SpasCommandAttribute)
+            .GetCustomAttributes(typeof(AttributeUsageAttribute), false)
+            .Cast<AttributeUsageAttribute>()
+            .FirstOrDefault();
+
+        // Assert
+        Assert.NotNull(attributeUsage);
+        Assert.True((attributeUsage.ValidOn & AttributeTargets.Method) == AttributeTargets.Method);
+        Assert.True((attributeUsage.ValidOn & AttributeTargets.Delegate) == AttributeTargets.Delegate);
+        Assert.False((attributeUsage.ValidOn & AttributeTargets.Class) == AttributeTargets.Class);
+        Assert.False((attributeUsage.ValidOn & AttributeTargets.Struct) == AttributeTargets.Struct);
+    }
+
+    [Fact]
+    public void SpasQueryAttribute_CanOnlyTargetMethodsAndDelegates()
+    {
+        // Arrange
+        var attributeUsage = typeof(SpasQueryAttribute)
+            .GetCustomAttributes(typeof(AttributeUsageAttribute), false)
+            .Cast<AttributeUsageAttribute>()
+            .FirstOrDefault();
+
+        // Assert
+        Assert.NotNull(attributeUsage);
+        Assert.True((attributeUsage.ValidOn & AttributeTargets.Method) == AttributeTargets.Method);
+        Assert.True((attributeUsage.ValidOn & AttributeTargets.Delegate) == AttributeTargets.Delegate);
+        Assert.False((attributeUsage.ValidOn & AttributeTargets.Class) == AttributeTargets.Class);
+        Assert.False((attributeUsage.ValidOn & AttributeTargets.Struct) == AttributeTargets.Struct);
+    }
 }

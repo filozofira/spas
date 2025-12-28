@@ -276,6 +276,18 @@ Examples: order-service, payment-gateway, user-auth
 3. **Fixed Template Path**: Corrected `templates.ts` to find templates at `dist/templates/`
 4. **Added npm link Documentation**: Added development workflow documentation to README.md and CONTRIBUTING.md
 5. **Added AI Agent Documentation**: Added Service Development section to `.github/agents/README.md` with `/spas.service` agent workflow
+6. **Security Configuration Fix**: Added required `AddDataClassification("internal")` to `ConfigureSecurity` example in workflow-phases.eta - schema requires this field
+7. **Prerequisites Version Fix**: Updated .NET SDK version from 8.0 to 10.0 in error-handling.eta and consolidated prerequisites into single choice line
+8. **Minimal API Limitation Documented**: Added "(Minimal APIs only — controller-based routing not supported)" to agent-prompt.eta, readme.eta, and SDK README.md. The .NET SDK only discovers endpoints from `EndpointDataSource` (minimal APIs); controller-based MVC routing is not supported for metadata discovery
+9. **Replaced Controller Examples with Minimal API Examples**: Updated readme.eta and sdk-patterns.eta to show minimal API patterns instead of controller-based examples
+10. **Aligned .NET Project Structure with order-service Example**: Updated sdk-patterns.eta to match actual order-service pattern:
+    - Flat project structure (no `src/{Name}.Api/` nesting)
+    - Inline endpoint definitions in Program.cs (not extension method pattern)
+    - Simple `{Entity}Store` instead of Repository/Service interfaces
+    - DTOs as record types
+    - Removed `Endpoints/`, `Repositories/` folders that don't exist in examples
+11. **Changed from Maven Wrapper to System Maven**: Replaced `./mvnw` commands with `mvn` in all templates (readme.eta, workflow-phases.eta, error-handling.eta, prompt-trigger.eta). Maven wrapper requires additional files that the agent wasn't generating; using system `mvn` matches how SPAS's own Java projects work (basket-service, fulfillment-service, Java SDK). Updated prerequisites to specify "JDK 17+ with Maven" instead of JAVA_HOME requirement
+12. **Fixed SDK Version Mismatch**: Templates specified `1.0.0` but actual Java SDK publishes as `1.0.0-SNAPSHOT`. Updated sdk-patterns.eta, sdk-patterns-compact.eta, and readme.eta to use correct version. This fixes "artifact not found" errors when building services that reference the locally-installed SDK
 
 ---
 

@@ -2,6 +2,8 @@
 
 Use patterns matching the STACK token (java or dotnet).
 
+**SDK is already installed**: Java in `~/.m2/repository/io/spas/`, .NET in `%USERPROFILE%\.nuget\local-feed`
+
 ---
 
 ### Java/Spring Quick Reference
@@ -11,30 +13,34 @@ Use patterns matching the STACK token (java or dotnet).
 {NAME}/
 ├── pom.xml
 ├── src/main/java/com/{context}/{name}/
-│   ├── Application.java          # @SpringBootApplication
-│   ├── config/SpasConfig.java    # SpasEventPublisher bean
+│   ├── Application.java          # @SpringBootApplication + @SpasService + SpasServiceRunner
+│   ├── config/SpasConfig.java    # EventPublisher bean
 │   ├── controller/               # @RestController classes
 │   ├── service/                  # @Service with event publishing
 │   ├── model/                    # Domain + DTOs
 │   ├── repository/               # Interface + InMemory impl
-│   └── event/                    # @SpasEvent records
+│   └── events/                   # @SpasEvent records
 └── src/main/resources/application.yaml
 ```
 
-**Key Dependencies** (pom.xml):
+**Key Dependencies** (pom.xml) - IMPORTANT: groupId must be `io.spas`:
 - `spring-boot-starter-parent:3.2.0`
 - `spring-boot-starter-web`
 - `spring-boot-starter-actuator`
-- `io.spas:spas-sdk-java:1.0.0`
+- `io.spas:spas-sdk-core:1.0.0-SNAPSHOT`
+- `io.spas:spas-sdk-metadata:1.0.0-SNAPSHOT`
+- `io.spas:spas-sdk-events:1.0.0-SNAPSHOT`
+- `io.spas:spas-sdk-spring:1.0.0-SNAPSHOT`
+- `io.spas:spas-sdk-observability:1.0.0-SNAPSHOT`
 
 **Event Publishing**:
 ```java
-@SpasEvent(name = "{entity}-created", version = "1.0.0")
+@SpasEvent(type = "entity-created", version = "1.0.0")
 public record EntityCreatedEvent(String id, ...) {}
 
 @Service
 public class EntityService {
-    private final SpasEventPublisher eventPublisher;
+    private final EventPublisher eventPublisher;
     
     public Entity create(Request req) {
         Entity saved = repository.save(new Entity(req));
@@ -48,7 +54,7 @@ public class EntityService {
 ```yaml
 spas:
   service.id: {name}
-  sidecar.url: ${SPAS_SIDECAR_URL:http://localhost:3001}
+  sidecar.url: ${SIDECAR_URL:http://localhost:7000}
 ```
 
 ---
@@ -82,11 +88,12 @@ spas:
 public record EntityCreatedEvent(string Id, ...);
 
 public class EntityService {
-    private readonly ISpasEventPublisher _eventPublisher;
+    private readonly EventPublisher _eventPublisher;
     
     public async Task<Entity> CreateAsync(Request req) {
         var saved = await _repository.SaveAsync(new Entity(req));
-        await _eventPublisher.PublishAsync(new EntityCreatedEvent(saved.Id, ...));
+        // Use generic method for type-safe event publishing
+        await _eventPublisher.PublishAsync<EntityCreatedEvent>(new EntityCreatedEvent(saved.Id, ...));
         return saved;
     }
 }

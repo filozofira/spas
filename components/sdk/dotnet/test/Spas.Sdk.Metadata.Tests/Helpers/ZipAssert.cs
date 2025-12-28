@@ -14,4 +14,17 @@ public static class ZipAssert
             .Order(StringComparer.Ordinal)
             .ToArray();
     }
+
+    public static string ReadEntryContent(string zipPath, string entryName)
+    {
+        using var fileStream = File.OpenRead(zipPath);
+        using var archive = new ZipArchive(fileStream, ZipArchiveMode.Read, leaveOpen: false);
+
+        var entry = archive.GetEntry(entryName)
+            ?? throw new InvalidOperationException($"Entry '{entryName}' not found in archive");
+
+        using var entryStream = entry.Open();
+        using var reader = new StreamReader(entryStream);
+        return reader.ReadToEnd();
+    }
 }

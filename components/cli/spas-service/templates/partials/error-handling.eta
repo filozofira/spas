@@ -59,13 +59,41 @@ How would you like to proceed?
 ❌ Build Error (Java/Maven)
 
 The Maven build failed. Common causes:
-1. Missing Java 17+ installation
-2. Invalid pom.xml configuration
-3. Compilation errors in generated code
+1. Maven not installed (run: mvn --version)
+2. Missing Java 17+ installation
+3. JAVA_HOME not set (optional but recommended)
+4. Invalid pom.xml configuration
+5. Compilation errors in generated code
 
-To diagnose:
+To install Maven:
+  - Windows: winget install Apache.Maven
+  - macOS: brew install maven
+  - Linux: sudo apt install maven
+
+To diagnose build issues:
   cd <%= it.workspaceRoot %>/{NAME}
-  ./mvnw clean compile -X
+  mvn clean compile -X
+```
+
+**SPAS SDK Dependency Not Found (Java)**:
+```
+❌ SPAS SDK Not Found
+
+Maven cannot resolve io.spas dependencies.
+
+CRITICAL: Verify your pom.xml has correct coordinates:
+  - groupId must be "io.spas" (NOT "com.spas")
+  - version must be "1.0.0-SNAPSHOT" (NOT "1.0.0")
+  - Required artifacts: spas-sdk-core, spas-sdk-metadata, spas-sdk-events, 
+                        spas-sdk-spring, spas-sdk-observability
+
+The SDK is already installed in your local Maven repository:
+  ~/.m2/repository/io/spas/
+
+If artifacts are missing, rebuild the SDK:
+  cd components/sdk/java
+  mvn clean install
+```
 
 Please review the error output and fix any issues, then retry.
 ```
@@ -75,7 +103,7 @@ Please review the error output and fix any issues, then retry.
 ❌ Build Error (.NET)
 
 The dotnet build failed. Common causes:
-1. Missing .NET 8.0 SDK
+1. Missing .NET 10.0 SDK
 2. Invalid .csproj configuration
 3. Compilation errors in generated code
 
@@ -131,7 +159,7 @@ Please review and correct the schema, then retry.
 ```
 ⚠️ Sidecar Connection Warning
 
-Cannot connect to SPAS sidecar at http://localhost:3001
+Cannot connect to SPAS sidecar at http://localhost:7000
 
 This is expected if:
 - Running in development without sidecar
@@ -140,10 +168,10 @@ This is expected if:
 The service will still work, but events will not be published.
 
 To start a local sidecar for testing:
-  docker run -p 3001:3001 spas/sidecar:latest
+  docker run -p 7000:7000 spas/sidecar:latest
 
 Or configure the sidecar URL via environment variable:
-  SPAS_SIDECAR_URL=http://your-sidecar:3001
+  SIDECAR_URL=http://your-sidecar:7000
 ```
 
 **Event Publishing Failed**:
@@ -153,20 +181,20 @@ Or configure the sidecar URL via environment variable:
 Failed to publish event to sidecar.
 
 Event: {event-name}
-Endpoint: POST http://localhost:3001/publish
+Endpoint: POST http://localhost:7000/publish
 Status: {HTTP status code}
 Error: {error message}
 
 Common causes:
 1. Sidecar not running
-2. Invalid CloudEvents format
+2. Invalid event format
 3. Network connectivity issues
 
 To test sidecar connectivity:
-  curl -X POST http://localhost:3001/health
+  curl -X POST http://localhost:7000/health
 
 To validate event format:
-  Ensure event has: specversion, type, source, id, time, data
+  SDK sends raw payload + headers (x-event-name, x-service-name, x-correlation-id)
 ```
 
 ### Phase Recovery

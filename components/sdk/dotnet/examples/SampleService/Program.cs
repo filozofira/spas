@@ -104,11 +104,10 @@ await app.RunSpasServiceAsync(args, options =>
     options.License = "MIT";
 });
 
-// Sample request/response types
-[SpasCommand("CreateOrder", "1.0", Produces = new[] { typeof(OrderCreatedEvent) })]
+// Sample request/response types - plain DTOs (no SPAS attributes needed)
+// Schema is inferred from endpoint handler parameters per 023-endpoint-command-inference
 public record CreateOrderRequest(string CustomerId, decimal Total);
 
-[SpasQuery("GetOrder", "1.0")]
 public record GetOrderResponse(Guid OrderId, string Status, decimal Total);
 
 // Sample event - auto-discovered from assembly scan

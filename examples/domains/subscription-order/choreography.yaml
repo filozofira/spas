@@ -5,15 +5,16 @@ version: "1.0"
 domain: subscription-order
 
 # Named choreography flows
+# Use /spas.compose agent to generate flows based on service contracts
 flows:
-  subscription-activation:
-    description: "End-to-end subscription activation flow: create subscription, order, reserve stock, confirm order, activate subscription"
+  subscription-fulfillment:
+    description: "Orchestrates the lifecycle of a B2B subscription: creation -> order generation -> inventory reservation -> fulfillment -> activation."
     participants:
       - subscription-service
       - order-service
       - inventory-service
+      - fulfillment-service
     events:
-      # 1. subscription-service publishes subscription-created -> order-service creates order
       - source: subscription-service
         event: subscription-created
         topic: subscription-events
@@ -21,8 +22,6 @@ flows:
           - service: order-service
             command: create-order
             transform: transformations/order-service/inbound-subscription-created.jsonata
-
-      # 2. order-service publishes order-created -> inventory-service reserves stock
       - source: order-service
         event: order-created
         topic: order-events
@@ -30,8 +29,6 @@ flows:
           - service: inventory-service
             command: reserve-stock
             transform: transformations/inventory-service/inbound-order-created.jsonata
-
-      # 3. inventory-service publishes stock-reserved -> order-service confirms order
       - source: inventory-service
         event: stock-reserved
         topic: inventory-events
@@ -39,15 +36,34 @@ flows:
           - service: order-service
             command: confirm-order
             transform: transformations/order-service/inbound-stock-reserved.jsonata
-
-      # 4. order-service publishes order-confirmed -> subscription-service activates subscription
       - source: order-service
         event: order-confirmed
         topic: order-events
         targets:
+          - service: fulfillment-service
+            command: create-shipment
+            transform: transformations/fulfillment-service/inbound-order-confirmed.jsonata
           - service: subscription-service
             command: activate-subscription
             transform: transformations/subscription-service/inbound-order-confirmed.jsonata
+      - source: fulfillment-service
+        event: shipment-created
+        topic: fulfillment-events
+        targets:
+          - service: order-service
+            command: update-shipment-status
+            transform: transformations/order-service/inbound-shipment-created.jsonata
+      - source: fulfillment-service
+        event: shipment-status-changed
+        topic: fulfillment-events
+        targets:
+          - service: order-service
+            command: update-shipment-status
+            transform: transformations/order-service/inbound-shipment-status-changed.jsonata
+      - source: subscription-service
+        event: subscription-activated
+        topic: subscription-events
+        targets: []
 
 # Infrastructure components (optional)
 infrastructure:

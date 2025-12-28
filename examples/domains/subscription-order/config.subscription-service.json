@@ -13,6 +13,11 @@
       "topic": "subscription-events",
       "eventType": "com.subscription-service.subscription-created",
       "eventName": "subscription-created"
+    },
+    {
+      "topic": "subscription-events",
+      "eventType": "com.subscription-service.subscription-activated",
+      "eventName": "subscription-activated"
     }
   ]
 }

@@ -278,6 +278,8 @@ Auto-generated from all feature plans. Last updated: 2025-12-12
 - TypeScript 5.3+, Node.js 20+ + Commander.js 11.x (CLI), Eta 4.x (templating), chalk 4.x (output) (022-spas-service-init)
 - N/A (file system only) (022-spas-service-init)
 - C# / .NET 10.0 + NJsonSchema 11.1.0, JsonSchema.Net 6.0.0, ASP.NET Core Minimal APIs (023-endpoint-command-inference)
+- Java 17+ (Spring Boot 3.2+), TypeScript 5.3+ (Node.js 20 LTS for CLI) (025-java-capability-annotations)
+- N/A (configuration and template changes only) (025-java-capability-annotations)
 
 - .NET 10 (target net10.0); Microsoft.Extensions.Logging; System.Text.Json (001-dotnet-spas-sdk)
 

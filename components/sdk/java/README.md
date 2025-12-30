@@ -84,6 +84,33 @@ This writes `./metadata/service.metadata.zip` (containing `spas.json` + referenc
 - Identity propagation: x-user-id, x-tenant-id headers
 - Thread-safe: InheritableThreadLocal for async operations
 
+### Capability Declaration
+
+Declare service capabilities using the `capabilities` attribute in the `@SpasService` annotation:
+
+```java
+@SpringBootApplication
+@SpasService(
+    id = "basket-service",
+    name = "Basket Service",
+    boundedContext = "shopping",
+    version = "1.0.0",
+    description = "Manages shopping baskets for customers",
+    capabilities = {"basket-management", "checkout-initiation"}
+)
+public class BasketServiceApplication {
+    public static void main(String[] args) {
+        SpasServiceRunner.run(BasketServiceApplication.class, args);
+    }
+}
+```
+
+**Key Points:**
+- Capabilities are auto-discovered from the `@SpasService` annotation's `capabilities` attribute
+- No manual registration needed (~~`options.addCapability()`~~ is deprecated)
+- Use kebab-case for consistency (e.g., `basket-management`)
+- Capabilities define what the service can do, not which events it handles
+
 ### Configuration
 
 The SDK uses environment variables matching docker-compose patterns:

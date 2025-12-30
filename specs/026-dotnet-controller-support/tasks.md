@@ -80,12 +80,12 @@ This document organizes the implementation tasks for adding ASP.NET Core MVC Con
 
 ### Implementation for User Story 2
 
-- [ ] T012 [P] [US2] Add route template normalization logic in components/sdk/dotnet/src/Spas.Sdk.Metadata/Extensions/WebApplicationDiscoveryExtensions.cs
-- [ ] T013 [P] [US2] Add mixed routing test fixture (Minimal API + Controllers) in test project
-- [ ] T014 [US2] Add integration test for mixed routing scenarios in test project
-- [ ] T015 [US2] Verify Minimal API preservation with regression tests in test project
+- [X] T012 [P] [US2] Add route template normalization logic - **COMPLETE** (EnsureHttpMethodPath already handles both Minimal API and Controllers)
+- [X] T013 [P] [US2] Add mixed routing test fixture - **COMPLETE** (MixedProductsController created, used with Minimal API endpoints)
+- [X] T014 [US2] Add integration test for mixed routing scenarios - **COMPLETE** (US2_MixedRoutingIntegrationTests with 4 passing tests)
+- [X] T015 [US2] Verify Minimal API preservation - **COMPLETE** (Regression test verifies Minimal API unchanged when controllers added)
 
-**Checkpoint**: Mixed routing working - services can use both patterns without conflicts
+**Checkpoint**: ✅ Mixed routing working - services can use both patterns without conflicts (135 tests passing)
 
 ---
 

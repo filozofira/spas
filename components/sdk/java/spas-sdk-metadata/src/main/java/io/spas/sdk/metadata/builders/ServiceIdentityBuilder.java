@@ -46,6 +46,18 @@ public final class ServiceIdentityBuilder {
         return this;
     }
     
+    /**
+     * Adds a capability to the service identity.
+     * 
+     * @param capability the capability identifier (e.g., "order-management")
+     * @return this builder for method chaining
+     * @deprecated Capabilities are automatically discovered from the {@code capabilities}
+     *             attribute in {@link io.spas.sdk.metadata.annotations.SpasService} annotation.
+     *             Manual capability registration is no longer necessary.
+     *             This method will be removed in version 2.0.0.
+     * @see io.spas.sdk.metadata.annotations.SpasService
+     */
+    @Deprecated(since = "1.1.0", forRemoval = true)
     public ServiceIdentityBuilder addCapability(String capability) {
         this.capabilities.add(capability);
         return this;

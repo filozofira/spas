@@ -74,6 +74,16 @@ public final class SpasServiceOptions {
         return Collections.unmodifiableList(capabilities);
     }
 
+    /**
+     * Adds a capability to the service metadata.
+     * 
+     * @param capability the capability identifier (e.g., "order-management")
+     * @deprecated Use the {@code capabilities} attribute in {@link io.spas.sdk.metadata.annotations.SpasService}
+     *             annotation instead. Capabilities are automatically discovered from the annotation.
+     *             This method will be removed in version 2.0.0.
+     * @see io.spas.sdk.metadata.annotations.SpasService
+     */
+    @Deprecated(since = "1.1.0", forRemoval = true)
     public void addCapability(String capability) {
         if (capability == null || capability.isBlank()) {
             return;

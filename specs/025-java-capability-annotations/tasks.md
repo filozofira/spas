@@ -76,13 +76,13 @@ description: "Task list for Java Capability Annotations Guidance feature"
 
 ### Implementation for User Story 2
 
-- [ ] T012 [P] [US2] Navigate to `components/sdk/java/` and run `mvn clean install -DskipTests` to prepare Java SDK workspace
-- [ ] T013 [P] [US2] Add `@Deprecated(since="1.1.0", forRemoval=true)` annotation to `addCapability()` method in `components/sdk/java/spas-sdk-spring/src/main/java/io/spas/sdk/spring/SpasServiceOptions.java` (line ~77)
-- [ ] T014 [P] [US2] Add Javadoc to `addCapability()` in `SpasServiceOptions.java` explaining deprecation, referencing `@SpasCommand/@SpasQuery/@SpasEvent`, and documenting removal in v2.0.0
-- [ ] T015 [P] [US2] Add `@Deprecated(since="1.1.0", forRemoval=true)` annotation to `addCapability()` method in `components/sdk/java/spas-sdk-metadata/src/main/java/io/spas/sdk/metadata/builders/ServiceIdentityBuilder.java` (line ~49)
-- [ ] T016 [P] [US2] Add Javadoc to `addCapability()` in `ServiceIdentityBuilder.java` explaining deprecation, referencing annotations, and documenting removal in v2.0.0
-- [ ] T017 [US2] Build Java SDK: Run `mvn clean install` in `components/sdk/java/` to verify deprecation warnings appear
-- [ ] T018 [US2] Verify deprecation: Run `Select-String -Path "components/sdk/java/spas-sdk-*/src/main/java/**/*.java" -Pattern "@Deprecated.*forRemoval.*true"` to confirm both methods are deprecated
+- [X] T012 [P] [US2] Navigate to `components/sdk/java/` and run `mvn clean install -DskipTests` to prepare Java SDK workspace
+- [X] T013 [P] [US2] Add `@Deprecated(since="1.1.0", forRemoval=true)` annotation to `addCapability()` method in `components/sdk/java/spas-sdk-spring/src/main/java/io/spas/sdk/spring/SpasServiceOptions.java` (line ~77)
+- [X] T014 [P] [US2] Add Javadoc to `addCapability()` in `SpasServiceOptions.java` explaining deprecation, referencing `@SpasCommand/@SpasQuery/@SpasEvent`, and documenting removal in v2.0.0
+- [X] T015 [P] [US2] Add `@Deprecated(since="1.1.0", forRemoval=true)` annotation to `addCapability()` method in `components/sdk/java/spas-sdk-metadata/src/main/java/io/spas/sdk/metadata/builders/ServiceIdentityBuilder.java` (line ~49)
+- [X] T016 [P] [US2] Add Javadoc to `addCapability()` in `ServiceIdentityBuilder.java` explaining deprecation, referencing annotations, and documenting removal in v2.0.0
+- [X] T017 [US2] Build Java SDK: Run `mvn clean install` in `components/sdk/java/` to verify deprecation warnings appear
+- [X] T018 [US2] Verify deprecation: Run `Select-String -Path "components/sdk/java/spas-sdk-*/src/main/java/**/*.java" -Pattern "@Deprecated.*forRemoval.*true"` to confirm both methods are deprecated
 
 **Checkpoint**: User Story 2 complete - SDK methods deprecated with clear migration guidance
 

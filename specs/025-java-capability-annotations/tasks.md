@@ -121,14 +121,14 @@ description: "Task list for Java Capability Annotations Guidance feature"
 
 **Purpose**: Final validation and verification across all changes
 
-- [ ] T029 [P] Verify no non-Java templates were affected: Spot-check .NET/C# sections in `components/cli/spas-service/templates/partials/sdk-patterns.eta` for unchanged `AddCapability()` examples
-- [ ] T030 Run full CLI build and test suite: Execute `npm run build && npm test` in `components/cli/spas-service/`
-- [ ] T031 Run full Java SDK build and test suite: Execute `mvn clean install` in `components/sdk/java/`
-- [ ] T032 Build example services: Execute `mvn clean install` in `examples/services/basket-service` and `examples/services/fulfillment-service` to verify `capabilities` attribute compiles
-- [ ] T033 [P] Validate success criterion SC-001: Generate a test Java agent via CLI and grep for `addCapability` (should be zero matches)
-- [ ] T034 [P] Validate success criterion SC-004: Review at least one non-Java scaffold (e.g., .NET) to confirm no changes
-- [ ] T035 Review quickstart.md validation steps: Execute steps 4, 10, 14, 20 from `specs/025-java-capability-annotations/quickstart.md`
-- [ ] T036 Commit all changes with message: "feat(java): deprecate addCapability() and update CLI guidance for annotation-based capability declaration (025)"
+- [X] T029 [P] Verify no non-Java templates were affected: Spot-check .NET/C# sections in `components/cli/spas-service/templates/partials/sdk-patterns.eta` for unchanged `AddCapability()` examples
+- [X] T030 Run full CLI build and test suite: Execute `npm run build && npm test` in `components/cli/spas-service/`
+- [X] T031 Run full Java SDK build and test suite: Execute `mvn clean install` in `components/sdk/java/`
+- [X] T032 Build example services: Execute `mvn clean install` in `examples/services/basket-service` and `examples/services/fulfillment-service` to verify `capabilities` attribute compiles
+- [X] T033 [P] Validate success criterion SC-001: Generate a test Java agent via CLI and grep for `addCapability` (should be zero matches)
+- [X] T034 [P] Validate success criterion SC-004: Review at least one non-Java scaffold (e.g., .NET) to confirm no changes
+- [X] T035 Review quickstart.md validation steps: Execute steps 4, 10, 14, 20 from `specs/025-java-capability-annotations/quickstart.md`
+- [X] T036 Commit all changes with message: "feat(java): deprecate addCapability() and update CLI guidance for annotation-based capability declaration (025)"
 
 ---
 

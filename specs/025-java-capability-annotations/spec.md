@@ -2,7 +2,8 @@
 
 **Feature Branch**: `025-java-capability-annotations`  
 **Created**: 2025-12-30  
-**Status**: Draft  
+**Completed**: 2025-12-30
+**Status**: ✅ Complete (PoC)  
 **Input**: User description: "spas-service init CLI generated agent should be updated to instruct agents to use the annotation approach for Java capabilities instead of options.addCapability('{primary-capability}'). To avoid confusion the options.addCapability('{primary-capability}') should be removed from SDK."
 
 ## Clarifications

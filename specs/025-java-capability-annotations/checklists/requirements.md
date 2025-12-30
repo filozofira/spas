@@ -13,7 +13,8 @@
 
 ## Requirement Completeness
 
-- [ ] No [NEEDS CLARIFICATION] markers remain
+- [x] No [NEEDS CLARIFICATION] markers remain
+  - Status: All clarifications resolved; no markers remain
 - [x] Requirements are testable and unambiguous
 - [x] Success criteria are measurable
 - [x] Success criteria are technology-agnostic (no implementation details)
@@ -31,6 +32,4 @@
 
 ## Notes
 
-- Remaining clarifications to resolve before planning:
-  - Q1: Removal vs deprecation timeline for `options.addCapability` (Java SDK)
-  - Q2: Scope strictly Java vs cross-SDK wording audit
+- Remaining clarifications to resolve before planning: None

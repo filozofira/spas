@@ -5,6 +5,13 @@
 **Status**: Draft  
 **Input**: User description: "spas-service init CLI generated agent should be updated to instruct agents to use the annotation approach for Java capabilities instead of options.addCapability('{primary-capability}'). To avoid confusion the options.addCapability('{primary-capability}') should be removed from SDK."
 
+## Clarifications
+
+### Session 2025-12-30
+
+- Q: Should `options.addCapability` be hard-removed now or first deprecated for one minor version? → A: Deprecate for one minor version with warnings.
+- Q: Does this change apply strictly to Java SDK and Java scaffolds, or should similar wording be audited across all SDKs to avoid cross-language confusion? → A: Java-only (no cross-SDK audit).
+
 ## User Scenarios & Testing *(mandatory)*
 
 
@@ -67,10 +74,10 @@ Teams with existing Java services using `options.addCapability` can quickly swit
 - **FR-001**: The `spas-service init` flow for Java MUST instruct capability declaration via annotations on handlers (e.g., commands/queries), not via `options.addCapability`.
 - **FR-002**: The Java agent scaffold produced by the CLI MUST NOT contain any reference to `options.addCapability` in code, comments, or guidance text.
 - **FR-003**: The Java SDK public-facing samples and docs MUST exclusively demonstrate annotation-based capability declaration.
-- **FR-004**: The `options.addCapability` API in the Java SDK MUST be [NEEDS CLARIFICATION: removed immediately vs. deprecated for one minor version with warnings].
-- **FR-005**: If deprecation is chosen, the SDK MUST include a clear deprecation message that directs users to the annotation-based approach (no separate migration guide required).
+- **FR-004**: The `options.addCapability` API in the Java SDK MUST be deprecated for one minor version with compiler/runtime warnings, then removed in the following minor version.
+- **FR-005**: The SDK MUST include a clear deprecation message that directs users to the annotation-based approach (no separate migration guide required) and documents the removal version.
 - **FR-006**: The repository documentation affected by the CLI and SDK MUST be updated to align with the annotation-only guidance for Java.
-- **FR-007**: The CLI MUST pass existing non-Java paths unchanged (no impact to other languages or tooling).
+- **FR-007**: The CLI MUST pass existing non-Java paths unchanged (no impact to other languages or tooling). No cross-SDK wording audit or changes are in scope for this feature.
 
 ### Key Entities *(include if feature involves data)*
 
@@ -96,5 +103,4 @@ Teams with existing Java services using `options.addCapability` can quickly swit
 
 ## Open Questions
 
-1. [NEEDS CLARIFICATION: Should `options.addCapability` be hard-removed now or first deprecated for one minor version?]
-2. [NEEDS CLARIFICATION: Does this change apply strictly to Java SDK and Java scaffolds, or should similar wording be audited across all SDKs to avoid cross-language confusion?]
+None.

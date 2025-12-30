@@ -25,9 +25,9 @@ This document organizes the implementation tasks for adding ASP.NET Core MVC Con
 
 **Purpose**: Project initialization and environment preparation
 
-- [ ] T000 Create feature branch 026-dotnet-controller-support
-- [ ] T001 Add Microsoft.AspNetCore.Mvc.Core 10.0.0 dependency to SDK csproj
-- [ ] T002 Configure IDE/tooling for ASP.NET Core MVC development
+- [x] T000 Create feature branch 026-dotnet-controller-support
+- [x] T001 Add Microsoft.AspNetCore.Mvc.Core 10.0.0 dependency to SDK csproj (Note: Already available via Microsoft.AspNetCore.App framework reference)
+- [x] T002 Configure IDE/tooling for ASP.NET Core MVC development
 
 ---
 

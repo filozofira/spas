@@ -57,12 +57,12 @@ This document organizes the implementation tasks for adding ASP.NET Core MVC Con
 
 ### Implementation for User Story 1
 
-- [ ] T006 [P] [US1] Implement DiscoverControllerActions() method in components/sdk/dotnet/src/Spas.Sdk.Metadata/Extensions/WebApplicationDiscoveryExtensions.cs
-- [ ] T007 [P] [US1] Add ExtractRouteFromController() helper in components/sdk/dotnet/src/Spas.Sdk.Metadata/Extensions/WebApplicationDiscoveryExtensions.cs
-- [ ] T008 [P] [US1] Add ExtractHttpVerbFromController() helper in components/sdk/dotnet/src/Spas.Sdk.Metadata/Extensions/WebApplicationDiscoveryExtensions.cs
-- [ ] T009 [US1] Integrate DiscoverControllerActions() into DiscoverSpasMetadata() in components/sdk/dotnet/src/Spas.Sdk.Metadata/Extensions/WebApplicationDiscoveryExtensions.cs
-- [ ] T010 [US1] Add controller fixture with [SpasCommand] in test project
-- [ ] T011 [US1] Add unit tests for controller discovery in test project
+- [x] T006 [P] [US1] Implement DiscoverControllerActions() method in components/sdk/dotnet/src/Spas.Sdk.Metadata/Extensions/WebApplicationDiscoveryExtensions.cs
+- [x] T007 [P] [US1] Add ExtractRouteFromController() helper in components/sdk/dotnet/src/Spas.Sdk.Metadata/Extensions/WebApplicationDiscoveryExtensions.cs
+- [x] T008 [P] [US1] Add ExtractHttpVerbFromController() helper in components/sdk/dotnet/src/Spas.Sdk.Metadata/Extensions/WebApplicationDiscoveryExtensions.cs
+- [x] T009 [US1] Integrate DiscoverControllerActions() into DiscoverSpasMetadata() in components/sdk/dotnet/src/Spas.Sdk.Metadata/Extensions/WebApplicationDiscoveryExtensions.cs
+- [x] T010 [US1] Add controller fixture with [SpasCommand] in test project
+- [x] T011 [US1] Add unit tests for controller discovery in test project
 
 **Checkpoint**: Controller discovery working - can generate metadata for simple controller with [SpasCommand]
 

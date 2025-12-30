@@ -8,10 +8,16 @@ This service handles order fulfillment operations (pick, pack, ship) after inven
 
 - **Java SPAS SDK integration** with Spring Boot
 - **Compile-time metadata generation** via annotation processor
+- **Capability declaration** via `@SpasService(capabilities = {"shipment-creation", "shipment-tracking"})`
 - **Event consumption** from sidecar (`order-confirmed`)
 - **Event publishing** to sidecar (`shipment-created`, `shipment-status-changed`)
 - **W3C Trace Context propagation** for distributed tracing
 - **Two choreography flows**: synchronous (Flow 1) and async (Flow 2)
+
+### Service Capabilities
+
+- **shipment-creation**: Create shipments for confirmed orders
+- **shipment-tracking**: Track and update shipment status throughout delivery lifecycle
 
 ## Architecture
 

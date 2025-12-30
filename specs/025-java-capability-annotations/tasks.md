@@ -100,14 +100,14 @@ description: "Task list for Java Capability Annotations Guidance feature"
 
 ### Implementation for User Story 3
 
-- [ ] T019 [P] [US3] Add "Capability Declaration" section to `components/sdk/java/README.md` with annotation examples showing `@SpasService(capabilities = {...})` with link to example services
+- [X] T019 [P] [US3] Add "Capability Declaration" section to `components/sdk/java/README.md` with annotation examples showing `@SpasService(capabilities = {...})` with link to example services
 - [ ] T020 [P] [US3] Add "Capability Declaration" section to `components/sdk/java/spas-sdk-metadata/README.md` explaining `capabilities` attribute in `@SpasService` with link to example services
-- [ ] T021 [P] [US3] Add "Capability Declaration" section to `components/sdk/java/spas-sdk-spring/README.md` with migration note: use `capabilities` attribute instead of `addCapability()` method
-- [ ] T022 [P] [US3] Add `capabilities` attribute to `@SpasService` annotation in `examples/services/basket-service/src/main/java/io/spas/examples/basket/BasketServiceApplication.java` (e.g., `capabilities = {"basket-management"}`)
-- [ ] T023 [P] [US3] Add `capabilities` attribute to `@SpasService` annotation in `examples/services/fulfillment-service/src/main/java/io/spas/examples/fulfillment/FulfillmentServiceApplication.java` (e.g., `capabilities = {"fulfillment-operations"}`)
-- [ ] T026 [P] [US3] Verify no `addCapability()` in example services: Run `Get-ChildItem "examples/services" -Recurse -Filter "*.java" | Select-String "addCapability"` to confirm zero matches
-- [ ] T027 [US3] Validate SDK documentation: Run `Select-String -Path "components/sdk/java/**/README.md" -Pattern "addCapability"` to verify deprecated method is NOT shown in new examples (only in migration notes)
-- [ ] T028 [US3] Cross-reference validation: Verify SDK READMEs link to example services (basket-service, fulfillment-service) as annotation-based reference implementations
+- [X] T021 [P] [US3] Add "Capability Declaration" section to `components/sdk/java/spas-sdk-spring/README.md` with migration note: use `capabilities` attribute instead of `addCapability()` method
+- [X] T022 [P] [US3] Add `capabilities` attribute to `@SpasService` annotation in `examples/services/basket-service/src/main/java/io/spas/examples/basket/BasketServiceApplication.java` (e.g., `capabilities = {"basket-management"}`)
+- [X] T023 [P] [US3] Add `capabilities` attribute to `@SpasService` annotation in `examples/services/fulfillment-service/src/main/java/io/spas/examples/fulfillment/FulfillmentServiceApplication.java` (e.g., `capabilities = {"fulfillment-operations"}`)
+- [X] T026 [P] [US3] Verify no `addCapability()` in example services: Run `Get-ChildItem "examples/services" -Recurse -Filter "*.java" | Select-String "addCapability"` to confirm zero matches
+- [X] T027 [US3] Validate SDK documentation: Run `Select-String -Path "components/sdk/java/**/README.md" -Pattern "addCapability"` to verify deprecated method is NOT shown in new examples (only in migration notes)
+- [X] T028 [US3] Cross-reference validation: Verify SDK READMEs link to example services (basket-service, fulfillment-service) as annotation-based reference implementations
 
 **Checkpoint**: User Story 3 complete - Documentation and example services demonstrate `capabilities` attribute; migration path clear
 

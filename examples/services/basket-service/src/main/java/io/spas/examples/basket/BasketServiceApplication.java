@@ -24,7 +24,8 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
     name = "Basket Service",
     boundedContext = "shopping",
     version = "1.0.0",
-    description = "Manages shopping baskets for customers; publishes checkout events to trigger order creation and handles inventory updates"
+    description = "Manages shopping baskets for customers; publishes checkout events to trigger order creation and handles inventory updates",
+    capabilities = {"basket-management", "checkout-initiation"}
 )
 public class BasketServiceApplication {
 

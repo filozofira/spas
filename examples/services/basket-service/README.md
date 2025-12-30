@@ -8,10 +8,16 @@ This service manages shopping baskets for customers, handling item additions/rem
 
 - **Java SPAS SDK integration** with Spring Boot
 - **Compile-time metadata generation** via annotation processor
+- **Capability declaration** via `@SpasService(capabilities = {"basket-management", "checkout-initiation"})`
 - **Event consumption** from sidecar (`stock-depleted`, `order-created`)
 - **Event publishing** to sidecar (`basket-created`, `item-added`, `item-removed`, `checkout-initiated`)
 - **W3C Trace Context propagation** for distributed tracing
 - **Choreography integration** with order-service, inventory-service, and fulfillment-service
+
+### Service Capabilities
+
+- **basket-management**: Create baskets, add/remove items, and query basket state
+- **checkout-initiation**: Initiate checkout process and publish checkout events
 
 ## Quick Start
 

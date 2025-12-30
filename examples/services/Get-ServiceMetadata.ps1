@@ -1,9 +1,6 @@
 $ErrorActionPreference = 'Stop'
 
 $scriptRoot = $PSScriptRoot
-$outDir = Join-Path $scriptRoot 'metadata'
-
-mkdir -Force $outDir | Out-Null
 
 Write-Host 'Generating design-time metadata archives (offline)'
 

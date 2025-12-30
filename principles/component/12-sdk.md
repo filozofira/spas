@@ -119,6 +119,25 @@ SDKs MUST support generating design-time metadata as an offline archive (for exa
 - SDKs MUST NOT call external services to generate the archive.
 - SDKs MUST keep `spas.json` compliant with `design-time-metadata-v1`.
 
+### Schema Inference Scope (PoC Limitation)
+
+**Current Implementation**: SDKs generate JSON schemas **only for request/command body types** extracted from endpoint parameters.
+
+**Not Implemented**: Response schema inference from return types is deferred beyond PoC scope.
+
+**Rationale**:
+- Request schemas enable validation and contract testing at ingress boundaries.
+- Response schemas add complexity (type unwrapping, multiple return paths) with lower choreography value in event-driven systems.
+- Most inter-service communication uses events (with schemas), not synchronous responses.
+- Response schemas deferred to future production implementation when use cases justify the effort.
+
+**Impact**:
+- Services can discover required **input contracts** (request DTOs) from metadata.
+- Response DTOs must be documented separately or inferred at runtime if needed.
+- This limitation applies to both Minimal APIs and Controllers (.NET SDK).
+
+**Future Work**: Full bidirectional schema inference may be added if choreography tooling requires response contract discovery.
+
 ## Developer Experience
 
 Clarifications

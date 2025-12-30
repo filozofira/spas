@@ -560,49 +560,6 @@ public static class WebApplicationDiscoveryExtensions
         return null;
     }
 
-    /// <summary>
-    /// Extracts the response body type from a controller action method for schema inference (T017 - US3).
-    /// Unwraps ActionResult&lt;T&gt;, Task&lt;ActionResult&lt;T&gt;&gt;, and similar generic wrappers.
-    /// </summary>
-    private static Type? ExtractControllerResponseType(MethodInfo methodInfo)
-    {
-        var returnType = methodInfo.ReturnType;
-
-        // Unwrap Task<T> or ValueTask<T>
-        if (returnType.IsGenericType)
-        {
-            var genericDef = returnType.GetGenericTypeDefinition();
-            if (genericDef == typeof(Task<>) || genericDef == typeof(ValueTask<>))
-            {
-                returnType = returnType.GetGenericArguments()[0];
-            }
-        }
-
-        // Unwrap ActionResult<T>
-        if (returnType.IsGenericType && returnType.GetGenericTypeDefinition().Name == "ActionResult`1")
-        {
-            returnType = returnType.GetGenericArguments()[0];
-        }
-
-        // Skip void, Task, IActionResult, ActionResult (non-generic)
-        if (returnType == typeof(void) || 
-            returnType == typeof(Task) || 
-            returnType == typeof(ValueTask) ||
-            returnType.Name == "IActionResult" ||
-            returnType.Name == "ActionResult")
-        {
-            return null;
-        }
-
-        // Skip primitive/simple types
-        if (IsPrimitiveOrSimpleType(returnType))
-        {
-            return null;
-        }
-
-        return returnType;
-    }
-
     // NOTE: Despite the name "methodPath" in the SPAS schema, consumers expect this to be ONLY the route path
     // (e.g. "/orders"), not prefixed with the HTTP verb (e.g. "POST /orders").
     private static string EnsureHttpMethodPath(string path, string? httpVerb)

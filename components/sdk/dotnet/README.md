@@ -80,9 +80,10 @@ This writes `./metadata/service.metadata.zip` (containing `spas.json` + referenc
 
 **Metadata Generation:**
 
-- **Minimal APIs only** — endpoints must use `app.MapPost`, `app.MapGet`, etc.; controller-based routing is not supported
-- Endpoint-centric: `[SpasCommand]`, `[SpasQuery]` on handlers; `[SpasEvent]` on event types
-- DTOs are plain classes (no attributes required) — schemas inferred automatically
+- **ASP.NET Core MVC Controllers & Minimal APIs** — supports both `app.MapPost`/`MapGet` and controller actions with `[SpasCommand]`/`[SpasQuery]`
+- Endpoint-centric: `[SpasCommand]`, `[SpasQuery]` on handlers/controller actions; `[SpasEvent]` on event types
+- DTOs are plain classes (no attributes required) — **request schemas inferred automatically**
+- **Schema generation limitation**: Only request/command body schemas are generated; response schemas are not inferred (PoC scope)
 - Fluent builders for identity, contracts, security, consistency, network
 - Validates generated `spas.json` against design-time schema
 - Kebab-case normalization: `OrderCreated` → `order-created`

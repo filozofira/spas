@@ -24,6 +24,7 @@ public class ContractsBuilder
 
     /// <summary>
     /// Adds an endpoint (command or query).
+    /// Deduplicates by name + methodPath to avoid duplicates from multiple discovery paths.
     /// </summary>
     /// <param name="name">Endpoint name</param>
     /// <param name="type">Type (Command or Query)</param>
@@ -35,6 +36,22 @@ public class ContractsBuilder
     /// <param name="requestBodyType">Optional request body type for schema inference</param>
     public ContractsBuilder AddEndpoint(string name, string type, string protocol, string methodPath, string version, string schemaRef, string? description = null, Type? requestBodyType = null)
     {
+        // Check for duplicate endpoint by name + methodPath (deduplication for mixed discovery)
+        var existingEndpoint = _endpoints.FirstOrDefault(e => 
+            string.Equals(e.Name, name, StringComparison.OrdinalIgnoreCase) &&
+            string.Equals(e.MethodPath, methodPath, StringComparison.OrdinalIgnoreCase));
+        
+        if (existingEndpoint != null)
+        {
+            // Endpoint already exists, skip duplicate
+            // Store the request body type if provided and not already stored
+            if (requestBodyType != null && !string.IsNullOrWhiteSpace(schemaRef))
+            {
+                EndpointRequestBodyTypes.TryAdd(schemaRef, requestBodyType);
+            }
+            return this;
+        }
+
         _endpoints.Add(new EndpointContract
         {
             Name = name,
@@ -72,6 +89,7 @@ public class ContractsBuilder
 
     /// <summary>
     /// Adds or merges a command definition.
+    /// When the same command is discovered from multiple sources, it merges the produces list.
     /// </summary>
     public ContractsBuilder AddCommand(string name, string version, IEnumerable<ProducedEventRefContract>? produces = null)
     {
@@ -103,8 +121,8 @@ public class ContractsBuilder
                     && string.Equals(ep.Version, p.Version, StringComparison.OrdinalIgnoreCase));
                 if (already)
                 {
-                    throw new InvalidOperationException(
-                        $"Command '{existing.Name}@{existing.Version}' declares duplicate produced event '{p.Type}@{p.Version}'.");
+                    // Skip duplicate produced event (same command discovered from multiple sources)
+                    continue;
                 }
 
                 existing.Produces.Add(new ProducedEventRefContract

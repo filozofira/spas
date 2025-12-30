@@ -47,18 +47,10 @@ public static class WebApplicationDiscoveryExtensions
             builder.AddEvent(evt.Type, evt.Version, evt.SchemaRef, description: evt.Description);
         }
 
-        // Discover endpoints from WebApplication's DataSources
-        try
-        {
-            DiscoverEndpointsFromWebApplication(app, builder);
-        }
-        catch (Exception ex)
-        {
-            throw new InvalidOperationException(
-                $"Failed to discover endpoints: {ex.Message}. Ensure DiscoverSpasMetadata() is called after all endpoints are mapped.", ex);
-        }
-
-        // Discover controller actions (T003 - Feature 026)
+        // Discover controller actions FIRST (T003 - Feature 026)
+        // Controller discovery correctly extracts [FromBody] parameters for schema inference
+        // Running this first ensures controller endpoints have proper requestBodyType before
+        // endpoint data source discovery runs and potentially creates duplicates
         try
         {
             DiscoverControllerActions(app, builder);
@@ -67,6 +59,18 @@ public static class WebApplicationDiscoveryExtensions
         {
             throw new InvalidOperationException(
                 $"Failed to discover controller actions: {ex.Message}. Ensure services.AddControllers() is called if using MVC controllers.", ex);
+        }
+
+        // Discover endpoints from WebApplication's DataSources (Minimal API)
+        // This runs second so controller duplicates are skipped (deduplication in AddEndpoint)
+        try
+        {
+            DiscoverEndpointsFromWebApplication(app, builder);
+        }
+        catch (Exception ex)
+        {
+            throw new InvalidOperationException(
+                $"Failed to discover endpoints: {ex.Message}. Ensure DiscoverSpasMetadata() is called after all endpoints are mapped.", ex);
         }
 
         // Store the builder for schema generation (T015 - enables endpoint-centric schema inference)

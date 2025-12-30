@@ -29,9 +29,9 @@ description: "Task list for Java Capability Annotations Guidance feature"
 
 **Purpose**: Project initialization and validation setup
 
-- [ ] T001 Verify feature branch `025-java-capability-annotations` is checked out
-- [ ] T002 Verify Java 17+ SDK and Maven 3.9+ are installed
-- [ ] T003 Verify Node.js 20 LTS and npm are installed for CLI work
+- [X] T001 Verify feature branch `025-java-capability-annotations` is checked out
+- [X] T002 Verify Java 17+ SDK and Maven 3.9+ are installed
+- [X] T003 Verify Node.js 20 LTS and npm are installed for CLI work
 
 ---
 

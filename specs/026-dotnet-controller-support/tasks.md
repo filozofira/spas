@@ -37,9 +37,9 @@ This document organizes the implementation tasks for adding ASP.NET Core MVC Con
 
 ⚠️ **CRITICAL**: This phase must be 100% complete before starting any user story implementation
 
-- [ ] T003 Add IActionDescriptorCollectionProvider service accessor to SDK
-- [ ] T004 Create test harness infrastructure for controller testing
-- [ ] T005 Add controller test fixtures in test project
+- [x] T003 Add IActionDescriptorCollectionProvider service accessor to SDK
+- [x] T004 Create test harness infrastructure for controller testing
+- [x] T005 Add controller test fixtures in test project
 
 **Checkpoint**: Foundation ready - all user stories can now proceed
 

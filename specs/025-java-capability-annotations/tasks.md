@@ -51,14 +51,14 @@ description: "Task list for Java Capability Annotations Guidance feature"
 
 ### Implementation for User Story 1
 
-- [ ] T004 [P] [US1] Navigate to `components/cli/spas-service/` and run `npm install` to prepare CLI workspace
-- [ ] T005 [US1] Update `components/cli/spas-service/templates/partials/sdk-patterns.eta` to remove `options.addCapability("{primary-capability}")` from Java `Application.main()` example (lines ~180-200)
-- [ ] T006 [US1] Add inline comment to `components/cli/spas-service/templates/partials/sdk-patterns.eta` explaining capability auto-discovery from annotations
-- [ ] T007 [US1] Update Java guidance in `components/cli/spas-service/templates/partials/workflow-phases.eta` Phase 3 section (line ~281) to remove `options.addCapability()` example
-- [ ] T008 [US1] Update Phase 3 exit criteria in `components/cli/spas-service/templates/partials/workflow-phases.eta` (line ~304) to reference annotation-based capability declaration
-- [ ] T009 [US1] Validate template changes: Run `Select-String -Path "components/cli/spas-service/templates/partials/*.eta" -Pattern "addCapability"` to verify no Java-specific matches remain
-- [ ] T010 [US1] Build CLI: Run `npm run build` in `components/cli/spas-service/`
-- [ ] T011 [US1] Test CLI templates: Run `npm test` in `components/cli/spas-service/` to verify template compilation
+- [X] T004 [P] [US1] Navigate to `components/cli/spas-service/` and run `npm install` to prepare CLI workspace
+- [X] T005 [US1] Update `components/cli/spas-service/templates/partials/sdk-patterns.eta` to remove `options.addCapability("{primary-capability}")` from Java `Application.main()` example (lines ~180-200)
+- [X] T006 [US1] Add inline comment to `components/cli/spas-service/templates/partials/sdk-patterns.eta` explaining capability auto-discovery from annotations
+- [X] T007 [US1] Update Java guidance in `components/cli/spas-service/templates/partials/workflow-phases.eta` Phase 3 section (line ~281) to remove `options.addCapability()` example
+- [X] T008 [US1] Update Phase 3 exit criteria in `components/cli/spas-service/templates/partials/workflow-phases.eta` (line ~304) to reference annotation-based capability declaration
+- [X] T009 [US1] Validate template changes: Run `Select-String -Path "components/cli/spas-service/templates/partials/*.eta" -Pattern "addCapability"` to verify no Java-specific matches remain
+- [X] T010 [US1] Build CLI: Run `npm run build` in `components/cli/spas-service/`
+- [X] T011 [US1] Test CLI templates: Run `npm test` in `components/cli/spas-service/` to verify template compilation
 
 **Checkpoint**: User Story 1 complete - CLI templates no longer generate deprecated patterns for Java agents
 

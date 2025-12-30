@@ -277,8 +277,8 @@ Proceed to Phase 3 (Service Registration & Identity)? (yes/no)
    ```java
    public static void main(String[] args) {
        SpasServiceRunner.run(Application.class, args, options -> {
-           // Add capabilities (e.g., "order-management", "payment-processing")
-           options.addCapability("{primary-capability}");
+           // Capabilities are auto-discovered from @SpasService annotation's
+           // capabilities attribute. No manual registration needed.
            
            options.setConsistency(new Consistency(ConsistencyLevel.ACID, QueryConsistencyLevel.EVENTUAL));
            options.setNetwork(new Network(List.of("localhost:6379")));
@@ -294,14 +294,16 @@ Proceed to Phase 3 (Service Registration & Identity)? (yes/no)
 **Capabilities**:
 - Capabilities are descriptive tags representing what the service does (e.g., "order-management", "payment-processing", "inventory-tracking")
 - Used for service discovery in the repository (e.g., `GET /services?capability=order-management`)
-- Add at least one capability that describes the primary function of the service
+- **Java**: Declare capabilities in `@SpasService(capabilities = {"primary-capability"})` annotation on Application class
+- **.NET**: Add capabilities via `options.AddCapability("{primary-capability}")` in RunSpasServiceAsync
 - Multiple capabilities can be added if the service serves multiple purposes
 - Use kebab-case for capability names
 - Common patterns: `{entity}-management`, `{entity}-processing`, `{entity}-tracking`, `{entity}-catalog`
 
 **Exit Criteria**: 
 - Service identity configured in code
-- At least one capability added via `AddCapability()` or `addCapability()`
+- **Java**: At least one capability declared in `@SpasService(capabilities = {...})` annotation
+- **.NET**: At least one capability added via `AddCapability()`
 - `RunSpasServiceAsync()` or `SpasServiceRunner.run()` used
 - Metadata will be auto-generated from code annotations
 

@@ -38,13 +38,13 @@ Service Pattern Architecture System - A framework for building event-driven micr
 
 ## 🔧 Component: .NET SDK
 
-**Status**: ✅ Complete (PoC) + 🚧 Active Feature (026)
+**Status**: ✅ Complete (Production-Ready)
 
 **Location**: `components/sdk/dotnet/`
 
 **Documentation**:
 - Feature 001 (Foundation): `specs/001-dotnet-spas-sdk/`
-- Feature 026 (Controllers): `specs/026-dotnet-controller-support/` ⬅️ **Current Work**
+- Feature 026 (Controllers): `specs/026-dotnet-controller-support/` ✅ COMPLETE (2025-12-31)
 
 **Technology**:
 - .NET 10.0 (net10.0 target)
@@ -60,16 +60,16 @@ components/sdk/dotnet/
 ├── SPAS.SDK.sln
 ├── src/
 │   ├── Spas.Sdk.Core/              # Base types, interfaces
-│   ├── Spas.Sdk.Metadata/          # 🚧 Adding controller discovery
+│   ├── Spas.Sdk.Metadata/          # ✅ Controller discovery complete
 │   ├── Spas.Sdk.Events/            # Event publishing to sidecar
 │   ├── Spas.Sdk.Observability/     # OpenTelemetry integration
 │   ├── Spas.Sdk.Inbound/           # (Minimal - using native ASP.NET)
 │   ├── Spas.Sdk.Configuration/     # (Minimal - using IConfiguration)
 │   └── Spas.Sdk.Testing/           # Test utilities
 ├── test/
-│   └── Spas.Sdk.*.Tests/           # 🚧 Adding controller tests
+│   └── Spas.Sdk.*.Tests/           # ✅ 195 tests passing
 └── examples/
-    └── SampleService/              # 🚧 Adding controller example
+    └── SampleService/              # Example with both patterns
 ```
 
 **Key Features**:
@@ -77,13 +77,19 @@ components/sdk/dotnet/
 - Offline metadata generation: `--generate-metadata`
 - Event publishing with W3C Trace Context
 - Single-line setup: `AddSpasServices()` + `RunSpasServiceAsync()`
+- ✅ **NEW**: Full ASP.NET Core MVC Controller support
+- ✅ **NEW**: Mixed Minimal API + Controller support
+- ✅ **NEW**: Schema inference from `[FromBody]` parameters
+- ✅ **NEW**: Controller-based event production
 
-**Current Work (Feature 026)**:
-- Adding ASP.NET Core MVC Controller support
-- NON-BREAKING: Minimal API functionality fully preserved
-- Same attributes work on both patterns
-- Planning complete: spec → research → plan → quickstart → context updated
-- **Next Step**: Run `/speckit.tasks` to generate tasks.md
+**Recent Completion (Feature 026)**:
+- Added ASP.NET Core MVC Controller metadata discovery
+- NON-BREAKING: All Minimal API functionality preserved
+- Same attributes work on both Minimal API and Controllers
+- Request schema inference from controller actions
+- 195 tests passing, 74.33% coverage
+- All 4 example services converted to controller-only architecture
+- See: `specs/026-dotnet-controller-support/COMPLETION.md`
 
 **Commands**:
 
@@ -155,8 +161,8 @@ spas-service pull <name> <version>     # Download metadata
 ```
 
 **Template Files** (`.eta` format):
-- `templates/agent-prompt.eta` - Agent instructions (🚧 Update for controllers)
-- `templates/partials/sdk-patterns.eta` - SDK examples (🚧 Add controller patterns)
+- `templates/agent-prompt.eta` - Agent instructions (✅ Updated for controllers)
+- `templates/partials/sdk-patterns.eta` - SDK examples (✅ Controller patterns added)
 - `templates/readme.eta`, `templates/prompt-trigger.eta` - Workspace docs
 
 **Note**: Templates are for agent prompts/docs, NOT code generation. Code examples live in `examples/services/`.
@@ -254,24 +260,28 @@ npm start
 
 ## 📚 Component: Example Services
 
-**Status**: Active - Reference implementations available
+**Status**: ✅ Complete - All services updated with controller support
 
 **Location**: `examples/services/`
 
 **Services**:
-1. **order-service** (.NET 10) - Order management (🚧 Adding controller example)
-2. **basket-service** (.NET 10) - Shopping basket
-3. **product-service** (Java/Spring Boot) - Product catalog
-4. **inventory-service** (Java/Spring Boot) - Stock management
-5. **fulfillment-service** (Java/Spring Boot) - Order fulfillment
-6. **subscription-service** (Java/Spring Boot) - Subscriptions
+1. **order-service** (.NET 10) - Order management ✅ Controller-only
+2. **product-service** (.NET 10) - Product catalog ✅ Controller-only
+3. **inventory-service** (.NET 10) - Stock management ✅ Controller-only
+4. **subscription-service** (.NET 10) - Subscriptions ✅ Controller-only
+5. **basket-service** (Java/Spring Boot) - Shopping basket
+6. **fulfillment-service** (Java/Spring Boot) - Order fulfillment
 
 **Purpose**:
 - Real-world usage patterns
 - Integration testing
 - Reference for developers (NOT templates)
 
-**Current Work**: Adding controller examples to .NET services (feature 026)
+**Recent Updates (Feature 026)**:
+- All 4 .NET services converted to controller-only architecture
+- Health endpoints separated to dedicated `HealthController.cs` files
+- Program.cs simplified (~45 lines each)
+- All services generate metadata successfully
 
 **Commands**:
 

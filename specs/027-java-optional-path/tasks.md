@@ -92,13 +92,13 @@ All annotation changes are in Phase 1 Setup. User stories can proceed independen
 
 ### Implementation for User Story 4
 
-- [ ] T016 [P] [US4] Remove redundant `path` from `@SpasCommand` annotations in `examples/services/basket-service/src/main/java/io/spas/example/basket/controller/BasketController.java`
-- [ ] T017 [P] [US4] Remove redundant `path` from `@SpasCommand` annotations in `examples/services/fulfillment-service/src/main/java/io/spas/example/fulfillment/controller/FulfillmentController.java`
-- [ ] T018 [P] [US4] Remove redundant `path` from `@SpasCommand` annotations in `examples/services/fulfillment-service/src/main/java/io/spas/example/fulfillment/controller/ShipmentController.java`
-- [ ] T019 [US4] Run `scripts/Get-ServiceMetadata.ps1` and verify basket-service generates identical metadata
-- [ ] T020 [US4] Run `scripts/Get-ServiceMetadata.ps1` and verify fulfillment-service generates identical metadata
-- [ ] T021 [US4] Update agent prompt template to remove `path` from Java examples in `components/cli/spas-service/templates/agent-prompt.eta`
-- [ ] T022 [US4] Add note to agent prompt about path inference from Spring annotations
+- [X] T016 [P] [US4] Remove redundant `path` from `@SpasCommand` annotations in `examples/services/basket-service/src/main/java/io/spas/example/basket/controller/BasketController.java`
+- [X] T017 [P] [US4] Remove redundant `path` from `@SpasCommand` annotations in `examples/services/fulfillment-service/src/main/java/io/spas/example/fulfillment/controller/FulfillmentController.java`
+- [X] T018 [P] [US4] Remove redundant `path` from `@SpasCommand` annotations in `examples/services/fulfillment-service/src/main/java/io/spas/example/fulfillment/controller/ShipmentController.java`
+- [X] T019 [US4] Run `scripts/Get-ServiceMetadata.ps1` and verify basket-service generates identical metadata
+- [X] T020 [US4] Run `scripts/Get-ServiceMetadata.ps1` and verify fulfillment-service generates identical metadata
+- [X] T021 [US4] Update agent prompt template to remove `path` from Java examples in `components/cli/spas-service/templates/agent-prompt.eta`
+- [X] T022 [US4] Add note to agent prompt about path inference from Spring annotations
 
 **Checkpoint**: Example services and agent prompts demonstrate best practices
 
@@ -108,11 +108,11 @@ All annotation changes are in Phase 1 Setup. User stories can proceed independen
 
 **Purpose**: Final validation and documentation
 
-- [ ] T023 Build all Java SDK modules with `mvn clean package` in `components/sdk/java/`
-- [ ] T024 Run all Java SDK tests with `mvn test` in `components/sdk/java/`
-- [ ] T025 [P] Run quickstart.md validation - verify examples work as documented
-- [ ] T026 [P] Update `specs/027-java-optional-path/checklists/requirements.md` with implementation status
-- [ ] T027 Run `scripts/validate-metadata-archives.ps1` to verify all metadata is valid
+- [X] T023 Build all Java SDK modules with `mvn clean package` in `components/sdk/java/`
+- [X] T024 Run all Java SDK tests with `mvn test` in `components/sdk/java/`
+- [X] T025 [P] Run quickstart.md validation - verify examples work as documented
+- [X] T026 [P] Update `specs/027-java-optional-path/checklists/requirements.md` with implementation status
+- [X] T027 Run `scripts/validate-metadata-archives.ps1` to verify all metadata is valid
 
 ---
 

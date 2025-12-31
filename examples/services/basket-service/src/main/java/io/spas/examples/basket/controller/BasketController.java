@@ -47,7 +47,7 @@ public class BasketController {
     @SpasCommand(
         name = "CreateBasket",
         version = "1.0.0",
-        path = "/api/baskets",
+
         description = "Creates a new shopping basket for a customer; emits BasketCreated event",
         produces = { BasketCreatedEvent.class }
     )
@@ -75,7 +75,6 @@ public class BasketController {
     @SpasCommand(
         name = "AddItem",
         version = "1.0.0",
-        path = "/api/baskets/{id}/items",
         description = "Adds a product to the shopping basket; emits ItemAdded event",
         produces = { ItemAddedEvent.class }
     )
@@ -117,7 +116,7 @@ public class BasketController {
     @SpasCommand(
         name = "RemoveItem",
         version = "1.0.0",
-        path = "/api/baskets/{id}/items/{productId}",
+
         description = "Removes a product from the shopping basket; emits ItemRemoved event",
         produces = { ItemRemovedEvent.class }
     )
@@ -152,7 +151,6 @@ public class BasketController {
     @SpasCommand(
         name = "InitiateCheckout",
         version = "1.0.0",
-        path = "/api/baskets/{id}/checkout",
         description = "Initiates checkout for a basket with shipping address; emits CheckoutInitiated event containing all order details for downstream order-service and fulfillment-service",
         produces = { CheckoutInitiatedEvent.class }
     )
@@ -189,7 +187,6 @@ public class BasketController {
     @SpasQuery(
         name = "GetBasket",
         version = "1.0.0",
-        path = "/api/baskets/{id}",
         description = "Returns basket contents including item availability status"
     )
     @GetMapping("/{id}")
@@ -207,7 +204,6 @@ public class BasketController {
     @SpasQuery(
         name = "ListBaskets",
         version = "1.0.0",
-        path = "/api/baskets",
         description = "Lists all baskets (demo endpoint; returns in-memory state)"
     )
     @GetMapping
@@ -228,7 +224,6 @@ public class BasketController {
     @SpasCommand(
         name = "MarkProductUnavailable",
         version = "1.0.0",
-        path = "/baskets/mark-unavailable",
         description = "Marks a product as unavailable in all open baskets when stock is depleted"
     )
     @PostMapping("/mark-unavailable")
@@ -251,7 +246,6 @@ public class BasketController {
     @SpasCommand(
         name = "ClearBasket",
         version = "1.0.0",
-        path = "/baskets/clear",
         description = "Clears a basket after successful order creation; matches basket via referenceId"
     )
     @PostMapping("/clear")

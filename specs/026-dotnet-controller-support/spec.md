@@ -2,7 +2,8 @@
 
 **Feature Branch**: `026-dotnet-controller-support`  
 **Created**: 2025-12-30  
-**Status**: Draft  
+**Completed**: 2025-12-30
+**Status**: ✅ Complete (PoC)
 **Input**: User description: "Extend .NET SDK metadata generation to support Controllers. Currently it supports only Minimal API."
 
 ## Overview
@@ -11,7 +12,7 @@ The .NET SDK currently generates metadata only from Minimal API endpoints (regis
 
 **Key Constraint**: This is a **NON-BREAKING EXTENSION**. All existing Minimal API functionality must continue to work exactly as before. Controller support is additive.
 
-## User Scenarios & Testing *(mandatory)*
+## User Scenarios & Testing _(mandatory)_
 
 ### User Story 1 - Controller Metadata Discovery (Priority: P1) 🎯 MVP
 
@@ -91,7 +92,7 @@ Controller actions can declare produced events using the `Produces` property on 
 - **Async actions**: Controller methods returning `Task<IActionResult>` should infer schemas from the inner result type
 - **API controller conventions**: `[ApiController]` attribute enables automatic model binding; ensure `[FromBody]` inference works correctly
 
-## Requirements *(mandatory)*
+## Requirements _(mandatory)_
 
 ### Functional Requirements
 
@@ -111,14 +112,14 @@ Controller actions can declare produced events using the `Produces` property on 
 - **FR-014**: Discovery MUST work without starting Kestrel (offline metadata generation mode)
 - **FR-015**: Generated project templates MUST NOT restrict developers to Minimal API only
 
-### Key Entities *(include if feature involves data)*
+### Key Entities _(include if feature involves data)_
 
 - **ControllerActionDescriptor**: ASP.NET Core's representation of a controller action with route template, HTTP method, and metadata
 - **SpasCommandAttribute / SpasQueryAttribute**: Already-defined attributes, now applicable to controller methods
 - **ContractsBuilder**: Existing builder that collects endpoint contracts; extended to accept controller-sourced metadata
 - **IActionDescriptorCollectionProvider**: ASP.NET Core service providing access to all registered controller actions
 
-## Success Criteria *(mandatory)*
+## Success Criteria _(mandatory)_
 
 ### Measurable Outcomes
 

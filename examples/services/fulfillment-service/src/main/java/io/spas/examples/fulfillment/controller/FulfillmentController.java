@@ -39,7 +39,6 @@ public class FulfillmentController {
     @SpasQuery(
         name = "GetShipment",
         version = "1.0.0",
-        path = "/api/fulfillments/{id}",
         description = "Returns shipment details by shipmentId"
         // Auto-generates: schemas/endpoints/get-shipment.schema.json
     )
@@ -58,7 +57,6 @@ public class FulfillmentController {
     @SpasQuery(
         name = "ListShipments",
         version = "1.0.0",
-        path = "/api/fulfillments",
         description = "Lists all known shipments (demo endpoint; may return in-memory state)"
         // Auto-generates: schemas/endpoints/list-shipments.schema.json
     )
@@ -80,7 +78,6 @@ public class FulfillmentController {
     @SpasCommand(
         name = "UpdateShipmentStatus",
         version = "1.0.0",
-        path = "/api/fulfillments/{id}/status",
         description = "Updates a shipment's status (e.g., packed/shipped/delivered); emits ShipmentStatusChanged on success",
         produces = { ShipmentStatusChangedEvent.class }
         // Auto-generates: schemas/endpoints/update-shipment-status.schema.json
@@ -111,7 +108,6 @@ public class FulfillmentController {
     @SpasQuery(
         name = "GetShipmentByOrderId",
         version = "1.0.0",
-        path = "/api/fulfillments/by-order/{orderId}",
         description = "Finds the shipment associated with a given orderId"
         // Auto-generates: schemas/endpoints/get-shipment-by-order-id.schema.json
     )

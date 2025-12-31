@@ -83,9 +83,10 @@ using Spas.Sdk.Observability.Extensions; // AddSpasServices()
 ### Java Pattern
 - **Service identity**: `@SpasService(id = "...", boundedContext = "...")` on main application class
 - **Runner**: Use `SpasServiceRunner.run(Application.class, args, options -> {...})`
-- **Commands**: `@SpasCommand(name = "Name", version = "1.0", path = "/path", produces = {EventClass.class})`
-- **Queries**: `@SpasQuery(name = "Name", version = "1.0", path = "/path")`
+- **Commands**: `@SpasCommand(name = "Name", version = "1.0", produces = {EventClass.class})`
+- **Queries**: `@SpasQuery(name = "Name", version = "1.0")`
 - **Events**: `@SpasEvent(type = "Name", version = "1.0")`
+- **Path inference**: The `path` attribute is **optional**. Paths are automatically inferred from Spring annotations (`@RequestMapping`, `@GetMapping`, `@PostMapping`, etc.). Only provide `path` explicitly if Spring annotations are not present.
 - **Generate metadata**: `java -Dspas.generate-metadata=true -jar app.jar`
 - **Output**: `./metadata/service.metadata.zip`
 

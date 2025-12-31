@@ -484,11 +484,20 @@ public class SpasMetadataArchiveGenerator {
                             : cmd.schemaRef();
                         String description = cmd.description() == null || cmd.description().isBlank() ? null : cmd.description();
 
+                        String finalPath = methodPath != null ? methodPath : normalizeMethodPath(cmd.path());
+                        if (finalPath == null || finalPath.isBlank()) {
+                            log.warning(String.format(
+                                "Skipping endpoint '%s': no path could be inferred from Spring annotations and no explicit path provided",
+                                cmd.name()
+                            ));
+                            continue;
+                        }
+
                         endpoints.add(new EndpointContract(
                             kebabName,
                             EndpointType.COMMAND,
                             defaultProtocol,
-                            methodPath != null ? methodPath : normalizeMethodPath(cmd.path()),
+                            finalPath,
                             cmd.version(),
                             schemaRef,
                             description
@@ -502,11 +511,20 @@ public class SpasMetadataArchiveGenerator {
                             : qry.schemaRef();
                         String description = qry.description() == null || qry.description().isBlank() ? null : qry.description();
 
+                        String finalPath = methodPath != null ? methodPath : normalizeMethodPath(qry.path());
+                        if (finalPath == null || finalPath.isBlank()) {
+                            log.warning(String.format(
+                                "Skipping endpoint '%s': no path could be inferred from Spring annotations and no explicit path provided",
+                                qry.name()
+                            ));
+                            continue;
+                        }
+
                         endpoints.add(new EndpointContract(
                             kebabName,
                             EndpointType.QUERY,
                             defaultProtocol,
-                            methodPath != null ? methodPath : normalizeMethodPath(qry.path()),
+                            finalPath,
                             qry.version(),
                             schemaRef,
                             description

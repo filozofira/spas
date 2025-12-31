@@ -41,10 +41,10 @@ All annotation changes are in Phase 1 Setup. User stories can proceed independen
 
 ### Implementation for User Story 1
 
-- [ ] T004 [US1] Add warning log in `SpasMetadataArchiveGenerator` when path cannot be inferred in `components/sdk/java/spas-sdk-spring/src/main/java/io/spas/sdk/spring/SpasMetadataArchiveGenerator.java`
-- [ ] T005 [US1] Add unit test for empty path handling with Spring annotation inference in `components/sdk/java/spas-sdk-spring/src/test/java/io/spas/sdk/spring/SpasMetadataArchiveGeneratorTest.java`
-- [ ] T006 [US1] Add unit test for warning when path cannot be inferred (no Spring annotation, no explicit path) in same test file
-- [ ] T007 [US1] Verify backward compatibility - explicit `path` still takes precedence (add test case if not exists)
+- [X] T004 [US1] Add warning log in `SpasMetadataArchiveGenerator` when path cannot be inferred in `components/sdk/java/spas-sdk-spring/src/main/java/io/spas/sdk/spring/SpasMetadataArchiveGenerator.java`
+- [X] T005 [US1] Add unit test for empty path handling with Spring annotation inference in `components/sdk/java/spas-sdk-spring/src/test/java/io/spas/sdk/spring/SpasMetadataArchiveGeneratorTest.java`
+- [X] T006 [US1] Add unit test for warning when path cannot be inferred (no Spring annotation, no explicit path) in same test file
+- [X] T007 [US1] Verify backward compatibility - explicit `path` still takes precedence (add test case if not exists)
 
 **Checkpoint**: Runtime metadata generation works with optional path - MVP complete
 

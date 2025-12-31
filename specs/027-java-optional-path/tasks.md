@@ -74,11 +74,11 @@ All annotation changes are in Phase 1 Setup. User stories can proceed independen
 
 ### Implementation for User Story 3
 
-- [ ] T011 [US3] Add validation logic in `SpasAnnotationProcessor.process()` to check for empty path when `generateSpasJson=true` in `components/sdk/java/spas-sdk-metadata-processor/src/main/java/io/spas/sdk/metadata/processor/SpasAnnotationProcessor.java`
-- [ ] T012 [US3] Emit compile error with message: "SpasCommand 'X' requires explicit 'path' attribute when compile-time generation is enabled"
-- [ ] T013 [US3] Add compile-testing test for error case (empty path + generation enabled) in `components/sdk/java/spas-sdk-metadata-processor/src/test/java/io/spas/sdk/metadata/processor/SpasAnnotationProcessorTest.java`
-- [ ] T014 [US3] Add compile-testing test for success case (explicit path + generation enabled)
-- [ ] T015 [US3] Add compile-testing test for no-error case (empty path + generation disabled)
+- [X] T011 [US3] Add validation logic in `SpasAnnotationProcessor.process()` to check for empty path when `generateSpasJson=true` in `components/sdk/java/spas-sdk-metadata-processor/src/main/java/io/spas/sdk/metadata/processor/SpasAnnotationProcessor.java`
+- [X] T012 [US3] Emit compile error with message: "SpasCommand 'X' requires explicit 'path' attribute when compile-time generation is enabled"
+- [X] T013 [US3] Add compile-testing test for error case (empty path + generation enabled) in `components/sdk/java/spas-sdk-metadata-processor/src/test/java/io/spas/sdk/metadata/processor/SpasAnnotationProcessorTest.java`
+- [X] T014 [US3] Add compile-testing test for success case (explicit path + generation enabled)
+- [X] T015 [US3] Add compile-testing test for no-error case (empty path + generation disabled)
 
 **Checkpoint**: Compile-time processor provides clear feedback when path is required
 

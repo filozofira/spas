@@ -306,4 +306,157 @@ class SpasAnnotationProcessorTest {
         // Empty descriptions should be omitted entirely (serializer omits null fields)
         assertFalse(spasJson.contains("\"description\" : \"\""));
     }
+
+    /**
+     * T013: Test error case - empty path with generation enabled should emit compile error
+     */
+    @Test
+    void processor_shouldErrorWhenPathIsEmptyAndGenerationEnabled_command() {
+        JavaFileObject serviceClass = JavaFileObjects.forSourceLines(
+            "test.OptionalPathService",
+            "package test;",
+            "",
+            "import io.spas.sdk.metadata.annotations.*;",
+            "",
+            "@SpasService(",
+            "    id = \"test-service\",",
+            "    name = \"Test Service\",",
+            "    version = \"1.0.0\",",
+            "    boundedContext = \"test\"",
+            ")",
+            "public class OptionalPathService {",
+            "    @SpasCommand(",
+            "        name = \"CreateOrder\",",
+            "        version = \"1.0.0\"",
+            "        // path omitted - should error when generation enabled",
+            "    )",
+            "    public String createOrder(String request) { return null; }",
+            "}"
+        );
+
+        Compilation compilation = compileWithGenerationEnabled(serviceClass);
+
+        assertThat(compilation).failed();
+        assertThat(compilation).hadErrorContaining("@SpasCommand 'CreateOrder' requires explicit 'path' attribute");
+        assertThat(compilation).hadErrorContaining("compile-time generation is enabled");
+    }
+
+    /**
+     * T013: Test error case - empty path with generation enabled should emit compile error for query
+     */
+    @Test
+    void processor_shouldErrorWhenPathIsEmptyAndGenerationEnabled_query() {
+        JavaFileObject serviceClass = JavaFileObjects.forSourceLines(
+            "test.OptionalPathQueryService",
+            "package test;",
+            "",
+            "import io.spas.sdk.metadata.annotations.*;",
+            "",
+            "@SpasService(",
+            "    id = \"test-service\",",
+            "    name = \"Test Service\",",
+            "    version = \"1.0.0\",",
+            "    boundedContext = \"test\"",
+            ")",
+            "public class OptionalPathQueryService {",
+            "    @SpasQuery(",
+            "        name = \"GetOrder\",",
+            "        version = \"1.0.0\"",
+            "        // path omitted - should error when generation enabled",
+            "    )",
+            "    public String getOrder(String id) { return null; }",
+            "}"
+        );
+
+        Compilation compilation = compileWithGenerationEnabled(serviceClass);
+
+        assertThat(compilation).failed();
+        assertThat(compilation).hadErrorContaining("@SpasQuery 'GetOrder' requires explicit 'path' attribute");
+        assertThat(compilation).hadErrorContaining("compile-time generation is enabled");
+    }
+
+    /**
+     * T014: Test success case - explicit path with generation enabled should succeed
+     */
+    @Test
+    void processor_shouldSucceedWhenPathIsExplicitAndGenerationEnabled() throws IOException {
+        JavaFileObject serviceClass = JavaFileObjects.forSourceLines(
+            "test.ExplicitPathService",
+            "package test;",
+            "",
+            "import io.spas.sdk.metadata.annotations.*;",
+            "",
+            "@SpasService(",
+            "    id = \"test-service\",",
+            "    name = \"Test Service\",",
+            "    version = \"1.0.0\",",
+            "    boundedContext = \"test\"",
+            ")",
+            "public class ExplicitPathService {",
+            "    @SpasCommand(",
+            "        name = \"CreateOrder\",",
+            "        version = \"1.0.0\",",
+            "        path = \"/api/orders\"",
+            "    )",
+            "    public String createOrder(String request) { return null; }",
+            "",
+            "    @SpasQuery(",
+            "        name = \"GetOrder\",",
+            "        version = \"1.0.0\",",
+            "        path = \"/api/orders/{id}\"",
+            "    )",
+            "    public String getOrder(String id) { return null; }",
+            "}"
+        );
+
+        Compilation compilation = compileWithGenerationEnabled(serviceClass);
+
+        assertThat(compilation).succeeded();
+        
+        JavaFileObject spasJsonFile = compilation.generatedFile(StandardLocation.CLASS_OUTPUT, "spas.json")
+            .orElseThrow(() -> new AssertionError("spas.json was not generated"));
+        String spasJson = new String(spasJsonFile.openInputStream().readAllBytes(), java.nio.charset.StandardCharsets.UTF_8);
+        
+        assertTrue(spasJson.contains("\"/api/orders\""));
+        assertTrue(spasJson.contains("\"/api/orders/{id}\""));
+    }
+
+    /**
+     * T015: Test no-error case - empty path with generation disabled should not error
+     */
+    @Test
+    void processor_shouldNotErrorWhenPathIsEmptyAndGenerationDisabled() {
+        JavaFileObject serviceClass = JavaFileObjects.forSourceLines(
+            "test.NoGenerationService",
+            "package test;",
+            "",
+            "import io.spas.sdk.metadata.annotations.*;",
+            "",
+            "@SpasService(",
+            "    id = \"test-service\",",
+            "    name = \"Test Service\",",
+            "    version = \"1.0.0\",",
+            "    boundedContext = \"test\"",
+            ")",
+            "public class NoGenerationService {",
+            "    @SpasCommand(",
+            "        name = \"CreateOrder\",",
+            "        version = \"1.0.0\"",
+            "        // path omitted - OK when generation disabled",
+            "    )",
+            "    public String createOrder(String request) { return null; }",
+            "}"
+        );
+
+        // Compile WITHOUT enabling generation
+        Compilation compilation = javac()
+            .withProcessors(new SpasAnnotationProcessor())
+            .compile(serviceClass);
+
+        // Should succeed because processor is disabled
+        assertThat(compilation).succeeded();
+        
+        // Should not generate spas.json when generation is disabled
+        assertFalse(compilation.generatedFile(StandardLocation.CLASS_OUTPUT, "spas.json").isPresent());
+    }
 }

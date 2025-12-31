@@ -118,27 +118,48 @@ public class SpasAnnotationProcessor extends AbstractProcessor {
     }
 
     private List<EndpointContract> processCommands(RoundEnvironment roundEnv, Protocol defaultProtocol) {
-        return roundEnv.getElementsAnnotatedWith(SpasCommand.class).stream()
-            .filter(element -> element.getKind() == ElementKind.METHOD)
-            .map(element -> {
-                ExecutableElement method = (ExecutableElement) element;
-                SpasCommand cmd = element.getAnnotation(SpasCommand.class);
-                String kebabName = KebabCaseConverter.toKebabCase(cmd.name());
-                String schemaRef = cmd.schemaRef().isEmpty()
-                    ? inferEndpointSchemaRefForCommand(method, kebabName)
-                    : cmd.schemaRef();
-                String description = cmd.description() == null || cmd.description().isBlank() ? null : cmd.description();
-                return new EndpointContract(
-                    kebabName,
-                    EndpointType.COMMAND,
-                    defaultProtocol,
-                    cmd.path(),
-                    cmd.version(),
-                    schemaRef,
-                    description
+        List<EndpointContract> endpoints = new ArrayList<>();
+        
+        for (Element element : roundEnv.getElementsAnnotatedWith(SpasCommand.class)) {
+            if (element.getKind() != ElementKind.METHOD) {
+                continue;
+            }
+            
+            ExecutableElement method = (ExecutableElement) element;
+            SpasCommand cmd = element.getAnnotation(SpasCommand.class);
+            
+            // Validate path when compile-time generation is enabled
+            if (cmd.path() == null || cmd.path().isBlank()) {
+                messager.printMessage(
+                    Diagnostic.Kind.ERROR,
+                    String.format(
+                        "@SpasCommand '%s' requires explicit 'path' attribute when compile-time generation is enabled. " +
+                        "Path inference from Spring annotations is only available at runtime via --generate-metadata.",
+                        cmd.name()
+                    ),
+                    element
                 );
-            })
-            .collect(Collectors.toList());
+                continue; // Skip this endpoint
+            }
+            
+            String kebabName = KebabCaseConverter.toKebabCase(cmd.name());
+            String schemaRef = cmd.schemaRef().isEmpty()
+                ? inferEndpointSchemaRefForCommand(method, kebabName)
+                : cmd.schemaRef();
+            String description = cmd.description() == null || cmd.description().isBlank() ? null : cmd.description();
+            
+            endpoints.add(new EndpointContract(
+                kebabName,
+                EndpointType.COMMAND,
+                defaultProtocol,
+                cmd.path(),
+                cmd.version(),
+                schemaRef,
+                description
+            ));
+        }
+        
+        return endpoints;
     }
 
     private List<CommandContract> processCommandContracts(RoundEnvironment roundEnv) {
@@ -218,27 +239,48 @@ public class SpasAnnotationProcessor extends AbstractProcessor {
     }
 
     private List<EndpointContract> processQueries(RoundEnvironment roundEnv, Protocol defaultProtocol) {
-        return roundEnv.getElementsAnnotatedWith(SpasQuery.class).stream()
-            .filter(element -> element.getKind() == ElementKind.METHOD)
-            .map(element -> {
-                ExecutableElement method = (ExecutableElement) element;
-                SpasQuery qry = element.getAnnotation(SpasQuery.class);
-                String kebabName = KebabCaseConverter.toKebabCase(qry.name());
-                String schemaRef = qry.schemaRef().isEmpty()
-                    ? inferEndpointSchemaRefForQuery(method, kebabName)
-                    : qry.schemaRef();
-                String description = qry.description() == null || qry.description().isBlank() ? null : qry.description();
-                return new EndpointContract(
-                    kebabName,
-                    EndpointType.QUERY,
-                    defaultProtocol,
-                    qry.path(),
-                    qry.version(),
-                    schemaRef,
-                    description
+        List<EndpointContract> endpoints = new ArrayList<>();
+        
+        for (Element element : roundEnv.getElementsAnnotatedWith(SpasQuery.class)) {
+            if (element.getKind() != ElementKind.METHOD) {
+                continue;
+            }
+            
+            ExecutableElement method = (ExecutableElement) element;
+            SpasQuery qry = element.getAnnotation(SpasQuery.class);
+            
+            // Validate path when compile-time generation is enabled
+            if (qry.path() == null || qry.path().isBlank()) {
+                messager.printMessage(
+                    Diagnostic.Kind.ERROR,
+                    String.format(
+                        "@SpasQuery '%s' requires explicit 'path' attribute when compile-time generation is enabled. " +
+                        "Path inference from Spring annotations is only available at runtime via --generate-metadata.",
+                        qry.name()
+                    ),
+                    element
                 );
-            })
-            .collect(Collectors.toList());
+                continue; // Skip this endpoint
+            }
+            
+            String kebabName = KebabCaseConverter.toKebabCase(qry.name());
+            String schemaRef = qry.schemaRef().isEmpty()
+                ? inferEndpointSchemaRefForQuery(method, kebabName)
+                : qry.schemaRef();
+            String description = qry.description() == null || qry.description().isBlank() ? null : qry.description();
+            
+            endpoints.add(new EndpointContract(
+                kebabName,
+                EndpointType.QUERY,
+                defaultProtocol,
+                qry.path(),
+                qry.version(),
+                schemaRef,
+                description
+            ));
+        }
+        
+        return endpoints;
     }
 
     private String inferEndpointSchemaRefForCommand(ExecutableElement method, String fallbackKebabEndpointName) {

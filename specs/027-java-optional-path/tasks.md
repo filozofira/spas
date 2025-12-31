@@ -58,9 +58,9 @@ All annotation changes are in Phase 1 Setup. User stories can proceed independen
 
 ### Implementation for User Story 2
 
-- [ ] T008 [US2] Verify `examples/services/basket-service/pom.xml` does NOT contain `-Aspas.generateSpasJson=true` (should already be correct per research.md)
-- [ ] T009 [US2] Verify `examples/services/fulfillment-service/pom.xml` does NOT contain `-Aspas.generateSpasJson=true`
-- [ ] T010 [US2] Document verification in checklist that FR-012 is satisfied (no code changes needed)
+- [X] T008 [US2] Verify `examples/services/basket-service/pom.xml` does NOT contain `-Aspas.generateSpasJson=true` (should already be correct per research.md)
+- [X] T009 [US2] Verify `examples/services/fulfillment-service/pom.xml` does NOT contain `-Aspas.generateSpasJson=true`
+- [X] T010 [US2] Document verification in checklist that FR-012 is satisfied (no code changes needed)
 
 **Checkpoint**: Example services confirmed to use runtime-only metadata generation
 

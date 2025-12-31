@@ -34,3 +34,22 @@
 - Specification validated and ready for `/speckit.plan`
 - All items pass validation
 - No clarifications needed - feature scope is clear and well-defined
+
+---
+
+## Implementation Verification (Phase 4)
+
+### FR-012: Example Services Configuration
+
+**Requirement**: Example Java services MUST NOT include `-Aspas.generateSpasJson=true` in their Maven configuration
+
+**Verification Date**: 2025-12-31
+
+**Status**: ✅ VERIFIED
+
+**Findings**:
+- ✅ `examples/services/basket-service/pom.xml` - No `-Aspas.generateSpasJson=true` found
+- ✅ `examples/services/fulfillment-service/pom.xml` - No `-Aspas.generateSpasJson=true` found
+- ✅ Build test: `mvn clean package -DskipTests` on basket-service completes without generating `spas.json` at compile time
+
+**Conclusion**: FR-012 satisfied - no code changes required. Example services already use runtime-only metadata generation.

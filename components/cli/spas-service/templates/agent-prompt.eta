@@ -71,11 +71,12 @@ using Spas.Sdk.Metadata.Extensions;      // AddSpasMetadata(), RunSpasServiceAsy
 using Spas.Sdk.Observability.Extensions; // AddSpasServices()
 ```
 
-**SDK Usage** (Minimal APIs only — controller-based routing not supported):
+**SDK Usage** (.NET supports both Minimal APIs and Controllers):
 - **Service identity**: Use `await app.RunSpasServiceAsync(args, options => { options.ServiceId = "..."; })`
-- **Commands**: `[SpasCommand("Name", "1.0", Produces = new[] { typeof(EventClass) })]` on MapPost/MapPut
-- **Queries**: `[SpasQuery("Name", "1.0")]` on MapGet
+- **Commands**: `[SpasCommand("Name", "1.0", Produces = new[] { typeof(EventClass) })]` on MapPost/MapPut or controller actions
+- **Queries**: `[SpasQuery("Name", "1.0")]` on MapGet or controller actions
 - **Events**: `[SpasEvent("Name", "1.0")]` on event record classes
+- **Controllers**: Use `builder.Services.AddControllers()` and `app.MapControllers()`, apply attributes to controller actions
 - **Generate metadata**: `dotnet run -- --generate-metadata`
 - **Output**: `./metadata/service.metadata.zip`
 

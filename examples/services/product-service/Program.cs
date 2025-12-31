@@ -1,7 +1,5 @@
 using Microsoft.AspNetCore.Builder;
-using ProductService.Models;
 using ProductService.Services;
-using Spas.Sdk.Metadata.Attributes;
 using Spas.Sdk.Metadata.Extensions;
 using Spas.Sdk.Observability.Extensions;
 
@@ -12,34 +10,13 @@ builder.Services.AddSingleton<ProductCatalog>();
 builder.Services.AddSpasMetadata();
 builder.Services.AddSpasServices(builder.Configuration, "product-service");
 
+// Add Controllers support (all endpoints are now controller-based)
+builder.Services.AddControllers();
+
 var app = builder.Build();
 
-// GET /products - List all products
-app.MapGet("/products",
-    [SpasQuery("ListProducts", "1.0", Description = "Lists products in the catalog (optionally filtered by category)")]
-    (ProductCatalog catalog, string? category = null) =>
-    {
-        var products = catalog.GetAll();
-        
-        if (!string.IsNullOrEmpty(category))
-        {
-            products = products.Where(p => p.Category.Equals(category, StringComparison.OrdinalIgnoreCase));
-        }
-        
-        return Results.Ok(products);
-    });
-
-// GET /products/{id} - Get specific product
-app.MapGet("/products/{id}",
-    [SpasQuery("GetProduct", "1.0", Description = "Returns product details by productId")]
-    (string id, ProductCatalog catalog) =>
-    {
-        var product = catalog.Get(id);
-        return product != null ? Results.Ok(product) : Results.NotFound();
-    });
-
-app.MapGet("/", () => "Product Service");
-app.MapGet("/health", () => new { status = "healthy", service = "product-service", timestamp = DateTime.UtcNow });
+// Map Controllers (provides all endpoints at /products/*)
+app.MapControllers();
 
 // Run SPAS service (generates metadata if --generate-metadata, else starts server)
 await app.RunSpasServiceAsync(args, options =>

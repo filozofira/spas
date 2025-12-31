@@ -34,8 +34,9 @@ public class SpasCommandAttribute : Attribute
     public string Version { get; }
 
     /// <summary>
-    /// The JSON schema reference for this command's request/response.
-    /// Optional; if not provided, auto-generation may be attempted.
+    /// The JSON schema reference for this command's request body.
+    /// Optional; if not provided, auto-generated from request parameter type.
+    /// Note: Response schemas are not currently generated (PoC limitation).
     /// </summary>
     public string? Schema { get; set; }
 
@@ -83,8 +84,9 @@ public class SpasQueryAttribute : Attribute
     public string Version { get; }
 
     /// <summary>
-    /// The JSON schema reference for this query's request/response.
-    /// Optional; if not provided, auto-generation may be attempted.
+    /// The JSON schema reference for this query's request body.
+    /// Optional; if not provided, auto-generated from request parameter type.
+    /// Note: Response schemas are not currently generated (PoC limitation).
     /// </summary>
     public string? Schema { get; set; }
 

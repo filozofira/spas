@@ -3,6 +3,7 @@ using System.Text.Json;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
+using Spas.Sdk.Core.Serialization;
 using Spas.Sdk.Metadata.Attributes;
 using Spas.Sdk.Metadata.Builders;
 using Spas.Sdk.Metadata.Composition;
@@ -67,7 +68,7 @@ public class ProducedEventsTests
     }
 
     [Fact]
-    public void DiscoverSpasMetadata_WhenProducesContainsDuplicates_Throws()
+    public void DiscoverSpasMetadata_WhenProducesContainsDuplicates_DeduplicatesSilently()
     {
         // Arrange
         var builder = WebApplication.CreateBuilder();
@@ -85,9 +86,18 @@ public class ProducedEventsTests
                 Produces = new[] { typeof(TestOrderCreatedEvent), typeof(TestOrderCreatedEvent) }
             });
 
-        // Act / Assert
-        var ex = Assert.Throws<InvalidOperationException>(() => app.DiscoverSpasMetadata());
-        Assert.Contains("duplicate produced event", ex.Message, StringComparison.OrdinalIgnoreCase);
+        // Act - should not throw, duplicates are silently deduplicated
+        var metadata = app.DiscoverSpasMetadata();
+
+        // Assert - only one instance of the produced event should exist
+        var json = JsonSerializer.Serialize(metadata, JsonSerializerOptionsFactory.Indented);
+        using var doc = JsonDocument.Parse(json);
+        var commands = doc.RootElement.GetProperty("commands");
+        var command = commands.EnumerateArray().First();
+        var produces = command.GetProperty("produces").EnumerateArray().ToArray();
+
+        Assert.Single(produces);
+        Assert.Equal("order-created", produces[0].GetProperty("type").GetString());
     }
 
     [Fact]

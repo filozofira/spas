@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.Extensions.DependencyInjection;
 using Spas.Sdk.Metadata.Attributes;
 using Spas.Sdk.Metadata.Builders;
@@ -46,7 +47,22 @@ public static class WebApplicationDiscoveryExtensions
             builder.AddEvent(evt.Type, evt.Version, evt.SchemaRef, description: evt.Description);
         }
 
-        // Discover endpoints from WebApplication's DataSources
+        // Discover controller actions FIRST (T003 - Feature 026)
+        // Controller discovery correctly extracts [FromBody] parameters for schema inference
+        // Running this first ensures controller endpoints have proper requestBodyType before
+        // endpoint data source discovery runs and potentially creates duplicates
+        try
+        {
+            DiscoverControllerActions(app, builder);
+        }
+        catch (Exception ex)
+        {
+            throw new InvalidOperationException(
+                $"Failed to discover controller actions: {ex.Message}. Ensure services.AddControllers() is called if using MVC controllers.", ex);
+        }
+
+        // Discover endpoints from WebApplication's DataSources (Minimal API)
+        // This runs second so controller duplicates are skipped (deduplication in AddEndpoint)
         try
         {
             DiscoverEndpointsFromWebApplication(app, builder);
@@ -142,6 +158,35 @@ public static class WebApplicationDiscoveryExtensions
             {
                 ProcessEndpoint(endpoint, builder);
             }
+        }
+    }
+
+    /// <summary>
+    /// Discovers SPAS metadata from ASP.NET Core MVC Controller actions.
+    /// Uses IActionDescriptorCollectionProvider to find controller actions with SPAS attributes.
+    /// </summary>
+    private static void DiscoverControllerActions(WebApplication app, ContractsBuilder builder)
+    {
+        // Get IActionDescriptorCollectionProvider from DI (T003)
+        var actionDescriptorProvider = app.Services.GetService<IActionDescriptorCollectionProvider>();
+        
+        if (actionDescriptorProvider == null)
+        {
+            // No controllers configured - this is not an error, service may only use Minimal API
+            return;
+        }
+
+        var actionDescriptors = actionDescriptorProvider.ActionDescriptors.Items;
+
+        foreach (var actionDescriptor in actionDescriptors)
+        {
+            // We only care about ControllerActionDescriptor (not PageActionDescriptor from Razor Pages)
+            if (actionDescriptor.GetType().Name != "ControllerActionDescriptor")
+            {
+                continue;
+            }
+
+            ProcessControllerAction(actionDescriptor, builder);
         }
     }
 
@@ -329,6 +374,194 @@ public static class WebApplicationDiscoveryExtensions
         {
             return false; // Skip endpoints that can't be processed
         }
+    }
+
+    /// <summary>
+    /// Processes a controller action to extract SPAS metadata (T006 - US1).
+    /// </summary>
+    private static void ProcessControllerAction(dynamic actionDescriptor, ContractsBuilder builder)
+    {
+        try
+        {
+            // Extract route template (T007 - US1)
+            string? routeTemplate = ExtractRouteFromController(actionDescriptor);
+            if (string.IsNullOrEmpty(routeTemplate))
+            {
+                return; // No route template, skip
+            }
+
+            // Extract HTTP verb (T008 - US1)
+            string? httpVerb = ExtractHttpVerbFromController(actionDescriptor);
+
+            // Get method info to check for SPAS attributes
+            System.Reflection.MethodInfo? methodInfo = actionDescriptor.MethodInfo as System.Reflection.MethodInfo;
+            if (methodInfo == null)
+            {
+                return;
+            }
+
+            // Look for SPAS attributes on the method
+            var commandAttr = methodInfo.GetCustomAttribute<SpasCommandAttribute>();
+            var queryAttr = methodInfo.GetCustomAttribute<SpasQueryAttribute>();
+            var eventAttr = methodInfo.GetCustomAttribute<SpasEventAttribute>();
+
+            // Extract request body type for schema inference (similar to Minimal API)
+            var requestBodyType = ExtractControllerRequestBodyType(methodInfo);
+
+            if (commandAttr != null)
+            {
+                var commandName = AttributeHelpers.ToKebabCase(commandAttr.Name);
+                builder.AddCommand(
+                    name: commandName,
+                    version: commandAttr.Version,
+                    produces: ResolveProducedEvents(commandAttr.Produces, commandName, commandAttr.Version));
+
+                var finalPath = commandAttr.Path ?? routeTemplate;
+                finalPath = EnsureHttpMethodPath(finalPath, httpVerb);
+                var schemaRef = commandAttr.Schema ?? $"schemas/endpoints/{commandName}.schema.json";
+                
+                builder.AddEndpoint(
+                    name: commandName,
+                    type: "Command",
+                    protocol: "Http",
+                    methodPath: finalPath,
+                    version: commandAttr.Version,
+                    schemaRef: schemaRef,
+                    description: commandAttr.Description,
+                    requestBodyType: requestBodyType);
+            }
+            else if (queryAttr != null)
+            {
+                var queryName = AttributeHelpers.ToKebabCase(queryAttr.Name);
+                var finalPath = queryAttr.Path ?? routeTemplate;
+                finalPath = EnsureHttpMethodPath(finalPath, httpVerb);
+                var schemaRef = queryAttr.Schema ?? $"schemas/endpoints/{queryName}.schema.json";
+                
+                builder.AddEndpoint(
+                    name: queryName,
+                    type: "Query",
+                    protocol: "Http",
+                    methodPath: finalPath,
+                    version: queryAttr.Version,
+                    schemaRef: schemaRef,
+                    description: queryAttr.Description,
+                    requestBodyType: requestBodyType);
+            }
+            else if (eventAttr != null)
+            {
+                var eventName = AttributeHelpers.ToKebabCase(eventAttr.Name);
+                builder.AddEvent(
+                    type: eventName,
+                    version: eventAttr.Version,
+                    schemaRef: eventAttr.Schema ?? $"schemas/events/{eventName}.schema.json",
+                    description: eventAttr.Description);
+            }
+        }
+        catch
+        {
+            // Best-effort: individual action failures should not break entire discovery
+        }
+    }
+
+    /// <summary>
+    /// Extracts the route template from a controller action descriptor (T007 - US1).
+    /// </summary>
+    private static string? ExtractRouteFromController(dynamic actionDescriptor)
+    {
+        try
+        {
+            // Access AttributeRouteInfo property
+            var attributeRouteInfo = actionDescriptor.AttributeRouteInfo;
+            if (attributeRouteInfo == null)
+            {
+                return null;
+            }
+
+            // Get the Template property - this contains the fully resolved route
+            // (ASP.NET Core has already replaced [controller], [action] tokens)
+            return attributeRouteInfo.Template as string;
+        }
+        catch
+        {
+            return null;
+        }
+    }
+
+    /// <summary>
+    /// Extracts the HTTP verb from a controller action descriptor (T008 - US1).
+    /// </summary>
+    private static string? ExtractHttpVerbFromController(dynamic actionDescriptor)
+    {
+        try
+        {
+            // ActionConstraints collection contains HttpMethodActionConstraint
+            var actionConstraints = actionDescriptor.ActionConstraints;
+            if (actionConstraints == null)
+            {
+                return null;
+            }
+
+            foreach (var constraint in actionConstraints)
+            {
+                if (constraint == null) continue;
+
+                var constraintType = constraint.GetType();
+                if (constraintType.Name == "HttpMethodActionConstraint")
+                {
+                    // Get HttpMethods property
+                    var httpMethodsProperty = constraintType.GetProperty("HttpMethods");
+                    if (httpMethodsProperty != null)
+                    {
+                        var httpMethods = httpMethodsProperty.GetValue(constraint) as System.Collections.IEnumerable;
+                        if (httpMethods != null)
+                        {
+                            foreach (var method in httpMethods)
+                            {
+                                if (method is string methodString && !string.IsNullOrWhiteSpace(methodString))
+                                {
+                                    return methodString;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            return null;
+        }
+        catch
+        {
+            return null;
+        }
+    }
+
+    /// <summary>
+    /// Extracts the request body type from a controller action method for schema inference (T016 - US3).
+    /// </summary>
+    private static Type? ExtractControllerRequestBodyType(MethodInfo methodInfo)
+    {
+        var parameters = methodInfo.GetParameters();
+
+        // Look for parameter with [FromBody] attribute
+        foreach (var param in parameters)
+        {
+            var fromBodyAttr = param.GetCustomAttribute<Microsoft.AspNetCore.Mvc.FromBodyAttribute>();
+            if (fromBodyAttr != null && !IsPrimitiveOrSimpleType(param.ParameterType))
+            {
+                return param.ParameterType;
+            }
+        }
+
+        // Fallback: first complex parameter (similar to Minimal API inference)
+        foreach (var param in parameters)
+        {
+            if (!IsPrimitiveOrSimpleType(param.ParameterType) && !IsFrameworkType(param.ParameterType))
+            {
+                return param.ParameterType;
+            }
+        }
+
+        return null;
     }
 
     // NOTE: Despite the name "methodPath" in the SPAS schema, consumers expect this to be ONLY the route path

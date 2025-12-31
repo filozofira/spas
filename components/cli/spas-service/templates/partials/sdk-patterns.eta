@@ -452,12 +452,12 @@ management:
 
 ---
 
-### .NET Patterns (Minimal APIs Only)
+### .NET Patterns (Minimal APIs & Controllers)
 
-> **Note:** The .NET SDK only supports minimal API endpoints (`app.MapPost`, `app.MapGet`, etc.). 
-> Controller-based routing is not supported for metadata discovery.
+> **Note:** The .NET SDK supports both minimal API endpoints (`app.MapPost`, `app.MapGet`, etc.) and ASP.NET Core MVC Controllers.
+> Choose the pattern that fits your team's preference.
 
-#### Project Structure
+#### Project Structure (Minimal APIs)
 
 ```
 {NAME}/
@@ -465,6 +465,30 @@ management:
 ├── Program.cs
 ├── appsettings.json
 ├── Dockerfile
+├── DTOs/
+│   ├── Create{Entity}Request.cs
+│   └── Create{Entity}Response.cs
+├── Models/
+│   └── {Entity}.cs
+├── Services/
+│   └── {Entity}Store.cs
+├── Events/
+│   └── {Entity}CreatedEvent.cs
+├── metadata/
+│   └── service.metadata.zip
+└── README.md
+```
+
+#### Project Structure (Controllers)
+
+```
+{NAME}/
+├── {Name}.csproj
+├── Program.cs
+├── appsettings.json
+├── Dockerfile
+├── Controllers/
+│   └── {Entity}Controller.cs
 ├── DTOs/
 │   ├── Create{Entity}Request.cs
 │   └── Create{Entity}Response.cs
@@ -592,6 +616,124 @@ await app.RunSpasServiceAsync(args, options =>
         .AddRequiredScope("{entity}.write")
         .AddDataClassification("internal"));
 });
+```
+
+#### Program.cs with Controllers
+
+```csharp
+using {Name}.Services;
+using Spas.Sdk.Metadata.Extensions;
+using Spas.Sdk.Events.Publish;
+
+var builder = WebApplication.CreateBuilder(args);
+
+// Add services to the container
+builder.Services.AddControllers();
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddHealthChecks();
+
+// Register application services
+builder.Services.AddSingleton<{Entity}Store>();
+
+// Configure SPAS SDK
+builder.Services.AddSpasMetadata();
+builder.Services.AddSpasServices(builder.Configuration, "{name}");
+
+// Configure EventPublisher for sidecar communication
+builder.Services.AddSingleton<EventPublisher>(sp =>
+{
+    var sidecarUrl = Environment.GetEnvironmentVariable("SIDECAR_URL") ?? "http://localhost:7000";
+    var serviceName = Environment.GetEnvironmentVariable("SERVICE_NAME") ?? "{name}";
+    
+    var httpClient = new HttpClient { BaseAddress = new Uri(sidecarUrl) };
+    return new EventPublisher(httpClient, serviceName);
+});
+
+var app = builder.Build();
+
+app.MapHealthChecks("/health");
+app.MapControllers();
+
+// Run with SPAS service identity
+await app.RunSpasServiceAsync(args, options =>
+{
+    options.ServiceId = "{name}";
+    options.ServiceName = "{Human-Readable Name}";
+    options.Version = "1.0.0";
+    options.BoundedContext = "{context}";
+    options.Description = "{description}";
+    
+    options.AddCapability("{entity}-management");
+    
+    options.ConfigureConsistency(c => c.WithCommands("ACID").WithQueries("EVENTUAL"));
+    options.ConfigureSecurity(s => s
+        .WithAuthenticationType("jwt")
+        .AddRequiredScope("{entity}.read")
+        .AddRequiredScope("{entity}.write")
+        .AddDataClassification("internal"));
+});
+```
+
+#### Controller Example
+
+```csharp
+using Microsoft.AspNetCore.Mvc;
+using {Name}.DTOs;
+using {Name}.Events;
+using {Name}.Services;
+using Spas.Sdk.Metadata.Attributes;
+using Spas.Sdk.Events.Publish;
+
+namespace {Name}.Controllers;
+
+[ApiController]
+[Route("{entity}s")]
+public class {Entity}Controller : ControllerBase
+{
+    private readonly {Entity}Store _store;
+    private readonly EventPublisher _publisher;
+
+    public {Entity}Controller({Entity}Store store, EventPublisher publisher)
+    {
+        _store = store;
+        _publisher = publisher;
+    }
+
+    [HttpPost]
+    [SpasCommand("Create{Entity}", "1.0", 
+        Description = "Creates a new {entity}",
+        Produces = new[] { typeof({Entity}CreatedEvent) })]
+    public async Task<IActionResult> Create([FromBody] Create{Entity}Request request)
+    {
+        var entity = new {Entity}
+        {
+            Id = Guid.NewGuid().ToString(),
+            CustomerId = request.CustomerId,
+            CreatedAt = DateTimeOffset.UtcNow
+        };
+        
+        _store.Add(entity);
+        
+        // Publish event via sidecar
+        await _publisher.PublishAsync<{Entity}CreatedEvent>(new
+        {
+            entity.Id,
+            entity.CustomerId,
+            entity.CreatedAt
+        });
+        
+        return Created($"/{entity}s/{entity.Id}", Create{Entity}Response.From(entity));
+    }
+
+    [HttpGet("{id}")]
+    [SpasQuery("Get{Entity}", "1.0", Description = "Gets a specific {entity} by ID")]
+    public IActionResult Get(string id)
+    {
+        var entity = _store.GetById(id);
+        if (entity == null) return NotFound();
+        return Ok(entity);
+    }
+}
 ```
 
 #### Event Class with [SpasEvent] Attribute

@@ -2,7 +2,8 @@
 
 **Feature Branch**: `027-java-optional-path`  
 **Created**: 2025-12-31  
-**Status**: Draft  
+**Completed**: 2025-12-30
+**Status**: ✅ Complete (PoC)
 **Input**: User description: "Make the path attribute optional in @SpasCommand and @SpasQuery annotations for the Java SDK. Currently path is required, but this is redundant when using Spring controller annotations (@RequestMapping, @PostMapping, @GetMapping, etc.) which already define the route. The compile-time generation should be disabled by default on all example services, and when enabled, the compile-time processor validation must emit an error if both path attribute and Spring annotations are missing."
 
 ## Overview
@@ -10,6 +11,7 @@
 The Java SDK currently requires developers to specify the `path` attribute in `@SpasCommand` and `@SpasQuery` annotations, even when the path is already defined via Spring's routing annotations (`@RequestMapping`, `@PostMapping`, `@GetMapping`, etc.). This creates unnecessary redundancy and maintenance burden.
 
 **Example of current redundancy**:
+
 ```java
 @SpasCommand(
     name = "CreateBasket",
@@ -23,7 +25,7 @@ public ResponseEntity<BasketResponse> createBasket(...) { }
 
 The runtime metadata generator (`SpasMetadataArchiveGenerator`) already infers paths from Spring annotations and only uses the explicit `path` attribute as a fallback. This feature formalizes that behavior by making `path` optional, achieving parity with the .NET SDK where `Path` is already optional.
 
-## User Scenarios & Testing *(mandatory)*
+## User Scenarios & Testing _(mandatory)_
 
 ### User Story 1 - Optional Path in Runtime Metadata Generation (Priority: P1) 🎯 MVP
 
@@ -99,7 +101,7 @@ Remove redundant `path` attributes from `@SpasCommand` and `@SpasQuery` annotati
 - **Absolute vs relative paths**: Method-level `@PostMapping("/absolute")` should take precedence over class-level `@RequestMapping`
 - **Empty path attribute**: `path = ""` should be treated as "not specified" and trigger inference
 
-## Requirements *(mandatory)*
+## Requirements _(mandatory)_
 
 ### Functional Requirements
 
@@ -133,7 +135,7 @@ Remove redundant `path` attributes from `@SpasCommand` and `@SpasQuery` annotati
 
 - **FR-015**: `spas-service init` agent prompts MUST be updated to instruct the LLM not to include `path` attribute in `@SpasCommand`/`@SpasQuery` when scaffolding Java Spring Boot controllers
 
-## Success Criteria *(mandatory)*
+## Success Criteria _(mandatory)_
 
 ### Measurable Outcomes
 

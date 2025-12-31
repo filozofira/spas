@@ -15,9 +15,9 @@
 
 **Purpose**: Annotation attribute changes that enable all other work
 
-- [ ] T001 [P] Add `default ""` to `path()` in `components/sdk/java/spas-sdk-metadata/src/main/java/io/spas/sdk/metadata/annotations/SpasCommand.java`
-- [ ] T002 [P] Add `default ""` to `path()` in `components/sdk/java/spas-sdk-metadata/src/main/java/io/spas/sdk/metadata/annotations/SpasQuery.java`
-- [ ] T003 [P] Update Javadoc on `path()` to explain optional behavior and inference in both annotation files
+- [X] T001 [P] Add `default ""` to `path()` in `components/sdk/java/spas-sdk-metadata/src/main/java/io/spas/sdk/metadata/annotations/SpasCommand.java`
+- [X] T002 [P] Add `default ""` to `path()` in `components/sdk/java/spas-sdk-metadata/src/main/java/io/spas/sdk/metadata/annotations/SpasQuery.java`
+- [X] T003 [P] Update Javadoc on `path()` to explain optional behavior and inference in both annotation files
 
 **Checkpoint**: Annotations now accept omitted `path` attribute - foundation for all user stories
 

@@ -29,4 +29,24 @@ public class InventoryStore
             _inventory[productId] = new InventoryItem(productId, newAvailable, newReserved);
         }
     }
+
+    /// <summary>
+    /// Releases reserved stock back to available inventory.
+    /// Used for rental returns, order cancellations, or reverse logistics.
+    /// </summary>
+    public bool Release(string productId, int quantity)
+    {
+        if (_inventory.TryGetValue(productId, out var item))
+        {
+            // Only release up to what's currently reserved
+            var actualRelease = Math.Min(quantity, item.ReservedQuantity);
+            if (actualRelease <= 0) return false;
+
+            var newAvailable = item.AvailableQuantity + actualRelease;
+            var newReserved = item.ReservedQuantity - actualRelease;
+            _inventory[productId] = new InventoryItem(productId, newAvailable, newReserved);
+            return true;
+        }
+        return false;
+    }
 }

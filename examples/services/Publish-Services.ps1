@@ -41,3 +41,10 @@ spas-service publish --archive ./basket-service/metadata/service.metadata.zip `
 --image-digest sha256:TODO_UPDATE_AFTER_BUILD
 
 Write-Host "Published Basket Service"
+
+spas-service publish --archive ./rental-service/metadata/service.metadata.zip `
+--image-repository spas-examples/rental-service `
+--image-tag 1.0.0 `
+--image-digest sha256:TODO_UPDATE_AFTER_BUILD
+
+Write-Host "Published Rental Service"

@@ -52,6 +52,11 @@ components/sdk/dotnet/src/Spas.Sdk.Inbound/
 ├── Spas.Sdk.Inbound.csproj                      # Add FrameworkReference
 └── Extensions/
     └── SpasEndpointRouteBuilderExtensions.cs    # New extension method
+
+components/cli/spas-compose/
+└── src/
+    └── generators/
+        └── docker-compose/                      # Update generator logic to add healthcheck block
 ```
 
 ## Complexity Tracking

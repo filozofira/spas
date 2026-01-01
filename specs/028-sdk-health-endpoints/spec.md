@@ -56,6 +56,21 @@ A service developer needs to ensure the service reports as "unhealthy" if a crit
 1. **Given** a developer has registered a custom health check, **When** that check fails (e.g., throws exception or reports down), **Then** `/_spas/health/ready` returns 503 Service Unavailable.
 2. **Given** the custom check passes, **Then** `/_spas/health/ready` returns 200 OK.
 
+---
+
+### User Story 4 - Compose Generates Docker Healthchecks (Priority: P2)
+
+When generating the local development environment, `spas-compose` automatically configures Docker healthchecks using the standard endpoints. This ensures services start in dependency order without manual configuration.
+
+**Why this priority**: Delivers the "Zero Configuration" promise to the developer's inner loop.
+
+**Independent Test**: Run `spas-compose choreography build` and inspect the generated `docker-compose.yml`.
+
+**Acceptance Scenarios**:
+
+1. **Given** a SPAS service in the choreography, **When** `spas-compose choreography build` is run, **Then** the generated `docker-compose.yml` service entry includes a `healthcheck` block pointing to `/_spas/health/ready`.
+2. **Given** the generated compose file, **When** `docker compose up` is run, **Then** dependent services wait for the healthcheck to pass before starting (via `depends_on: condition: service_healthy`).
+
 ### Edge Cases
 
 - **Framework Conflicts**: What happens if the user already has Actuator/HealthChecks configured on different paths? (SDK should add SPAS paths *in addition* to existing ones, or map to the same underlying registry).
@@ -70,6 +85,7 @@ A service developer needs to ensure the service reports as "unhealthy" if a crit
 - **FR-003**: .NET SDK MUST expose `GET /_spas/health/live` for liveness probes.
 - **FR-004**: .NET SDK MUST expose `GET /_spas/health/ready` for readiness probes.
 - **FR-005**: Both SDKs MUST return an identical JSON response format for health status to ensure consistent parsing by the sidecar.
+- **SC-004**: Generated `docker-compose.yml` files include valid `healthcheck` definitions for all SPAS services.
 - **FR-006**: The JSON response format MUST be a minimal object `{ "status": "UP" | "DOWN" }`. The schema MUST be treated as open-ended; consumers MUST ignore unknown properties to allow for future inclusion of detailed diagnostics.
 - **FR-012**: The `/_spas/health/*` endpoints MUST be exposed on the service's **main application port** (HTTP traffic port), even if the underlying framework (e.g., Spring Boot Actuator) is configured to use a separate management port. This ensures the Sidecar can access them without additional port configuration.
 - **FR-013**: The `/_spas/health/*` endpoints MUST be accessible anonymously (publicly) by default. The SDK MUST configure the application's security chain (e.g., Spring Security, ASP.NET Core Auth) to permit unauthenticated access to these specific paths.

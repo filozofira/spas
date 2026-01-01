@@ -1,5 +1,17 @@
 # equipment-rental
 
+```mermaid
+flowchart LR
+    Start([Start]) --> RS["rental-service"]
+    RS -->|rental-requested| IS["inventory-service"]
+    RS -->|rental-returned| IS
+    IS -->|stock-reserved| FS["fulfillment-service"]
+    IS -->|stock-depleted| End([End])
+    IS -->|stock-released| End
+    FS -->|shipment-created| End
+    FS -->|shipment-status-changed| End
+```
+
 **SPAS Domain Workspace**
 
 This workspace contains choreography configuration for composing SPAS services into a domain context.

@@ -1,0 +1,9 @@
+/* inbound-rental-returned.jsonata */
+/* Transforms rental-service.rental-returned event -> inventory-service.release-stock request */
+{
+  "referenceId": rentalId,
+  "items": $append([], items.{
+    "productId": productId,
+    "quantity": quantity
+  })
+}

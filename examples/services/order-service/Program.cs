@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Builder;
 using OrderService.Services;
+using Spas.Sdk.Inbound.Extensions;
 using Spas.Sdk.Metadata.Extensions;
 using Spas.Sdk.Observability.Extensions;
 
@@ -9,13 +10,17 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddSingleton<OrderStore>();
 builder.Services.AddSpasMetadata();
 builder.Services.AddSpasServices(builder.Configuration, "order-service");
+builder.Services.AddSpasHealthChecks();
 
 // Add Controllers support (all endpoints are now controller-based)
 builder.Services.AddControllers();
 
 var app = builder.Build();
 
-// Map Controllers (provides all endpoints at /orders/*)
+// Map SPAS health endpoints (/_spas/health/*)
+app.UseSpasHealthChecks();
+
+// Map Controllers (provides all endpoints at /orders/*)  
 app.MapControllers();
 
 // Run SPAS service (generates metadata if --generate-metadata, else starts server)

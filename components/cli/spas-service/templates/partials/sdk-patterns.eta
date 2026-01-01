@@ -539,7 +539,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddHealthChecks();
+builder.Services.AddSpasHealthChecks();
 
 // Register application services
 builder.Services.AddSingleton<{Entity}Store>();
@@ -560,7 +560,7 @@ builder.Services.AddSingleton<EventPublisher>(sp =>
 
 var app = builder.Build();
 
-app.MapHealthChecks("/health");
+app.UseSpasHealthChecks();
 
 // Define minimal API endpoints inline with SPAS attributes
 // Command: Create a new {entity} - produces {entity}-created event

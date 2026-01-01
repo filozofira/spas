@@ -66,6 +66,7 @@ The workspace at `<%= it.workspaceRoot %>/{NAME}/` has the following structure:
 **Required Imports** (add to Program.cs and relevant files):
 ```csharp
 using Spas.Sdk.Events.Publish;           // EventPublisher class
+using Spas.Sdk.Inbound.Extensions;       // AddSpasHealthChecks(), UseSpasHealthChecks()
 using Spas.Sdk.Metadata.Attributes;      // [SpasCommand], [SpasQuery], [SpasEvent]
 using Spas.Sdk.Metadata.Extensions;      // AddSpasMetadata(), RunSpasServiceAsync()
 using Spas.Sdk.Observability.Extensions; // AddSpasServices()

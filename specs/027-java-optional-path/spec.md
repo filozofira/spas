@@ -2,7 +2,7 @@
 
 **Feature Branch**: `027-java-optional-path`  
 **Created**: 2025-12-31  
-**Completed**: 2025-12-30
+**Completed**: 2025-12-31
 **Status**: ✅ Complete (PoC)
 **Input**: User description: "Make the path attribute optional in @SpasCommand and @SpasQuery annotations for the Java SDK. Currently path is required, but this is redundant when using Spring controller annotations (@RequestMapping, @PostMapping, @GetMapping, etc.) which already define the route. The compile-time generation should be disabled by default on all example services, and when enabled, the compile-time processor validation must emit an error if both path attribute and Spring annotations are missing."
 

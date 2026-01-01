@@ -47,7 +47,7 @@ interface DockerService {
   ports?: string[];
   environment?: string[] | Record<string, string>;
   volumes?: string[];
-  depends_on?: string[];
+  depends_on?: string[] | Record<string, { condition: string }>;
   networks?: string[];
   pull_policy?: "always" | "never" | "missing" | "build";
   healthcheck?: {
@@ -288,6 +288,14 @@ export class DockerGenerator {
       service.build = `./${serviceName}`;
     }
 
+    // T014: Add standard SPAS health check
+    service.healthcheck = {
+      test: ["CMD-SHELL", `curl -f http://localhost:${internalPort}/_spas/health/ready || exit 1`],
+      interval: "10s",
+      timeout: "5s",
+      retries: 5,
+    };
+
     return service;
   }
 
@@ -329,12 +337,16 @@ export class DockerGenerator {
       : "${ZIPKIN_URL}";
 
     // Build depends_on based on enabled backbones
-    const dependsOn: string[] = [];
+    const dependsOn: Record<string, { condition: string }> = {};
     if (config.eventBackbone.enabled) {
-      dependsOn.push(config.eventBackbone.containerName.replace("spas-", ""));
+      const name = config.eventBackbone.containerName.replace("spas-", "");
+      dependsOn[name] = {
+        condition: config.eventBackbone.healthcheck ? "service_healthy" : "service_started",
+      };
     }
     if (config.observabilityBackbone.enabled) {
-      dependsOn.push(config.observabilityBackbone.containerName.replace("spas-", ""));
+      const name = config.observabilityBackbone.containerName.replace("spas-", "");
+      dependsOn[name] = { condition: "service_started" };
     }
 
     const service: DockerService = {
@@ -360,7 +372,7 @@ export class DockerGenerator {
     };
 
     // Only add depends_on if there are dependencies
-    if (dependsOn.length > 0) {
+    if (Object.keys(dependsOn).length > 0) {
       service.depends_on = dependsOn;
     }
 

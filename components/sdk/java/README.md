@@ -12,6 +12,8 @@ The Java SDK for building **SPAS (Self-contained, Portable, Adaptable Services)*
 
 ### Local Development Setup
 
+> **Note:** The SPAS Java SDK is currently **not published to Maven Central**. All development uses your **local Maven repository** (`~/.m2/repository/`) only.
+
 When developing services that reference SPAS SDK packages, you need to build and install the SDK to your local Maven repository:
 
 **One-time setup:**
@@ -132,6 +134,34 @@ Descriptions improve AI-assisted choreography. Use plain text describing intent,
 - ❌ Bad: "CreateShipment" (restates name), "Does the thing" (too generic)
 
 More examples: [SDK Principles](../../../principles/component/12-sdk.md)
+
+### Health Checks
+
+The SDK **automatically** exposes standard health endpoints when using `spas-sdk-spring` (via Spring Boot auto-configuration). No additional setup required.
+
+**Endpoints:**
+
+- `GET /_spas/health/live`: Liveness probe (Always UP)
+- `GET /_spas/health/ready`: Readiness probe (Delegates to Spring Boot Actuator)
+
+**Response format:**
+```json
+{ "status": "UP" }
+```
+
+**Adding custom checks:**
+
+Implement `HealthIndicator` beans as per standard Spring Boot Actuator documentation:
+
+```java
+@Component
+public class DatabaseHealthIndicator implements HealthIndicator {
+    @Override
+    public Health health() {
+        return Health.up().withDetail("database", "connected").build();
+    }
+}
+```
 
 ### Additional Resources
 

@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Builder;
 using SubscriptionService.Services;
+using Spas.Sdk.Inbound.Extensions;
 using Spas.Sdk.Metadata.Extensions;
 using Spas.Sdk.Observability.Extensions;
 
@@ -9,11 +10,15 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddSingleton<SubscriptionStore>();
 builder.Services.AddSpasMetadata();
 builder.Services.AddSpasServices(builder.Configuration, "subscription-service");
+builder.Services.AddSpasHealthChecks();
 
 // Add Controllers support (all endpoints are now controller-based)
 builder.Services.AddControllers();
 
 var app = builder.Build();
+
+// Map SPAS health endpoints (/_spas/health/*)
+app.UseSpasHealthChecks();
 
 // Map Controllers (provides all endpoints at /subscriptions/*)
 app.MapControllers();

@@ -11,6 +11,8 @@ The .NET SDK for building **SPAS (Self-contained, Portable, Adaptable Services)*
 
 ### Local Development Setup
 
+> **Note:** The SPAS .NET SDK is currently **not published to NuGet.org**. All development uses a **local NuGet feed** only.
+
 When developing services that reference SPAS SDK packages, you need the SDK packages available locally:
 
 **One-time setup:**
@@ -123,6 +125,44 @@ Descriptions improve AI-assisted choreography. Use plain text describing intent,
 - ❌ Bad: "CreateOrder" (restates name), "Handles orders" (too generic)
 
 More examples: [SDK Principles](../../../principles/component/12-sdk.md)
+
+### Health Checks
+
+The SDK exposes standard health endpoints on the main application port. To enable them:
+
+```csharp
+using Spas.Sdk.Inbound.Extensions;
+
+var builder = WebApplication.CreateBuilder(args);
+
+// Register SPAS health checks (wraps ASP.NET Core Health Checks)
+builder.Services.AddSpasHealthChecks();
+
+var app = builder.Build();
+
+// Map health endpoints at /_spas/health/*
+app.UseSpasHealthChecks();
+
+app.Run();
+```
+
+**Endpoints:**
+
+- `GET /_spas/health/live`: Liveness probe (Always UP)
+- `GET /_spas/health/ready`: Readiness probe (Delegates to ASP.NET Core Health Checks)
+
+**Response format:**
+```json
+{ "status": "UP" }
+```
+
+**Adding custom checks:**
+
+```csharp
+builder.Services.AddSpasHealthChecks();
+builder.Services.AddHealthChecks()
+    .AddCheck<MyDatabaseCheck>("database");
+```
 
 ### Additional Resources
 

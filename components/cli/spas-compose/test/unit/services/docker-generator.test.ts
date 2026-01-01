@@ -95,6 +95,24 @@ describe("DockerGenerator", () => {
       expect(result.content).toContain("services:");
     });
 
+    it("should include healthcheck configuration for services", () => {
+      // Arrange
+      const generator = new DockerGenerator(workspacePath);
+
+      // Act
+      const result = generator.generate(sampleChoreography);
+
+      // Assert
+      expect(result.success).toBe(true);
+      const content = result.content!;
+      expect(content).toContain("healthcheck:");
+      expect(content).toContain("test:");
+      expect(content).toContain("curl -f http://localhost:8080/_spas/health/ready");
+      expect(content).toContain("interval: 10s");
+      expect(content).toContain("timeout: 5s");
+      expect(content).toContain("retries: 5");
+    });
+
     it("should include Redis when enabled", () => {
       // Arrange
       const generator = new DockerGenerator(workspacePath);

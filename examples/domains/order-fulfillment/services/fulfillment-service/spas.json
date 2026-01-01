@@ -1,0 +1,126 @@
+{
+  "schemaVersion": "runtime-metadata-v1",
+  "id": "fulfillment-service",
+  "name": "Fulfillment Service",
+  "description": "Creates and tracks shipments for confirmed orders; publishes shipment lifecycle events for downstream services",
+  "version": "1.0.0",
+  "boundedContext": "fulfillment",
+  "capabilities": [
+    "shipment-creation",
+    "shipment-tracking"
+  ],
+  "endpoints": [
+    {
+      "name": "list-shipments",
+      "type": "Query",
+      "protocol": "Http",
+      "methodPath": "/api/fulfillments",
+      "version": "1.0.0",
+      "schemaRef": "schemas/endpoints/shipment-response.schema.json",
+      "description": "Lists all known shipments (demo endpoint; may return in-memory state)"
+    },
+    {
+      "name": "get-shipment",
+      "type": "Query",
+      "protocol": "Http",
+      "methodPath": "/api/fulfillments/{id}",
+      "version": "1.0.0",
+      "schemaRef": "schemas/endpoints/shipment-response.schema.json",
+      "description": "Returns shipment details by shipmentId"
+    },
+    {
+      "name": "update-shipment-status",
+      "type": "Command",
+      "protocol": "Http",
+      "methodPath": "/api/fulfillments/{id}/status",
+      "version": "1.0.0",
+      "schemaRef": "schemas/endpoints/update-status-request.schema.json",
+      "description": "Updates a shipment's status (e.g., packed/shipped/delivered); emits ShipmentStatusChanged on success"
+    },
+    {
+      "name": "get-shipment-by-reference-id",
+      "type": "Query",
+      "protocol": "Http",
+      "methodPath": "/api/fulfillments/by-reference/{referenceId}",
+      "version": "1.0.0",
+      "schemaRef": "schemas/endpoints/shipment-response.schema.json",
+      "description": "Finds the shipment associated with a given external referenceId"
+    },
+    {
+      "name": "create-shipment",
+      "type": "Command",
+      "protocol": "Http",
+      "methodPath": "/shipments",
+      "version": "1.0.0",
+      "schemaRef": "schemas/endpoints/create-shipment-request.schema.json",
+      "description": "Creates a shipment for a confirmed order using the destination address; emits ShipmentCreated when successful"
+    }
+  ],
+  "commands": [
+    {
+      "name": "update-shipment-status",
+      "version": "1.0.0",
+      "produces": [
+        {
+          "type": "shipment-status-changed",
+          "version": "1.0.0",
+          "when": "success"
+        }
+      ]
+    },
+    {
+      "name": "create-shipment",
+      "version": "1.0.0",
+      "produces": [
+        {
+          "type": "shipment-created",
+          "version": "1.0.0",
+          "when": "success"
+        }
+      ]
+    }
+  ],
+  "events": [
+    {
+      "type": "shipment-created",
+      "version": "1.0.0",
+      "schemaRef": "schemas/events/shipment-created-event.schema.json",
+      "description": "Emitted after a shipment is created for a confirmed order; indicates fulfillment has started"
+    },
+    {
+      "type": "shipment-status-changed",
+      "version": "1.0.0",
+      "schemaRef": "schemas/events/shipment-status-changed-event.schema.json",
+      "description": "Emitted whenever a shipment's status changes; signals progress through the fulfillment lifecycle"
+    }
+  ],
+  "consistency": {
+    "commands": "ACID",
+    "queries": "EVENTUAL"
+  },
+  "security": {
+    "authentication": {
+      "type": "JWT",
+      "requiredScopes": [
+        "orders.read",
+        "orders.write"
+      ]
+    },
+    "dataClassification": [
+      "internal"
+    ]
+  },
+  "network": {
+    "requiredEgress": [
+      "localhost:6379"
+    ]
+  },
+  "license": "MIT",
+  "publishedAt": "2026-01-01T21:38:34.178Z",
+  "runtime": {
+    "digest": "sha256:TODO_UPDATE_AFTER_BUILD",
+    "repository": "spas-examples/fulfillment-service",
+    "tag": "1.0.0",
+    "image": "spas-examples/fulfillment-service@sha256:TODO_UPDATE_AFTER_BUILD"
+  }
+}

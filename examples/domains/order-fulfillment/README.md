@@ -1,5 +1,17 @@
 # order-fulfillment
 
+```mermaid
+flowchart LR
+    Start([Start]) --> OS[order-service]
+    OS -->|order-created| IS[inventory-service]
+    IS -->|stock-reserved| OS
+    IS -->|stock-depleted| OS
+    OS -->|order-confirmed| FS[fulfillment-service]
+    FS -->|shipment-created| OS
+    FS -->|shipment-status-changed| OS
+    OS -->|order-cancelled| End([End])
+```
+
 **SPAS Domain Workspace**
 
 This workspace contains choreography configuration for composing SPAS services into a domain context.

@@ -1,0 +1,6 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "OrderCancelledEvent",
+  "type": "object",
+  "additionalProperties": false
+}

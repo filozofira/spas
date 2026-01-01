@@ -1,0 +1,44 @@
+{
+  "inbound": [
+    {
+      "kind": "event",
+      "topic": "inventory-events",
+      "invokeEndpoint": "/orders/confirm",
+      "eventType": "com.inventory-service.stock-reserved",
+      "transform": "transformations/inbound-stock-reserved.jsonata"
+    },
+    {
+      "kind": "event",
+      "topic": "inventory-events",
+      "invokeEndpoint": "/orders/{id}/cancel",
+      "eventType": "com.inventory-service.stock-depleted",
+      "transform": "transformations/inbound-stock-depleted.jsonata"
+    },
+    {
+      "kind": "event",
+      "topic": "fulfillment-events",
+      "invokeEndpoint": "/orders/shipment-status",
+      "eventType": "com.fulfillment-service.shipment-created",
+      "transform": "transformations/inbound-shipment-created.jsonata"
+    },
+    {
+      "kind": "event",
+      "topic": "fulfillment-events",
+      "invokeEndpoint": "/orders/shipment-status",
+      "eventType": "com.fulfillment-service.shipment-status-changed",
+      "transform": "transformations/inbound-shipment-status-changed.jsonata"
+    }
+  ],
+  "outbound": [
+    {
+      "topic": "order-events",
+      "eventType": "com.order-service.order-created",
+      "eventName": "order-created"
+    },
+    {
+      "topic": "order-events",
+      "eventType": "com.order-service.order-confirmed",
+      "eventName": "order-confirmed"
+    }
+  ]
+}

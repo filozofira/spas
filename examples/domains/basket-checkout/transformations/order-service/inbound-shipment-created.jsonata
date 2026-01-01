@@ -1,0 +1,7 @@
+/* inbound-shipment-created.jsonata */
+/* Transforms shipment-created (fulfillment-service) -> update-shipment-status (order-service) */
+{
+  "orderId": referenceId,
+  "shipmentId": shipmentId,
+  "status": status
+}

@@ -1,0 +1,8 @@
+/* inbound-order-confirmed.jsonata */
+/* Transforms order-confirmed (order-service) -> clear-basket (basket-service) */
+{
+  "orderId": orderId,
+  "referenceId": referenceId,
+  "customerId": "unknown", /* Not present in source event */
+  "createdAt": $now()
+}

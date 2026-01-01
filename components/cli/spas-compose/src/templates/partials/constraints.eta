@@ -7,3 +7,4 @@
 | **Valid JSONata** | All .jsonata files must have valid syntax |
 | **Confirm before write** | ALWAYS wait for explicit confirmation |
 | **Kebab-case naming** | Topics and file names use lowercase-hyphenated format |
+| **Ignore infrastructure endpoints** | NEVER include `/_spas/*` endpoints (health probes, SDK internals) in choreography flows — these are infrastructure, not business capabilities |

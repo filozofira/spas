@@ -1,5 +1,6 @@
 using Spas.Sdk.Core.Identity;
 using Spas.Sdk.Events.Publish;
+using Spas.Sdk.Inbound.Extensions;
 using Spas.Sdk.Metadata.Attributes;
 using Spas.Sdk.Metadata.Extensions;
 using Spas.Sdk.Observability.Extensions;
@@ -18,7 +19,13 @@ builder.Services.AddSpasMetadata(options =>
 // Reads: SERVICE_NAME, SIDECAR_HOST, SIDECAR_PORT (or SIDECAR_URL), ZIPKIN_URL
 var serviceName = builder.Services.AddSpasServices(builder.Configuration, "sample-service");
 
+// Register SPAS health checks
+builder.Services.AddSpasHealthChecks();
+
 var app = builder.Build();
+
+// Map SPAS health endpoints (/_spas/health/*)
+app.UseSpasHealthChecks();
 
 // Enable SPAS identity middleware to populate SpasContext from HTTP context
 app.UseSpasIdentity();

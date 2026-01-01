@@ -80,16 +80,16 @@ Use these checklists to verify each phase is complete before proceeding.
 - [ ] HEALTHCHECK configured
 - [ ] ENTRYPOINT or CMD set
 - [ ] .dockerignore created
-- [ ] Health check endpoint implemented:
-  - [ ] Java: /actuator/health
-  - [ ] .NET: /health
+- [ ] Health check endpoints implemented:
+  - [ ] Java: /_spas/health/live and /_spas/health/ready (auto-configured via spas-sdk-spring)
+  - [ ] .NET: /_spas/health/live and /_spas/health/ready (via AddSpasHealthChecks/UseSpasHealthChecks)
 - [ ] Environment variables documented
 
 ### Phase 9: Validate ✓
 - [ ] Project builds without errors
 - [ ] Tests pass (if created)
 - [ ] Application starts without errors
-- [ ] Health check endpoint responds
+- [ ] Health check endpoints respond (/_spas/health/live and /_spas/health/ready)
 - [ ] At least one endpoint responds correctly
 - [ ] Metadata archive created: `metadata/service.metadata.zip`
 - [ ] Archive contains spas.json

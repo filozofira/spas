@@ -7,6 +7,7 @@ WORKDIR /src
 
 # Copy SDK projects
 COPY ["components/sdk/dotnet/src/Spas.Sdk.Core/Spas.Sdk.Core.csproj", "components/sdk/dotnet/src/Spas.Sdk.Core/"]
+COPY ["components/sdk/dotnet/src/Spas.Sdk.Inbound/Spas.Sdk.Inbound.csproj", "components/sdk/dotnet/src/Spas.Sdk.Inbound/"]
 COPY ["components/sdk/dotnet/src/Spas.Sdk.Metadata/Spas.Sdk.Metadata.csproj", "components/sdk/dotnet/src/Spas.Sdk.Metadata/"]
 COPY ["components/sdk/dotnet/src/Spas.Sdk.Events/Spas.Sdk.Events.csproj", "components/sdk/dotnet/src/Spas.Sdk.Events/"]
 COPY ["components/sdk/dotnet/src/Spas.Sdk.Observability/Spas.Sdk.Observability.csproj", "components/sdk/dotnet/src/Spas.Sdk.Observability/"]

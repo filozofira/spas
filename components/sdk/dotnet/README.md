@@ -128,21 +128,40 @@ More examples: [SDK Principles](../../../principles/component/12-sdk.md)
 
 ### Health Checks
 
-The SDK automatically exposes standard health endpoints on the main application port:
+The SDK exposes standard health endpoints on the main application port. To enable them:
+
+```csharp
+using Spas.Sdk.Inbound.Extensions;
+
+var builder = WebApplication.CreateBuilder(args);
+
+// Register SPAS health checks (wraps ASP.NET Core Health Checks)
+builder.Services.AddSpasHealthChecks();
+
+var app = builder.Build();
+
+// Map health endpoints at /_spas/health/*
+app.UseSpasHealthChecks();
+
+app.Run();
+```
+
+**Endpoints:**
 
 - `GET /_spas/health/live`: Liveness probe (Always UP)
 - `GET /_spas/health/ready`: Readiness probe (Delegates to ASP.NET Core Health Checks)
 
-Response format:
+**Response format:**
 ```json
 { "status": "UP" }
 ```
 
-To add custom checks, register `IHealthCheck` services in `Program.cs`:
+**Adding custom checks:**
 
 ```csharp
+builder.Services.AddSpasHealthChecks();
 builder.Services.AddHealthChecks()
-    .AddCheck<MyCustomCheck>("custom_check");
+    .AddCheck<MyDatabaseCheck>("database");
 ```
 
 ### Additional Resources

@@ -137,17 +137,31 @@ More examples: [SDK Principles](../../../principles/component/12-sdk.md)
 
 ### Health Checks
 
-The SDK automatically exposes standard health endpoints on the main application port:
+The SDK **automatically** exposes standard health endpoints when using `spas-sdk-spring` (via Spring Boot auto-configuration). No additional setup required.
+
+**Endpoints:**
 
 - `GET /_spas/health/live`: Liveness probe (Always UP)
 - `GET /_spas/health/ready`: Readiness probe (Delegates to Spring Boot Actuator)
 
-Response format:
+**Response format:**
 ```json
 { "status": "UP" }
 ```
 
-To add custom checks, implement `HealthIndicator` beans as per standard Spring Boot Actuator documentation.
+**Adding custom checks:**
+
+Implement `HealthIndicator` beans as per standard Spring Boot Actuator documentation:
+
+```java
+@Component
+public class DatabaseHealthIndicator implements HealthIndicator {
+    @Override
+    public Health health() {
+        return Health.up().withDetail("database", "connected").build();
+    }
+}
+```
 
 ### Additional Resources
 

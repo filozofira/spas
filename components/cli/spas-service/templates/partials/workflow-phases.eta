@@ -177,6 +177,7 @@ Proceed to Phase 2 (Project Structure)? (yes/no)
        <PackageReference Include="Spas.Sdk.Core" Version="1.0.0-*" />
        <PackageReference Include="Spas.Sdk.Metadata" Version="1.0.0-*" />
        <PackageReference Include="Spas.Sdk.Events" Version="1.0.0-*" />
+       <PackageReference Include="Spas.Sdk.Inbound" Version="1.0.0-*" />
        <PackageReference Include="Spas.Sdk.Observability" Version="1.0.0-*" />
      </ItemGroup>
    </Project>
@@ -615,7 +616,7 @@ Proceed to Phase 8 (Runtime)? (yes/no)
    COPY target/*.jar app.jar
    EXPOSE 8080
    HEALTHCHECK --interval=30s --timeout=3s \
-     CMD wget -q --spider http://localhost:8080/actuator/health || exit 1
+     CMD wget -q --spider http://localhost:8080/_spas/health/live || exit 1
    ENTRYPOINT ["java", "-jar", "app.jar"]
    
    # .NET
@@ -624,12 +625,12 @@ Proceed to Phase 8 (Runtime)? (yes/no)
    COPY bin/Release/net10.0/publish .
    EXPOSE 8080
    HEALTHCHECK --interval=30s --timeout=3s \
-     CMD wget -q --spider http://localhost:8080/health || exit 1
+     CMD wget -q --spider http://localhost:8080/_spas/health/live || exit 1
    ENTRYPOINT ["dotnet", "{Name}.Api.dll"]
    ```
 2. Add health check endpoint:
-   - **Java**: Spring Actuator `/actuator/health`
-   - **.NET**: Health checks middleware `/health`
+   - **Java**: SPAS SDK auto-configures `/_spas/health/live` and `/_spas/health/ready` via `spas-sdk-spring`
+   - **.NET**: Use `AddSpasHealthChecks()` and `UseSpasHealthChecks()` to enable `/_spas/health/live` and `/_spas/health/ready`
 3. Configure environment variables:
    - `SIDECAR_URL` (or `SIDECAR_HOST` + `SIDECAR_PORT`) - Sidecar endpoint
    - `SERVER_PORT` or `ASPNETCORE_URLS` - Application port
@@ -646,7 +647,7 @@ Phase 8 (Runtime) complete.
 Created:
 - Dockerfile
 - .dockerignore
-- Health check endpoint at /health (or /actuator/health)
+- Health check endpoints at /_spas/health/live and /_spas/health/ready
 
 Proceed to Phase 9 (Validate & Generate Metadata)? (yes/no)
 ```

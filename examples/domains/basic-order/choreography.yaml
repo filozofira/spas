@@ -41,6 +41,14 @@ flows:
           - service: inventory-service
             command: release-stock
             transform: transformations/inventory-service/inbound-order-cancelled.jsonata
+      - source: order-service
+        event: order-confirmed
+        topic: order-events
+        targets: []
+      - source: inventory-service
+        event: stock-released
+        topic: inventory-events
+        targets: []
 
 # Infrastructure components (optional)
 infrastructure:

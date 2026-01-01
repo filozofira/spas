@@ -1,0 +1,35 @@
+{
+  "inbound": [
+    {
+      "kind": "event",
+      "topic": "inventory-events",
+      "invokeEndpoint": "/orders/confirm",
+      "eventType": "com.inventory-service.stock-reserved",
+      "transform": "transformations/inbound-stock-reserved.jsonata"
+    },
+    {
+      "kind": "event",
+      "topic": "inventory-events",
+      "invokeEndpoint": "/orders/{id}/cancel",
+      "eventType": "com.inventory-service.stock-depleted",
+      "transform": "transformations/inbound-stock-depleted.jsonata"
+    }
+  ],
+  "outbound": [
+    {
+      "topic": "order-events",
+      "eventType": "com.order-service.order-created",
+      "eventName": "order-created"
+    },
+    {
+      "topic": "order-events",
+      "eventType": "com.order-service.order-cancelled",
+      "eventName": "order-cancelled"
+    },
+    {
+      "topic": "order-events",
+      "eventType": "com.order-service.order-confirmed",
+      "eventName": "order-confirmed"
+    }
+  ]
+}

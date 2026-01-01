@@ -1,0 +1,38 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "properties": {
+    "customerId": {
+      "type": "string"
+    },
+    "deliveryMethod": {
+      "type": "string"
+    },
+    "pickupLocationId": {
+      "type": "string"
+    },
+    "referenceId": {
+      "type": "string"
+    },
+    "shippingAddress": {
+      "type": "object",
+      "properties": {
+        "city": {
+          "type": "string"
+        },
+        "country": {
+          "type": "string"
+        },
+        "postalCode": {
+          "type": "string"
+        },
+        "state": {
+          "type": "string"
+        },
+        "street": {
+          "type": "string"
+        }
+      }
+    }
+  }
+}

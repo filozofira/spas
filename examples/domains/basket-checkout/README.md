@@ -1,5 +1,23 @@
 # basket-checkout
 
+```mermaid
+flowchart LR
+    Start([Start]) --> BS[basket-service]
+    BS -->|checkout-initiated| OS[order-service]
+    OS -->|order-created| IS[inventory-service]
+    IS -->|stock-reserved| OS
+    OS -->|order-confirmed| BS
+    OS -->|order-confirmed| FS[fulfillment-service]
+    FS -->|shipment-created| OS
+    FS -->|shipment-status-changed| OS
+    OS -->|order-cancelled| IS
+    IS -->|stock-depleted| BS
+    BS -->|basket-created| End([End])
+    BS -->|item-added| End
+    BS -->|item-removed| End
+    IS -->|stock-released| End
+```
+
 **SPAS Domain Workspace**
 
 This workspace contains choreography configuration for composing SPAS services into a domain context.

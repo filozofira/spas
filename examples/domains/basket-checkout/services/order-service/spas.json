@@ -1,0 +1,156 @@
+{
+  "schemaVersion": "runtime-metadata-v1",
+  "id": "order-service",
+  "name": "order-service",
+  "description": "Order lifecycle management service",
+  "version": "1.0.0",
+  "boundedContext": "order",
+  "capabilities": [
+    "order-management"
+  ],
+  "endpoints": [
+    {
+      "name": "create-order",
+      "type": "Command",
+      "protocol": "Http",
+      "methodPath": "/orders",
+      "version": "1.0",
+      "schemaRef": "schemas/endpoints/create-order.schema.json",
+      "description": "Creates a new order from cart items and publishes OrderCreated; returns the new orderId"
+    },
+    {
+      "name": "list-orders",
+      "type": "Query",
+      "protocol": "Http",
+      "methodPath": "/orders",
+      "version": "1.0",
+      "schemaRef": "schemas/endpoints/list-orders.schema.json",
+      "description": "Lists all orders currently known to the service"
+    },
+    {
+      "name": "get-order",
+      "type": "Query",
+      "protocol": "Http",
+      "methodPath": "/orders/{id}",
+      "version": "1.0",
+      "schemaRef": "schemas/endpoints/get-order.schema.json",
+      "description": "Returns order details and status history for a given orderId"
+    },
+    {
+      "name": "confirm-order",
+      "type": "Command",
+      "protocol": "Http",
+      "methodPath": "/orders/confirm",
+      "version": "1.0",
+      "schemaRef": "schemas/endpoints/confirm-order.schema.json",
+      "description": "Confirms an order after inventory reservation and publishes OrderConfirmed"
+    },
+    {
+      "name": "update-shipment-status",
+      "type": "Command",
+      "protocol": "Http",
+      "methodPath": "/orders/shipment-status",
+      "version": "1.0",
+      "schemaRef": "schemas/endpoints/update-shipment-status.schema.json",
+      "description": "Updates shipment/tracking information for an order based on fulfillment, such as shipment created, in-transit, delivered, etc."
+    },
+    {
+      "name": "cancel-order",
+      "type": "Command",
+      "protocol": "Http",
+      "methodPath": "/orders/{id}/cancel",
+      "version": "1.0",
+      "schemaRef": "schemas/endpoints/cancel-order.schema.json",
+      "description": "Cancels an existing order"
+    }
+  ],
+  "commands": [
+    {
+      "name": "create-order",
+      "version": "1.0",
+      "produces": [
+        {
+          "type": "order-created",
+          "version": "1.0",
+          "when": "success"
+        }
+      ]
+    },
+    {
+      "name": "confirm-order",
+      "version": "1.0",
+      "produces": [
+        {
+          "type": "order-confirmed",
+          "version": "1.0",
+          "when": "success"
+        }
+      ]
+    },
+    {
+      "name": "update-shipment-status",
+      "version": "1.0",
+      "produces": []
+    },
+    {
+      "name": "cancel-order",
+      "version": "1.0",
+      "produces": [
+        {
+          "type": "order-cancelled",
+          "version": "1.0",
+          "when": "success"
+        }
+      ]
+    }
+  ],
+  "events": [
+    {
+      "type": "order-cancelled",
+      "version": "1.0",
+      "schemaRef": "schemas/events/order-cancelled.schema.json",
+      "description": "Published when an order is cancelled"
+    },
+    {
+      "type": "order-confirmed",
+      "version": "1.0",
+      "schemaRef": "schemas/events/order-confirmed.schema.json",
+      "description": "Emitted after inventory reservation succeeds and the order is confirmed; triggers fulfillment"
+    },
+    {
+      "type": "order-created",
+      "version": "1.0",
+      "schemaRef": "schemas/events/order-created.schema.json",
+      "description": "Emitted after a new order is created; signals downstream services to reserve stock"
+    }
+  ],
+  "consistency": {
+    "commands": "ACID",
+    "queries": "EVENTUAL"
+  },
+  "network": {
+    "requiredEgress": [
+      "localhost:6379"
+    ]
+  },
+  "security": {
+    "authentication": {
+      "type": "jwt",
+      "requiredScopes": [
+        "orders.read",
+        "orders.write"
+      ]
+    },
+    "dataClassification": [
+      "internal"
+    ]
+  },
+  "license": "MIT",
+  "publishedAt": "2026-01-01T21:38:33.046Z",
+  "runtime": {
+    "digest": "sha256:TODO_UPDATE_AFTER_BUILD",
+    "repository": "spas-examples/order-service",
+    "tag": "1.0.0",
+    "image": "spas-examples/order-service@sha256:TODO_UPDATE_AFTER_BUILD"
+  }
+}

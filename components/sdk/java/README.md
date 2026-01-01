@@ -12,6 +12,8 @@ The Java SDK for building **SPAS (Self-contained, Portable, Adaptable Services)*
 
 ### Local Development Setup
 
+> **Note:** The SPAS Java SDK is currently **not published to Maven Central**. All development uses your **local Maven repository** (`~/.m2/repository/`) only.
+
 When developing services that reference SPAS SDK packages, you need to build and install the SDK to your local Maven repository:
 
 **One-time setup:**

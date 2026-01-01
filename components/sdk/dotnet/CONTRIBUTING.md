@@ -16,6 +16,21 @@ dotnet restore
 dotnet build
 ```
 
+### Installing to Local NuGet Feed
+
+The SDK is not published to NuGet.org. To make packages available for consuming services:
+
+```bash
+.\Publish-LocalNuGet.ps1 -Setup
+```
+
+This creates a local NuGet feed at `~/.nuget/local-feed` and publishes all SDK packages there.
+
+**After making SDK changes:**
+```bash
+.\Publish-LocalNuGet.ps1 -Rebuild
+```
+
 ## Project Structure
 
 See [README.md](./README.md#packages) for package overview. The [examples/SampleService](./examples/SampleService/) provides a runnable reference implementation.
@@ -91,12 +106,6 @@ Don't update specs for:
 - Test additions
 
 ## Module Notes
-
-### Spas.Sdk.Inbound (DEFERRED)
-
-See [src/Spas.Sdk.Inbound/README.md](./src/Spas.Sdk.Inbound/README.md) for rationale and future implementation path.
-
-**Summary**: Handler base classes deferred; services use native ASP.NET Core minimal APIs instead.
 
 ## Pull Request Checklist
 

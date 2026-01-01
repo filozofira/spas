@@ -16,6 +16,20 @@ cd components/sdk/java
 mvn clean install
 ```
 
+### Installing to Local Maven Repository
+
+The SDK is not published to Maven Central. The `mvn clean install` command above builds all modules and installs them to your local Maven repository at `~/.m2/repository/io/spas/`, making them available for consuming services to reference.
+
+**After making SDK changes:**
+```bash
+mvn clean install
+```
+
+Or skip tests for faster iteration:
+```bash
+mvn clean install -DskipTests
+```
+
 ## Project Structure
 
 See [README.md](./README.md#modules) for module overview. The [examples/sample-service](./examples/sample-service/) provides a runnable reference implementation.

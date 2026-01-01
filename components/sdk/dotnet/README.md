@@ -11,6 +11,8 @@ The .NET SDK for building **SPAS (Self-contained, Portable, Adaptable Services)*
 
 ### Local Development Setup
 
+> **Note:** The SPAS .NET SDK is currently **not published to NuGet.org**. All development uses a **local NuGet feed** only.
+
 When developing services that reference SPAS SDK packages, you need the SDK packages available locally:
 
 **One-time setup:**

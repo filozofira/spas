@@ -1,0 +1,55 @@
+openapi: 3.0.3
+info:
+  title: SPAS Health API
+  version: 1.0.0
+  description: Standard health check endpoints for SPAS services.
+paths:
+  /_spas/health/live:
+    get:
+      summary: Liveness Probe
+      description: Checks if the service process is running.
+      responses:
+        '200':
+          description: Service is alive.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthStatus'
+        '503':
+          description: Service is broken.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthStatus'
+  /_spas/health/ready:
+    get:
+      summary: Readiness Probe
+      description: Checks if the service is ready to accept traffic.
+      responses:
+        '200':
+          description: Service is ready.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthStatus'
+        '503':
+          description: Service is not ready.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthStatus'
+components:
+  schemas:
+    HealthStatus:
+      type: object
+      required:
+        - status
+      properties:
+        status:
+          type: string
+          enum:
+            - UP
+            - DOWN
+            - UNKNOWN
+            - OUT_OF_SERVICE
+      additionalProperties: true

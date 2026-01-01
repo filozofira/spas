@@ -1,5 +1,0 @@
-/* inbound-stock-reserved.jsonata */
-/* Transforms inventory-service.stock-reserved event -> fulfillment-service.create-shipment request */
-{
-  "orderId": orderId
-}

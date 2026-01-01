@@ -103,19 +103,19 @@ public class FulfillmentController {
     }
     
     /**
-     * Get shipment by order ID.
+     * Get shipment by external reference ID (order, rental, etc.).
      */
     @SpasQuery(
-        name = "GetShipmentByOrderId",
+        name = "GetShipmentByReferenceId",
         version = "1.0.0",
-        description = "Finds the shipment associated with a given orderId"
-        // Auto-generates: schemas/endpoints/get-shipment-by-order-id.schema.json
+        description = "Finds the shipment associated with a given external referenceId"
+        // Auto-generates: schemas/endpoints/get-shipment-by-reference-id.schema.json
     )
-    @GetMapping("/by-order/{orderId}")
-    public ResponseEntity<ShipmentResponse> getShipmentByOrderId(@PathVariable String orderId) {
-        log.info("Getting shipment for order: {}", orderId);
-        
-        return fulfillmentService.getShipmentByOrderId(orderId)
+    @GetMapping("/by-reference/{referenceId}")
+    public ResponseEntity<ShipmentResponse> getShipmentByReferenceId(@PathVariable String referenceId) {
+        log.info("Getting shipment for reference: {}", referenceId);
+
+        return fulfillmentService.getShipmentByReferenceId(referenceId)
             .map(shipment -> ResponseEntity.ok(ShipmentResponse.from(shipment)))
             .orElse(ResponseEntity.notFound().build());
     }

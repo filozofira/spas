@@ -51,15 +51,15 @@ public class InventoryController : ControllerBase
     }
 
     /// <summary>
-    /// Reserves stock for an order and publishes StockReserved
+    /// Reserves stock for a reference (order, rental, etc.) and publishes StockReserved
     /// </summary>
     [HttpPost("reserve")]
     [SpasCommand("ReserveStock", "1.0",
-        Description = "Reserves stock for an order and publishes StockReserved for successfully reserved items",
+        Description = "Reserves stock for a reference and publishes StockReserved for successfully reserved items",
         Produces = new[] { typeof(StockReservedEvent), typeof(StockDepletedEvent) })]
     public async Task<ActionResult> ReserveStock([FromBody] ReserveStockRequest request)
     {
-        Console.WriteLine($"[inventory-service] Reserving stock for order {request.OrderId}");
+        Console.WriteLine($"[inventory-service] Reserving stock for reference {request.ReferenceId}");
 
         var reservations = new List<StockReservation>();
 
@@ -86,7 +86,7 @@ public class InventoryController : ControllerBase
         {
             var reservedPayload = new
             {
-                orderId = request.OrderId,
+                referenceId = request.ReferenceId,
                 reservations = reservations.Select(r => new
                 {
                     productId = r.ProductId,

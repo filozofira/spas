@@ -10,9 +10,11 @@ import java.util.UUID;
 public class Shipment {
     
     private String id;
-    private String orderId;
+    private String referenceId;
     private ShipmentStatus status;
     private Address destination;
+    private String deliveryMethod;
+    private String pickupLocationId;
     private String trackingNumber;
     private Instant createdAt;
     private Instant updatedAt;
@@ -23,12 +25,14 @@ public class Shipment {
     /**
      * Creates a new shipment for the given order.
      */
-    public static Shipment create(String orderId, Address destination) {
+    public static Shipment create(String referenceId, Address destination, String deliveryMethod, String pickupLocationId) {
         Shipment shipment = new Shipment();
         shipment.id = "ship-" + UUID.randomUUID().toString().substring(0, 8);
-        shipment.orderId = orderId;
+        shipment.referenceId = referenceId;
         shipment.status = ShipmentStatus.PENDING;
         shipment.destination = destination;
+        shipment.deliveryMethod = deliveryMethod;
+        shipment.pickupLocationId = pickupLocationId;
         shipment.createdAt = Instant.now();
         shipment.updatedAt = shipment.createdAt;
         return shipment;
@@ -57,12 +61,12 @@ public class Shipment {
         this.id = id;
     }
     
-    public String getOrderId() {
-        return orderId;
+    public String getReferenceId() {
+        return referenceId;
     }
     
-    public void setOrderId(String orderId) {
-        this.orderId = orderId;
+    public void setReferenceId(String referenceId) {
+        this.referenceId = referenceId;
     }
     
     public ShipmentStatus getStatus() {
@@ -79,6 +83,22 @@ public class Shipment {
     
     public void setDestination(Address destination) {
         this.destination = destination;
+    }
+
+    public String getDeliveryMethod() {
+        return deliveryMethod;
+    }
+
+    public void setDeliveryMethod(String deliveryMethod) {
+        this.deliveryMethod = deliveryMethod;
+    }
+
+    public String getPickupLocationId() {
+        return pickupLocationId;
+    }
+
+    public void setPickupLocationId(String pickupLocationId) {
+        this.pickupLocationId = pickupLocationId;
     }
     
     public String getTrackingNumber() {
@@ -122,7 +142,7 @@ public class Shipment {
     public String toString() {
         return "Shipment{" +
                "id='" + id + '\'' +
-               ", orderId='" + orderId + '\'' +
+               ", referenceId='" + referenceId + '\'' +
                ", status=" + status +
                ", destination=" + destination +
                ", trackingNumber='" + trackingNumber + '\'' +

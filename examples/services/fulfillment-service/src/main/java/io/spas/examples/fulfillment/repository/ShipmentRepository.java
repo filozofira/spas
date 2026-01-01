@@ -16,14 +16,14 @@ import java.util.concurrent.ConcurrentHashMap;
 public class ShipmentRepository {
     
     private final Map<String, Shipment> shipments = new ConcurrentHashMap<>();
-    private final Map<String, String> orderToShipment = new ConcurrentHashMap<>();
+    private final Map<String, String> referenceToShipment = new ConcurrentHashMap<>();
     
     /**
      * Save a shipment to the repository.
      */
     public Shipment save(Shipment shipment) {
         shipments.put(shipment.getId(), shipment);
-        orderToShipment.put(shipment.getOrderId(), shipment.getId());
+        referenceToShipment.put(shipment.getReferenceId(), shipment.getId());
         return shipment;
     }
     
@@ -37,8 +37,8 @@ public class ShipmentRepository {
     /**
      * Find a shipment by order ID.
      */
-    public Optional<Shipment> findByOrderId(String orderId) {
-        String shipmentId = orderToShipment.get(orderId);
+    public Optional<Shipment> findByReferenceId(String referenceId) {
+        String shipmentId = referenceToShipment.get(referenceId);
         if (shipmentId == null) {
             return Optional.empty();
         }
@@ -48,8 +48,8 @@ public class ShipmentRepository {
     /**
      * Check if a shipment exists for the given order ID.
      */
-    public boolean existsByOrderId(String orderId) {
-        return orderToShipment.containsKey(orderId);
+    public boolean existsByReferenceId(String referenceId) {
+        return referenceToShipment.containsKey(referenceId);
     }
     
     /**
@@ -65,7 +65,7 @@ public class ShipmentRepository {
     public void deleteById(String id) {
         Shipment shipment = shipments.remove(id);
         if (shipment != null) {
-            orderToShipment.remove(shipment.getOrderId());
+            referenceToShipment.remove(shipment.getReferenceId());
         }
     }
     
@@ -74,7 +74,7 @@ public class ShipmentRepository {
      */
     public void clear() {
         shipments.clear();
-        orderToShipment.clear();
+        referenceToShipment.clear();
     }
     
     /**

@@ -13,6 +13,9 @@ public class Rental {
     private LocalDateTime endDate;
     private String status; // REQUESTED, ACTIVE, RETURNED
     private List<StatusChange> statusHistory;
+    private String deliveryMethod; // SHIPMENT or PICKUP
+    private Address shippingAddress; // required when deliveryMethod == SHIPMENT
+    private String pickupLocationId; // required when deliveryMethod == PICKUP
 
     public Rental() {
         this.statusHistory = new ArrayList<>();
@@ -50,6 +53,15 @@ public class Rental {
     public List<StatusChange> getStatusHistory() { return statusHistory; }
     public void setStatusHistory(List<StatusChange> statusHistory) { this.statusHistory = statusHistory; }
 
+    public String getDeliveryMethod() { return deliveryMethod; }
+    public void setDeliveryMethod(String deliveryMethod) { this.deliveryMethod = deliveryMethod; }
+
+    public Address getShippingAddress() { return shippingAddress; }
+    public void setShippingAddress(Address shippingAddress) { this.shippingAddress = shippingAddress; }
+
+    public String getPickupLocationId() { return pickupLocationId; }
+    public void setPickupLocationId(String pickupLocationId) { this.pickupLocationId = pickupLocationId; }
+
     public void addStatusChange(String newStatus, String reason) {
         this.status = newStatus;
         if (this.statusHistory == null) {
@@ -73,6 +85,39 @@ public class Rental {
 
         public int getQuantity() { return quantity; }
         public void setQuantity(int quantity) { this.quantity = quantity; }
+    }
+
+    public static class Address {
+        private String street;
+        private String city;
+        private String state;
+        private String postalCode;
+        private String country;
+
+        public Address() {}
+
+        public Address(String street, String city, String state, String postalCode, String country) {
+            this.street = street;
+            this.city = city;
+            this.state = state;
+            this.postalCode = postalCode;
+            this.country = country;
+        }
+
+        public String getStreet() { return street; }
+        public void setStreet(String street) { this.street = street; }
+
+        public String getCity() { return city; }
+        public void setCity(String city) { this.city = city; }
+
+        public String getState() { return state; }
+        public void setState(String state) { this.state = state; }
+
+        public String getPostalCode() { return postalCode; }
+        public void setPostalCode(String postalCode) { this.postalCode = postalCode; }
+
+        public String getCountry() { return country; }
+        public void setCountry(String country) { this.country = country; }
     }
 
     public static class StatusChange {

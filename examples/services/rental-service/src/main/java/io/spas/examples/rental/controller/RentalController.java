@@ -47,6 +47,19 @@ public class RentalController {
             "REQUESTED"
         );
 
+        rental.setDeliveryMethod(request.getDeliveryMethod());
+        if (request.getShippingAddress() != null) {
+            Rental.Address address = new Rental.Address(
+                request.getShippingAddress().getStreet(),
+                request.getShippingAddress().getCity(),
+                request.getShippingAddress().getState(),
+                request.getShippingAddress().getPostalCode(),
+                request.getShippingAddress().getCountry()
+            );
+            rental.setShippingAddress(address);
+        }
+        rental.setPickupLocationId(request.getPickupLocationId());
+
         rentalStore.put(id, rental);
 
         // Publish event
@@ -54,12 +67,26 @@ public class RentalController {
             .map(i -> new RentalRequestedEvent.RentalItem(i.getProductId(), i.getQuantity()))
             .collect(Collectors.toList());
 
+        RentalRequestedEvent.Address eventAddress = null;
+        if (request.getShippingAddress() != null) {
+            eventAddress = new RentalRequestedEvent.Address(
+                request.getShippingAddress().getStreet(),
+                request.getShippingAddress().getCity(),
+                request.getShippingAddress().getState(),
+                request.getShippingAddress().getPostalCode(),
+                request.getShippingAddress().getCountry()
+            );
+        }
+
         RentalRequestedEvent event = new RentalRequestedEvent(
             id,
             request.getCustomerId(),
             eventItems,
             request.getStartDate(),
-            request.getEndDate()
+            request.getEndDate(),
+            request.getDeliveryMethod(),
+            eventAddress,
+            request.getPickupLocationId()
         );
 
         eventPublisher.publish(event);

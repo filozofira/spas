@@ -1,0 +1,45 @@
+{
+  "inbound": [
+    {
+      "kind": "command",
+      "command": "initiate-checkout",
+      "invokeEndpoint": "/api/baskets/{id}/checkout"
+    },
+    {
+      "kind": "event",
+      "topic": "order-events",
+      "invokeEndpoint": "/api/baskets/clear",
+      "eventType": "com.order-service.order-confirmed",
+      "transform": "transformations/inbound-order-confirmed.jsonata"
+    },
+    {
+      "kind": "event",
+      "topic": "inventory-events",
+      "invokeEndpoint": "/api/baskets/mark-unavailable",
+      "eventType": "com.inventory-service.stock-depleted",
+      "transform": "transformations/inbound-stock-depleted.jsonata"
+    }
+  ],
+  "outbound": [
+    {
+      "topic": "shopping-events",
+      "eventType": "com.basket-service.checkout-initiated",
+      "eventName": "checkout-initiated"
+    },
+    {
+      "topic": "shopping-events",
+      "eventType": "com.basket-service.basket-created",
+      "eventName": "basket-created"
+    },
+    {
+      "topic": "shopping-events",
+      "eventType": "com.basket-service.item-added",
+      "eventName": "item-added"
+    },
+    {
+      "topic": "shopping-events",
+      "eventType": "com.basket-service.item-removed",
+      "eventName": "item-removed"
+    }
+  ]
+}

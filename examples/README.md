@@ -10,6 +10,7 @@ Each domain workspace contains a `choreography.yaml`, pulled service metadata, a
 - [order-fulfillment](./domains/order-fulfillment/README.md)
 - [subscription-order](./domains/subscription-order/README.md)
 - [basket-checkout](./domains/basket-checkout/README.md)
+- [equipment-rental](./domains/equipment-rental/README.md)
 
 ## Services
 

@@ -133,6 +133,20 @@ Descriptions improve AI-assisted choreography. Use plain text describing intent,
 
 More examples: [SDK Principles](../../../principles/component/12-sdk.md)
 
+### Health Checks
+
+The SDK automatically exposes standard health endpoints on the main application port:
+
+- `GET /_spas/health/live`: Liveness probe (Always UP)
+- `GET /_spas/health/ready`: Readiness probe (Delegates to Spring Boot Actuator)
+
+Response format:
+```json
+{ "status": "UP" }
+```
+
+To add custom checks, implement `HealthIndicator` beans as per standard Spring Boot Actuator documentation.
+
 ### Additional Resources
 
 - [sample-service](./examples/sample-service/README.md) — Complete working example

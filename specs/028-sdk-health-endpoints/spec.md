@@ -2,7 +2,8 @@
 
 **Feature Branch**: `028-sdk-health-endpoints`
 **Created**: 2026-01-01
-**Status**: Draft
+**Completed**: 2026-01-01
+**Status**: ✅ Complete (PoC)
 **Input**: User description: "Standardise SPAS service health check endpoints by adding the functionality to both SDKs (java and dotnet). Ideally don't 'Reinvent' but 'Adapt', i.e. if possible use Java SDK to leverage Spring Boot Actuator, by either configuring Actuator to expose the standard SPAS path or create a SPAS controller that delegates to Actuator's internal health indicators. For Dotnet, similarly, use the standard ASP.NET Core Health Checks middleware and map it to the SPAS standard route. Use distinct paths for Liveness (I'm running) and Readiness (I can handle traffic), using _spas prefix to avoid collision (GET /_spas/health/live, GET /_spas/health/ready). The SDK must allow the service developer to register custom checks (e.g., 'Database is down', 'Cache is unreachable'). Important note regarding metadata: If automatically injecting a 'Health' endpoints into the generated metadata is is coming out-of-box with current offline-generation, than keep let 'Health' endpoints appear inside spas.json, else exclude 'Health' endpoints from spas.json during the generation. This will significantly simplify the spas-compose and sidecar logic, as they can rely on a guaranteed contract for service availability. Benefits: Zero Configuration, Consistent Contract, Choreography Reliability."
 
 ## Clarifications

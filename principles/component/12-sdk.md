@@ -138,6 +138,26 @@ SDKs MUST support generating design-time metadata as an offline archive (for exa
 
 **Future Work**: Full bidirectional schema inference may be added if choreography tooling requires response contract discovery.
 
+## Health Check Contract
+
+SDKs MUST expose the following standard health endpoints on the main application port:
+
+- **Liveness Probe**: `GET /_spas/health/live`
+  - Returns `200 OK` with `{ "status": "UP" }` if the application process is running.
+  - Used by orchestrators to determine if the container should be restarted.
+
+- **Readiness Probe**: `GET /_spas/health/ready`
+  - Returns `200 OK` with `{ "status": "UP" }` if the service is ready to accept traffic.
+  - Returns `503 Service Unavailable` with `{ "status": "DOWN" }` if any critical dependency is unhealthy.
+  - MUST delegate to the underlying framework's health check registry (e.g., Spring Boot Actuator, ASP.NET Core Health Checks).
+
+**Response Format**:
+```json
+{
+  "status": "UP" | "DOWN"
+}
+```
+
 ## Developer Experience
 
 Clarifications

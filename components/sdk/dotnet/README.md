@@ -124,6 +124,25 @@ Descriptions improve AI-assisted choreography. Use plain text describing intent,
 
 More examples: [SDK Principles](../../../principles/component/12-sdk.md)
 
+### Health Checks
+
+The SDK automatically exposes standard health endpoints on the main application port:
+
+- `GET /_spas/health/live`: Liveness probe (Always UP)
+- `GET /_spas/health/ready`: Readiness probe (Delegates to ASP.NET Core Health Checks)
+
+Response format:
+```json
+{ "status": "UP" }
+```
+
+To add custom checks, register `IHealthCheck` services in `Program.cs`:
+
+```csharp
+builder.Services.AddHealthChecks()
+    .AddCheck<MyCustomCheck>("custom_check");
+```
+
 ### Additional Resources
 
 - [SampleService](./examples/SampleService/README.md) — Complete working example

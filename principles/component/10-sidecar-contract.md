@@ -26,8 +26,10 @@ This document is normative for sidecar behavior (interfaces, headers, transforma
 
 ## Health
 
-- Sidecar exposes health/readiness
-- Service exposes health or delegates to sidecar
+- **Sidecar Health**: Sidecar exposes its own health/readiness endpoints (implementation specific).
+- **Service Health**: Sidecar (and orchestrators) rely on the service exposing standard SPAS health endpoints:
+  - `GET /_spas/health/live`
+  - `GET /_spas/health/ready`
 
 ## Compatibility
 

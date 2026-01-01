@@ -5,6 +5,8 @@ import io.spas.sdk.core.context.SpasContext;
 import io.spas.sdk.events.EventPublisher;
 import io.spas.sdk.events.EventPublisherConfig;
 import io.spas.sdk.metadata.generation.MetadataGenerationConstants;
+import io.spas.sdk.spring.health.SpasHealthController;
+import org.springframework.boot.actuate.health.HealthEndpoint;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -106,5 +108,11 @@ public class SpasAutoConfiguration {
         }
 
         return config.getSidecarUrl().toString();
+    }
+
+    @Bean
+    @ConditionalOnClass(HealthEndpoint.class)
+    public SpasHealthController spasHealthController(HealthEndpoint healthEndpoint) {
+        return new SpasHealthController(healthEndpoint);
     }
 }

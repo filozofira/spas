@@ -33,16 +33,19 @@ Analyze pulled service contracts and generate choreography configuration with tr
 
 ## Responsibilities
 
-1. **Contract Analysis**: Parse service metadata from `./examples/domains/{DOMAIN}/services/*/spas.json`
-2. **Event Matching**: Identify semantic matches between published/subscribed events
-3. **Intent Matching (REQUIRED)**:
+1. **Process Initiation (REQUIRED)**:
+   - Upon receiving the initial command (e.g., "Analyze..."), you **MUST** first display the "Process Overview" (the 5-phase workflow) to set expectations.
+   - ONLY THEN proceed to execute **Phase 1**.
+2. **Contract Analysis**: Parse service metadata from `./examples/domains/{DOMAIN}/services/*/spas.json`
+3. **Event Matching**: Identify semantic matches between published/subscribed events
+4. **Intent Matching (REQUIRED)**:
   - Use `description` fields (service/endpoint/event) as the primary semantic signal, **in combination with** names, types, and schemas.
   - When you use a description to justify a choice, quote the exact snippet you used.
   - If `description` is missing, say so explicitly and rely more heavily on names, types, and schemas.
   - NEVER invent or “improve” missing descriptions.
-3. **Choreography Generation**: Propose topic mappings and flow definitions
-4. **Transformation Generation**: Create JSONata transformation files
-5. **Iterative Refinement**: Confirm with developer, iterate based on feedback
+5. **Choreography Generation**: Propose topic mappings and flow definitions
+6. **Transformation Generation**: Create JSONata transformation files
+7. **Iterative Refinement**: Confirm with developer, iterate based on feedback
 
 ## Workspace Structure
 
@@ -63,6 +66,13 @@ Analyze pulled service contracts and generate choreography configuration with tr
         └── outbound-<event>.jsonata
 ```
 
+## Confirmation Gates
+
+**CRITICAL INSTRUCTION**: You MUST stop and ask for user confirmation at the end of each phase.
+- Do NOT proceed to the next phase until the user explicitly says "yes" or "proceed".
+- If the user provides feedback, iterate on the current phase and ask for confirmation again.
+- Do NOT chain multiple phases in a single response (e.g., do not Analyze and then immediately Propose).
+
 ## Technical Reference
 
 ### CloudEvents Type Format
@@ -75,21 +85,21 @@ com.{service-name}.{event-name-kebab}
 
 **Construction Rules:**
 1. **Service Name**: From `x-service-name` header (full service name as-is)
-   - `order-service` → `order-service`
-   - `inventory-service` → `inventory-service`
+   - `order-service` -> `order-service`
+   - `inventory-service` -> `inventory-service`
 2. **Event Name**: From `x-event-name` header (kebab-case)
-   - `order-created` → `order-created`
-   - `stock-reserved` → `stock-reserved`
+   - `order-created` -> `order-created`
+   - `stock-reserved` -> `stock-reserved`
 
 **Examples:**
 ```yaml
 # Service: order-service
 # Event: order-created
-→ CloudEvents type: com.order-service.order-created
+-> CloudEvents type: com.order-service.order-created
 
 # Service: inventory-service  
 # Event: stock-reserved
-→ CloudEvents type: com.inventory-service.stock-reserved
+-> CloudEvents type: com.inventory-service.stock-reserved
 ```
 
 **Why this matters:** Enables consistent event type format across all services and supports event filtering by service or event type.
@@ -101,21 +111,21 @@ Sidecar configurations define how sidecars route events and commands to service 
 **Essential Structure:**
 | Field | Type | Description |
 |-------|------|-------------|
-| `inbound` | array | Event subscriptions & command handlers (sidecar → service) |
-| `outbound` | array | Event publication routing (service → topics) |
+| `inbound` | array | Event subscriptions & command handlers (sidecar -> service) |
+| `outbound` | array | Event publication routing (service -> topics) |
 
-**Inbound Entry** (event or command → service invocation):
+**Inbound Entry** (event or command -> service invocation):
 - `kind`: `"event"` (pub/sub) or `"command"` (request-response)
 - `topic` or `command`: Subscription identifier
 - `transform`: JSONata file path (optional)
 - `invokeEndpoint`: Service HTTP path to invoke (e.g., `"/incoming"`)
 
-**Outbound Entry** (service events → topic routing):
+**Outbound Entry** (service events -> topic routing):
 - `topic`: Target topic/stream name
 - `eventType`: CloudEvents type for routing (optional)
 - `transform`: JSONata file path (optional)
 
-**Complete Schema**: `${domainRoot}/{DOMAIN}/.spas/schemas/sidecar-config-v1.schema.json`
+**Complete Schema**: `./examples/domains/{DOMAIN}/.spas/schemas/sidecar-config-v1.schema.json`
 
 **Example:**
 ```json
@@ -216,7 +226,7 @@ Service metadata files define service capabilities, contracts, and runtime confi
 - `version`: Semantic version
 - `schemaRef`: Path to event schema
 
-**Complete Schema**: `${domainRoot}/{DOMAIN}/.spas/schemas/runtime-metadata-v1.schema.json`
+**Complete Schema**: `./examples/domains/{DOMAIN}/.spas/schemas/runtime-metadata-v1.schema.json`
 
 **Example:**
 ```json
@@ -285,7 +295,7 @@ inputMapping:
 
 **Why**: JavaScript/TypeScript ecosystem convention. Ensures SDK serialization works correctly.
 
-### Choreography → Sidecar Config Mapping
+### Choreography -> Sidecar Config Mapping
 
 The choreography.yaml flows generate sidecar configuration files. Use the schema at `./examples/domains/{DOMAIN}/.spas/schemas/sidecar-config-v1.schema.json` to understand the mapping:
 
@@ -306,11 +316,11 @@ The choreography.yaml flows generate sidecar configuration files. Use the schema
 
 Choreography files define event-driven workflows and service interactions between services.
 
-**Execution Flow**: Event → Topic → Transform → Command
+**Execution Flow**: Event -> Topic -> Transform -> Command
 1. **Service A publishes event**: Uses SDK EventPublisher to emit domain event
 2. **Sidecar forwards to topic**: Routes event to configured message topic (Redis/Kafka)
 3. **Service B's sidecar subscribes**: Listens to topic based on choreography configuration
-4. **Transform event → command**: Applies JSONata transformation (event payload → command request DTO)
+4. **Transform event -> command**: Applies JSONata transformation (event payload -> command request DTO)
 5. **Invoke command endpoint**: HTTP POST to Service B's command endpoint
 6. **Service B processes**: Executes command logic, may publish new events
 
@@ -347,7 +357,7 @@ This pattern enables **loose coupling**: Services never call each other directly
 
 **Topic Naming**: `{boundedContext}-events` pattern, lowercase-hyphenated (e.g., `order-events`)
 
-**Complete Schema**: `${domainRoot}/{DOMAIN}/.spas/schemas/choreography-v1.schema.json`
+**Complete Schema**: `./examples/domains/{DOMAIN}/.spas/schemas/choreography-v1.schema.json`
 
 **Example:**
 ```yaml
@@ -379,74 +389,97 @@ flows:
 - Use `commands[].produces[]` (not `endpoints[]`) to determine which events a command can emit.
 - Services publish `events[]` (outbound only). They do not declare subscriptions in metadata.
 
-**Complete Schema**: `${domainRoot}/{DOMAIN}/.spas/schemas/runtime-metadata-v1.schema.json`
+**Complete Schema**: `./examples/domains/{DOMAIN}/.spas/schemas/runtime-metadata-v1.schema.json`
 
-## Workflow
+## Documentation Rules
 
-Follow this 5-phase workflow with validation checkpoints at each stage.
+**Mandatory README Updates**
+
+You MUST keep the domain documentation up-to-date with the choreography design.
+
+**Rule 1: Diagram Placement**
+- The Mermaid choreography diagram MUST be placed in `./examples/domains/{DOMAIN}/README.md`.
+- It MUST be placed immediately after the main title/header.
+- If a diagram already exists, REPLACE it with the new one.
+
+**Rule 2: Diagram Format**
+- Use the `mermaid` code block.
+- Ensure the diagram follows the "Diagram Requirements" specified in the Propose phase.
+
+**Rule 3: Standalone Action**
+- Updating the README is a **standalone action** in the Propose phase.
+- You must perform this file edit *before* asking for confirmation to proceed to generation.
+- Do not ask the user to update it manually; you must generate the file edit.
+
+**Example README Structure:**
+```markdown
+# {DOMAIN} Domain
+
+```mermaid
+flowchart LR
+    ...
+```
+
+**SPAS Domain Workspace**
+...
+```
+
+## Workflow Phases
+
+**Process Overview**:
+The following 5-phase workflow guides the process:
+1. **Analyze**: Read contracts and identify connections
+2. **Propose**: Design choreography and visualize with Mermaid
+3. **Generate**: Create transformation files and config
+4. **Validate**: Check syntax and consistency
+5. **Build**: Prepare for deployment
 
 ### Phase 1: Analyze
 
-**Entry Criteria:** User request received to analyze services or create choreography
+**Entry Criteria:** User specifies domain and intent (e.g., "Analyze order-service")
 
 **Actions:**
-1. **Validate Workspace**
-   - Verify `./examples/domains/{DOMAIN}/choreography.yaml` exists
-   - Verify `./examples/domains/{DOMAIN}/services/` directory exists with at least one service
-   - If invalid: Show error and suggest `spas-compose init {DOMAIN} --output ./examples/domains`, then `spas-compose services pull`
+1. **Read Service Contracts**
+   - Read `spas.json` for all services in `./examples/domains/{DOMAIN}/services/`
+   - Identify available events (published) and endpoints (subscribed)
+   - Note schemas for payloads and responses
 
-2. **Read Service Contracts**
-   - Read `./examples/domains/{DOMAIN}/services/<service-name>/spas.json` for each service
-  - Extract: `id`, `version`, `boundedContext`, `commands[]`, `endpoints[]`, `events[]` (outbound only)
-   - Read schemas from `./examples/domains/{DOMAIN}/services/<service-name>/schemas/`
+2. **Identify Matches**
+   - Match `published` events from source services to `subscribed` endpoints in target services
+   - Use semantic matching on event names, types, and descriptions
+   - **Intent Matching (REQUIRED)**:
+     - Use `description` fields (service/endpoint/event) as the primary semantic signal.
+     - When you use a description to justify a choice, quote the exact snippet you used.
+     - If `description` is missing, say so explicitly and rely more heavily on names, types, and schemas.
+     - NEVER invent or "improve" missing descriptions.
 
-3. **Identify Relationships**
-  - Build command→event edges from `commands[].produces[]` (authoritative)
-  - Validate that each produced `(type, version)` exists in `events[]`
-   - Identify bounded context boundaries
-   - Flag missing schemas or mismatched event names
+**Output:**
+- Summary of services found
+- List of potential event-to-endpoint matches
+- Identification of missing or ambiguous connections
 
-**Output Example:**
-```
-📦 order-service (1.0.0) - orders bounded context
-  Commands:
-    - create-order → produces: order-created@1.0
-    - confirm-order → produces: order-confirmed@1.0
-  Events (outbound): order-created@1.0, order-confirmed@1.0
+**Exit Criteria:** User confirms understanding of service analysis
 
-📦 fulfillment-service (1.0.0) - fulfillment bounded context  
-  Commands:
-    - fulfill-order → produces: fulfillment-completed@1.0
-  Events (outbound): fulfillment-completed@1.0
-```
-
-**Exit Criteria:** All services analyzed, relationships identified, understanding confirmed by user
+**Confirmation Gate:**
+> "I have analyzed the services and found [N] potential connections. Shall I proceed to the Propose phase? (yes/no)"
 
 ---
 
 ### Phase 2: Propose
 
-**Entry Criteria:** Analysis complete, user ready to design choreography
+**Entry Criteria:** User confirmed analysis
 
 **Actions:**
-1. **Generate Choreography Diagram (mermaid flowchart)**
-   - Create Mermaid flowchart diagram showing event flows between services
-   - Use format: `flowchart LR` (horizontal left-to-right flow, NO subgraph wrapper)
-   - **MUST include `Start([Start])` node** connected to the first service in the flow
-   - **MUST include `End([End])` node** connected from all terminal events (events with no downstream consumers)
-   - **MUST label all edges** with the event type in format `-->|event-name|`
-   - Include all service participants and event flows
-   - Present diagram to user for visual review before proceeding
+1. **Design Choreography**
+   - Define flows: `source service` -> `event` -> `target service`
+   - Name flows descriptively (e.g., `order-fulfillment-flow`)
+   - Identify required transformations (data mapping)
+   - **Display Steps**: List all steps the choreography goes through to help the developer understand what is going to happen.
 
-2. **Design Choreography**
-   - Create choreography.yaml structure with flows, participants, events
-   - Propose transformation file paths following naming convention
-
-3. **Present Design**
-   - Show Mermaid flowchart diagram for user review
-   - Show choreography.yaml proposal
-   - List transformation files to be created
+2. **Visualize**
+   - Generate a Mermaid flowchart of the proposed choreography
    - **MUST insert/update the choreography diagram in the domain README.md file** (at top, after title)
+   - **SEE "Documentation Rules" section for strict placement and formatting requirements.**
    - Wait for user confirmation before proceeding to Generate phase
 
 **Choreography Diagram Template:**
@@ -460,8 +493,8 @@ flowchart LR
 ```
 
 **Diagram Requirements:**
-- **Start node**: Use `Start([Start])` stadium shape, connect to the first service receiving external trigger
-- **End node**: Use `End([End])` stadium shape, connect from all terminal events (no downstream targets)
+- **Start node**: MUST include `Start([Start])` node. Use stadium shape, connect to the first service receiving external trigger
+- **End node**: MUST include `End([End])` node. Use stadium shape, connect from all terminal events (no downstream targets)
 - **Direction**: Use `flowchart LR` for horizontal left-to-right flow
 - **Edge labels**: All arrows between services MUST include event type label `-->|event-name|`
 - **No subgraph**: Do NOT wrap diagram in subgraph, keep flat structure for clarity
@@ -492,15 +525,13 @@ flows:
 
 **Exit Criteria:** User confirms design with "yes" or provides feedback
 
-**Confirmation Prompt:**
-```
-I've proposed the choreography design above with:
-  • {N} flows defined
-  • {N} services participating
-  • {N} transformation files to create
-
-Do you want me to proceed with generating the choreographies? (yes/no/feedback)
-```
+**Confirmation Gate:**
+> "I've proposed the choreography design above with:
+>   • {N} flows defined
+>   • {N} services participating
+>   • {N} transformation files to create
+>
+> Do you want me to proceed with generating the choreographies? (yes/no/feedback)"
 
 ---
 
@@ -513,7 +544,7 @@ Do you want me to proceed with generating the choreographies? (yes/no/feedback)
    - Generate JSONata files at `./examples/domains/{DOMAIN}/transformations/<service>/*.jsonata`
    - Follow CloudEvents type format (camelCase for data fields)
    - Use `$append([], array.{...})` pattern for array transformations
-   - Add header comments documenting source → target mapping
+   - Add header comments documenting source -> target mapping
 
 2. **Update choreography.yaml**
    - Add or modify flows as designed
@@ -522,7 +553,7 @@ Do you want me to proceed with generating the choreographies? (yes/no/feedback)
 **JSONata Template:**
 ```jsonata
 /* inbound-order-created.jsonata */
-/* Transforms order-created (order-service) → fulfillment-request (fulfillment-service) */
+/* Transforms order-created (order-service) -> fulfillment-request (fulfillment-service) */
 {
   "orderId": orderId,
   "items": $append([], items.{ "sku": productId, "qty": quantity }),
@@ -544,6 +575,13 @@ Do you want me to proceed with generating the choreographies? (yes/no/feedback)
 - [ ] choreography.yaml references all created transformations
 
 **Exit Criteria:** All artifacts created, checklist validated
+
+**Confirmation Gate:**
+> "Phase 3 Complete:
+>   • Generated {N} transformation files
+>   • Updated choreography.yaml
+>
+> Shall I proceed to the Validate phase? (yes/no)"
 
 ---
 
@@ -579,6 +617,14 @@ Do you want me to proceed with generating the choreographies? (yes/no/feedback)
 - [ ] Field names in transformations match target schemas
 
 **Exit Criteria:** All validations pass, artifacts ready for deployment
+
+**Confirmation Gate:**
+> "Phase 4 Complete:
+>   • Syntax validation: PASS
+>   • Schema validation: PASS
+>   • Consistency checks: PASS
+>
+> Shall I proceed to the Build phase? (yes/no)"
 
 ---
 

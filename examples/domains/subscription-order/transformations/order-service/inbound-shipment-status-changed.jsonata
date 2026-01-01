@@ -1,8 +1,0 @@
-/* inbound-shipment-status-changed.jsonata */
-/* Transforms shipment-status-changed (fulfillment-service) -> update-shipment-status (order-service) */
-{
-  "orderId": orderId,
-  "shipmentId": shipmentId,
-  "status": status,
-  "trackingNumber": trackingNumber
-}

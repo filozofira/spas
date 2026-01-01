@@ -1,7 +1,0 @@
-/* inbound-order-confirmed.jsonata */
-/* Transforms order-confirmed (order-service) -> activate-subscription (subscription-service) */
-{
-  "orderId": orderId,
-  "referenceId": referenceId,
-  "status": "ACTIVE"
-}

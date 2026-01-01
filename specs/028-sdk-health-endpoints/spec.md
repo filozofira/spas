@@ -5,6 +5,13 @@
 **Status**: Draft
 **Input**: User description: "Standardise SPAS service health check endpoints by adding the functionality to both SDKs (java and dotnet). Ideally don't 'Reinvent' but 'Adapt', i.e. if possible use Java SDK to leverage Spring Boot Actuator, by either configuring Actuator to expose the standard SPAS path or create a SPAS controller that delegates to Actuator's internal health indicators. For Dotnet, similarly, use the standard ASP.NET Core Health Checks middleware and map it to the SPAS standard route. Use distinct paths for Liveness (I'm running) and Readiness (I can handle traffic), using _spas prefix to avoid collision (GET /_spas/health/live, GET /_spas/health/ready). The SDK must allow the service developer to register custom checks (e.g., 'Database is down', 'Cache is unreachable'). Important note regarding metadata: If automatically injecting a 'Health' endpoints into the generated metadata is is coming out-of-box with current offline-generation, than keep let 'Health' endpoints appear inside spas.json, else exclude 'Health' endpoints from spas.json during the generation. This will significantly simplify the spas-compose and sidecar logic, as they can rely on a guaranteed contract for service availability. Benefits: Zero Configuration, Consistent Contract, Choreography Reliability."
 
+## Clarifications
+
+### Session 2026-01-01
+- Q: Where must the `/_spas/health/*` endpoints be exposed (Main vs Management port)? → A: **Always Main Port**. The SDK ensures they are served on the main application traffic port to guarantee Sidecar access without extra config.
+- Q: Should the SDK enforce authentication on `/_spas/health/*`? → A: **Public / Anonymous**. Endpoints must be open to allow zero-config Sidecar probing.
+- Q: How should developers register custom health checks? → A: **Native Framework Mechanisms**. Developers should use standard Spring `HealthIndicator` or .NET `IHealthCheck` interfaces. The SDK documentation MUST explicitly guide users on this pattern.
+
 ## User Scenarios & Testing *(mandatory)*
 
 ### User Story 1 - Sidecar Probes Readiness (Priority: P1)
@@ -64,8 +71,11 @@ A service developer needs to ensure the service reports as "unhealthy" if a crit
 - **FR-004**: .NET SDK MUST expose `GET /_spas/health/ready` for readiness probes.
 - **FR-005**: Both SDKs MUST return an identical JSON response format for health status to ensure consistent parsing by the sidecar.
 - **FR-006**: The JSON response format MUST be a minimal object `{ "status": "UP" | "DOWN" }`. The schema MUST be treated as open-ended; consumers MUST ignore unknown properties to allow for future inclusion of detailed diagnostics.
+- **FR-012**: The `/_spas/health/*` endpoints MUST be exposed on the service's **main application port** (HTTP traffic port), even if the underlying framework (e.g., Spring Boot Actuator) is configured to use a separate management port. This ensures the Sidecar can access them without additional port configuration.
+- **FR-013**: The `/_spas/health/*` endpoints MUST be accessible anonymously (publicly) by default. The SDK MUST configure the application's security chain (e.g., Spring Security, ASP.NET Core Auth) to permit unauthenticated access to these specific paths.
 - **FR-007**: Java SDK MUST leverage Spring Boot Actuator if available, mapping the SPAS paths to Actuator health indicators.
-- **FR-008**: .NET SDK MUST leverage ASP.NET Core Health Checks middleware, mapping the SPAS paths to the health check service.
+- **FR-008**: .NET SDK Msupport custom health checks by automatically including any natively registered checks (Spring `HealthIndicator`, .NET `IHealthCheck`) in the aggregate status. The SDK SHOULD NOT introduce a new proprietary interface for health checks.
+- **FR-014**: SDK READMEs MUST include clear examples of how to register standard framework health checks so they are picked up by the SPAS endpoints
 - **FR-009**: SDKs MUST allow developers to register custom health checks that influence the aggregate status (and thus the HTTP status code).
 - **FR-010**: If a health check fails, the HTTP status code MUST be 503 Service Unavailable.
 - **FR-011**: Health endpoints SHOULD NOT be explicitly injected into `spas.json` metadata unless the existing generation logic automatically picks them up (e.g., as generic controllers). The goal is to avoid cluttering business metadata.

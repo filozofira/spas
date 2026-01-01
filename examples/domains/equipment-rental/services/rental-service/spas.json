@@ -1,0 +1,116 @@
+{
+  "schemaVersion": "runtime-metadata-v1",
+  "id": "rental-service",
+  "name": "Rental Service",
+  "description": "Manages equipment rental lifecycle; publishes rental events to coordinate with inventory for reservations and returns",
+  "version": "1.0.0",
+  "boundedContext": "rental",
+  "capabilities": [
+    "rental-management"
+  ],
+  "endpoints": [
+    {
+      "name": "return-rental",
+      "type": "Command",
+      "protocol": "Http",
+      "methodPath": "/rentals/{id}/return",
+      "version": "1.0",
+      "schemaRef": "schemas/endpoints/rental.schema.json",
+      "description": "Processes the return of rented equipment"
+    },
+    {
+      "name": "request-rental",
+      "type": "Command",
+      "protocol": "Http",
+      "methodPath": "/rentals",
+      "version": "1.0",
+      "schemaRef": "schemas/endpoints/rental-request.schema.json",
+      "description": "Requests a new equipment rental"
+    },
+    {
+      "name": "list-rentals",
+      "type": "Query",
+      "protocol": "Http",
+      "methodPath": "/rentals",
+      "version": "1.0",
+      "schemaRef": "schemas/endpoints/rental.schema.json",
+      "description": "Lists all rentals"
+    },
+    {
+      "name": "get-rental",
+      "type": "Query",
+      "protocol": "Http",
+      "methodPath": "/rentals/{id}",
+      "version": "1.0",
+      "schemaRef": "schemas/endpoints/rental.schema.json",
+      "description": "Gets rental details"
+    }
+  ],
+  "commands": [
+    {
+      "name": "return-rental",
+      "version": "1.0",
+      "produces": [
+        {
+          "type": "rental-returned",
+          "version": "1.0",
+          "when": "success"
+        }
+      ]
+    },
+    {
+      "name": "request-rental",
+      "version": "1.0",
+      "produces": [
+        {
+          "type": "rental-requested",
+          "version": "1.0",
+          "when": "success"
+        }
+      ]
+    }
+  ],
+  "events": [
+    {
+      "type": "rental-requested",
+      "version": "1.0",
+      "schemaRef": "schemas/events/rental-requested-event.schema.json",
+      "description": "Emitted when a new rental is requested"
+    },
+    {
+      "type": "rental-returned",
+      "version": "1.0",
+      "schemaRef": "schemas/events/rental-returned-event.schema.json",
+      "description": "Emitted when rental items are returned"
+    }
+  ],
+  "consistency": {
+    "commands": "ACID",
+    "queries": "EVENTUAL"
+  },
+  "security": {
+    "authentication": {
+      "type": "JWT",
+      "requiredScopes": [
+        "rentals.read",
+        "rentals.write"
+      ]
+    },
+    "dataClassification": [
+      "internal"
+    ]
+  },
+  "network": {
+    "requiredEgress": [
+      "localhost:6379"
+    ]
+  },
+  "license": "MIT",
+  "publishedAt": "2026-01-01T20:24:15.863Z",
+  "runtime": {
+    "digest": "sha256:TODO_UPDATE_AFTER_BUILD",
+    "repository": "spas-examples/rental-service",
+    "tag": "1.0.0",
+    "image": "spas-examples/rental-service@sha256:TODO_UPDATE_AFTER_BUILD"
+  }
+}

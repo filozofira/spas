@@ -16,7 +16,10 @@ The following 5-phase workflow guides the process:
 1. **Read Service Contracts**
    - Read `spas.json` for all services in `<%= it.domainRoot %>/{DOMAIN}/services/`
    - Identify available events (published) and endpoints (subscribed)
-   - Note schemas for payloads and responses
+   - Read at least one schema file per service to understand concrete field structures:
+     - Event schemas: `services/<service>/schemas/events/<event-type>.schema.json`
+     - Endpoint schemas: `services/<service>/schemas/endpoints/<endpoint>.schema.json`
+   - Note field names, types, and `required` arrays from schemas
 
 2. **Identify Matches**
    - Match `published` events from source services to `subscribed` endpoints in target services
@@ -114,13 +117,34 @@ flows:
 **Entry Criteria:** User confirmed design, ready to create artifacts
 
 **Actions:**
-1. **Create Transformation Files**
+1. **Read Source and Target Schemas (REQUIRED)**
+   - For each event-to-endpoint mapping identified in Phase 2:
+     a. Read the **source event schema** from `services/<publisher>/schemas/events/<event-type>.schema.json`
+     b. Read the **target endpoint schema** from `services/<subscriber>/schemas/endpoints/<endpoint>.schema.json`
+   - Identify the concrete field names, types, and required fields from both schemas
+   - Document the field mapping before writing JSONata:
+     ```
+     Source (order-created)    →  Target (create-fulfillment-request)
+     ─────────────────────────────────────────────────────────────────
+     orderId                   →  orderId
+     items[].productId         →  lineItems[].sku
+     items[].quantity          →  lineItems[].qty
+     customerId                →  customerId (required)
+     ```
+   - If schemas are missing, report this explicitly and ask for guidance
+
+2. **Create Transformation Files**
    - Generate JSONata files at `<%= it.domainRoot %>/{DOMAIN}/transformations/<service>/*.jsonata`
+   - **Schema-Driven Mapping (REQUIRED)**:
+     - NEVER use identity transforms like `$.data` or `$` as placeholders
+     - Every field in the target schema MUST be explicitly mapped from the source schema
+     - If a source field name differs from target field name, create explicit mapping
+     - If a required target field has no source equivalent, flag as error and ask for guidance
    - Follow CloudEvents type format (camelCase for data fields)
    - Use `$append([], array.{...})` pattern for array transformations
    - Add header comments documenting source -> target mapping
 
-2. **Update choreography.yaml**
+3. **Update choreography.yaml**
    - Add or modify flows as designed
    - Ensure all referenced transformation files are created
 

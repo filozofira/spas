@@ -5,6 +5,14 @@
 **Status**: Draft
 **Input**: User description: "Remove redundant service metadata declaration from Java SDK component. Concretely there IS duplication between application.yml and @SpasService annotation. The @SpasService annotation is used for **metadata generation** (design-time), while application.yml configuration is for **runtime behavior**. However, the duplication of `id`, `bounded-context`, and `version` seems unnecessary."
 
+## Clarifications
+
+### Session 2026-01-02
+
+- Q: How should the system handle multiple `@SpasService` annotations found in the application context? → A: Fail startup with a clear error message.
+- Q: Where must the `@SpasService` annotation be placed to be detected? → A: On the main application class (annotated with `@SpringBootApplication`).
+- Q: Are the attributes in `@SpasService` mandatory or optional? → A: All attributes (`id`, `boundedContext`, `version`) are mandatory.
+
 ## User Scenarios & Testing *(mandatory)*
 
 ### User Story 1 - Single Source of Truth for Service Identity (Priority: P1)
@@ -27,12 +35,13 @@ As a Java developer, I want to define my service's identity (ID, Bounded Context
 
 - **Annotation Missing**: If `@SpasService` is missing and `application.yml` is also missing the properties, the application should fail to start with a clear error message about missing service identity.
 - **Partial Configuration**: If `application.yml` defines only `version`, the `id` and `bounded-context` should still be picked up from `@SpasService`.
+- **Multiple Annotations**: If multiple `@SpasService` annotations are detected in the application context, the application MUST fail to start to prevent ambiguity.
 
 ## Requirements *(mandatory)*
 
 ### Functional Requirements
 
-- **FR-001**: The Java SDK runtime MUST scan for the `@SpasService` annotation on the application's configuration or main class during startup.
+- **FR-001**: The Java SDK runtime MUST scan for the `@SpasService` annotation specifically on the class annotated with `@SpringBootApplication` during startup.
 - **FR-002**: The Java SDK MUST populate the runtime service configuration (ID, Bounded Context, Version) using values from the `@SpasService` annotation if they are not explicitly provided in the environment configuration (e.g., `application.yml`, environment variables).
 - **FR-003**: The Java SDK MUST ensure that standard Spring Boot configuration sources (like `application.yml`) have higher precedence than the `@SpasService` annotation values, allowing for environment-specific overrides.
 - **FR-004**: The Java SDK MUST validate that a complete service identity is available (either from annotation or config) before completing startup.
@@ -45,5 +54,5 @@ As a Java developer, I want to define my service's identity (ID, Bounded Context
 
 ### Key Entities *(include if feature involves data)*
 
-- **SpasServiceAnnotation**: The Java annotation containing design-time metadata.
+- **SpasServiceAnnotation**: The Java annotation containing design-time metadata. All attributes (`id`, `boundedContext`, `version`) are mandatory (no default values).
 - **RuntimeServiceConfiguration**: The in-memory representation of the service identity used by the SDK at runtime.

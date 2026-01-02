@@ -1,7 +1,8 @@
 /* inbound-order-confirmed.jsonata */
 /* Transforms order-confirmed (order-service) -> create-shipment (fulfillment-service) */
+/* Derived: deliveryMethod based on shippingAddress presence */
 {
   "referenceId": orderId,
   "shippingAddress": shippingAddress,
-  "deliveryMethod": "standard"
+  "deliveryMethod": $exists(shippingAddress) ? "SHIPPING" : "PICKUP"
 }

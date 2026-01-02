@@ -133,13 +133,36 @@ flows:
      ```
    - If schemas are missing, report this explicitly and ask for guidance
 
-2. **Create Transformation Files**
+2. **Identify Derived Fields (REQUIRED)**
+   - After documenting field mappings, identify target fields with NO direct source:
+     - Fields requiring **conditional logic** (e.g., presence-based derivation)
+     - Fields requiring **enum mapping** (e.g., source value → target enum)
+     - Fields requiring **default values** (source optional, target required)
+   - Document derivation logic explicitly:
+     ```
+     Derived Fields:
+     ─────────────────────────────────────────────────────────────────
+     deliveryMethod  →  $exists(shippingAddress) ? "SHIPPING" : "PICKUP"
+     priority        →  orderType = "express" ? "HIGH" : "NORMAL"
+     ```
+   - If derivation logic is unclear, ASK the user before generating
+   
+   **Common Derivation Patterns:**
+   | Pattern | Example | JSONata |
+   |---------|---------|---------|
+   | Presence-based | If address exists → SHIPPING | `$exists(shippingAddress) ? "SHIPPING" : "PICKUP"` |
+   | Enum mapping | "express" → "HIGH" | `type = "express" ? "HIGH" : "NORMAL"` |
+   | Fallback default | Missing → default | `field ? field : "default"` |
+   | Nested presence | If nested.field exists | `$exists(parent.child) ? parent.child : null` |
+
+3. **Create Transformation Files**
    - Generate JSONata files at `<%= it.domainRoot %>/{DOMAIN}/transformations/<service>/*.jsonata`
    - **Schema-Driven Mapping (REQUIRED)**:
      - NEVER use identity transforms like `$.data` or `$` as placeholders
      - Every field in the target schema MUST be explicitly mapped from the source schema
      - If a source field name differs from target field name, create explicit mapping
      - If a required target field has no source equivalent, flag as error and ask for guidance
+   - **Apply Derived Field Logic**: Use patterns from step 2 for fields without direct source
    - Follow CloudEvents type format (camelCase for data fields)
    - Use `$append([], array.{...})` pattern for array transformations
    - Add header comments documenting source -> target mapping

@@ -54,7 +54,28 @@ Inserted a mandatory schema reading step before transformation file creation:
    - If schemas are missing, report this explicitly and ask for guidance
 ```
 
-### Change 3: Added Schema-Driven Mapping Requirements
+### Change 3: Added Derived Fields Detection (Phase 3)
+
+Inserted step to identify and document fields requiring conditional logic:
+
+```markdown
+2. **Identify Derived Fields (REQUIRED)**
+   - After documenting field mappings, identify target fields with NO direct source:
+     - Fields requiring **conditional logic** (e.g., presence-based derivation)
+     - Fields requiring **enum mapping** (e.g., source value → target enum)
+     - Fields requiring **default values** (source optional, target required)
+   - Document derivation logic explicitly
+   - If derivation logic is unclear, ASK the user before generating
+   
+   **Common Derivation Patterns:**
+   | Pattern | Example | JSONata |
+   |---------|---------|---------|
+   | Presence-based | If address exists → SHIPPING | `$exists(shippingAddress) ? "SHIPPING" : "PICKUP"` |
+   | Enum mapping | "express" → "HIGH" | `type = "express" ? "HIGH" : "NORMAL"` |
+   | Fallback default | Missing → default | `field ? field : "default"` |
+```
+
+### Change 4: Added Schema-Driven Mapping Requirements
 
 Added explicit prohibition of identity transforms:
 

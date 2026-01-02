@@ -113,12 +113,34 @@ Added explicit prohibition of identity transforms:
 
 **File**: [init.ts](../../components/cli/spas-compose/src/commands/init.ts)
 
+### Fix: Terminal Events Omitted from Choreography
+
+**Problem**: Agents often skip terminal events (events with no downstream consumers) when generating choreography.yaml, causing incomplete flows and missing audit/observability data.
+
+**Root Cause**: The choreography schema example only showed events WITH targets. Agents assumed all events need targets and omitted events like `order-confirmed` or `shipment-delivered`.
+
+**Fix**: Enhanced Phase 2 (Propose) with:
+1. Updated schema example showing terminal event with `targets: []`
+2. Added explicit step "Identify Terminal Events (REQUIRED)"
+3. Updated confirmation gate to report terminal event count
+
+```yaml
+# Terminal event - no consumers in this choreography
+- source: <final-service>
+  event: <terminal-event>
+  topic: <topic-name>
+  targets: []  # Published for audit/logging/future extension
+```
+
+**File**: [workflow-phases.eta](../../components/cli/spas-compose/src/templates/partials/workflow-phases.eta)
+
 ## Expected Outcome
 
 - Agent will read concrete schema files before generating transformations
 - Field mappings will be based on actual schema structures, not guesses
 - Identity transforms (`$.data`) will be avoided
 - Missing required fields will be flagged before validation phase
+- Terminal events will be included in choreography with `targets: []`
 
 ## Testing
 
@@ -127,3 +149,4 @@ To verify the fix:
 2. Pull services with different schema structures
 3. Invoke `/spas.compose DOMAIN:<name> Analyze...`
 4. Observe that Phase 3 now includes explicit field mapping documentation before JSONata generation
+5. Verify terminal events are listed in proposed choreography with `targets: []`

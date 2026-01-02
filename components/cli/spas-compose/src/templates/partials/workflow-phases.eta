@@ -88,17 +88,32 @@ flows:
       - <publisher-service>
       - <subscriber-service>
     events:
+      # Event with downstream consumer
       - source: <publishing-service>
         event: <event-type>
         topic: <topic-name>
         targets:
           - service: <subscribing-service>
             transform: transformations/<service>/inbound-<event>.jsonata
+      # Terminal event - no consumers in this choreography
+      - source: <final-service>
+        event: <terminal-event>
+        topic: <topic-name>
+        targets: []  # Published for audit/logging/future extension
 ```
+
+3. **Identify Terminal Events (REQUIRED)**
+   - For each service, check `spas.json` for events it publishes
+   - If an event has NO subscribers in this choreography, it is a **terminal event**
+   - Terminal events MUST still be included in choreography.yaml with `targets: []`
+   - Common terminal events: `order-confirmed`, `payment-completed`, `shipment-delivered`
+   - Purpose: audit logging, future extensions, external integrations
+   - **Do NOT omit terminal events** - they complete the flow and enable observability
 
 **Requirements:**
 - `participants` must include at least 2 services
 - Transformation paths: `transformations/{service}/inbound-{event}.jsonata`
+- All published events must be listed (including terminal events with `targets: []`)
 
 **Exit Criteria:** User confirms design with "yes" or provides feedback
 
@@ -107,6 +122,7 @@ flows:
 >   • {N} flows defined
 >   • {N} services participating
 >   • {N} transformation files to create
+>   • {N} terminal events (no downstream consumers)
 >
 > Do you want me to proceed with generating the choreographies? (yes/no/feedback)"
 

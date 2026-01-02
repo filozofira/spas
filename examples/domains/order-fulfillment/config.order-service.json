@@ -1,16 +1,18 @@
 {
   "inbound": [
     {
-      "kind": "command",
-      "command": "create-order",
-      "invokeEndpoint": "/orders"
-    },
-    {
       "kind": "event",
       "topic": "inventory-events",
       "invokeEndpoint": "/orders/confirm",
       "eventType": "com.inventory-service.stock-reserved",
       "transform": "transformations/inbound-stock-reserved.jsonata"
+    },
+    {
+      "kind": "event",
+      "topic": "inventory-events",
+      "invokeEndpoint": "/orders/{id}/cancel",
+      "eventType": "com.inventory-service.stock-depleted",
+      "transform": "transformations/inbound-stock-depleted.jsonata"
     },
     {
       "kind": "event",

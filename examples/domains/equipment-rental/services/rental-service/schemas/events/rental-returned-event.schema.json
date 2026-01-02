@@ -1,0 +1,28 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "properties": {
+    "items": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "productId": {
+            "type": "string"
+          },
+          "quantity": {
+            "type": "integer"
+          }
+        }
+      }
+    },
+    "rentalId": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "returnedAt": {
+      "type": "string",
+      "format": "date-time"
+    }
+  }
+}

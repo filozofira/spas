@@ -1,0 +1,6 @@
+/* inbound-stock-depleted.jsonata */
+/* Transforms stock-depleted (inventory-service) -> cancel-order (order-service) */
+{
+  "id": referenceId,
+  "reason": "Stock depleted for product " & productId
+}

@@ -6,10 +6,7 @@ flowchart LR
     SS -->|subscription-created| OS[order-service]
     OS -->|order-created| IS[inventory-service]
     IS -->|stock-reserved| OS
-    OS -->|order-confirmed| FS[fulfillment-service]
     OS -->|order-confirmed| SS
-    FS -->|shipment-created| OS
-    FS -->|shipment-status-changed| OS
     SS -->|subscription-activated| End([End])
 ```
 

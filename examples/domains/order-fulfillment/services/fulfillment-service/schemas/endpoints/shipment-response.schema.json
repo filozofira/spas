@@ -6,6 +6,9 @@
       "type": "string",
       "format": "date-time"
     },
+    "deliveryMethod": {
+      "type": "string"
+    },
     "destination": {
       "type": "object",
       "properties": {
@@ -26,7 +29,10 @@
         }
       }
     },
-    "orderId": {
+    "pickupLocationId": {
+      "type": "string"
+    },
+    "referenceId": {
       "type": "string"
     },
     "shipmentId": {

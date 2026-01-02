@@ -8,15 +8,11 @@ domain: order-fulfillment
 # Use /spas.compose agent to generate flows based on service contracts
 flows:
   order-fulfillment-flow:
-    description: "Orchestrates order creation, inventory reservation, and fulfillment"
+    description: "End-to-end order processing flow from creation to fulfillment"
     participants:
       - order-service
       - inventory-service
       - fulfillment-service
-    commands:
-      - service: order-service
-        command: create-order
-        endpoint: /orders
     events:
       - source: order-service
         event: order-created
@@ -33,6 +29,14 @@ flows:
           - service: order-service
             command: confirm-order
             transform: transformations/order-service/inbound-stock-reserved.jsonata
+            
+      - source: inventory-service
+        event: stock-depleted
+        topic: inventory-events
+        targets:
+          - service: order-service
+            command: cancel-order
+            transform: transformations/order-service/inbound-stock-depleted.jsonata
             
       - source: order-service
         event: order-confirmed
@@ -57,19 +61,6 @@ flows:
           - service: order-service
             command: update-shipment-status
             transform: transformations/order-service/inbound-shipment-status-changed.jsonata
-  # Example:
-  # order-fulfillment:
-  #   description: "Order to fulfillment processing flow"
-  #   participants:
-  #     - order-service
-  #     - fulfillment-service
-  #   events:
-  #     - source: order-service
-  #       event: order-created
-  #       topic: orders
-  #       targets:
-  #         - service: fulfillment-service
-#           transform: transformations/fulfillment-service/inbound-order-created.jsonata
 
 # Infrastructure components (optional)
 infrastructure:

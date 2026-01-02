@@ -17,6 +17,27 @@ Specifies required interfaces and behaviors for a SPAS service.
 > - PoC: HTTP transport; Validation and error model recommendations
 > - Production: gRPC transport; Validation required; error details schema defined
 
+### Neutral Identifiers for Reusable Services
+
+Services designed for reuse across domains SHOULD accept neutral identifiers rather than domain-specific ones:
+
+- Use `referenceId` (caller's correlation ID) instead of `orderId`, `rentalId`, `customerId`, etc.
+- Domain context is provided by choreography transformations, not embedded in the contract
+- This enables the same service contract to serve Orders, Rentals, Subscriptions, etc.
+
+**Example:**
+
+```json
+// Domain-agnostic contract (preferred for utility services)
+{
+  "referenceId": "ord-123",      // Caller provides their domain ID
+  "items": [...],
+  "shippingAddress": {...}
+}
+```
+
+See [Service Model - Domain-Agnostic Design](03-service-model.md#domain-agnostic-service-design) for guidelines.
+
 ## Event Contracts
 
 - Published events: Domain facts with versioned types (`<domain>.<boundedContext>.<eventName>.v<major>`) aligned to CloudEvents `type`

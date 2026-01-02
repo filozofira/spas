@@ -1,7 +1,0 @@
-/* inbound-order-confirmed.jsonata */
-/* Transforms order-confirmed (order-service) -> create-shipment (fulfillment-service) */
-{
-  "orderId": orderId,
-  "customerId": customerId,
-  "shippingAddress": shippingAddress
-}

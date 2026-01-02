@@ -5,7 +5,13 @@
     "customerId": {
       "type": "string"
     },
-    "orderId": {
+    "deliveryMethod": {
+      "type": "string"
+    },
+    "pickupLocationId": {
+      "type": "string"
+    },
+    "referenceId": {
       "type": "string"
     },
     "shippingAddress": {

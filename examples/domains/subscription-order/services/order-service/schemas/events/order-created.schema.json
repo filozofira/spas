@@ -26,7 +26,14 @@
       "format": "date-time"
     },
     "shippingAddress": {
-      "$ref": "#/definitions/Address"
+      "oneOf": [
+        {
+          "type": "null"
+        },
+        {
+          "$ref": "#/definitions/Address"
+        }
+      ]
     },
     "referenceId": {
       "type": [

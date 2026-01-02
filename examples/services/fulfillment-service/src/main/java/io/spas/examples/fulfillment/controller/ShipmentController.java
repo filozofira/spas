@@ -40,36 +40,50 @@ public class ShipmentController {
     )
     @PostMapping
     public ResponseEntity<ShipmentResponse> createShipment(@RequestBody CreateShipmentRequest request) {
-        log.info("Creating shipment for order: {}", request.getOrderId());
-        
-        if (request.getOrderId() == null || request.getOrderId().isBlank()) {
-            log.warn("Missing orderId in request");
+        log.info("Creating shipment for reference: {}", request.getReferenceId());
+
+        if (request.getReferenceId() == null || request.getReferenceId().isBlank()) {
+            log.warn("Missing referenceId in request");
             return ResponseEntity.badRequest().build();
         }
         
-        if (request.getShippingAddress() == null) {
-            log.warn("Missing shippingAddress for order: {}", request.getOrderId());
+        String deliveryMethod = request.getDeliveryMethod();
+        if (deliveryMethod == null || deliveryMethod.isBlank()) {
+            deliveryMethod = "SHIPMENT";
+        }
+
+        if ("SHIPMENT".equalsIgnoreCase(deliveryMethod) && request.getShippingAddress() == null) {
+            log.warn("Missing shippingAddress for SHIPMENT reference: {}", request.getReferenceId());
             return ResponseEntity.badRequest().build();
+        }
+
+        if ("PICKUP".equalsIgnoreCase(deliveryMethod)) {
+            if (request.getPickupLocationId() == null || request.getPickupLocationId().isBlank()) {
+                log.warn("Missing pickupLocationId for PICKUP reference: {}", request.getReferenceId());
+                return ResponseEntity.badRequest().build();
+            }
         }
         
         try {
             Shipment shipment = fulfillmentService.createShipment(
-                request.getOrderId(),
+                request.getReferenceId(),
                 request.getCustomerId(),
-                request.getShippingAddress()
+                request.getShippingAddress(),
+                deliveryMethod,
+                request.getPickupLocationId()
             );
             
-            log.info("Created shipment {} for order {}", shipment.getId(), request.getOrderId());
+            log.info("Created shipment {} for reference {}", shipment.getId(), request.getReferenceId());
             return ResponseEntity.ok(ShipmentResponse.from(shipment));
             
         } catch (IllegalStateException e) {
             // Idempotency: shipment already exists for this order
-            log.info("Shipment already exists for order: {}", request.getOrderId());
-            return fulfillmentService.getShipmentByOrderId(request.getOrderId())
+            log.info("Shipment already exists for reference: {}", request.getReferenceId());
+            return fulfillmentService.getShipmentByReferenceId(request.getReferenceId())
                 .map(shipment -> ResponseEntity.ok(ShipmentResponse.from(shipment)))
                 .orElse(ResponseEntity.internalServerError().build());
         } catch (Exception e) {
-            log.error("Failed to create shipment for order: {}", request.getOrderId(), e);
+            log.error("Failed to create shipment for reference: {}", request.getReferenceId(), e);
             return ResponseEntity.internalServerError().build();
         }
     }

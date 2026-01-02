@@ -5,17 +5,11 @@
   "description": "Creates and tracks shipments for confirmed orders; publishes shipment lifecycle events for downstream services",
   "version": "1.0.0",
   "boundedContext": "fulfillment",
-  "capabilities": [],
+  "capabilities": [
+    "shipment-creation",
+    "shipment-tracking"
+  ],
   "endpoints": [
-    {
-      "name": "get-shipment",
-      "type": "Query",
-      "protocol": "Http",
-      "methodPath": "/api/fulfillments/{id}",
-      "version": "1.0.0",
-      "schemaRef": "schemas/endpoints/shipment-response.schema.json",
-      "description": "Returns shipment details by shipmentId"
-    },
     {
       "name": "list-shipments",
       "type": "Query",
@@ -26,13 +20,13 @@
       "description": "Lists all known shipments (demo endpoint; may return in-memory state)"
     },
     {
-      "name": "get-shipment-by-order-id",
+      "name": "get-shipment",
       "type": "Query",
       "protocol": "Http",
-      "methodPath": "/api/fulfillments/by-order/{orderId}",
+      "methodPath": "/api/fulfillments/{id}",
       "version": "1.0.0",
       "schemaRef": "schemas/endpoints/shipment-response.schema.json",
-      "description": "Finds the shipment associated with a given orderId"
+      "description": "Returns shipment details by shipmentId"
     },
     {
       "name": "update-shipment-status",
@@ -42,6 +36,15 @@
       "version": "1.0.0",
       "schemaRef": "schemas/endpoints/update-status-request.schema.json",
       "description": "Updates a shipment's status (e.g., packed/shipped/delivered); emits ShipmentStatusChanged on success"
+    },
+    {
+      "name": "get-shipment-by-reference-id",
+      "type": "Query",
+      "protocol": "Http",
+      "methodPath": "/api/fulfillments/by-reference/{referenceId}",
+      "version": "1.0.0",
+      "schemaRef": "schemas/endpoints/shipment-response.schema.json",
+      "description": "Finds the shipment associated with a given external referenceId"
     },
     {
       "name": "create-shipment",
@@ -113,7 +116,7 @@
     ]
   },
   "license": "MIT",
-  "publishedAt": "2025-12-28T21:05:34.174Z",
+  "publishedAt": "2026-01-01T21:38:34.178Z",
   "runtime": {
     "digest": "sha256:TODO_UPDATE_AFTER_BUILD",
     "repository": "spas-examples/fulfillment-service",

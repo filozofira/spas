@@ -10,22 +10,13 @@
   ],
   "endpoints": [
     {
-      "name": "create-subscription",
-      "type": "Command",
-      "protocol": "Http",
-      "methodPath": "/subscriptions",
-      "version": "1.0",
-      "schemaRef": "schemas/endpoints/create-subscription.schema.json",
-      "description": "Creates a new subscription for a customer/product and publishes SubscriptionCreated"
-    },
-    {
       "name": "list-subscriptions",
       "type": "Query",
       "protocol": "Http",
       "methodPath": "/subscriptions",
       "version": "1.0",
       "schemaRef": "schemas/endpoints/list-subscriptions.schema.json",
-      "description": "Lists all subscriptions currently known to the service"
+      "description": "Lists all subscriptions with optional customerId filter"
     },
     {
       "name": "get-subscription",
@@ -34,7 +25,16 @@
       "methodPath": "/subscriptions/{id}",
       "version": "1.0",
       "schemaRef": "schemas/endpoints/get-subscription.schema.json",
-      "description": "Returns subscription details and status history for a given subscriptionId"
+      "description": "Returns a specific subscription by ID"
+    },
+    {
+      "name": "create-subscription",
+      "type": "Command",
+      "protocol": "Http",
+      "methodPath": "/subscriptions",
+      "version": "1.0",
+      "schemaRef": "schemas/endpoints/create-subscription.schema.json",
+      "description": "Creates a new subscription and publishes SubscriptionCreated"
     },
     {
       "name": "activate-subscription",
@@ -61,7 +61,13 @@
     {
       "name": "activate-subscription",
       "version": "1.0",
-      "produces": []
+      "produces": [
+        {
+          "type": "subscription-activated",
+          "version": "1.0",
+          "when": "success"
+        }
+      ]
     }
   ],
   "events": [
@@ -100,7 +106,7 @@
     ]
   },
   "license": "MIT",
-  "publishedAt": "2025-12-28T21:05:33.936Z",
+  "publishedAt": "2026-01-02T00:16:53.889Z",
   "runtime": {
     "digest": "sha256:TODO_UPDATE_AFTER_BUILD",
     "repository": "spas-examples/subscription-service",

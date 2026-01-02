@@ -34,7 +34,16 @@
       "methodPath": "/inventory/reserve",
       "version": "1.0",
       "schemaRef": "schemas/endpoints/reserve-stock.schema.json",
-      "description": "Reserves stock for an order and publishes StockReserved for successfully reserved items"
+      "description": "Reserves stock for a reference and publishes StockReserved for successfully reserved items"
+    },
+    {
+      "name": "release-stock",
+      "type": "Command",
+      "protocol": "Http",
+      "methodPath": "/inventory/release",
+      "version": "1.0",
+      "schemaRef": "schemas/endpoints/release-stock.schema.json",
+      "description": "Releases reserved stock back to available inventory and publishes StockReleased"
     }
   ],
   "commands": [
@@ -44,6 +53,22 @@
       "produces": [
         {
           "type": "stock-reserved",
+          "version": "1.0",
+          "when": "success"
+        },
+        {
+          "type": "stock-depleted",
+          "version": "1.0",
+          "when": "success"
+        }
+      ]
+    },
+    {
+      "name": "release-stock",
+      "version": "1.0",
+      "produces": [
+        {
+          "type": "stock-released",
           "version": "1.0",
           "when": "success"
         }
@@ -58,10 +83,16 @@
       "description": "Emitted when requested quantity exceeds available inventory for a product"
     },
     {
+      "type": "stock-released",
+      "version": "1.0",
+      "schemaRef": "schemas/events/stock-released.schema.json",
+      "description": "Emitted when reserved stock is released back to available inventory"
+    },
+    {
       "type": "stock-reserved",
       "version": "1.0",
       "schemaRef": "schemas/events/stock-reserved.schema.json",
-      "description": "Emitted when stock is successfully reserved for one or more items in an order"
+      "description": "Emitted when stock is successfully reserved for one or more items against a reference (order, rental, etc.)"
     }
   ],
   "consistency": {
@@ -85,7 +116,7 @@
     ]
   },
   "license": "MIT",
-  "publishedAt": "2025-12-28T21:05:33.456Z",
+  "publishedAt": "2026-01-01T21:38:33.366Z",
   "runtime": {
     "digest": "sha256:TODO_UPDATE_AFTER_BUILD",
     "repository": "spas-examples/inventory-service",

@@ -7,7 +7,7 @@
     "productId": {
       "type": "string"
     },
-    "orderId": {
+    "referenceId": {
       "type": "string",
       "format": "guid"
     },

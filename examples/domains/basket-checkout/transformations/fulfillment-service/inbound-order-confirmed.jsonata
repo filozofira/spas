@@ -1,14 +1,7 @@
 /* inbound-order-confirmed.jsonata */
-/* Transforms order-confirmed (order-service) → CreateShipmentRequest (fulfillment-service) */
-/* Creates shipment with order details and shipping address */
+/* Transforms order-confirmed (order-service) -> create-shipment (fulfillment-service) */
 {
-  "orderId": orderId,
-  "customerId": orderId,
-  "shippingAddress": {
-    "street": shippingAddress.street,
-    "city": shippingAddress.city,
-    "state": shippingAddress.state,
-    "postalCode": shippingAddress.postalCode,
-    "country": shippingAddress.country
-  }
+  "referenceId": orderId,
+  "shippingAddress": shippingAddress,
+  "deliveryMethod": "standard"
 }

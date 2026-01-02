@@ -78,6 +78,65 @@ Service metadata MAY include optional plain-text `description` fields at the ser
 - Metrics emitted for mapping load success/failure
 - Production: Fail closed on invalid mappings; PoC: continue with warning
 
+## Choreography-Driven Optionality
+
+Service contracts SHOULD make fields optional (nullable) when their requirement varies by domain context. The choreography transformation then controls which fields are provided.
+
+### Principle
+
+- **Service contract**: Declares field as optional (`Address? ShippingAddress`)
+- **Choreography**: Decides whether to include the field based on domain requirements
+- **Result**: Same service participates in multiple domains with different data requirements
+
+### Example: `shippingAddress` in Order Service
+
+| Domain Context | Fulfillment Participant | `shippingAddress` Required? |
+|----------------|------------------------|-----------------------------|
+| Physical goods (basket-checkout) | Yes | ✅ Transformation includes it |
+| Digital subscription | No | ❌ Transformation omits it |
+| In-store pickup | No | ❌ Transformation omits it |
+
+**Service contract (order-service):**
+
+```csharp
+public record CreateOrderRequest(
+    string CustomerId,
+    List<OrderItem> Items,
+    decimal Total,
+    Address? ShippingAddress = null,  // Optional - choreography decides
+    string? ReferenceId = null
+);
+```
+
+**Choreography transformation (physical goods):**
+
+```jsonata
+{
+  "customerId": customerId,
+  "items": items,
+  "total": total,
+  "shippingAddress": shippingAddress  /* Included for physical fulfillment */
+}
+```
+
+**Choreography transformation (digital subscription):**
+
+```jsonata
+{
+  "customerId": customerId,
+  "items": items,
+  "total": total
+  /* shippingAddress omitted - not needed for digital delivery */
+}
+```
+
+### Guidelines
+
+- Fields that vary by domain context SHOULD be nullable in service contracts
+- Choreography transformations control optionality per domain
+- Downstream services (e.g., fulfillment) handle missing optional fields gracefully
+- JSON Schema `required` array reflects truly mandatory fields; optional fields are excluded
+
 ## Related Documents
 
 - [Event Protocol](../protocol/09-event-protocol.md)

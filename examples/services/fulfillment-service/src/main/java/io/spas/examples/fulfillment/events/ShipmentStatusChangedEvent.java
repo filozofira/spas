@@ -19,7 +19,7 @@ import java.time.Instant;
 public class ShipmentStatusChangedEvent {
     
     private String shipmentId;
-    private String orderId;
+    private String referenceId;
     private ShipmentStatus status;
     private String trackingNumber;
     private Instant updatedAt;
@@ -27,10 +27,10 @@ public class ShipmentStatusChangedEvent {
     public ShipmentStatusChangedEvent() {
     }
     
-    public ShipmentStatusChangedEvent(String shipmentId, String orderId, ShipmentStatus status,
+    public ShipmentStatusChangedEvent(String shipmentId, String referenceId, ShipmentStatus status,
                                        String trackingNumber, Instant updatedAt) {
         this.shipmentId = shipmentId;
-        this.orderId = orderId;
+        this.referenceId = referenceId;
         this.status = status;
         this.trackingNumber = trackingNumber;
         this.updatedAt = updatedAt;
@@ -46,12 +46,12 @@ public class ShipmentStatusChangedEvent {
         this.shipmentId = shipmentId;
     }
     
-    public String getOrderId() {
-        return orderId;
+    public String getReferenceId() {
+        return referenceId;
     }
     
-    public void setOrderId(String orderId) {
-        this.orderId = orderId;
+    public void setReferenceId(String referenceId) {
+        this.referenceId = referenceId;
     }
     
     public ShipmentStatus getStatus() {

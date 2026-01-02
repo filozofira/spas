@@ -83,7 +83,7 @@ docker run -p 8080:8080 fulfillment-service
 |--------|----------|-------------|
 | GET | `/api/fulfillments` | List all shipments |
 | GET | `/api/fulfillments/{id}` | Get shipment by ID |
-| GET | `/api/fulfillments/by-order/{orderId}` | Get shipment by order ID |
+| GET | `/api/fulfillments/by-reference/{referenceId}` | Get shipment by external reference ID |
 | POST | `/api/fulfillments/{id}/status` | Update shipment status (Flow 2) |
 
 ### Event Endpoints

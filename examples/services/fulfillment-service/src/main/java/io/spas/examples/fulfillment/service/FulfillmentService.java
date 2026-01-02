@@ -35,27 +35,28 @@ public class FulfillmentService {
      * Create a shipment for an order.
      * This is Flow 1 - uses the same trace context from the incoming request.
      * 
-     * @param orderId The order ID
+    * @param referenceId The external reference ID (order, rental, etc.)
      * @param customerId The customer ID
-     * @param shippingAddress The shipping address
+     * @param shippingAddress The shipping address (for SHIPMENT)
      * @return The created shipment
      * @throws IllegalStateException if shipment already exists for this order
      */
-    public Shipment createShipment(String orderId, String customerId, Address shippingAddress) {
-        log.info("Creating shipment for order: {}", orderId);
+    public Shipment createShipment(String referenceId, String customerId, Address shippingAddress,
+                                   String deliveryMethod, String pickupLocationId) {
+        log.info("Creating shipment for reference: {}", referenceId);
         
         // Idempotency check - don't create duplicate shipments for the same order
-        if (shipmentRepository.existsByOrderId(orderId)) {
-            log.warn("Shipment already exists for order: {}. Returning existing.", orderId);
-            throw new IllegalStateException("Shipment already exists for order: " + orderId);
+        if (shipmentRepository.existsByReferenceId(referenceId)) {
+            log.warn("Shipment already exists for reference: {}. Returning existing.", referenceId);
+            throw new IllegalStateException("Shipment already exists for reference: " + referenceId);
         }
         
         // Create new shipment
-        Shipment shipment = Shipment.create(orderId, shippingAddress);
+        Shipment shipment = Shipment.create(referenceId, shippingAddress, deliveryMethod, pickupLocationId);
         shipmentRepository.save(shipment);
         
-        log.info("Created shipment {} for order {} with status {}", 
-                 shipment.getId(), orderId, shipment.getStatus());
+        log.info("Created shipment {} for reference {} with status {}", 
+             shipment.getId(), referenceId, shipment.getStatus());
         
         // Publish shipment-created event (Flow 1 - same trace context)
         publishShipmentCreated(shipment);
@@ -64,11 +65,17 @@ public class FulfillmentService {
     }
     
     /**
-     * @deprecated Use {@link #createShipment(String, String, Address)} instead.
+    * @deprecated Use {@link #createShipment(String, String, Address, String, String)} instead.
      */
     @Deprecated
     public Shipment processOrderConfirmed(OrderConfirmedPayload payload) {
-        return createShipment(payload.getOrderId(), payload.getCustomerId(), payload.getShippingAddress());
+        return createShipment(
+            payload.getOrderId(),
+            payload.getCustomerId(),
+            payload.getShippingAddress(),
+            "SHIPMENT",
+            null
+        );
     }
     
     /**
@@ -115,8 +122,8 @@ public class FulfillmentService {
     /**
      * Get a shipment by order ID.
      */
-    public Optional<Shipment> getShipmentByOrderId(String orderId) {
-        return shipmentRepository.findByOrderId(orderId);
+    public Optional<Shipment> getShipmentByReferenceId(String referenceId) {
+        return shipmentRepository.findByReferenceId(referenceId);
     }
     
     /**
@@ -125,7 +132,7 @@ public class FulfillmentService {
     private void publishShipmentCreated(Shipment shipment) {
         ShipmentCreatedEvent event = new ShipmentCreatedEvent(
             shipment.getId(),
-            shipment.getOrderId(),
+            shipment.getReferenceId(),
             shipment.getDestination(),
             shipment.getStatus(),
             shipment.getCreatedAt()
@@ -146,7 +153,7 @@ public class FulfillmentService {
     private void publishShipmentStatusChanged(Shipment shipment) {
         ShipmentStatusChangedEvent event = new ShipmentStatusChangedEvent(
             shipment.getId(),
-            shipment.getOrderId(),
+            shipment.getReferenceId(),
             shipment.getStatus(),
             shipment.getTrackingNumber(),
             shipment.getUpdatedAt()

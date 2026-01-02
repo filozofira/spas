@@ -13,20 +13,6 @@
       "invokeEndpoint": "/orders/confirm",
       "eventType": "com.inventory-service.stock-reserved",
       "transform": "transformations/inbound-stock-reserved.jsonata"
-    },
-    {
-      "kind": "event",
-      "topic": "fulfillment-events",
-      "invokeEndpoint": "/orders/shipment-status",
-      "eventType": "com.fulfillment-service.shipment-created",
-      "transform": "transformations/inbound-shipment-created.jsonata"
-    },
-    {
-      "kind": "event",
-      "topic": "fulfillment-events",
-      "invokeEndpoint": "/orders/shipment-status",
-      "eventType": "com.fulfillment-service.shipment-status-changed",
-      "transform": "transformations/inbound-shipment-status-changed.jsonata"
     }
   ],
   "outbound": [

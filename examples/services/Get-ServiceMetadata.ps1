@@ -30,4 +30,8 @@ Push-Location (Join-Path $scriptRoot 'basket-service')
 java -jar target\basket-service-1.0.0-SNAPSHOT.jar --generate-metadata --output ./metadata;
 Pop-Location
 
+Push-Location (Join-Path $scriptRoot 'rental-service')
+java -jar target\rental-service-1.0.0-SNAPSHOT.jar --generate-metadata --output ./metadata;
+Pop-Location
+
 Write-Host "Done generating metadata archives"

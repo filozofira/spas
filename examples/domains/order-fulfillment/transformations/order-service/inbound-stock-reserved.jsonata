@@ -1,7 +1,7 @@
 /* inbound-stock-reserved.jsonata */
 /* Transforms stock-reserved (inventory-service) -> confirm-order (order-service) */
 {
-  "orderId": orderId,
+  "orderId": referenceId,
   "reservedItems": $append([], reservations.{
     "productId": productId,
     "quantity": quantity

@@ -1,29 +1,26 @@
 # basket-checkout
 
+```mermaid
+flowchart LR
+    Start([Start]) --> BS[basket-service]
+    BS -->|checkout-initiated| OS[order-service]
+    OS -->|order-created| IS[inventory-service]
+    IS -->|stock-reserved| OS
+    OS -->|order-confirmed| BS
+    OS -->|order-confirmed| FS[fulfillment-service]
+    FS -->|shipment-created| OS
+    FS -->|shipment-status-changed| OS
+    OS -->|order-cancelled| IS
+    IS -->|stock-depleted| BS
+    BS -->|basket-created| End([End])
+    BS -->|item-added| End
+    BS -->|item-removed| End
+    IS -->|stock-released| End
+```
+
 **SPAS Domain Workspace**
 
 This workspace contains choreography configuration for composing SPAS services into a domain context.
-
-## Choreography Overview
-
-```mermaid
-flowchart LR
-    subgraph Basket Checkout Flow
-        BS[basket-service] -->|checkout-initiated| OS[order-service]
-        OS -->|order-created| IS[inventory-service]
-        IS -->|stock-reserved| OS
-        OS -->|order-confirmed| BS
-        OS -->|order-confirmed| FS[fulfillment-service]
-        FS -->|shipment-created| OS
-    end
-```
-
-**Event Flow:**
-1. Customer checks out basket → `checkout-initiated` triggers order creation
-2. Order created → `order-created` triggers inventory reservation
-3. Inventory reserved → `stock-reserved` confirms order
-4. Order confirmed → `order-confirmed` clears basket AND creates shipment
-5. Shipment created → `shipment-created` updates order tracking
 
 ## Structure
 
@@ -62,7 +59,7 @@ spas-compose services pull fulfillment-service 1.0.0
 Use the `/spas.compose` agent prompt to analyze service contracts and generate choreography:
 
 ```
-/spas.compose Analyze order-service and fulfillment-service contracts.
+/spas.compose DOMAIN:basket-checkout Analyze order-service and fulfillment-service contracts.
 Propose topic mappings and generate transformations.
 ```
 

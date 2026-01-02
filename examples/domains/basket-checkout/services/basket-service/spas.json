@@ -5,16 +5,55 @@
   "description": "Manages shopping baskets for customers; publishes checkout events to trigger order creation and handles inventory updates",
   "version": "1.0.0",
   "boundedContext": "shopping",
-  "capabilities": [],
+  "capabilities": [
+    "basket-management",
+    "checkout-initiation"
+  ],
   "endpoints": [
     {
-      "name": "add-item",
+      "name": "clear-basket",
       "type": "Command",
       "protocol": "Http",
-      "methodPath": "/api/baskets/{id}/items",
+      "methodPath": "/api/baskets/clear",
       "version": "1.0.0",
-      "schemaRef": "schemas/endpoints/add-item-request.schema.json",
-      "description": "Adds a product to the shopping basket; emits ItemAdded event"
+      "schemaRef": "schemas/endpoints/order-created-payload.schema.json",
+      "description": "Clears a basket after successful order creation; matches basket via referenceId"
+    },
+    {
+      "name": "create-basket",
+      "type": "Command",
+      "protocol": "Http",
+      "methodPath": "/api/baskets",
+      "version": "1.0.0",
+      "schemaRef": "schemas/endpoints/create-basket-request.schema.json",
+      "description": "Creates a new shopping basket for a customer; emits BasketCreated event"
+    },
+    {
+      "name": "initiate-checkout",
+      "type": "Command",
+      "protocol": "Http",
+      "methodPath": "/api/baskets/{id}/checkout",
+      "version": "1.0.0",
+      "schemaRef": "schemas/endpoints/checkout-request.schema.json",
+      "description": "Initiates checkout for a basket with shipping address; emits CheckoutInitiated event containing all order details for downstream order-service and fulfillment-service"
+    },
+    {
+      "name": "list-baskets",
+      "type": "Query",
+      "protocol": "Http",
+      "methodPath": "/api/baskets",
+      "version": "1.0.0",
+      "schemaRef": "schemas/endpoints/basket-response.schema.json",
+      "description": "Lists all baskets (demo endpoint; returns in-memory state)"
+    },
+    {
+      "name": "mark-product-unavailable",
+      "type": "Command",
+      "protocol": "Http",
+      "methodPath": "/api/baskets/mark-unavailable",
+      "version": "1.0.0",
+      "schemaRef": "schemas/endpoints/stock-depleted-payload.schema.json",
+      "description": "Marks a product as unavailable in all open baskets when stock is depleted"
     },
     {
       "name": "get-basket",
@@ -35,73 +74,20 @@
       "description": "Removes a product from the shopping basket; emits ItemRemoved event"
     },
     {
-      "name": "create-basket",
+      "name": "add-item",
       "type": "Command",
       "protocol": "Http",
-      "methodPath": "/api/baskets",
+      "methodPath": "/api/baskets/{id}/items",
       "version": "1.0.0",
-      "schemaRef": "schemas/endpoints/create-basket-request.schema.json",
-      "description": "Creates a new shopping basket for a customer; emits BasketCreated event"
-    },
-    {
-      "name": "clear-basket",
-      "type": "Command",
-      "protocol": "Http",
-      "methodPath": "/api/baskets/clear",
-      "version": "1.0.0",
-      "schemaRef": "schemas/endpoints/order-created-payload.schema.json",
-      "description": "Clears a basket after successful order creation; matches basket via referenceId"
-    },
-    {
-      "name": "list-baskets",
-      "type": "Query",
-      "protocol": "Http",
-      "methodPath": "/api/baskets",
-      "version": "1.0.0",
-      "schemaRef": "schemas/endpoints/response-entity.schema.json",
-      "description": "Lists all baskets (demo endpoint; returns in-memory state)"
-    },
-    {
-      "name": "initiate-checkout",
-      "type": "Command",
-      "protocol": "Http",
-      "methodPath": "/api/baskets/{id}/checkout",
-      "version": "1.0.0",
-      "schemaRef": "schemas/endpoints/checkout-request.schema.json",
-      "description": "Initiates checkout for a basket with shipping address; emits CheckoutInitiated event containing all order details for downstream order-service and fulfillment-service"
-    },
-    {
-      "name": "mark-product-unavailable",
-      "type": "Command",
-      "protocol": "Http",
-      "methodPath": "/api/baskets/mark-unavailable",
-      "version": "1.0.0",
-      "schemaRef": "schemas/endpoints/stock-depleted-payload.schema.json",
-      "description": "Marks a product as unavailable in all open baskets when stock is depleted"
+      "schemaRef": "schemas/endpoints/add-item-request.schema.json",
+      "description": "Adds a product to the shopping basket; emits ItemAdded event"
     }
   ],
   "commands": [
     {
-      "name": "add-item",
+      "name": "clear-basket",
       "version": "1.0.0",
-      "produces": [
-        {
-          "type": "item-added",
-          "version": "1.0.0",
-          "when": "success"
-        }
-      ]
-    },
-    {
-      "name": "remove-item",
-      "version": "1.0.0",
-      "produces": [
-        {
-          "type": "item-removed",
-          "version": "1.0.0",
-          "when": "success"
-        }
-      ]
+      "produces": []
     },
     {
       "name": "create-basket",
@@ -113,11 +99,6 @@
           "when": "success"
         }
       ]
-    },
-    {
-      "name": "clear-basket",
-      "version": "1.0.0",
-      "produces": []
     },
     {
       "name": "initiate-checkout",
@@ -134,6 +115,28 @@
       "name": "mark-product-unavailable",
       "version": "1.0.0",
       "produces": []
+    },
+    {
+      "name": "remove-item",
+      "version": "1.0.0",
+      "produces": [
+        {
+          "type": "item-removed",
+          "version": "1.0.0",
+          "when": "success"
+        }
+      ]
+    },
+    {
+      "name": "add-item",
+      "version": "1.0.0",
+      "produces": [
+        {
+          "type": "item-added",
+          "version": "1.0.0",
+          "when": "success"
+        }
+      ]
     }
   ],
   "events": [
@@ -184,7 +187,7 @@
     ]
   },
   "license": "MIT",
-  "publishedAt": "2025-12-26T15:07:28.664Z",
+  "publishedAt": "2026-01-01T21:38:34.465Z",
   "runtime": {
     "digest": "sha256:TODO_UPDATE_AFTER_BUILD",
     "repository": "spas-examples/basket-service",

@@ -51,15 +51,15 @@ public class InventoryController : ControllerBase
     }
 
     /// <summary>
-    /// Reserves stock for an order and publishes StockReserved
+    /// Reserves stock for a reference (order, rental, etc.) and publishes StockReserved
     /// </summary>
     [HttpPost("reserve")]
     [SpasCommand("ReserveStock", "1.0",
-        Description = "Reserves stock for an order and publishes StockReserved for successfully reserved items",
+        Description = "Reserves stock for a reference and publishes StockReserved for successfully reserved items",
         Produces = new[] { typeof(StockReservedEvent), typeof(StockDepletedEvent) })]
     public async Task<ActionResult> ReserveStock([FromBody] ReserveStockRequest request)
     {
-        Console.WriteLine($"[inventory-service] Reserving stock for order {request.OrderId}");
+        Console.WriteLine($"[inventory-service] Reserving stock for reference {request.ReferenceId}");
 
         var reservations = new List<StockReservation>();
 
@@ -86,7 +86,7 @@ public class InventoryController : ControllerBase
         {
             var reservedPayload = new
             {
-                orderId = request.OrderId,
+                referenceId = request.ReferenceId,
                 reservations = reservations.Select(r => new
                 {
                     productId = r.ProductId,
@@ -107,5 +107,65 @@ public class InventoryController : ControllerBase
         }
 
         return Ok(new { status = "processed", reservations = reservations.Count });
+    }
+
+    /// <summary>
+    /// Releases reserved stock back to available inventory.
+    /// Used for rental returns, order cancellations, or reverse logistics.
+    /// </summary>
+    [HttpPost("release")]
+    [SpasCommand("ReleaseStock", "1.0",
+        Description = "Releases reserved stock back to available inventory and publishes StockReleased",
+        Produces = new[] { typeof(StockReleasedEvent) })]
+    public async Task<ActionResult> ReleaseStock([FromBody] ReleaseStockRequest request)
+    {
+        Console.WriteLine($"[inventory-service] Releasing stock for reference {request.ReferenceId}");
+
+        var releases = new List<StockReleaseItem>();
+
+        foreach (var item in request.Items)
+        {
+            var success = _store.Release(item.ProductId, item.Quantity);
+
+            if (success)
+            {
+                releases.Add(new StockReleaseItem(
+                    item.ProductId,
+                    item.Quantity,
+                    DateTime.UtcNow
+                ));
+                Console.WriteLine($"[inventory-service] Released {item.Quantity} of {item.ProductId}");
+            }
+            else
+            {
+                Console.WriteLine($"[inventory-service] Could not release {item.ProductId}: no reserved stock found");
+            }
+        }
+
+        if (releases.Any())
+        {
+            var releasedPayload = new
+            {
+                referenceId = request.ReferenceId,
+                releases = releases.Select(r => new
+                {
+                    productId = r.ProductId,
+                    quantity = r.Quantity,
+                    releasedAt = r.ReleasedAt
+                }).ToList(),
+                timestamp = DateTime.UtcNow
+            };
+
+            try
+            {
+                await _publisher.PublishAsync<StockReleasedEvent>(payload: releasedPayload);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Failed to publish StockReleased event: {ex.Message}");
+            }
+        }
+
+        return Ok(new { status = "processed", releases = releases.Count });
     }
 }

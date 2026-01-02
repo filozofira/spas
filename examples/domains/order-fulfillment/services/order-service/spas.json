@@ -53,6 +53,15 @@
       "version": "1.0",
       "schemaRef": "schemas/endpoints/update-shipment-status.schema.json",
       "description": "Updates shipment/tracking information for an order based on fulfillment, such as shipment created, in-transit, delivered, etc."
+    },
+    {
+      "name": "cancel-order",
+      "type": "Command",
+      "protocol": "Http",
+      "methodPath": "/orders/{id}/cancel",
+      "version": "1.0",
+      "schemaRef": "schemas/endpoints/cancel-order.schema.json",
+      "description": "Cancels an existing order"
     }
   ],
   "commands": [
@@ -82,9 +91,26 @@
       "name": "update-shipment-status",
       "version": "1.0",
       "produces": []
+    },
+    {
+      "name": "cancel-order",
+      "version": "1.0",
+      "produces": [
+        {
+          "type": "order-cancelled",
+          "version": "1.0",
+          "when": "success"
+        }
+      ]
     }
   ],
   "events": [
+    {
+      "type": "order-cancelled",
+      "version": "1.0",
+      "schemaRef": "schemas/events/order-cancelled.schema.json",
+      "description": "Published when an order is cancelled"
+    },
     {
       "type": "order-confirmed",
       "version": "1.0",
@@ -120,7 +146,7 @@
     ]
   },
   "license": "MIT",
-  "publishedAt": "2025-12-28T21:05:33.189Z",
+  "publishedAt": "2026-01-01T21:38:33.046Z",
   "runtime": {
     "digest": "sha256:TODO_UPDATE_AFTER_BUILD",
     "repository": "spas-examples/order-service",

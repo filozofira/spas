@@ -1,0 +1,35 @@
+{
+  "inbound": [
+    {
+      "kind": "event",
+      "topic": "rental-events",
+      "invokeEndpoint": "/inventory/reserve",
+      "eventType": "com.rental-service.rental-requested",
+      "transform": "transformations/inbound-rental-requested-to-reserve-stock.jsonata"
+    },
+    {
+      "kind": "event",
+      "topic": "rental-events",
+      "invokeEndpoint": "/inventory/release",
+      "eventType": "com.rental-service.rental-returned",
+      "transform": "transformations/inbound-rental-returned-to-release-stock.jsonata"
+    }
+  ],
+  "outbound": [
+    {
+      "topic": "inventory-events",
+      "eventType": "com.inventory-service.stock-reserved",
+      "eventName": "stock-reserved"
+    },
+    {
+      "topic": "inventory-events",
+      "eventType": "com.inventory-service.stock-depleted",
+      "eventName": "stock-depleted"
+    },
+    {
+      "topic": "inventory-events",
+      "eventType": "com.inventory-service.stock-released",
+      "eventName": "stock-released"
+    }
+  ]
+}

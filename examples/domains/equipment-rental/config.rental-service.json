@@ -1,0 +1,15 @@
+{
+  "inbound": [],
+  "outbound": [
+    {
+      "topic": "rental-events",
+      "eventType": "com.rental-service.rental-requested",
+      "eventName": "rental-requested"
+    },
+    {
+      "topic": "rental-events",
+      "eventType": "com.rental-service.rental-returned",
+      "eventName": "rental-returned"
+    }
+  ]
+}

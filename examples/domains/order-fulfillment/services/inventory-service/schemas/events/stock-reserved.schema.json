@@ -4,7 +4,7 @@
   "type": "object",
   "additionalProperties": false,
   "properties": {
-    "orderId": {
+    "referenceId": {
       "type": "string",
       "format": "guid"
     },

@@ -91,7 +91,27 @@ Added explicit prohibition of identity transforms:
 
 | File | Change |
 |------|--------|
-| [workflow-phases.eta](../../components/cli/spas-compose/src/templates/partials/workflow-phases.eta) | Added schema reading requirements to Phase 1 and Phase 3, prohibited identity transforms |
+| [workflow-phases.eta](../../components/cli/spas-compose/src/templates/partials/workflow-phases.eta) | Added schema reading requirements to Phase 1 and Phase 3, prohibited identity transforms, added derived fields detection |
+| [init.ts](../../components/cli/spas-compose/src/commands/init.ts) | Fixed git root search to always start from cwd |
+| [inbound-order-confirmed.jsonata](../../examples/domains/basket-checkout/transformations/fulfillment-service/inbound-order-confirmed.jsonata) | Fixed deliveryMethod to use conditional logic |
+
+## Bug Fixes
+
+### Fix: Agent Files Placed in Wrong Directory
+
+**Problem**: When running `spas-compose init basket-checkout --output .\domains\`, the `.github` folder was created at `domains\.github` instead of the project root.
+
+**Root Cause**: The `findGitRoot()` search started from the `--output` path instead of the current working directory. If the output path was new or didn't contain a `.git` folder, the git root wasn't found and the fallback placed `.github` at the output directory.
+
+**Fix**: Changed `init.ts` to always search for git root from `process.cwd()`:
+
+```diff
+- const searchStart = options.output ? resolve(options.output) : process.cwd();
+- const projectRoot = findGitRoot(searchStart);
++ const projectRoot = findGitRoot(process.cwd());
+```
+
+**File**: [init.ts](../../components/cli/spas-compose/src/commands/init.ts)
 
 ## Expected Outcome
 

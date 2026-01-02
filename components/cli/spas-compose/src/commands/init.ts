@@ -57,9 +57,9 @@ async function executeInit(
   verbose(`Resolved workspace path: ${workspacePath}`, options.verbose);
 
   // Find git root for agent file placement
-  // Start search from output directory or current directory
-  const searchStart = options.output ? resolve(options.output) : process.cwd();
-  const projectRoot = findGitRoot(searchStart);
+  // Always search from current working directory (where user ran the command)
+  // This ensures .github is placed at the project root, not the output directory
+  const projectRoot = findGitRoot(process.cwd());
   verbose(
     `Project root (git): ${projectRoot ?? "not found (will use workspace parent)"}`,
     options.verbose,

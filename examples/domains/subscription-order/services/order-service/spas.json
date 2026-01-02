@@ -1,5 +1,5 @@
 {
-  "schemaVersion": "design-time-metadata-v1",
+  "schemaVersion": "runtime-metadata-v1",
   "id": "order-service",
   "name": "order-service",
   "description": "Order lifecycle management service",
@@ -145,5 +145,12 @@
       "internal"
     ]
   },
-  "license": "MIT"
+  "license": "MIT",
+  "publishedAt": "2026-01-02T00:16:53.071Z",
+  "runtime": {
+    "digest": "sha256:TODO_UPDATE_AFTER_BUILD",
+    "repository": "spas-examples/order-service",
+    "tag": "1.0.0",
+    "image": "spas-examples/order-service@sha256:TODO_UPDATE_AFTER_BUILD"
+  }
 }

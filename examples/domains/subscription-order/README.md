@@ -1,5 +1,15 @@
 # subscription-order
 
+```mermaid
+flowchart LR
+    Start([Start]) --> SS[subscription-service]
+    SS -->|subscription-created| OS[order-service]
+    OS -->|order-created| IS[inventory-service]
+    IS -->|stock-reserved| OS
+    OS -->|order-confirmed| SS
+    SS -->|subscription-activated| End([End])
+```
+
 **SPAS Domain Workspace**
 
 This workspace contains choreography configuration for composing SPAS services into a domain context.

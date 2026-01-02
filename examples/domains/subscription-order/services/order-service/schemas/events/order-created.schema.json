@@ -1,6 +1,6 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "title": "OrderConfirmedEvent",
+  "title": "OrderCreatedEvent",
   "type": "object",
   "additionalProperties": false,
   "properties": {
@@ -8,17 +8,32 @@
       "type": "string",
       "format": "guid"
     },
-    "status": {
+    "customerId": {
       "type": "string"
     },
-    "reservedItems": {
+    "items": {
       "type": "array",
       "items": {
-        "$ref": "#/definitions/ReservedItem"
+        "$ref": "#/definitions/OrderItem"
       }
     },
+    "total": {
+      "type": "number",
+      "format": "decimal"
+    },
+    "createdAt": {
+      "type": "string",
+      "format": "date-time"
+    },
     "shippingAddress": {
-      "$ref": "#/definitions/Address"
+      "oneOf": [
+        {
+          "type": "null"
+        },
+        {
+          "$ref": "#/definitions/Address"
+        }
+      ]
     },
     "referenceId": {
       "type": [
@@ -28,7 +43,7 @@
     }
   },
   "definitions": {
-    "ReservedItem": {
+    "OrderItem": {
       "type": "object",
       "additionalProperties": false,
       "properties": {
@@ -38,6 +53,10 @@
         "quantity": {
           "type": "integer",
           "format": "int32"
+        },
+        "price": {
+          "type": "number",
+          "format": "decimal"
         }
       }
     },

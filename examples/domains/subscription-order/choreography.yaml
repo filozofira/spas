@@ -5,21 +5,50 @@ version: "1.0"
 domain: subscription-order
 
 # Named choreography flows
-# Use /spas.compose agent to generate flows based on service contracts
-flows: {}
-  # Example:
-  # order-fulfillment:
-  #   description: "Order to fulfillment processing flow"
-  #   participants:
-  #     - order-service
-  #     - fulfillment-service
-  #   events:
-  #     - source: order-service
-  #       event: order-created
-  #       topic: orders
-  #       targets:
-  #         - service: fulfillment-service
-#           transform: transformations/fulfillment-service/inbound-order-created.jsonata
+flows:
+  subscription-order-flow:
+    description: "End-to-end subscription order lifecycle from creation through fulfillment to activation"
+    participants:
+      - subscription-service
+      - order-service
+      - inventory-service
+    events:
+      - source: subscription-service
+        event: subscription-created
+        topic: subscription-events
+        targets:
+          - service: order-service
+            command: create-order
+            transform: transformations/order-service/inbound-subscription-created.jsonata
+
+      - source: order-service
+        event: order-created
+        topic: order-events
+        targets:
+          - service: inventory-service
+            command: reserve-stock
+            transform: transformations/inventory-service/inbound-order-created.jsonata
+
+      - source: inventory-service
+        event: stock-reserved
+        topic: inventory-events
+        targets:
+          - service: order-service
+            command: confirm-order
+            transform: transformations/order-service/inbound-stock-reserved.jsonata
+
+      - source: order-service
+        event: order-confirmed
+        topic: order-events
+        targets:
+          - service: subscription-service
+            command: activate-subscription
+            transform: transformations/subscription-service/inbound-order-confirmed.jsonata
+
+      - source: subscription-service
+        event: subscription-activated
+        topic: subscription-events
+        targets: []
 
 # Infrastructure components (optional)
 infrastructure:

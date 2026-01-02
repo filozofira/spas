@@ -6,20 +6,57 @@ domain: equipment-rental
 
 # Named choreography flows
 # Use /spas.compose agent to generate flows based on service contracts
-flows: {}
-  # Example:
-  # order-fulfillment:
-  #   description: "Order to fulfillment processing flow"
-  #   participants:
-  #     - order-service
-  #     - fulfillment-service
-  #   events:
-  #     - source: order-service
-  #       event: order-created
-  #       topic: orders
-  #       targets:
-  #         - service: fulfillment-service
-#           transform: transformations/fulfillment-service/inbound-order-created.jsonata
+flows:
+  equipment-rental-lifecycle:
+    description: "Rental to inventory reservation, returns, and optional shipment flow"
+    participants:
+      - rental-service
+      - inventory-service
+      - fulfillment-service
+    events:
+      - source: rental-service
+        event: rental-requested
+        topic: rental-events
+        targets:
+          - service: inventory-service
+            command: reserve-stock
+            transform: transformations/inventory-service/inbound-rental-requested-to-reserve-stock.jsonata
+          - service: fulfillment-service
+            command: create-shipment
+            transform: transformations/fulfillment-service/inbound-rental-requested-to-create-shipment.jsonata
+
+      - source: rental-service
+        event: rental-returned
+        topic: rental-events
+        targets:
+          - service: inventory-service
+            command: release-stock
+            transform: transformations/inventory-service/inbound-rental-returned-to-release-stock.jsonata
+
+      - source: inventory-service
+        event: stock-reserved
+        topic: inventory-events
+        targets: []
+
+      - source: inventory-service
+        event: stock-depleted
+        topic: inventory-events
+        targets: []
+
+      - source: inventory-service
+        event: stock-released
+        topic: inventory-events
+        targets: []
+
+      - source: fulfillment-service
+        event: shipment-created
+        topic: fulfillment-events
+        targets: []
+
+      - source: fulfillment-service
+        event: shipment-status-changed
+        topic: fulfillment-events
+        targets: []
 
 # Infrastructure components (optional)
 infrastructure:

@@ -2,7 +2,7 @@
 
 **Feature Branch**: `031-java-21-upgrade`  
 **Created**: January 2, 2026  
-**Status**: Draft  
+**Status**: Planning Complete  
 **Input**: User description: "Update Java SDK and all Example services to Java version 21"
 
 ## User Scenarios & Testing *(mandatory)*
@@ -73,6 +73,8 @@ As a DevOps engineer, I need Docker images for Java services to use Java 21 base
 - **FR-008**: All existing unit tests MUST pass without modification when run on Java 21
 - **FR-009**: Maven enforcer plugin rules MUST require Java 21 minimum (if enforcer is configured)
 - **FR-010**: All services MUST generate metadata archives successfully after upgrade
+- **FR-011**: All documentation files (README, CONTRIBUTING, installation guides) MUST be updated to reference Java 21 as the minimum supported version, excluding historical feature spec documents (specs/001-xxx through specs/030-xxx)
+- **FR-012**: CLI command templates (e.g., `/spas.service init` agent prompts) MUST be updated to generate Java 21 references instead of Java 17
 
 ### Key Entities *(not applicable - infrastructure upgrade)*
 

@@ -5,14 +5,14 @@
       "topic": "rental-events",
       "invokeEndpoint": "/inventory/reserve",
       "eventType": "com.rental-service.rental-requested",
-      "transform": "transformations/inbound-rental-requested-to-reserve-stock.jsonata"
+      "transform": "transformations/inbound-rental-requested.jsonata"
     },
     {
       "kind": "event",
       "topic": "rental-events",
       "invokeEndpoint": "/inventory/release",
       "eventType": "com.rental-service.rental-returned",
-      "transform": "transformations/inbound-rental-returned-to-release-stock.jsonata"
+      "transform": "transformations/inbound-rental-returned.jsonata"
     }
   ],
   "outbound": [

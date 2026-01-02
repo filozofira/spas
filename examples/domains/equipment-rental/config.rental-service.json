@@ -1,5 +1,16 @@
 {
-  "inbound": [],
+  "inbound": [
+    {
+      "kind": "command",
+      "command": "request-rental",
+      "invokeEndpoint": "/rentals"
+    },
+    {
+      "kind": "command",
+      "command": "return-rental",
+      "invokeEndpoint": "/rentals/{id}/return"
+    }
+  ],
   "outbound": [
     {
       "topic": "rental-events",

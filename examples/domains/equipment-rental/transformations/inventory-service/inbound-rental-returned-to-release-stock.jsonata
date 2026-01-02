@@ -1,9 +1,0 @@
-/* inbound-rental-returned-to-release-stock.jsonata */
-/* Transforms rental-returned (rental-service) -> release-stock (inventory-service) */
-{
-  "referenceId": rentalId,
-  "items": $append([], items.{
-    "productId": productId,
-    "quantity": quantity
-  })
-}

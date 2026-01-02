@@ -23,5 +23,12 @@
       "type": "string",
       "format": "date-time"
     }
-  }
+  },
+  "required": [
+    "productId",
+    "referenceId",
+    "requestedQuantity",
+    "availableQuantity",
+    "timestamp"
+  ]
 }

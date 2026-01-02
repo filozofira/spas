@@ -35,7 +35,17 @@
           "type": "string",
           "format": "date-time"
         }
-      }
+      },
+      "required": [
+        "productId",
+        "quantity",
+        "reservedAt"
+      ]
     }
-  }
+  },
+  "required": [
+    "referenceId",
+    "reservations",
+    "timestamp"
+  ]
 }

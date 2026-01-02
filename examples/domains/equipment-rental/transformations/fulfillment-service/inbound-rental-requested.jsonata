@@ -1,0 +1,15 @@
+/* inbound-rental-requested.jsonata */
+/* Transforms rental-requested (rental-service) -> create-shipment request (fulfillment-service) */
+{
+  "referenceId": rentalId,
+  "customerId": customerId,
+  "deliveryMethod": deliveryMethod,
+  "shippingAddress": shippingAddress ? {
+    "street": shippingAddress.street,
+    "city": shippingAddress.city,
+    "state": shippingAddress.state,
+    "postalCode": shippingAddress.postalCode,
+    "country": shippingAddress.country
+  } : null,
+  "pickupLocationId": pickupLocationId
+}

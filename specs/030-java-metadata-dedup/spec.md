@@ -2,8 +2,20 @@
 
 **Feature Branch**: `030-java-metadata-dedup`
 **Created**: 2026-01-02
-**Status**: Draft
+**Status**: Completed
+**Completed**: 2026-01-02
 **Input**: User description: "Remove redundant service metadata declaration from Java SDK component. Concretely there IS duplication between application.yml and @SpasService annotation. The @SpasService annotation is used for **metadata generation** (design-time), while application.yml configuration is for **runtime behavior**. However, the duplication of `id`, `bounded-context`, and `version` seems unnecessary."
+
+## Implementation Summary
+
+**Result**: Successfully removed redundant `spas.service.*` configuration from all example services. The SDK's `SpasMetadataArchiveGenerator` already reads service identity directly from the `@SpasService` annotation during metadata generation, so no SDK code changes were needed.
+
+**Files Modified**:
+- `examples/services/basket-service/src/main/resources/application.yml`
+- `examples/services/rental-service/src/main/resources/application.yml`
+- `examples/services/fulfillment-service/src/main/resources/application.yml`
+- `components/sdk/java/spas-sdk-metadata/src/main/java/io/spas/sdk/metadata/annotations/SpasService.java` (Javadoc updated)
+- `specs/030-java-metadata-dedup/quickstart.md` (Documentation updated)
 
 ## Clarifications
 

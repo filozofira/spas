@@ -16,9 +16,9 @@
 
 **Purpose**: Remove redundant `spas.service.*` configuration from all example services since metadata generation already reads from `@SpasService` annotation
 
-- [ ] T001 [P] Remove `spas.service.id`, `spas.service.bounded-context`, and `spas.service.version` from `examples/services/basket-service/src/main/resources/application.yml` (lines 10-13)
-- [ ] T002 [P] Remove `spas.service.id`, `spas.service.bounded-context`, and `spas.service.version` from `examples/services/rental-service/src/main/resources/application.yml` (lines 10-13)
-- [ ] T003 [P] Remove `spas.service.id`, `spas.service.bounded-context`, and `spas.service.version` from `examples/services/fulfillment-service/src/main/resources/application.yml` (lines 10-13)
+- [X] T001 [P] Remove `spas.service.id`, `spas.service.bounded-context`, and `spas.service.version` from `examples/services/basket-service/src/main/resources/application.yml` (lines 10-13)
+- [X] T002 [P] Remove `spas.service.id`, `spas.service.bounded-context`, and `spas.service.version` from `examples/services/rental-service/src/main/resources/application.yml` (lines 10-13)
+- [X] T003 [P] Remove `spas.service.id`, `spas.service.bounded-context`, and `spas.service.version` from `examples/services/fulfillment-service/src/main/resources/application.yml` (lines 10-13)
 
 ---
 
@@ -26,12 +26,12 @@
 
 **Purpose**: Verify that example services still function correctly without the redundant configuration
 
-- [ ] T004 [P] Build and run basket-service, verify startup logs show correct service identity from `@SpasService` annotation
-- [ ] T005 [P] Build and run rental-service, verify startup logs show correct service identity from `@SpasService` annotation
-- [ ] T006 [P] Build and run fulfillment-service, verify startup logs show correct service identity from `@SpasService` annotation
-- [ ] T007 Generate metadata for basket-service using `-Dspas.generate-metadata=true`, verify `spas.json` contains correct identity values
-- [ ] T008 Generate metadata for rental-service using `-Dspas.generate-metadata=true`, verify `spas.json` contains correct identity values
-- [ ] T009 Generate metadata for fulfillment-service using `-Dspas.generate-metadata=true`, verify `spas.json` contains correct identity values
+- [X] T004 [P] Build and run basket-service, verify startup logs show correct service identity from `@SpasService` annotation
+- [X] T005 [P] Build and run rental-service, verify startup logs show correct service identity from `@SpasService` annotation
+- [X] T006 [P] Build and run fulfillment-service, verify startup logs show correct service identity from `@SpasService` annotation
+- [X] T007 Generate metadata for basket-service using `-Dspas.generate-metadata=true`, verify `spas.json` contains correct identity values
+- [X] T008 Generate metadata for rental-service using `-Dspas.generate-metadata=true`, verify `spas.json` contains correct identity values
+- [X] T009 Generate metadata for fulfillment-service using `-Dspas.generate-metadata=true`, verify `spas.json` contains correct identity values
 
 ---
 
@@ -39,10 +39,10 @@
 
 **Purpose**: Update documentation to clarify that `@SpasService` annotation is the single source of truth
 
-- [ ] T010 Update quickstart guide in `specs/030-java-metadata-dedup/quickstart.md` to emphasize that `spas.service.*` properties should NOT be used in `application.yml`
-- [ ] T011 Update Java SDK README `components/sdk/java/README.md` to document that service identity comes from `@SpasService` annotation only
-- [ ] T012 Add note to `@SpasService` annotation Javadoc in `components/sdk/java/spas-sdk-metadata/src/main/java/io/spas/sdk/metadata/annotations/SpasService.java` explaining it is used at metadata generation time
-- [ ] T013 Update spec status to "Completed" in `specs/030-java-metadata-dedup/spec.md`
+- [X] T010 Update quickstart guide in `specs/030-java-metadata-dedup/quickstart.md` to emphasize that `spas.service.*` properties should NOT be used in `application.yml`
+- [X] T011 Update Java SDK README `components/sdk/java/README.md` to document that service identity comes from `@SpasService` annotation only
+- [X] T012 Add note to `@SpasService` annotation Javadoc in `components/sdk/java/spas-sdk-metadata/src/main/java/io/spas/sdk/metadata/annotations/SpasService.java` explaining it is used at metadata generation time
+- [X] T013 Update spec status to "Completed" in `specs/030-java-metadata-dedup/spec.md`
 
 ---
 

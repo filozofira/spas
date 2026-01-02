@@ -36,27 +36,29 @@ public class OrderServiceApplication {
 }
 ```
 
-## 3. Clean `application.yml`
+## 3. ✅ Configuration Complete
 
-You can now **remove** the redundant service definition from your `application.yml`:
+**That's it!** Your service identity is now defined in code via the `@SpasService` annotation.
+
+**Do NOT add `spas.service.*` properties to `application.yml`** - they are redundant and unnecessary. The SDK's metadata generation reads service identity directly from the annotation.
 
 ```yaml
-# BEFORE
-spas:
-  service:
-    id: order-service          # REMOVE
-    bounded-context: sales     # REMOVE
-    version: 1.0.0             # REMOVE
-
-# AFTER
+# application.yml - Service identity is NOT needed here
 spring:
   application:
     name: order-service
+
+# SPAS sidecar configuration (if needed)
+spas:
+  sidecar:
+    url: http://localhost:7000
 ```
 
-## 4. Overrides (Optional)
+## 4. Advanced: Runtime Overrides (Optional)
 
-If you need to override the version for a specific environment (e.g., in a CI/CD pipeline), you can still use environment variables or configuration files:
+## 4. Advanced: Runtime Overrides (Optional)
+
+If you need to override service identity at runtime (e.g., for testing or CI/CD), use `SpasServiceOptions` in your main method:
 
 ```bash
 export SPAS_SERVICE_VERSION=1.0.1-SNAPSHOT

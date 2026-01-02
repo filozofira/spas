@@ -1,9 +1,0 @@
-/* inbound-rental-requested-to-reserve-stock.jsonata */
-/* Transforms rental-requested (rental-service) -> reserve-stock (inventory-service) */
-{
-  "referenceId": rentalId,
-  "items": $append([], items.{
-    "productId": productId,
-    "quantity": quantity
-  })
-}

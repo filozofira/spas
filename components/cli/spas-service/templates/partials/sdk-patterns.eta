@@ -242,6 +242,52 @@ public record {Entity}CreatedEvent(
 }
 ```
 
+#### Request/Response DTOs with Nullable Fields
+
+Use `@Nullable` annotation from `jakarta.annotation` for optional fields. The SPAS SDK schema generator will:
+- Exclude `@Nullable` fields from the `required` array in generated schemas
+- Generate `"type": ["null", "string"]` for nullable primitive wrappers
+- Generate `"oneOf": [{"type": "null"}, {...}]` for nullable complex types
+
+```java
+package com.{context}.{name}.model;
+
+import jakarta.annotation.Nullable;
+import java.math.BigDecimal;
+import java.util.List;
+
+/**
+ * Request DTO for creating a new {entity}.
+ * 
+ * Fields without @Nullable are REQUIRED.
+ * Fields with @Nullable are OPTIONAL.
+ */
+public record Create{Entity}Request(
+    String customerId,                    // Required - will be in "required" array
+    List<LineItem> items,                 // Required - will be in "required" array
+    BigDecimal total,                     // Required - will be in "required" array
+    @Nullable Address shippingAddress,    // Optional - NOT in "required" array
+    @Nullable String referenceId          // Optional - NOT in "required" array
+) {
+    public record LineItem(
+        String productId,
+        int quantity,
+        BigDecimal unitPrice
+    ) {}
+    
+    public record Address(
+        String street,
+        String city,
+        String state,
+        String postalCode,
+        String country
+    ) {}
+}
+```
+
+> **IMPORTANT**: Always use `jakarta.annotation.Nullable` (not `javax.annotation`).
+> The SDK detects any annotation named `Nullable` regardless of package for flexibility.
+
 #### Controller with Command Handler
 
 ```java
@@ -755,14 +801,36 @@ public record {Entity}CreatedEvent(
 );
 ```
 
-#### DTOs
+#### DTOs with Nullable Fields
+
+Use C# nullable reference types (`?`) for optional fields. The SPAS SDK schema generator will:
+- Exclude nullable fields from the `required` array in generated schemas
+- Generate `"type": ["null", "string"]` for nullable value types
+- Generate `"oneOf": [{"type": "null"}, {...}]` for nullable complex types
 
 ```csharp
 namespace {Name}.DTOs;
 
+/// <summary>
+/// Request DTO for creating a new {entity}.
+/// 
+/// Non-nullable fields are REQUIRED.
+/// Nullable fields (with ?) are OPTIONAL.
+/// </summary>
 public record Create{Entity}Request(
-    string CustomerId,
-    List<LineItem> Items
+    string CustomerId,                    // Required - will be in "required" array
+    List<LineItem> Items,                 // Required - will be in "required" array
+    decimal Total,                        // Required - will be in "required" array
+    Address? ShippingAddress = null,      // Optional - NOT in "required" array
+    string? ReferenceId = null            // Optional - NOT in "required" array
+);
+
+public record Address(
+    string Street,
+    string City,
+    string State,
+    string PostalCode,
+    string Country
 );
 
 public record Create{Entity}Response(
@@ -777,6 +845,8 @@ public record Create{Entity}Response(
 
 public record LineItem(string ProductId, int Quantity);
 ```
+
+> **IMPORTANT**: Ensure `<Nullable>enable</Nullable>` is set in your .csproj file (default for .NET 6+).
 
 #### Simple Store (In-Memory)
 

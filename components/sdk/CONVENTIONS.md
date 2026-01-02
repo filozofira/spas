@@ -2,6 +2,38 @@
 
 Shared conventions across all SPAS SDK implementations (.NET, Java, Python, Go, etc.).
 
+## Development Principles
+
+### Adapt, Don't Invent
+
+Prefer proven, well-maintained libraries and built-in framework features over custom implementations:
+
+**Libraries**:
+
+| Capability | .NET | Java |
+|------------|------|------|
+| Schema Generation | NJsonSchema | victools/jsonschema-generator |
+| JSON Serialization | System.Text.Json | Jackson |
+| HTTP Client | HttpClient | RestTemplate / WebClient |
+
+**Framework Features**:
+
+| Capability | .NET | Java (Spring Boot) |
+|------------|------|-------------------|
+| Health Endpoints | ASP.NET Core Health Checks | Spring Boot Actuator |
+| Configuration | IConfiguration | @ConfigurationProperties |
+| Dependency Injection | Microsoft.Extensions.DI | Spring IoC |
+| Metrics | .NET Meters API | Micrometer |
+
+**Rationale**: Battle-tested libraries and framework features reduce maintenance burden, provide better edge-case handling, and benefit from community contributions. Custom implementations are acceptable only when no suitable option exists or integration overhead exceeds benefit.
+
+**When evaluating options**:
+- Framework-native first (if framework provides it, use it)
+- Active maintenance (commits within last 6 months)
+- Established usage (documented adoption, Stack Overflow presence)
+- License compatibility (MIT, Apache 2.0, BSD preferred)
+- Configuration over forking (extend via settings, not source modification)
+
 ## Event Naming
 
 All SDKs normalize event names to **kebab-case** in `spas.json` for cross-language interoperability.

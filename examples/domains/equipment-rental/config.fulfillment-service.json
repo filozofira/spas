@@ -5,7 +5,7 @@
       "topic": "rental-events",
       "invokeEndpoint": "/shipments",
       "eventType": "com.rental-service.rental-requested",
-      "transform": "transformations/inbound-rental-requested-to-create-shipment.jsonata"
+      "transform": "transformations/inbound-rental-requested.jsonata"
     }
   ],
   "outbound": [
@@ -13,11 +13,6 @@
       "topic": "fulfillment-events",
       "eventType": "com.fulfillment-service.shipment-created",
       "eventName": "shipment-created"
-    },
-    {
-      "topic": "fulfillment-events",
-      "eventType": "com.fulfillment-service.shipment-status-changed",
-      "eventName": "shipment-status-changed"
     }
   ]
 }

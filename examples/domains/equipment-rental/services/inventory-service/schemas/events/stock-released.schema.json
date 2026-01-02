@@ -35,7 +35,17 @@
           "type": "string",
           "format": "date-time"
         }
-      }
+      },
+      "required": [
+        "productId",
+        "quantity",
+        "releasedAt"
+      ]
     }
-  }
+  },
+  "required": [
+    "referenceId",
+    "releases",
+    "timestamp"
+  ]
 }

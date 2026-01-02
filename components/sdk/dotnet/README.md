@@ -126,6 +126,40 @@ Descriptions improve AI-assisted choreography. Use plain text describing intent,
 
 More examples: [SDK Principles](../../../principles/component/12-sdk.md)
 
+### Nullable Fields in DTOs
+
+The SDK schema generator automatically generates proper JSON Schema with:
+- **`required` array**: Lists all non-nullable properties that must be provided
+- **Nullable types**: Properties with nullable types (e.g., `string?`) are excluded from `required`
+
+**Example:**
+
+```csharp
+public class CreateShipmentRequest
+{
+    public string OrderId { get; set; }            // Required - in schema's "required" array
+    public string DestinationAddress { get; set; } // Required
+    public string? SpecialInstructions { get; set; } // Optional - not in required array
+}
+```
+
+**Generated schema:**
+
+```json
+{
+  "$schema": "https://json-schema.org/draft-07/schema",
+  "type": "object",
+  "properties": {
+    "orderId": { "type": "string" },
+    "destinationAddress": { "type": "string" },
+    "specialInstructions": { "type": ["string", "null"] }
+  },
+  "required": ["orderId", "destinationAddress"]
+}
+```
+
+**Why this matters:** The AI choreography agent uses the `required` array to validate that transformations map all mandatory fields from source events to target command schemas.
+
 ### Health Checks
 
 The SDK exposes standard health endpoints on the main application port. To enable them:

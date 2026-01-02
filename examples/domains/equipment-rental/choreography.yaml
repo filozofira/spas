@@ -7,12 +7,16 @@ domain: equipment-rental
 # Named choreography flows
 # Use /spas.compose agent to generate flows based on service contracts
 flows:
-  equipment-rental-lifecycle:
-    description: "Rental to inventory reservation, returns, and optional shipment flow"
+  rental-fulfillment-flow:
+    description: "Equipment rental request to inventory reservation and fulfillment"
     participants:
       - rental-service
       - inventory-service
       - fulfillment-service
+    commands:
+      - service: rental-service
+        command: request-rental
+        endpoint: /rentals
     events:
       - source: rental-service
         event: rental-requested
@@ -20,42 +24,43 @@ flows:
         targets:
           - service: inventory-service
             command: reserve-stock
-            transform: transformations/inventory-service/inbound-rental-requested-to-reserve-stock.jsonata
+            transform: transformations/inventory-service/inbound-rental-requested.jsonata
           - service: fulfillment-service
             command: create-shipment
-            transform: transformations/fulfillment-service/inbound-rental-requested-to-create-shipment.jsonata
+            transform: transformations/fulfillment-service/inbound-rental-requested.jsonata
+      - source: inventory-service
+        event: stock-reserved
+        topic: inventory-events
+        targets: []
+      - source: inventory-service
+        event: stock-depleted
+        topic: inventory-events
+        targets: []
+      - source: fulfillment-service
+        event: shipment-created
+        topic: fulfillment-events
+        targets: []
 
+  rental-return-flow:
+    description: "Equipment return processing to release inventory"
+    participants:
+      - rental-service
+      - inventory-service
+    commands:
+      - service: rental-service
+        command: return-rental
+        endpoint: /rentals/{id}/return
+    events:
       - source: rental-service
         event: rental-returned
         topic: rental-events
         targets:
           - service: inventory-service
             command: release-stock
-            transform: transformations/inventory-service/inbound-rental-returned-to-release-stock.jsonata
-
-      - source: inventory-service
-        event: stock-reserved
-        topic: inventory-events
-        targets: []
-
-      - source: inventory-service
-        event: stock-depleted
-        topic: inventory-events
-        targets: []
-
+            transform: transformations/inventory-service/inbound-rental-returned.jsonata
       - source: inventory-service
         event: stock-released
         topic: inventory-events
-        targets: []
-
-      - source: fulfillment-service
-        event: shipment-created
-        topic: fulfillment-events
-        targets: []
-
-      - source: fulfillment-service
-        event: shipment-status-changed
-        topic: fulfillment-events
         targets: []
 
 # Infrastructure components (optional)

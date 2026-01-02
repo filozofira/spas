@@ -151,14 +151,15 @@ describe("generateAgentFile", () => {
       const content = generateAgentFile("./examples/ecommerce");
 
       // FR-009: Mermaid diagram in Propose phase (choreography/flowchart, not sequence)
-      expect(content).toContain("**Choreography Diagram Template:**");
+      // Now supports Simple Flow Template and Complex Flow Template
+      expect(content).toContain("**Simple Flow Template**");
       expect(content).toContain("```mermaid");
       expect(content).toContain("flowchart LR");
       
       // Verify the diagram template is in Phase 2 section
       const phase2Start = content.indexOf("### Phase 2: Propose");
       const phase3Start = content.indexOf("### Phase 3: Generate");
-      const diagramTemplatePos = content.indexOf("**Choreography Diagram Template:**");
+      const diagramTemplatePos = content.indexOf("**Simple Flow Template**");
       const mermaidPos = content.indexOf("```mermaid", diagramTemplatePos); // Find mermaid after diagram template header
       
       expect(phase2Start).toBeGreaterThan(0);
@@ -180,7 +181,7 @@ describe("generateAgentFile", () => {
       // FR-001: Start node with stadium shape
       expect(content).toContain("Start([Start])");
       expect(content).toContain("**Start node**");
-      expect(content).toContain("MUST include `Start([Start])` node");
+      expect(content).toContain("MUST include `Start([Start])` or `Start([Actor])` node");
     });
 
     it("should contain End node in diagram template (019-compose-diagram-flow)", () => {
@@ -189,7 +190,7 @@ describe("generateAgentFile", () => {
       // FR-002: End node with stadium shape
       expect(content).toContain("End([End])");
       expect(content).toContain("**End node**");
-      expect(content).toContain("MUST include `End([End])` node");
+      expect(content).toContain("MUST include `End([End])` or `End([Outcome])` node");
     });
 
     it("should require diagram insertion into README (019-compose-diagram-flow)", () => {

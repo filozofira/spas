@@ -54,12 +54,19 @@ The following 5-phase workflow guides the process:
    - **Display Steps**: List all steps the choreography goes through to help the developer understand what is going to happen.
 
 2. **Visualize**
-   - Generate a Mermaid flowchart of the proposed choreography
+   - Generate Mermaid diagram(s) based on choreography complexity
    - **MUST insert/update the choreography diagram in the domain README.md file** (at top, after title)
    - **SEE "Documentation Rules" section for strict placement and formatting requirements.**
    - Wait for user confirmation before proceeding to Generate phase
 
-**Choreography Diagram Template:**
+**Diagram Style Selection (REQUIRED):**
+
+| Complexity | Criteria | Style |
+|------------|----------|-------|
+| **Simple** | ≤4 services, linear flow, no branching | Single flowchart |
+| **Complex** | >4 services, multiple paths, error handling | Separate diagram per scenario |
+
+**Simple Flow Template** (single diagram):
 ```mermaid
 flowchart LR
     Start([Start]) --> OS[order-service]
@@ -69,12 +76,39 @@ flowchart LR
     OS -->|order-confirmed| End([End])
 ```
 
+**Complex Flow Template** (multiple diagrams):
+```markdown
+## Happy Path: Successful Checkout
+
+` ` `mermaid
+flowchart LR
+    Start([Customer]) --> BS[basket-service]
+    BS -->|checkout-initiated| OS[order-service]
+    OS -->|order-created| IS[inventory-service]
+    IS -->|stock-reserved| OS
+    OS -->|order-confirmed| FS[fulfillment-service]
+    FS -->|shipment-created| End([Complete])
+` ` `
+
+## Error Path: Stock Depleted
+
+` ` `mermaid
+flowchart LR
+    Start([Customer]) --> BS[basket-service]
+    BS -->|checkout-initiated| OS[order-service]
+    OS -->|order-created| IS[inventory-service]
+    IS -->|stock-depleted| BS
+    BS --> End([Notify Customer])
+` ` `
+```
+
 **Diagram Requirements:**
-- **Start node**: MUST include `Start([Start])` node. Use stadium shape, connect to the first service receiving external trigger
-- **End node**: MUST include `End([End])` node. Use stadium shape, connect from all terminal events (no downstream targets)
+- **Start node**: MUST include `Start([Start])` or `Start([Actor])` node with stadium shape
+- **End node**: MUST include `End([End])` or `End([Outcome])` node with stadium shape
 - **Direction**: Use `flowchart LR` for horizontal left-to-right flow
 - **Edge labels**: All arrows between services MUST include event type label `-->|event-name|`
-- **No subgraph**: Do NOT wrap diagram in subgraph, keep flat structure for clarity
+- **No subgraph in simple**: Keep flat structure for simple flows
+- **Scenario headers**: For complex flows, add `## Scenario Name` heading before each diagram
 
 **Choreography Schema:**
 ```yaml

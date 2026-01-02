@@ -134,6 +134,21 @@ Added explicit prohibition of identity transforms:
 
 **File**: [workflow-phases.eta](../../components/cli/spas-compose/src/templates/partials/workflow-phases.eta)
 
+### Fix: Complexity-Based Diagram Selection
+
+**Problem**: Single diagram style doesn't work for all choreographies. Simple flows get cluttered with complex notation, while complex flows become unreadable in a single diagram.
+
+**Fix**: Added diagram style selection based on complexity:
+
+| Complexity | Criteria | Style |
+|------------|----------|-------|
+| **Simple** | ≤4 services, linear flow, no branching | Single flowchart |
+| **Complex** | >4 services, multiple paths, error handling | Separate diagram per scenario |
+
+For complex flows, agents now generate separate diagrams per scenario (happy path, error path, cancellation) with descriptive headers.
+
+**File**: [workflow-phases.eta](../../components/cli/spas-compose/src/templates/partials/workflow-phases.eta)
+
 ## Expected Outcome
 
 - Agent will read concrete schema files before generating transformations
@@ -141,6 +156,7 @@ Added explicit prohibition of identity transforms:
 - Identity transforms (`$.data`) will be avoided
 - Missing required fields will be flagged before validation phase
 - Terminal events will be included in choreography with `targets: []`
+- Diagrams will be appropriately styled based on choreography complexity
 
 ## Testing
 
@@ -150,3 +166,4 @@ To verify the fix:
 3. Invoke `/spas.compose DOMAIN:<name> Analyze...`
 4. Observe that Phase 3 now includes explicit field mapping documentation before JSONata generation
 5. Verify terminal events are listed in proposed choreography with `targets: []`
+6. For complex flows (>4 services), verify separate diagrams per scenario are generated

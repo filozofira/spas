@@ -8,8 +8,9 @@
     <PackageReference Include="JsonSchema.Net" Version="6.0.0" />
     <PackageReference Include="Microsoft.AspNetCore.Routing.Abstractions" Version="2.2.0" />
     <PackageReference Include="Microsoft.AspNetCore.Http.Abstractions" Version="2.2.0" />
-    <PackageReference Include="NJsonSchema" Version="11.1.0" />
+    <PackageReference Include="NJsonSchema" Version="11.5.2" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+    <PackageReference Include="NJsonSchema.NewtonsoftJson" Version="11.5.2" />
   </ItemGroup>
 
   <ItemGroup>

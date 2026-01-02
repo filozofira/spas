@@ -180,6 +180,22 @@ flows:
    - Verify all `flows.*.events[].targets[].service` match a participant
    - Check topic naming follows `{boundedContext}-events` pattern (lowercase-hyphenated)
 
+4. **Mandatory Field Mapping Validation (CRITICAL)**
+   - For each transformation file, load the **target endpoint's request schema**
+   - Read the `required` array from the target schema (lists all mandatory fields)
+   - Verify that **every field in the `required` array** is mapped in the JSONata transformation
+   - If a required field is missing from the transformation:
+     - Report the missing field name and which transformation file is incomplete
+     - Request correction before proceeding to Build phase
+   - **Example**:
+     ```
+     ❌ Validation Failed: transformations/fulfillment-service/inbound-order-created.jsonata
+        Missing required field: 'customerId' (required by target schema)
+        Target schema: schemas/endpoints/create-fulfillment-request.schema.json
+        
+     Please update the transformation to map the 'customerId' field from the source event.
+     ```
+
 **Validation Checklist (Phase 4):**
 - [ ] choreography.yaml is valid YAML syntax
 - [ ] All JSONata files have valid syntax
@@ -189,6 +205,7 @@ flows:
 - [ ] Target services subscribe to the referenced events
 - [ ] Topic names follow naming convention
 - [ ] Field names in transformations match target schemas
+- [ ] **All required fields from target schemas are mapped in transformations**
 
 **Exit Criteria:** All validations pass, artifacts ready for deployment
 

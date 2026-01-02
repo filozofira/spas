@@ -135,6 +135,48 @@ Descriptions improve AI-assisted choreography. Use plain text describing intent,
 
 More examples: [SDK Principles](../../../principles/component/12-sdk.md)
 
+### Nullable Fields in DTOs
+
+The SDK schema generator automatically detects `@Nullable` annotations to generate proper JSON Schema with:
+- **`required` array**: Lists all non-nullable properties that must be provided
+- **Nullable types**: Properties with `@Nullable` get `"type": ["string", "null"]` (or equivalent)
+
+**Package-agnostic detection:** Any annotation named `Nullable` is recognized, including:
+- `org.jetbrains.annotations.Nullable`
+- `jakarta.annotation.Nullable`
+- `javax.annotation.Nullable`
+- `org.springframework.lang.Nullable`
+
+**Example:**
+
+```java
+import org.jetbrains.annotations.Nullable;
+
+public class CreateShipmentRequest {
+    private String orderId;           // Required - in schema's "required" array
+    private String destinationAddress; // Required
+    @Nullable
+    private String specialInstructions; // Optional - type: ["string", "null"]
+}
+```
+
+**Generated schema:**
+
+```json
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "orderId": { "type": "string" },
+    "destinationAddress": { "type": "string" },
+    "specialInstructions": { "type": ["string", "null"] }
+  },
+  "required": ["orderId", "destinationAddress"]
+}
+```
+
+**Why this matters:** The AI choreography agent uses the `required` array to validate that transformations map all mandatory fields from source events to target command schemas.
+
 ### Health Checks
 
 The SDK **automatically** exposes standard health endpoints when using `spas-sdk-spring` (via Spring Boot auto-configuration). No additional setup required.

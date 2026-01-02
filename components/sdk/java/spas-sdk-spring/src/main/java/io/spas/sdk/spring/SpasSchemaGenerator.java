@@ -10,6 +10,7 @@ import io.spas.sdk.metadata.annotations.SpasCommand;
 import io.spas.sdk.metadata.annotations.SpasEvent;
 import io.spas.sdk.metadata.annotations.SpasQuery;
 
+import java.lang.annotation.Annotation;
 import java.util.*;
 import java.util.logging.Logger;
 
@@ -22,6 +23,14 @@ import java.util.logging.Logger;
  * 
  * <p>The generated schemas are used by the metadata endpoint to provide
  * contract schemas alongside spas.json.</p>
+ * 
+ * <p><strong>Nullability handling (FR-002, FR-004):</strong></p>
+ * <ul>
+ *   <li>Fields annotated with {@code @Nullable} (any package) are treated as nullable
+ *       and represented as {@code "type": ["null", "<base-type>"]}</li>
+ *   <li>Fields without {@code @Nullable} are treated as required and added to the
+ *       {@code "required"} array</li>
+ * </ul>
  */
 public class SpasSchemaGenerator {
 
@@ -57,9 +66,35 @@ public class SpasSchemaGenerator {
                 return name;
             });
         
+        // FR-004: Detect @Nullable annotation (package-agnostic) to mark fields as nullable
+        // Any annotation with simple name "Nullable" will be treated as a nullable marker
+        configBuilder.forFields()
+            .withNullableCheck(field -> hasNullableAnnotation(field.getRawMember().getAnnotations()));
+        
+        // FR-002: Fields without @Nullable are required (added to required array)
+        configBuilder.forFields()
+            .withRequiredCheck(field -> !hasNullableAnnotation(field.getRawMember().getAnnotations()));
+        
         SchemaGeneratorConfig config = configBuilder.build();
         this.generator = new SchemaGenerator(config);
         this.objectMapper = new ObjectMapper();
+    }
+    
+    /**
+     * Checks if any annotation has the simple name "Nullable" (package-agnostic).
+     * This supports @Nullable from any package: javax.annotation, jakarta.annotation,
+     * org.jetbrains.annotations, org.springframework.lang, etc.
+     */
+    private boolean hasNullableAnnotation(Annotation[] annotations) {
+        if (annotations == null) {
+            return false;
+        }
+        for (Annotation annotation : annotations) {
+            if ("Nullable".equals(annotation.annotationType().getSimpleName())) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**

@@ -276,6 +276,28 @@ describe("generateAgentFile", () => {
       expect(phase4Section).toContain("Check JSONata files have valid syntax");
     });
 
+    it("should include mandatory field mapping validation in Phase 4 (029-schema-nullable-validation)", () => {
+      const content = generateAgentFile("./examples/ecommerce");
+
+      const phase4Section = content.substring(
+        content.indexOf("### Phase 4: Validate"),
+        content.indexOf("### Phase 5: Build")
+      );
+
+      // FR-012: Mandatory field mapping validation
+      expect(phase4Section).toContain("Mandatory Field Mapping Validation");
+      expect(phase4Section).toContain("CRITICAL");
+      expect(phase4Section).toContain("required");
+      expect(phase4Section).toContain("schema");
+      
+      // Should instruct to check target schema's required array
+      expect(phase4Section).toContain("target");
+      expect(phase4Section).toContain("`required` array");
+      
+      // Should instruct to report missing fields
+      expect(phase4Section).toContain("Missing required field");
+    });
+
     it("should provide clear next steps in Phase 5", () => {
       const content = generateAgentFile("./examples/ecommerce");
 

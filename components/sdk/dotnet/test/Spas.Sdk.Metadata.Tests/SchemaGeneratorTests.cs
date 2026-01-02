@@ -1,5 +1,6 @@
 using Spas.Sdk.Metadata.Attributes;
 using Spas.Sdk.Metadata.Schema;
+using System.Text.Json.Serialization;
 
 namespace Spas.Sdk.Metadata.Tests;
 
@@ -82,6 +83,63 @@ public class SchemaGeneratorTests
         Assert.Contains("\"customer\":", schema);
         Assert.Contains("\"items\":", schema);
     }
+
+    [Fact]
+    public async Task GenerateSchemaAsync_GeneratesRequiredArrayAndNullableTypes()
+    {
+        // Arrange
+        var generator = new SchemaGenerator();
+
+        // Act
+        var schema = await generator.GenerateSchemaAsync(typeof(NullableTestDto)) as string;
+
+        // Assert
+        Assert.NotNull(schema);
+
+        // FR-001: Required array contains non-nullable properties
+        Assert.Contains("\"required\":", schema);
+        Assert.Contains("\"requiredString\"", schema);
+        Assert.Contains("\"requiredInt\"", schema);
+
+        // FR-003: Nullable properties have type ["null", "string"] or similar
+        // Verify nullableString has null type
+        Assert.Contains("nullableString", schema);
+        
+        // Verify nullableInt has null type
+        Assert.Contains("nullableInt", schema);
+        
+        // Verify null is present in the schema (indicating nullable types are generated)
+        Assert.Contains("\"null\"", schema);
+    }
+
+    [Fact]
+    public async Task GenerateSchemaAsync_NullableComplexType_NotInRequiredArray()
+    {
+        // Arrange
+        var generator = new SchemaGenerator();
+
+        // Act
+        var schema = await generator.GenerateSchemaAsync(typeof(NullableComplexTypeDto)) as string;
+
+        // Assert
+        Assert.NotNull(schema);
+
+        // FR-001: Required array should contain orderId and requiredAddress, but NOT nullableAddress
+        Assert.Contains("\"required\":", schema);
+        Assert.Contains("\"orderId\"", schema);
+        
+        // Parse schema to verify required array contents
+        var schemaDoc = System.Text.Json.JsonDocument.Parse(schema);
+        var requiredArray = schemaDoc.RootElement.GetProperty("required");
+        var requiredFields = requiredArray.EnumerateArray().Select(e => e.GetString()).ToList();
+        
+        Assert.Contains("orderId", requiredFields);
+        Assert.Contains("requiredAddress", requiredFields);
+        Assert.DoesNotContain("nullableAddress", requiredFields);
+        
+        // Verify nullableAddress uses oneOf with null type
+        Assert.Contains("\"oneOf\"", schema);
+    }
 }
 
 // Test types for schema generation unit tests
@@ -92,6 +150,32 @@ public record PlainDtoForSchemaTest(string OrderId, decimal Amount);
 public record NestedOrderRequest(CustomerInfo Customer, List<OrderItemInfo> Items, decimal Total);
 public record CustomerInfo(string CustomerId, string Name, string Email);
 public record OrderItemInfo(string ProductId, int Quantity, decimal UnitPrice);
+
+// Test type for nullable/required generation (FR-001, FR-003)
+// Non-nullable properties (RequiredString, RequiredInt) should appear in "required" array
+// Nullable properties (NullableString?, NullableInt?) should have type: ["null", "<base-type>"]
+public class NullableTestDto
+{
+    public string RequiredString { get; set; } = default!;
+    public string? NullableString { get; set; }
+    public int RequiredInt { get; set; }
+    public int? NullableInt { get; set; }
+}
+
+// Test type for nullable complex types (FR-001 - oneOf null handling)
+// NullableAddress should NOT appear in required array (uses oneOf with null)
+public class NullableComplexTypeDto
+{
+    public string OrderId { get; set; } = default!;
+    public TestAddressInfo? NullableAddress { get; set; }
+    public TestAddressInfo RequiredAddress { get; set; } = default!;
+}
+
+public class TestAddressInfo
+{
+    public string Street { get; set; } = default!;
+    public string City { get; set; } = default!;
+}
 
 // Event type - still requires [SpasEvent] attribute
 [SpasEvent("TestEvent", "1.0", EventType = "com.test.event")]

@@ -35,10 +35,10 @@
 
 ### Implementation for User Story 1
 
-- [ ] T001 [P] [US1] Configure NJsonSchema to emit `required` array for non-nullable properties in components/sdk/dotnet/src/Spas.Sdk.Metadata/Schema/SchemaGenerator.cs (FR-001, FR-005, FR-006)
-- [ ] T002 [P] [US1] Add unit tests for .NET required array generation in components/sdk/dotnet/test/Spas.Sdk.Metadata.Tests/Schema/SchemaGeneratorTests.cs
-- [ ] T003 [P] [US1] Configure victools to emit `required` array using `withRequiredCheck()` for fields without @Nullable in components/sdk/java/spas-sdk-spring/src/main/java/io/spas/sdk/spring/SpasSchemaGenerator.java (FR-002, FR-005, FR-006)
-- [ ] T004 [P] [US1] Add unit tests for Java required array generation in components/sdk/java/spas-sdk-spring/src/test/java/io/spas/sdk/spring/SpasSchemaGeneratorTest.java
+- [X] T001 [P] [US1] Configure NJsonSchema to emit `required` array for non-nullable properties in components/sdk/dotnet/src/Spas.Sdk.Metadata/Schema/SchemaGenerator.cs (FR-001, FR-005, FR-006)
+- [X] T002 [P] [US1] Add unit tests for .NET required array generation in components/sdk/dotnet/test/Spas.Sdk.Metadata.Tests/Schema/SchemaGeneratorTests.cs
+- [X] T003 [P] [US1] Configure victools to emit `required` array using `withRequiredCheck()` for fields without @Nullable in components/sdk/java/spas-sdk-spring/src/main/java/io/spas/sdk/spring/SpasSchemaGenerator.java (FR-002, FR-005, FR-006)
+- [X] T004 [P] [US1] Add unit tests for Java required array generation in components/sdk/java/spas-sdk-spring/src/test/java/io/spas/sdk/spring/SpasSchemaGeneratorTest.java
 
 **Checkpoint**: At this point, both SDKs should generate `required` arrays containing non-nullable property names
 
@@ -52,10 +52,10 @@
 
 ### Implementation for User Story 2
 
-- [ ] T005 [P] [US2] Configure NJsonSchema with `GenerateNullableProperties = true` to emit `["null", "<type>"]` for nullable properties in components/sdk/dotnet/src/Spas.Sdk.Metadata/Schema/SchemaGenerator.cs (FR-003)
-- [ ] T006 [P] [US2] Add unit tests for .NET nullable type representation in components/sdk/dotnet/test/Spas.Sdk.Metadata.Tests/Schema/SchemaGeneratorTests.cs
-- [ ] T007 [P] [US2] Configure victools with `withNullableCheck()` to detect @Nullable annotations (package-agnostic via `getSimpleName().equals("Nullable")`) in components/sdk/java/spas-sdk-spring/src/main/java/io/spas/sdk/spring/SpasSchemaGenerator.java (FR-004)
-- [ ] T008 [P] [US2] Add unit tests for Java nullable type representation using @Nullable annotation in components/sdk/java/spas-sdk-spring/src/test/java/io/spas/sdk/spring/SpasSchemaGeneratorTest.java
+- [X] T005 [P] [US2] Configure NJsonSchema with `GenerateNullableProperties = true` to emit `["null", "<type>"]` for nullable properties in components/sdk/dotnet/src/Spas.Sdk.Metadata/Schema/SchemaGenerator.cs (FR-003)
+- [X] T006 [P] [US2] Add unit tests for .NET nullable type representation in components/sdk/dotnet/test/Spas.Sdk.Metadata.Tests/Schema/SchemaGeneratorTests.cs
+- [X] T007 [P] [US2] Configure victools with `withNullableCheck()` to detect @Nullable annotations (package-agnostic via `getSimpleName().equals("Nullable")`) in components/sdk/java/spas-sdk-spring/src/main/java/io/spas/sdk/spring/SpasSchemaGenerator.java (FR-004)
+- [X] T008 [P] [US2] Add unit tests for Java nullable type representation using @Nullable annotation in components/sdk/java/spas-sdk-spring/src/test/java/io/spas/sdk/spring/SpasSchemaGeneratorTest.java
 
 **Checkpoint**: At this point, both SDKs should generate proper nullable type syntax for nullable properties
 
@@ -69,10 +69,10 @@
 
 ### Implementation for User Story 3
 
-- [ ] T009 [US3] Add "Mandatory Field Mapping Validation" action to Phase 4 (Validate) in components/cli/spas-compose/src/templates/partials/workflow-phases.eta (FR-007, FR-008, FR-009)
-- [ ] T010 [US3] Include instruction to read target schema's `required` array to determine mandatory fields in components/cli/spas-compose/src/templates/partials/workflow-phases.eta (FR-010)
-- [ ] T011 [US3] Include instruction to report specific missing field names when transformation omits required fields in components/cli/spas-compose/src/templates/partials/workflow-phases.eta (FR-011)
-- [ ] T012 [US3] Add unit tests for Phase 4 mandatory field validation instructions in components/cli/spas-compose/test/templates/workflow-phases.test.ts
+- [X] T009 [US3] Add "Mandatory Field Mapping Validation" action to Phase 4 (Validate) in components/cli/spas-compose/src/templates/partials/workflow-phases.eta (FR-007, FR-008, FR-009)
+- [X] T010 [US3] Include instruction to read target schema's `required` array to determine mandatory fields in components/cli/spas-compose/src/templates/partials/workflow-phases.eta (FR-010)
+- [X] T011 [US3] Include instruction to report specific missing field names when transformation omits required fields in components/cli/spas-compose/src/templates/partials/workflow-phases.eta (FR-011)
+- [X] T012 [US3] Add unit tests for Phase 4 mandatory field validation instructions in components/cli/spas-compose/test/templates/workflow-phases.test.ts
 
 **Checkpoint**: At this point, `spas-compose init` generates agent prompts with mandatory field validation in Phase 4
 
@@ -82,10 +82,10 @@
 
 **Purpose**: Documentation, examples, and validation
 
-- [ ] T013 [P] Document @Nullable annotation requirement in Java SDK README at components/sdk/java/README.md (FR-013)
-- [ ] T014 [P] Update CreateShipmentRequest DTO to demonstrate @Nullable usage in examples/services/fulfillment-service/src/main/java/io/spas/examples/fulfillment/dto/CreateShipmentRequest.java (FR-014)
-- [ ] T015 Verify JSON Schema draft-07 compliance for generated schemas (FR-012)
-- [ ] T016 Run quickstart.md verification steps to validate all components
+- [X] T013 [P] Document @Nullable annotation requirement in Java SDK README at components/sdk/java/README.md (FR-013)
+- [X] T014 [P] Update CreateShipmentRequest DTO to demonstrate @Nullable usage in examples/services/fulfillment-service/src/main/java/io/spas/examples/fulfillment/dto/CreateShipmentRequest.java (FR-014)
+- [X] T015 Verify JSON Schema draft-07 compliance for generated schemas (FR-012)
+- [X] T016 Run quickstart.md verification steps to validate all components
 
 ---
 

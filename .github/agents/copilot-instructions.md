@@ -1,8 +1,8 @@
 # SPAS Agent Instructions (GitHub Copilot)
 
 **Last Updated**: 2026-01-02  
-**Current Branch**: `main`  
-**Current Feature**: Feature 026 Complete - Ready for new features
+**Current Branch**: `029-schema-nullable-validation`  
+**Current Feature**: Feature 029 Complete - Schema Nullable Handling & Transformation Validation
 
 ---
 
@@ -11,7 +11,7 @@
 **What is SPAS?**  
 Service Pattern Architecture System - A framework for building event-driven microservices with standardized metadata, sidecar-based event publishing, and composition tooling.
 
-**Recent Completion**: Feature 026 - .NET SDK Controller Support ✅ COMPLETE (2025-12-31)
+**Recent Completion**: Feature 029 - Schema Nullable Handling ✅ COMPLETE (2026-01-02)
 
 **Critical Testing Pattern**:
 - ⚠️ Agent builds code (`dotnet build`, `npm run build`)
@@ -77,10 +77,11 @@ components/sdk/dotnet/
 - Offline metadata generation: `--generate-metadata`
 - Event publishing with W3C Trace Context
 - Single-line setup: `AddSpasServices()` + `RunSpasServiceAsync()`
-- ✅ **NEW**: Full ASP.NET Core MVC Controller support
-- ✅ **NEW**: Mixed Minimal API + Controller support
-- ✅ **NEW**: Schema inference from `[FromBody]` parameters
-- ✅ **NEW**: Controller-based event production
+- Full ASP.NET Core MVC Controller support
+- Mixed Minimal API + Controller support
+- Schema inference from `[FromBody]` parameters
+- ✅ **NEW**: Nullable field handling (`string?`, `Address?`) excluded from `required` array
+- ✅ **NEW**: `oneOf: [{type: null}, {$ref}]` schema for nullable complex types
 
 **Recent Completion (Feature 026)**:
 - Added ASP.NET Core MVC Controller metadata discovery
@@ -126,6 +127,8 @@ dotnet run -- --generate-metadata --output ./metadata
 - Annotation-based metadata: `@SpasCommand`, `@SpasQuery`, `@SpasEvent`
 - Spring Boot auto-configuration
 - Controller support (via `@RestController`)
+- ✅ **NEW**: `@Nullable` annotation support (fields excluded from `required` array)
+- ✅ **NEW**: Package-agnostic nullable detection (jakarta, jetbrains, javax)
 
 **Commands**:
 
@@ -313,20 +316,23 @@ cd examples/services
 - Jest (TypeScript/Node.js)
 
 ### Schema & Validation
-- NJsonSchema 11.1.0 (.NET schema generation)
+- NJsonSchema 11.5.2 + NJsonSchema.NewtonsoftJson (.NET schema generation)
 - JsonSchema.Net 6.0.0
-- JSON Schema Draft-07
+- JSON Schema Draft-07 (with proper `required` array handling)
 - Ajv 8.x (Node.js validation)
+- victools/jsonschema-generator (Java schema generation)
 
 ### Storage & Messaging
 - SQLite (repository - PoC)
 - Redis Streams (sidecar message broker)
 - Filesystem (metadata archives)
 
-### Latest Additions (Feature 026 - In Progress)
-- ASP.NET Core MVC `IActionDescriptorCollectionProvider`
-- `ControllerActionDescriptor` (action metadata)
-- `AttributeRouteInfo` (route resolution)
+### Latest Additions (Feature 029 - Complete)
+- Nullable field detection for `required` array generation
+- `@Nullable` annotation support in Java SDK
+- C# nullable reference types (`string?`, `Address?`) in .NET SDK
+- `oneOf: [{type: null}, {...}]` schema pattern for nullable complex types
+- Mandatory Field Mapping Validation in spas-compose agent prompts
 
 ---
 
@@ -334,10 +340,10 @@ cd examples/services
 
 ### Understand Current Feature
 
-1. Read `specs/026-dotnet-controller-support/spec.md`
-2. Read `specs/026-dotnet-controller-support/plan.md`
-3. Read `specs/026-dotnet-controller-support/research.md`
-4. Read `specs/026-dotnet-controller-support/quickstart.md`
+1. Read `specs/029-schema-nullable-validation/spec.md`
+2. Read `specs/029-schema-nullable-validation/plan.md`
+3. Read `specs/029-schema-nullable-validation/COMPLETION.md`
+4. Review SDK CONVENTIONS: `components/sdk/CONVENTIONS.md`
 
 ### Build & Validate
 

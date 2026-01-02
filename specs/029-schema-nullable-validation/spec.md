@@ -35,7 +35,7 @@ As a developer generating service metadata, I want nullable properties to be rep
 **Acceptance Scenarios**:
 
 1. **Given** a .NET class with a nullable property (e.g., `string? Notes`), **When** the SchemaGenerator generates a schema, **Then** the property definition uses `"type": ["null", "string"]` or an equivalent nullable representation.
-2. **Given** a Java class with a nullable field (e.g., `@Nullable String notes` or using Optional), **When** the SpasSchemaGenerator generates a schema, **Then** the property definition indicates nullability via `"type": ["null", "string"]` or equivalent.
+2. **Given** a Java class with a field annotated with `@Nullable` (e.g., `@Nullable String notes`), **When** the SpasSchemaGenerator generates a schema, **Then** the property definition indicates nullability via `"type": ["null", "string"]` or equivalent.
 3. **Given** a non-nullable property, **When** the schema is generated, **Then** the property type does NOT include `"null"` in the type array.
 4. **Given** nullable array or object properties, **When** the schema is generated, **Then** the nullable representation is correctly applied (e.g., `"type": ["null", "array"]`).
 
@@ -72,7 +72,7 @@ As a domain architect using spas-compose init, I want the generated agent prompt
 - **FR-001**: .NET SDK SchemaGenerator MUST generate a `required` array in JSON Schema output containing all non-nullable property names.
 - **FR-002**: Java SDK SpasSchemaGenerator MUST generate a `required` array in JSON Schema output containing all non-nullable field names.
 - **FR-003**: .NET SDK SchemaGenerator MUST represent nullable properties with `"type": ["null", "<base-type>"]` syntax in JSON Schema output.
-- **FR-004**: Java SDK SpasSchemaGenerator MUST represent nullable properties with `"type": ["null", "<base-type>"]` syntax in JSON Schema output.
+- **FR-004**: Java SDK SpasSchemaGenerator MUST represent properties annotated with `@Nullable` as `"type": ["null", "<base-type>"]` in JSON Schema output; fields without `@Nullable` are assumed non-nullable.
 - **FR-005**: The `required` array MUST use camelCase property names matching the property definitions in the schema.
 - **FR-006**: Nested objects within schemas MUST also include appropriate `required` arrays for their non-nullable properties.
 - **FR-007**: `spas-compose init` CLI command MUST generate agent prompt that includes validation instructions for mandatory field mapping in transformations.
@@ -81,6 +81,7 @@ As a domain architect using spas-compose init, I want the generated agent prompt
 - **FR-010**: The agent validation MUST check that all `required` fields from the target schema are mapped in each transformation file.
 - **FR-011**: The agent validation MUST report specific missing field names when a transformation omits required fields.
 - **FR-012**: Generated schemas MUST remain compliant with JSON Schema draft-07 standard.
+- **FR-013**: Java SDK README MUST document that `@Nullable` annotation is required to mark fields as nullable in generated schemas, and that fields without this annotation are treated as required (non-nullable).
 
 ### Key Entities
 
@@ -102,6 +103,13 @@ As a domain architect using spas-compose init, I want the generated agent prompt
 ## Assumptions
 
 - The existing SDK schema generators use NJsonSchema (.NET) and victools/jsonschema-generator (Java), which support required/nullable handling through configuration.
-- Nullable reference types in .NET and `@Nullable`/`Optional` annotations in Java are the primary mechanisms for determining nullability.
+- .NET: Nullable reference types (`?` suffix) are the primary mechanism for determining nullability.
+- Java: Explicit `@Nullable` annotation marks fields as nullable; all other fields are assumed required (non-nullable).
 - The agent prompt Validate phase already exists in the workflow-phases partial and can be extended with additional validation steps.
 - Target schemas are available in the domain workspace at the time of validation.
+
+## Clarifications
+
+### Session 2026-01-02
+
+- Q: How should the Java SDK determine field nullability? → A: Use explicit nullability annotations only (`@Nullable` marks nullable, all else assumed required)

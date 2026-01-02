@@ -82,6 +82,7 @@ As a domain architect using spas-compose init, I want the generated agent prompt
 - **FR-011**: The agent validation MUST report specific missing field names when a transformation omits required fields.
 - **FR-012**: Generated schemas MUST remain compliant with JSON Schema draft-07 standard.
 - **FR-013**: Java SDK README MUST document that `@Nullable` annotation is required to mark fields as nullable in generated schemas, and that fields without this annotation are treated as required (non-nullable).
+- **FR-014**: At least one Java example service MUST be updated to demonstrate `@Nullable` annotation usage, generating a schema with both required and nullable fields.
 
 ### Key Entities
 

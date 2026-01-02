@@ -34,6 +34,42 @@ Defines what makes a service “SPAS-compliant”. Clarifies a single service su
 - Outbound events enriched with identity + correlation metadata
 - Data classification declared in metadata (`security.dataClassification`)
 
+## Domain-Agnostic Service Design
+
+Services intended for reuse across multiple domain contexts SHOULD be designed as **domain-agnostic utilities** rather than domain-specific implementations.
+
+### Neutral Identifiers
+
+- Use generic correlation identifiers (`referenceId`) instead of domain-specific ones (`orderId`, `rentalId`, `subscriptionId`)
+- The caller provides their domain-specific ID as the `referenceId`; the service treats it as an opaque correlation key
+- This enables the same service to participate in Orders, Rentals, Subscriptions, etc. without code changes
+
+### Examples
+
+| Domain-Specific (Avoid) | Domain-Agnostic (Preferred) |
+|-------------------------|-----------------------------|
+| `fulfillment-service` as "order fulfillment" with `orderId` | Generic logistics service with `referenceId` |
+| `inventory-service` reserving stock for "orders" | Generic stock management reserving for any `referenceId` |
+| `CreateShipmentRequest { orderId, ... }` | `CreateShipmentRequest { referenceId, ... }` |
+
+### When to Apply
+
+- **Utility services** (inventory, fulfillment, notifications, payments): SHOULD be domain-agnostic
+- **Domain services** (order-service, subscription-service, rental-service): Own their domain; use domain-specific identifiers internally
+
+### Choreography Integration
+
+Domain choreography transformations map domain-specific IDs to the generic `referenceId`:
+
+```jsonata
+/* order-confirmed → create-shipment transformation */
+{
+  "referenceId": orderId,        /* Map domain ID to neutral ID */
+  "customerId": customerId,
+  "shippingAddress": shippingAddress
+}
+```
+
 ## Compliance Summary
 
 A SPAS-compliant service MUST:

@@ -10,8 +10,12 @@ import java.lang.annotation.Target;
 /**
  * Marks a class as a SPAS Service and provides service-level metadata.
  * <p>
- * This annotation should be placed on the main application class or a configuration class.
- * It is used to generate spas.json in the offline design-time archive.
+ * This annotation is the **single source of truth** for service identity (id, boundedContext, version).
+ * It should be placed on the main {@code @SpringBootApplication} class.
+ * <p>
+ * The SDK reads this annotation during metadata generation ({@code -Dspas.generate-metadata=true})
+ * to populate service identity in {@code spas.json}. Do NOT duplicate these values in 
+ * {@code application.yml} - they are not used and create unnecessary redundancy.
  * <p>
  * Example:
  * <pre>{@code
@@ -30,6 +34,14 @@ import java.lang.annotation.Target;
  *     }
  * }
  * }</pre>
+ * <p>
+ * <strong>Configuration Notes:</strong>
+ * <ul>
+ *   <li>Service identity comes from this annotation only</li>
+ *   <li>Runtime overrides can be specified via {@code SpasServiceOptions}</li>
+ *   <li>Do NOT use {@code spas.service.id}, {@code spas.service.bounded-context}, or 
+ *       {@code spas.service.version} in {@code application.yml}</li>
+ * </ul>
  */
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)

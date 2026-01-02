@@ -7,10 +7,6 @@ spring:
 
 # SPAS SDK Configuration
 spas:
-  service:
-    id: rental-service
-    bounded-context: rental
-    version: 1.0.0
   sidecar:
     timeout: 5000
   tracing:

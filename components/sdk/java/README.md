@@ -115,7 +115,38 @@ public class BasketServiceApplication {
 
 ### Configuration
 
-The SDK uses environment variables matching docker-compose patterns:
+**Service Identity:** Service identity is defined in code via the `@SpasService` annotation on your main application class. Do NOT duplicate these values in `application.yml` - the SDK reads them directly from the annotation during metadata generation.
+
+**Minimal example** (required attributes only):
+```java
+@SpringBootApplication
+@SpasService(
+    id = "order-service",
+    boundedContext = "sales",
+    version = "1.0.0"
+)
+public class OrderServiceApplication { }
+```
+
+**Full example** with all attributes:
+```java
+@SpringBootApplication
+@SpasService(
+    id = "order-service",
+    name = "Order Service",
+    boundedContext = "sales",
+    version = "1.0.0",
+    description = "Manages order lifecycle from creation to fulfillment",
+    protocol = Protocol.HTTP,
+    license = "MIT",
+    capabilities = {"order-management", "order-tracking"}
+)
+public class OrderServiceApplication { }
+```
+
+See [sample-service](./examples/sample-service/src/main/java/io/spas/examples/orders/SampleServiceApplication.java) for a complete working example with runtime options.
+
+**Environment Variables:** The SDK uses environment variables matching docker-compose patterns:
 
 | Variable       | Required | Description                                          |
 | -------------- | -------- | ---------------------------------------------------- |

@@ -29,7 +29,7 @@ What actually happened.
 - **OS**: [e.g., Windows 11, Ubuntu 22.04, macOS 14]
 - **Component**: [e.g., .NET SDK, Java SDK, spas-compose CLI, Sidecar]
 - **Version**: [e.g., commit hash or version]
-- **Runtime**: [e.g., .NET 10.0, Java 17, Node.js 20]
+- **Runtime**: [e.g., .NET 10.0, Java 21, Node.js 20]
 
 ## Additional Context
 

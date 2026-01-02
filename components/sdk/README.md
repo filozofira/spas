@@ -8,7 +8,7 @@ Language SDKs for building SPAS services (metadata + events + context propagatio
 Choose your language and follow the quickstart:
 
 - [.NET SDK](./dotnet/README.md) - Build services with .NET 10
-- [Java SDK](./java/README.md) - Build services with Java 17+ (framework-agnostic)
+- [Java SDK](./java/README.md) - Build services with Java 21+ (framework-agnostic)
 
 Each SDK provides:
 - Metadata generation (`spas.json` + schemas)

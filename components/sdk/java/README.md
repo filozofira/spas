@@ -1,6 +1,6 @@
 # SPAS SDK for Java
 
-[![Java](https://img.shields.io/badge/Java-17+-orange)](https://openjdk.org/)
+[![Java](https://img.shields.io/badge/Java-21+-orange)](https://openjdk.org/)
 [![Maven](https://img.shields.io/badge/Maven-3.8+-blue)](https://maven.apache.org/)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](../../../LICENSE)
 

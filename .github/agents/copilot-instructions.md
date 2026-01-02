@@ -119,7 +119,7 @@ dotnet run -- --generate-metadata --output ./metadata
 **Documentation**: `specs/016-java-spas-sdk/`
 
 **Technology**:
-- Java 17+ (Spring Boot 3.x integration)
+- Java 21+ (Spring Boot 3.x integration)
 - Jackson (JSON serialization)
 - Maven build system
 
@@ -307,7 +307,7 @@ cd examples/services
 
 ### Languages & Frameworks
 - C# / .NET 10.0, ASP.NET Core (Minimal APIs + MVC Controllers)
-- Java 17+, Spring Boot 3.x
+- Java 21+, Spring Boot 3.x
 - TypeScript 5.3+, Node.js 20 LTS
 
 ### Testing

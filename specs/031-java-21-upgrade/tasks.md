@@ -19,9 +19,9 @@
 
 **Purpose**: Verify prerequisites and baseline measurements
 
-- [ ] T001 Verify Java 21 JDK installation with `java -version`
-- [ ] T002 Verify Maven 3.8+ with `mvn -version`
-- [ ] T003 Record baseline build time for SDK with `mvn clean install` in components/sdk/java
+- [X] T001 Verify Java 21 JDK installation with `java -version`
+- [X] T002 Verify Maven 3.8+ with `mvn -version`
+- [X] T003 Record baseline build time for SDK with `mvn clean install` in components/sdk/java
 
 **Checkpoint**: Prerequisites validated, baseline recorded
 
@@ -35,12 +35,12 @@
 
 ### Implementation for User Story 1
 
-- [ ] T004 [US1] Update java.version from 17 to 21 in components/sdk/java/pom.xml
-- [ ] T005 [US1] Build SDK with `mvn clean compile` in components/sdk/java
-- [ ] T006 [US1] Run all SDK tests with `mvn test` in components/sdk/java (verify 100+ tests pass)
-- [ ] T007 [US1] Install SDK to local Maven repository with `mvn install` in components/sdk/java
-- [ ] T008 [US1] Verify Java 21 target with `mvn help:evaluate -Dexpression=maven.compiler.target -q -DforceStdout`
-- [ ] T009 [US1] Measure and compare build time (should be within 5% of baseline from T003)
+- [X] T004 [US1] Update java.version from 17 to 21 in components/sdk/java/pom.xml
+- [X] T005 [US1] Build SDK with `mvn clean compile` in components/sdk/java
+- [X] T006 [US1] Run all SDK tests with `mvn test` in components/sdk/java (verify 100+ tests pass)
+- [X] T007 [US1] Install SDK to local Maven repository with `mvn install` in components/sdk/java
+- [X] T008 [US1] Verify Java 21 target with `mvn help:evaluate -Dexpression=maven.compiler.target -q -DforceStdout`
+- [X] T009 [US1] Measure and compare build time (should be within 5% of baseline from T003)
 
 **Checkpoint**: SDK successfully builds with Java 21, all tests pass, artifacts available for dependent services
 
@@ -56,29 +56,29 @@
 
 #### Sample Service
 
-- [ ] T010 [P] [US2] Update java.version from 17 to 21 in components/sdk/java/examples/sample-service/pom.xml
-- [ ] T011 [US2] Build sample-service with `mvn clean package` in components/sdk/java/examples/sample-service
+- [X] T010 [P] [US2] Update java.version from 17 to 21 in components/sdk/java/examples/sample-service/pom.xml
+- [X] T011 [US2] Build sample-service with `mvn clean package` in components/sdk/java/examples/sample-service
 
 #### Basket Service
 
-- [ ] T012 [P] [US2] Update java.version from 17 to 21 in examples/services/basket-service/pom.xml
-- [ ] T013 [US2] Build basket-service with `mvn clean package` in examples/services/basket-service
-- [ ] T014 [US2] Generate metadata with `mvn spring-boot:run -Dspring-boot.run.arguments="--generate-metadata --output ./metadata"` in examples/services/basket-service
-- [ ] T015 [US2] Verify metadata archive created at examples/services/basket-service/metadata/service.metadata.zip
+- [X] T012 [P] [US2] Update java.version from 17 to 21 in examples/services/basket-service/pom.xml
+- [X] T013 [US2] Build basket-service with `mvn clean package` in examples/services/basket-service
+- [X] T014 [US2] Generate metadata with `mvn spring-boot:run -Dspring-boot.run.arguments="--generate-metadata --output ./metadata"` in examples/services/basket-service
+- [X] T015 [US2] Verify metadata archive created at examples/services/basket-service/metadata/service.metadata.zip
 
 #### Rental Service
 
-- [ ] T016 [P] [US2] Update java.version from 17 to 21 in examples/services/rental-service/pom.xml
-- [ ] T017 [US2] Build rental-service with `mvn clean package` in examples/services/rental-service
-- [ ] T018 [US2] Generate metadata with `mvn spring-boot:run -Dspring-boot.run.arguments="--generate-metadata --output ./metadata"` in examples/services/rental-service
-- [ ] T019 [US2] Verify metadata archive created at examples/services/rental-service/metadata/service.metadata.zip
+- [X] T016 [P] [US2] Update java.version from 17 to 21 in examples/services/rental-service/pom.xml
+- [X] T017 [US2] Build rental-service with `mvn clean package` in examples/services/rental-service
+- [X] T018 [US2] Generate metadata with `mvn spring-boot:run -Dspring-boot.run.arguments="--generate-metadata --output ./metadata"` in examples/services/rental-service
+- [X] T019 [US2] Verify metadata archive created at examples/services/rental-service/metadata/service.metadata.zip
 
 #### Fulfillment Service
 
-- [ ] T020 [P] [US2] Update java.version from 17 to 21 in examples/services/fulfillment-service/pom.xml
-- [ ] T021 [US2] Build fulfillment-service with `mvn clean package` in examples/services/fulfillment-service
-- [ ] T022 [US2] Generate metadata with `mvn spring-boot:run -Dspring-boot.run.arguments="--generate-metadata --output ./metadata"` in examples/services/fulfillment-service
-- [ ] T023 [US2] Verify metadata archive created at examples/services/fulfillment-service/metadata/service.metadata.zip
+- [X] T020 [P] [US2] Update java.version from 17 to 21 in examples/services/fulfillment-service/pom.xml
+- [X] T021 [US2] Build fulfillment-service with `mvn clean package` in examples/services/fulfillment-service
+- [X] T022 [US2] Generate metadata with `mvn spring-boot:run -Dspring-boot.run.arguments="--generate-metadata --output ./metadata"` in examples/services/fulfillment-service
+- [X] T023 [US2] Verify metadata archive created at examples/services/fulfillment-service/metadata/service.metadata.zip
 
 **Checkpoint**: All example services build successfully with Java 21 and generate metadata
 
@@ -94,20 +94,20 @@
 
 #### Basket Service Docker
 
-- [ ] T024 [P] [US3] Update FROM maven:3.9-eclipse-temurin-17-alpine to maven:3.9-eclipse-temurin-21-alpine in examples/services/basket-service/Dockerfile (build stage)
-- [ ] T025 [P] [US3] Update FROM eclipse-temurin:17-alpine to eclipse-temurin:21-alpine in examples/services/basket-service/Dockerfile (runtime stage)
+- [X] T024 [P] [US3] Update FROM maven:3.9-eclipse-temurin-17-alpine to maven:3.9-eclipse-temurin-21-alpine in examples/services/basket-service/Dockerfile (build stage)
+- [X] T025 [P] [US3] Update FROM eclipse-temurin:17-alpine to eclipse-temurin:21-alpine in examples/services/basket-service/Dockerfile (runtime stage)
 - [ ] T026 [US3] Test Docker build with `docker build -t basket-service:java21 .` in examples/services/basket-service (optional but recommended)
 
 #### Rental Service Docker
 
-- [ ] T027 [P] [US3] Update FROM maven:3.9-eclipse-temurin-17-alpine to maven:3.9-eclipse-temurin-21-alpine in examples/services/rental-service/Dockerfile (build stage)
-- [ ] T028 [P] [US3] Update FROM eclipse-temurin:17-alpine to eclipse-temurin:21-alpine in examples/services/rental-service/Dockerfile (runtime stage)
+- [X] T027 [P] [US3] Update FROM maven:3.9-eclipse-temurin-17-alpine to maven:3.9-eclipse-temurin-21-alpine in examples/services/rental-service/Dockerfile (build stage)
+- [X] T028 [P] [US3] Update FROM eclipse-temurin:17-alpine to eclipse-temurin:21-alpine in examples/services/rental-service/Dockerfile (runtime stage)
 - [ ] T029 [US3] Test Docker build with `docker build -t rental-service:java21 .` in examples/services/rental-service (optional but recommended)
 
 #### Fulfillment Service Docker
 
-- [ ] T030 [P] [US3] Update FROM maven:3.9-eclipse-temurin-17-alpine to maven:3.9-eclipse-temurin-21-alpine in examples/services/fulfillment-service/Dockerfile (build stage)
-- [ ] T031 [P] [US3] Update FROM eclipse-temurin:17-alpine to eclipse-temurin:21-alpine in examples/services/fulfillment-service/Dockerfile (runtime stage)
+- [X] T030 [P] [US3] Update FROM maven:3.9-eclipse-temurin-17-alpine to maven:3.9-eclipse-temurin-21-alpine in examples/services/fulfillment-service/Dockerfile (build stage)
+- [X] T031 [P] [US3] Update FROM eclipse-temurin:17-alpine to eclipse-temurin:21-alpine in examples/services/fulfillment-service/Dockerfile (runtime stage)
 - [ ] T032 [US3] Test Docker build with `docker build -t fulfillment-service:java21 .` in examples/services/fulfillment-service (optional but recommended)
 
 **Checkpoint**: All Dockerfiles updated to Java 21, images build successfully
@@ -120,19 +120,19 @@
 
 ### Documentation Updates
 
-- [ ] T033 [P] Search for Java 17 references with `git grep -n "Java 17" -- "*.md" ":(exclude)specs/0[0-2][0-9]-*" ":(exclude)specs/030-*"`
-- [ ] T034 [P] Update README.md to reference Java 21 in system requirements (if applicable)
-- [ ] T035 [P] Update components/sdk/java/README.md to reference Java 21 in prerequisites section
-- [ ] T036 [P] Update components/sdk/java/CONTRIBUTING.md to reference Java 21 in development setup (if applicable)
-- [ ] T037 [P] Update examples/services/basket-service/README.md to reference Java 21 in requirements
-- [ ] T038 [P] Update examples/services/rental-service/README.md to reference Java 21 in requirements
-- [ ] T039 [P] Update examples/services/fulfillment-service/README.md to reference Java 21 in requirements
+- [X] T033 [P] Search for Java 17 references with `git grep -n "Java 17" -- "*.md" ":(exclude)specs/0[0-2][0-9]-*" ":(exclude)specs/030-*"`
+- [X] T034 [P] Update README.md to reference Java 21 in system requirements (if applicable)
+- [X] T035 [P] Update components/sdk/java/README.md to reference Java 21 in prerequisites section
+- [X] T036 [P] Update components/sdk/java/CONTRIBUTING.md to reference Java 21 in development setup (if applicable)
+- [X] T037 [P] Update examples/services/basket-service/README.md to reference Java 21 in requirements
+- [X] T038 [P] Update examples/services/rental-service/README.md to reference Java 21 in requirements
+- [X] T039 [P] Update examples/services/fulfillment-service/README.md to reference Java 21 in requirements
 
 ### CLI Template Updates
 
-- [ ] T040 [P] Search for CLI template references with `git grep -n "Java 17" -- "templates/**" "*.eta" ".github/agents/**"`
-- [ ] T041 Update templates/partials/sdk-patterns.eta to generate java.version=21 in POMs (update <java.version>17</java.version> to <java.version>21</java.version>)
-- [ ] T042 [P] Update any agent prompt templates referencing Java 17 in .github/agents/ (if found)
+- [X] T040 [P] Search for CLI template references with `git grep -n "Java 17" -- "templates/**" "*.eta" ".github/agents/**"`
+- [X] T041 Update templates/partials/sdk-patterns.eta to generate java.version=21 in POMs (update <java.version>17</java.version> to <java.version>21</java.version>)
+- [X] T042 [P] Update any agent prompt templates referencing Java 17 in .github/agents/ (if found)
 - [ ] T043 Verify CLI generation with `spas-service init test-service-java21` and check pom.xml has java.version=21 (optional if CLI available)
 
 **Checkpoint**: All current documentation and CLI templates reference Java 21

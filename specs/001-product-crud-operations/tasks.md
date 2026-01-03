@@ -35,10 +35,10 @@ Project extends existing `examples/services/product-service/` structure
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T004 Register EventPublisher with DI container in examples/services/product-service/Program.cs
-- [ ] T005 [P] Create ProductValidator class with validation methods in examples/services/product-service/Validation/ProductValidator.cs
-- [ ] T006 [P] Create AddProductRequest DTO with validation attributes in examples/services/product-service/Models/AddProductRequest.cs
-- [ ] T007 [P] Create UpdateProductRequest DTO with optional fields in examples/services/product-service/Models/UpdateProductRequest.cs
+- [X] T004 Register EventPublisher with DI container in examples/services/product-service/Program.cs
+- [X] T005 [P] Create ProductValidator class with validation methods in examples/services/product-service/Validation/ProductValidator.cs
+- [X] T006 [P] Create AddProductRequest DTO with validation attributes in examples/services/product-service/Models/AddProductRequest.cs
+- [X] T007 [P] Create UpdateProductRequest DTO with optional fields in examples/services/product-service/Models/UpdateProductRequest.cs
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 

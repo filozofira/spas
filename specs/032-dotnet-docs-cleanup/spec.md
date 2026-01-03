@@ -2,7 +2,8 @@
 
 **Feature Branch**: `032-dotnet-docs-cleanup`  
 **Created**: 2026-01-03  
-**Status**: Draft  
+**Status**: Completed
+**Completed**: 2026-01-03  
 **Input**: User description: "Clean up .NET SDK and principle docs. Remove obsolete .NET SDK projects and make sure all principles docs are well aligned with current implementation."
 
 ## User Scenarios & Testing *(mandatory)*

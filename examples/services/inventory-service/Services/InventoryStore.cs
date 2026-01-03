@@ -9,10 +9,6 @@ public class InventoryStore
 
     public InventoryStore()
     {
-        // Seed with sample items
-        _inventory["item-001"] = new InventoryItem("item-001", 100, 0);
-        _inventory["item-002"] = new InventoryItem("item-002", 50, 0);
-        _inventory["item-003"] = new InventoryItem("item-003", 75, 0);
     }
 
     public InventoryItem? Get(string itemId) => 

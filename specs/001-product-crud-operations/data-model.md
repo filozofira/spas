@@ -113,26 +113,17 @@ Emitted when a new product is successfully added to the catalog.
 
 ### ProductUpdated
 
-Emitted when an existing product is successfully updated. Includes change tracking.
+Emitted when an existing product is successfully updated. Contains the full current state of the product.
 
 **Attributes**:
 
 | Field | Type | Required | Description |
 |-------|------|----------|-------------|
 | ProductId | string | Yes | ID of the updated product |
-| Changes | object | Yes | Map of changed fields with old/new values |
-
-**Change Object Structure**:
-
-Each changed field is represented as:
-```json
-{
-  "fieldName": {
-    "oldValue": <previous value>,
-    "newValue": <new value>
-  }
-}
-```
+| Name | string | Yes | Current product name |
+| Category | string | Yes | Current product category |
+| Price | decimal | Yes | Current product price |
+| Description | string | Yes | Current product description |
 
 **Event Metadata**:
 - **Event Name**: `product-updated`
@@ -144,10 +135,53 @@ Each changed field is represented as:
 ```json
 {
   "type": "object",
-  "required": ["productId", "changes"],
+  "required": ["productId", "name", "category", "price", "description"],
   "properties": {
     "productId": {
       "type": "string",
+      "pattern": "^[a-z0-9-]+$",
+      "minLength": 1,
+      "maxLength": 50
+    },
+    "name": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 200
+    },
+    "category": {
+      "type": "string",
+      "minLength": 1
+    },
+    "price": {
+      "type": "number",
+      "minimum": 0
+    },
+    "description": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 2000
+    }
+  }
+}
+```
+
+**Example Payload**:
+```json
+{
+  "productId": "laptop-pro-15",
+  "name": "Laptop Pro 15 - Updated",
+  "category": "Electronics",
+  "price": 1199.99,
+  "description": "High-performance laptop with 15-inch display and extended warranty"
+}
+```
+
+**Consumer Use Cases**:
+- Cache invalidation services refresh cached product data
+- Search indexing services update indexed documents
+- Analytics systems track product modifications
+- Audit systems log state changes (consumers can implement their own change tracking if needed)
+
       "pattern": "^[a-z0-9-]+$"
     },
     "changes": {

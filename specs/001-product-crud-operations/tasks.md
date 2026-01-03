@@ -52,13 +52,13 @@ Project extends existing `examples/services/product-service/` structure
 
 ### Implementation for User Story 1
 
-- [ ] T008 [P] [US1] Create ProductAdded event model with [SpasEvent] attribute in examples/services/product-service/Models/Events/ProductAdded.cs
-- [ ] T009 [US1] Extend ProductCatalog service with Add() method using TryAdd for uniqueness check in examples/services/product-service/Services/ProductCatalog.cs
-- [ ] T010 [US1] Implement POST /products endpoint with [SpasCommand] attribute in examples/services/product-service/Controllers/ProductsController.cs
-- [ ] T011 [US1] Add validation logic for ProductId format, field lengths, and price in POST endpoint
-- [ ] T012 [US1] Emit ProductAdded event via EventPublisher after successful add operation
-- [ ] T013 [US1] Add conflict handling (409) for duplicate product IDs
-- [ ] T014 [US1] Add error logging for event emission failures (best-effort pattern)
+- [X] T008 [P] [US1] Create ProductAdded event model with [SpasEvent] attribute in examples/services/product-service/Models/Events/ProductAdded.cs
+- [X] T009 [US1] Extend ProductCatalog service with Add() method using TryAdd for uniqueness check in examples/services/product-service/Services/ProductCatalog.cs
+- [X] T010 [US1] Implement POST /products endpoint with [SpasCommand] attribute in examples/services/product-service/Controllers/ProductsController.cs
+- [X] T011 [US1] Add validation logic for ProductId format, field lengths, and price in POST endpoint
+- [X] T012 [US1] Emit ProductAdded event via EventPublisher after successful add operation
+- [X] T013 [US1] Add conflict handling (409) for duplicate product IDs
+- [X] T014 [US1] Add error logging for event emission failures (best-effort pattern)
 
 **Checkpoint**: At this point, User Story 1 should be fully functional - products can be added with validation and events
 
@@ -72,15 +72,15 @@ Project extends existing `examples/services/product-service/` structure
 
 ### Implementation for User Story 2
 
-- [ ] T015 [P] [US2] Create ProductUpdated event model with Changes property containing old/new values in examples/services/product-service/Models/Events/ProductUpdated.cs
-- [ ] T016 [US2] Create ProductChange model for tracking field changes with OldValue and NewValue properties in examples/services/product-service/Models/Events/ProductUpdated.cs
-- [ ] T017 [US2] Extend ProductCatalog service with Update() method supporting partial updates in examples/services/product-service/Services/ProductCatalog.cs
-- [ ] T018 [US2] Implement change tracking logic to detect which fields changed in ProductCatalog.Update()
-- [ ] T019 [US2] Implement PATCH /products/{id} endpoint with [SpasCommand] attribute in examples/services/product-service/Controllers/ProductsController.cs
-- [ ] T020 [US2] Add validation for partial update request (at least one field, valid values)
-- [ ] T021 [US2] Emit ProductUpdated event with change details via EventPublisher after successful update
-- [ ] T022 [US2] Add 404 handling for non-existent products
-- [ ] T023 [US2] Add error logging for event emission failures (best-effort pattern)
+- [X] T015 [P] [US2] Create ProductUpdated event model with Changes property containing old/new values in examples/services/product-service/Models/Events/ProductUpdated.cs
+- [X] T016 [US2] Create ProductChange model for tracking field changes with OldValue and NewValue properties in examples/services/product-service/Models/Events/ProductUpdated.cs
+- [X] T017 [US2] Extend ProductCatalog service with Update() method supporting partial updates in examples/services/product-service/Services/ProductCatalog.cs
+- [X] T018 [US2] Implement change tracking logic to detect which fields changed in ProductCatalog.Update()
+- [X] T019 [US2] Implement PATCH /products/{id} endpoint with [SpasCommand] attribute in examples/services/product-service/Controllers/ProductsController.cs
+- [X] T020 [US2] Add validation for partial update request (at least one field, valid values)
+- [X] T021 [US2] Emit ProductUpdated event with change details via EventPublisher after successful update
+- [X] T022 [US2] Add 404 handling for non-existent products
+- [X] T023 [US2] Add error logging for event emission failures (best-effort pattern)
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work - products can be added and updated independently
 
@@ -94,13 +94,13 @@ Project extends existing `examples/services/product-service/` structure
 
 ### Implementation for User Story 3
 
-- [ ] T024 [P] [US3] Create ProductRemoved event model with full product details in examples/services/product-service/Models/Events/ProductRemoved.cs
-- [ ] T025 [US3] Extend ProductCatalog service with Remove() method using TryRemove in examples/services/product-service/Services/ProductCatalog.cs
-- [ ] T026 [US3] Implement DELETE /products/{id} endpoint with [SpasCommand] attribute in examples/services/product-service/Controllers/ProductsController.cs
-- [ ] T027 [US3] Emit ProductRemoved event with removed product details via EventPublisher after successful removal
-- [ ] T028 [US3] Add 404 handling for non-existent products
-- [ ] T029 [US3] Verify removed products don't appear in GET /products and GET /products/{id}
-- [ ] T030 [US3] Add error logging for event emission failures (best-effort pattern)
+- [X] T024 [P] [US3] Create ProductRemoved event model with full product details in examples/services/product-service/Models/Events/ProductRemoved.cs
+- [X] T025 [US3] Extend ProductCatalog service with Remove() method using TryRemove in examples/services/product-service/Services/ProductCatalog.cs
+- [X] T026 [US3] Implement DELETE /products/{id} endpoint with [SpasCommand] attribute in examples/services/product-service/Controllers/ProductsController.cs
+- [X] T027 [US3] Emit ProductRemoved event with removed product details via EventPublisher after successful removal
+- [X] T028 [US3] Add 404 handling for non-existent products
+- [X] T029 [US3] Verify removed products don't appear in GET /products and GET /products/{id}
+- [X] T030 [US3] Add error logging for event emission failures (best-effort pattern)
 
 **Checkpoint**: All three user stories should now be independently functional - complete CRUD with events
 

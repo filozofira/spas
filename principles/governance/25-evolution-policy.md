@@ -34,5 +34,5 @@
 ## Related Documents
 
 - [Versioning Strategy](23-versioning-strategy.md)
-- [Decision Log](../appendix/28-decision-log.md)
+- [Decision Log](../appendix/27-decision-log.md)
 - [Principles](../README.md)

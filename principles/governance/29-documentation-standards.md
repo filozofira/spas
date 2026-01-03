@@ -191,4 +191,4 @@ Before merging documentation changes:
 - [Versioning Strategy](./23-versioning-strategy.md) - How versions evolve
 - [Compliance Checklist](./24-compliance-checklist.md) - Service compliance requirements
 - [Evolution Policy](./25-evolution-policy.md) - How SPAS framework evolves
-- [Decision Log](../appendix/28-decision-log.md) - Architectural decisions
+- [Decision Log](../appendix/27-decision-log.md) - Architectural decisions

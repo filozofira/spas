@@ -1,56 +1,101 @@
-# Spas.Sdk.Inbound - DEFERRED
+# Spas.Sdk.Inbound - Health Check Endpoints
 
-This package was created as part of the initial SDK structure but **implementation has been deferred**.
+This package provides standardized health check endpoints for SPAS services, implementing the required `/_spas/health/*` protocol.
 
-## Decision
+## Overview
 
-**Rationale**: Keep the SDK simple; use native ASP.NET Core minimal APIs for inbound handlers.
+The Inbound package offers the `MapSpasHealthChecks()` extension method to register SPAS-compliant health check endpoints. These endpoints follow the SPAS health check protocol and return standardized JSON responses for liveness and readiness probes.
 
-### Current Approach
+> Future standard inbound endpoints may be added to this package.
 
-Services use native ASP.NET Core minimal APIs with SPAS attributes for metadata discovery:
+## Usage
+
+Register health check endpoints in your ASP.NET Core application:
 
 ```csharp
-app.MapPost("/commands/create-order", async (CreateOrderRequest request) => 
-{
-    // Handler logic using SpasContext for identity/correlation
-    var correlationId = SpasContext.CorrelationId;
-    // ...
-})
-.WithMetadata(new SpasCommandAttribute("CreateOrder", "1.0") 
-{ 
-    Schema = "schemas/create-order.schema.json" 
-});
+using Spas.Sdk.Inbound.Extensions;
+
+var app = builder.Build();
+
+// Register SPAS health check endpoints
+app.MapSpasHealthChecks();
+
+app.Run();
 ```
 
-**Benefits**:
-- No learning curve - developers use familiar ASP.NET Core patterns
-- No abstractions to maintain - SDK stays lightweight
-- Flexibility - services can use any routing/middleware approach
+## Endpoints
 
-**Trade-offs**:
-- No built-in handler base classes (e.g., `SpasCommandHandler`, `SpasQueryHandler`)
-- No automatic model binding or validation helpers
-- Each service implements handlers independently
+### Liveness Endpoint
 
-## Originally Planned Features (from plan.md)
+**Path**: `/_spas/health/live`  
+**Method**: GET  
+**Purpose**: Indicates if the service is running  
+**Response**:
+
+```json
+{
+  "status": "UP"
+}
+```
+
+### Readiness Endpoint
+
+**Path**: `/_spas/health/ready`  
+**Method**: GET  
+**Purpose**: Indicates if the service is ready to accept traffic  
+**Response**:
+
+```json
+{
+  "status": "UP"
+}
+```
+
+or
+
+```json
+{
+  "status": "DOWN"
+}
+```
+
+The readiness endpoint integrates with ASP.NET Core's health check system. Configure health checks using standard patterns:
+
+```csharp
+builder.Services.AddHealthChecks()
+    .AddCheck("database", () => HealthCheckResult.Healthy());
+```
+
+## SPAS Health Check Protocol
+
+These endpoints implement the SPAS health check protocol defined in the principles documentation:
+
+- **Anonymous access**: Health checks don't require authentication
+- **JSON format**: Responses use simple `{"status": "UP|DOWN"}` format
+- **Standard paths**: All SPAS services expose health checks at `/_spas/health/live` and `/_spas/health/ready`
+
+## Originally Planned Features (Deferred)
 
 If this package is implemented in the future, it should provide:
 
 1. **Handler Base Classes**
+
    - `SpasCommandHandler<TRequest, TResponse>`
    - `SpasQueryHandler<TRequest, TResponse>`
    - `SpasEventHandler<TEvent>`
 
 2. **Automatic Context Binding**
+
    - Inject `SpasContext` automatically
    - Extract trace/correlation/identity from headers
 
 3. **Model Binding Helpers**
+
    - Validate requests against contract schemas
    - Automatic deserialization with error handling
 
 4. **Registration Helpers**
+
    - Scan assemblies for handlers
    - Auto-register routes based on attributes
 

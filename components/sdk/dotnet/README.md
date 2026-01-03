@@ -75,8 +75,7 @@ This writes `./metadata/service.metadata.zip` (containing `spas.json` + referenc
 | `Spas.Sdk.Events`          | Event publishing (sidecar) | `EventPublisher`, `SpasEventBuilder`, `SpasEventEnvelope`          |
 | `Spas.Sdk.Observability`   | Tracing & logging          | `TracelogMiddleware`, `AddSpasTracing()`, `AddSpasServices()`      |
 | `Spas.Sdk.Configuration`   | Env var helpers            | Environment variable helpers                                       |
-| `Spas.Sdk.Inbound`         | _(deferred)_               | Future: handler scaffolding                                        |
-| `Spas.Sdk.Testing`         | _(placeholder)_            | Future: test utilities                                             |
+| `Spas.Sdk.Inbound`         | Health check endpoints     | `MapSpasHealthChecks()`, `/_spas/health/live`, `/_spas/health/ready` |
 
 ### Features
 

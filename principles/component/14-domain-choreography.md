@@ -141,4 +141,4 @@ public record CreateOrderRequest(
 
 - [Event Protocol](../protocol/09-event-protocol.md)
 - [CLI Specification](13-cli.md)
-- [Reference Examples](../appendix/26-reference-examples.md)
+- [Working Examples](../../../examples/services/README.md)

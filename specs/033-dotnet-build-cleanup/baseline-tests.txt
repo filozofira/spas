@@ -1,0 +1,42 @@
+Test run for C:\Source\Spas\spas\components\sdk\dotnet\test\Spas.Sdk.Core.Tests\bin\Debug\net10.0\Spas.Sdk.Core.Tests.dll (.NETCoreApp,Version=v10.0)
+Test run for C:\Source\Spas\spas\components\sdk\dotnet\test\Spas.Sdk.Events.Tests\bin\Debug\net10.0\Spas.Sdk.Events.Tests.dll (.NETCoreApp,Version=v10.0)
+Test run for C:\Source\Spas\spas\components\sdk\dotnet\test\Spas.Sdk.Configuration.Tests\bin\Debug\net10.0\Spas.Sdk.Configuration.Tests.dll (.NETCoreApp,Version=v10.0)
+Test run for C:\Source\Spas\spas\components\sdk\dotnet\test\Spas.Sdk.Observability.Tests\bin\Debug\net10.0\Spas.Sdk.Observability.Tests.dll (.NETCoreApp,Version=v10.0)
+Test run for C:\Source\Spas\spas\components\sdk\dotnet\test\Spas.Sdk.Inbound.Tests\bin\Debug\net10.0\Spas.Sdk.Inbound.Tests.dll (.NETCoreApp,Version=v10.0)
+Test run for C:\Source\Spas\spas\components\sdk\dotnet\test\Spas.Sdk.Metadata.Tests\bin\Debug\net10.0\Spas.Sdk.Metadata.Tests.dll (.NETCoreApp,Version=v10.0)
+VSTest version 18.0.1 (x64)
+
+VSTest version 18.0.1 (x64)
+VSTest version 18.0.1 (x64)
+
+
+VSTest version 18.0.1 (x64)
+VSTest version 18.0.1 (x64)
+
+VSTest version 18.0.1 (x64)
+
+
+Starting test execution, please wait...
+Starting test execution, please wait...
+Starting test execution, please wait...
+Starting test execution, please wait...
+Starting test execution, please wait...
+Starting test execution, please wait...
+A total of 1 test files matched the specified pattern.
+A total of 1 test files matched the specified pattern.
+A total of 1 test files matched the specified pattern.
+A total of 1 test files matched the specified pattern.
+A total of 1 test files matched the specified pattern.
+A total of 1 test files matched the specified pattern.
+No test is available in C:\Source\Spas\spas\components\sdk\dotnet\test\Spas.Sdk.Configuration.Tests\bin\Debug\net10.0\Spas.Sdk.Configuration.Tests.dll. Make sure that test discoverer & executors are registered and platform & framework version settings are appropriate and try again.
+
+
+Passed!  - Failed:     0, Passed:    20, Skipped:     0, Total:    20, Duration: 82 ms - Spas.Sdk.Core.Tests.dll (net10.0)
+
+Passed!  - Failed:     0, Passed:    18, Skipped:     0, Total:    18, Duration: 128 ms - Spas.Sdk.Events.Tests.dll (net10.0)
+
+Passed!  - Failed:     0, Passed:    12, Skipped:     0, Total:    12, Duration: 233 ms - Spas.Sdk.Observability.Tests.dll (net10.0)
+
+Passed!  - Failed:     0, Passed:     2, Skipped:     0, Total:     2, Duration: 203 ms - Spas.Sdk.Inbound.Tests.dll (net10.0)
+
+Passed!  - Failed:     0, Passed:   147, Skipped:     0, Total:   147, Duration: 409 ms - Spas.Sdk.Metadata.Tests.dll (net10.0)

@@ -1,0 +1,41 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "ReleaseStockRequest",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "referenceId": {
+      "type": "string",
+      "format": "guid"
+    },
+    "items": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/ReleaseItem"
+      }
+    }
+  },
+  "definitions": {
+    "ReleaseItem": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "productId": {
+          "type": "string"
+        },
+        "quantity": {
+          "type": "integer",
+          "format": "int32"
+        }
+      },
+      "required": [
+        "productId",
+        "quantity"
+      ]
+    }
+  },
+  "required": [
+    "referenceId",
+    "items"
+  ]
+}

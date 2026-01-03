@@ -1,0 +1,41 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "ReserveStockRequest",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "referenceId": {
+      "type": "string",
+      "format": "guid"
+    },
+    "items": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/OrderItem"
+      }
+    }
+  },
+  "definitions": {
+    "OrderItem": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "productId": {
+          "type": "string"
+        },
+        "quantity": {
+          "type": "integer",
+          "format": "int32"
+        }
+      },
+      "required": [
+        "productId",
+        "quantity"
+      ]
+    }
+  },
+  "required": [
+    "referenceId",
+    "items"
+  ]
+}

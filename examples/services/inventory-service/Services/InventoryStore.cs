@@ -20,6 +20,11 @@ public class InventoryStore
 
     public IEnumerable<InventoryItem> GetAll() => _inventory.Values;
 
+    public bool AddItem(string productId, int initialQuantity = 0)
+    {
+        return _inventory.TryAdd(productId, new InventoryItem(productId, initialQuantity, 0));
+    }
+
     public void Reserve(string productId, int quantity)
     {
         if (_inventory.TryGetValue(productId, out var item))

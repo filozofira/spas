@@ -1,0 +1,145 @@
+{
+  "schemaVersion": "design-time-metadata-v1",
+  "id": "inventory-service",
+  "name": "inventory-service",
+  "description": "Stock tracking and reservation service",
+  "version": "1.0.0",
+  "boundedContext": "inventory",
+  "capabilities": [
+    "inventory-tracking"
+  ],
+  "endpoints": [
+    {
+      "name": "list-inventory",
+      "type": "Query",
+      "protocol": "Http",
+      "methodPath": "/inventory",
+      "version": "1.0",
+      "schemaRef": "schemas/endpoints/list-inventory.schema.json",
+      "description": "Lists current inventory levels for all products"
+    },
+    {
+      "name": "get-inventory",
+      "type": "Query",
+      "protocol": "Http",
+      "methodPath": "/inventory/{productId}",
+      "version": "1.0",
+      "schemaRef": "schemas/endpoints/get-inventory.schema.json",
+      "description": "Returns available/reserved quantity for a specific productId"
+    },
+    {
+      "name": "add-inventory-item",
+      "type": "Command",
+      "protocol": "Http",
+      "methodPath": "/inventory/items",
+      "version": "1.0",
+      "schemaRef": "schemas/endpoints/add-inventory-item.schema.json",
+      "description": "Initializes inventory tracking for a new product"
+    },
+    {
+      "name": "reserve-stock",
+      "type": "Command",
+      "protocol": "Http",
+      "methodPath": "/inventory/reserve",
+      "version": "1.0",
+      "schemaRef": "schemas/endpoints/reserve-stock.schema.json",
+      "description": "Reserves stock for a reference and publishes StockReserved for successfully reserved items"
+    },
+    {
+      "name": "release-stock",
+      "type": "Command",
+      "protocol": "Http",
+      "methodPath": "/inventory/release",
+      "version": "1.0",
+      "schemaRef": "schemas/endpoints/release-stock.schema.json",
+      "description": "Releases reserved stock back to available inventory and publishes StockReleased"
+    }
+  ],
+  "commands": [
+    {
+      "name": "add-inventory-item",
+      "version": "1.0",
+      "produces": [
+        {
+          "type": "inventory-item-added",
+          "version": "1.0",
+          "when": "success"
+        }
+      ]
+    },
+    {
+      "name": "reserve-stock",
+      "version": "1.0",
+      "produces": [
+        {
+          "type": "stock-reserved",
+          "version": "1.0",
+          "when": "success"
+        },
+        {
+          "type": "stock-depleted",
+          "version": "1.0",
+          "when": "success"
+        }
+      ]
+    },
+    {
+      "name": "release-stock",
+      "version": "1.0",
+      "produces": [
+        {
+          "type": "stock-released",
+          "version": "1.0",
+          "when": "success"
+        }
+      ]
+    }
+  ],
+  "events": [
+    {
+      "type": "inventory-item-added",
+      "version": "1.0",
+      "schemaRef": "schemas/events/inventory-item-added.schema.json",
+      "description": "Emitted when inventory tracking is initialized for a new product"
+    },
+    {
+      "type": "stock-depleted",
+      "version": "1.0",
+      "schemaRef": "schemas/events/stock-depleted.schema.json",
+      "description": "Emitted when requested quantity exceeds available inventory for a product"
+    },
+    {
+      "type": "stock-released",
+      "version": "1.0",
+      "schemaRef": "schemas/events/stock-released.schema.json",
+      "description": "Emitted when reserved stock is released back to available inventory"
+    },
+    {
+      "type": "stock-reserved",
+      "version": "1.0",
+      "schemaRef": "schemas/events/stock-reserved.schema.json",
+      "description": "Emitted when stock is successfully reserved for one or more items against a reference (order, rental, etc.)"
+    }
+  ],
+  "consistency": {
+    "commands": "ACID",
+    "queries": "EVENTUAL"
+  },
+  "network": {
+    "requiredEgress": [
+      "localhost:6379"
+    ]
+  },
+  "security": {
+    "authentication": {
+      "type": "jwt",
+      "requiredScopes": [
+        "inventory.read"
+      ]
+    },
+    "dataClassification": [
+      "internal"
+    ]
+  },
+  "license": "MIT"
+}

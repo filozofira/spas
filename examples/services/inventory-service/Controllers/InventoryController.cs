@@ -5,6 +5,7 @@ using InventoryService.Models;
 using InventoryService.Services;
 using Spas.Sdk.Events.Publish;
 using Spas.Sdk.Metadata.Attributes;
+using System.Linq;
 
 namespace InventoryService.Controllers;
 
@@ -48,6 +49,48 @@ public class InventoryController : ControllerBase
             return NotFound();
 
         return Ok(item);
+    }
+
+    /// <summary>
+    /// Initializes inventory tracking for a new product
+    /// </summary>
+    [HttpPost("items")]
+    [SpasCommand("AddInventoryItem", "1.0",
+        Description = "Initializes inventory tracking for a new product",
+        Produces = new[] { typeof(InventoryItemAdded) })]
+    public async Task<ActionResult> AddInventoryItem([FromBody] AddInventoryItemRequest request)
+    {
+        Console.WriteLine($"[inventory-service] Adding inventory item for product {request.ProductId}");
+
+        var success = _store.AddItem(request.ProductId, request.InitialQuantity);
+
+        if (!success)
+        {
+            return Conflict(new { error = $"Product '{request.ProductId}' already exists in inventory" });
+        }
+
+        var payload = new
+        {
+            productId = request.ProductId,
+            initialQuantity = request.InitialQuantity,
+            timestamp = DateTime.UtcNow
+        };
+
+        try
+        {
+            await _publisher.PublishAsync<InventoryItemAdded>(payload: payload);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Failed to publish InventoryItemAdded event: {ex.Message}");
+        }
+
+        return CreatedAtAction(nameof(GetInventory), new { productId = request.ProductId }, new
+        {
+            productId = request.ProductId,
+            availableQuantity = request.InitialQuantity,
+            reservedQuantity = 0
+        });
     }
 
     /// <summary>

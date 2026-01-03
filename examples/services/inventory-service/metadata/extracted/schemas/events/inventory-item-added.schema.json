@@ -1,0 +1,19 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "InventoryItemAdded",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "productId": {
+      "type": "string"
+    },
+    "initialQuantity": {
+      "type": "integer",
+      "format": "int32"
+    }
+  },
+  "required": [
+    "productId",
+    "initialQuantity"
+  ]
+}

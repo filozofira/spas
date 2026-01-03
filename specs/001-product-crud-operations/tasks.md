@@ -23,9 +23,9 @@ Project extends existing `examples/services/product-service/` structure
 
 **Purpose**: Prepare infrastructure for CRUD operations and event emission
 
-- [ ] T001 Create Models/Events directory in examples/services/product-service/Models/
-- [ ] T002 [P] Create Validation directory in examples/services/product-service/Validation/
-- [ ] T003 [P] Verify SPAS SDK dependencies are available in ProductService.csproj (Events, Metadata already referenced)
+- [X] T001 Create Models/Events directory in examples/services/product-service/Models/
+- [X] T002 [P] Create Validation directory in examples/services/product-service/Validation/
+- [X] T003 [P] Verify SPAS SDK dependencies are available in ProductService.csproj (Events, Metadata already referenced)
 
 ---
 

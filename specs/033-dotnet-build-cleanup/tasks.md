@@ -19,9 +19,9 @@
 
 **Purpose**: Establish baseline and prepare for changes
 
-- [ ] T001 Capture baseline build output with warnings from components/sdk/dotnet
-- [ ] T002 Run baseline test suite and capture results: `dotnet test` from components/sdk/dotnet
-- [ ] T003 Document current vulnerable packages: `dotnet list package --vulnerable`
+- [X] T001 Capture baseline build output with warnings from components/sdk/dotnet
+- [X] T002 Run baseline test suite and capture results: `dotnet test` from components/sdk/dotnet
+- [X] T003 Document current vulnerable packages: `dotnet list package --vulnerable`
 
 ---
 

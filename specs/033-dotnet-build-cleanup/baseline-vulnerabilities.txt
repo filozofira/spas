@@ -1,0 +1,26 @@
+  Determining projects to restore...
+C:\Source\Spas\spas\components\sdk\dotnet\src\Spas.Sdk.Observability\Spas.Sdk.Observability.csproj : warning NU1902: Package 'OpenTelemetry.Api' 1.10.0 has a known moderate severity vulnerability, https://github.com/advisories/GHSA-8785-wc3w-h8q6 [C:\Source\Spas\spas\components\sdk\dotnet\SPAS.SDK.slnx]
+C:\Source\Spas\spas\components\sdk\dotnet\examples\SampleService\SampleService.csproj : warning NU1902: Package 'OpenTelemetry.Api' 1.10.0 has a known moderate severity vulnerability, https://github.com/advisories/GHSA-8785-wc3w-h8q6 [C:\Source\Spas\spas\components\sdk\dotnet\SPAS.SDK.slnx]
+C:\Source\Spas\spas\components\sdk\dotnet\src\Spas.Sdk.Metadata\Spas.Sdk.Metadata.csproj : warning NU1510: PackageReference Microsoft.AspNetCore.Routing.Abstractions will not be pruned. Consider removing this package from your dependencies, as it is likely unnecessary. [C:\Source\Spas\spas\components\sdk\dotnet\SPAS.SDK.slnx]
+C:\Source\Spas\spas\components\sdk\dotnet\src\Spas.Sdk.Core\Spas.Sdk.Core.csproj : warning NU1510: PackageReference Microsoft.Extensions.Logging.Abstractions will not be pruned. Consider removing this package from your dependencies, as it is likely unnecessary. [C:\Source\Spas\spas\components\sdk\dotnet\SPAS.SDK.slnx]
+C:\Source\Spas\spas\components\sdk\dotnet\test\Spas.Sdk.Observability.Tests\Spas.Sdk.Observability.Tests.csproj : warning NU1902: Package 'OpenTelemetry.Api' 1.10.0 has a known moderate severity vulnerability, https://github.com/advisories/GHSA-8785-wc3w-h8q6 [C:\Source\Spas\spas\components\sdk\dotnet\SPAS.SDK.slnx]
+C:\Source\Spas\spas\components\sdk\dotnet\src\Spas.Sdk.Metadata\Spas.Sdk.Metadata.csproj : warning NU1510: PackageReference Microsoft.AspNetCore.Http.Abstractions will not be pruned. Consider removing this package from your dependencies, as it is likely unnecessary. [C:\Source\Spas\spas\components\sdk\dotnet\SPAS.SDK.slnx]
+  All projects are up-to-date for restore.
+
+The following sources were used:
+   https://api.nuget.org/v3/index.json
+   C:\Program Files (x86)\Microsoft SDKs\NuGetPackages\
+
+The given project `SampleService` has no vulnerable packages given the current sources.
+The given project `Spas.Sdk.Configuration` has no vulnerable packages given the current sources.
+The given project `Spas.Sdk.Core` has no vulnerable packages given the current sources.
+The given project `Spas.Sdk.Events` has no vulnerable packages given the current sources.
+The given project `Spas.Sdk.Inbound` has no vulnerable packages given the current sources.
+The given project `Spas.Sdk.Metadata` has no vulnerable packages given the current sources.
+The given project `Spas.Sdk.Observability` has no vulnerable packages given the current sources.
+The given project `Spas.Sdk.Configuration.Tests` has no vulnerable packages given the current sources.
+The given project `Spas.Sdk.Core.Tests` has no vulnerable packages given the current sources.
+The given project `Spas.Sdk.Events.Tests` has no vulnerable packages given the current sources.
+The given project `Spas.Sdk.Inbound.Tests` has no vulnerable packages given the current sources.
+The given project `Spas.Sdk.Metadata.Tests` has no vulnerable packages given the current sources.
+The given project `Spas.Sdk.Observability.Tests` has no vulnerable packages given the current sources.

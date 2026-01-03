@@ -1,0 +1,46 @@
+  Determining projects to restore...
+C:\Source\Spas\spas\components\sdk\dotnet\src\Spas.Sdk.Metadata\Spas.Sdk.Metadata.csproj : warning NU1510: PackageReference Microsoft.AspNetCore.Routing.Abstractions will not be pruned. Consider removing this package from your dependencies, as it is likely unnecessary. [C:\Source\Spas\spas\components\sdk\dotnet\SPAS.SDK.slnx]
+C:\Source\Spas\spas\components\sdk\dotnet\src\Spas.Sdk.Core\Spas.Sdk.Core.csproj : warning NU1510: PackageReference Microsoft.Extensions.Logging.Abstractions will not be pruned. Consider removing this package from your dependencies, as it is likely unnecessary. [C:\Source\Spas\spas\components\sdk\dotnet\SPAS.SDK.slnx]
+C:\Source\Spas\spas\components\sdk\dotnet\test\Spas.Sdk.Observability.Tests\Spas.Sdk.Observability.Tests.csproj : warning NU1902: Package 'OpenTelemetry.Api' 1.10.0 has a known moderate severity vulnerability, https://github.com/advisories/GHSA-8785-wc3w-h8q6 [C:\Source\Spas\spas\components\sdk\dotnet\SPAS.SDK.slnx]
+C:\Source\Spas\spas\components\sdk\dotnet\src\Spas.Sdk.Observability\Spas.Sdk.Observability.csproj : warning NU1902: Package 'OpenTelemetry.Api' 1.10.0 has a known moderate severity vulnerability, https://github.com/advisories/GHSA-8785-wc3w-h8q6 [C:\Source\Spas\spas\components\sdk\dotnet\SPAS.SDK.slnx]
+C:\Source\Spas\spas\components\sdk\dotnet\src\Spas.Sdk.Metadata\Spas.Sdk.Metadata.csproj : warning NU1510: PackageReference Microsoft.AspNetCore.Http.Abstractions will not be pruned. Consider removing this package from your dependencies, as it is likely unnecessary. [C:\Source\Spas\spas\components\sdk\dotnet\SPAS.SDK.slnx]
+C:\Source\Spas\spas\components\sdk\dotnet\examples\SampleService\SampleService.csproj : warning NU1902: Package 'OpenTelemetry.Api' 1.10.0 has a known moderate severity vulnerability, https://github.com/advisories/GHSA-8785-wc3w-h8q6 [C:\Source\Spas\spas\components\sdk\dotnet\SPAS.SDK.slnx]
+  All projects are up-to-date for restore.
+C:\Source\Spas\spas\components\sdk\dotnet\src\Spas.Sdk.Core\Spas.Sdk.Core.csproj : warning NU1510: PackageReference Microsoft.Extensions.Logging.Abstractions will not be pruned. Consider removing this package from your dependencies, as it is likely unnecessary.
+C:\Source\Spas\spas\components\sdk\dotnet\src\Spas.Sdk.Observability\Spas.Sdk.Observability.csproj : warning NU1902: Package 'OpenTelemetry.Api' 1.10.0 has a known moderate severity vulnerability, https://github.com/advisories/GHSA-8785-wc3w-h8q6
+C:\Source\Spas\spas\components\sdk\dotnet\test\Spas.Sdk.Observability.Tests\Spas.Sdk.Observability.Tests.csproj : warning NU1902: Package 'OpenTelemetry.Api' 1.10.0 has a known moderate severity vulnerability, https://github.com/advisories/GHSA-8785-wc3w-h8q6
+C:\Source\Spas\spas\components\sdk\dotnet\src\Spas.Sdk.Metadata\Spas.Sdk.Metadata.csproj : warning NU1510: PackageReference Microsoft.AspNetCore.Routing.Abstractions will not be pruned. Consider removing this package from your dependencies, as it is likely unnecessary.
+C:\Source\Spas\spas\components\sdk\dotnet\src\Spas.Sdk.Metadata\Spas.Sdk.Metadata.csproj : warning NU1510: PackageReference Microsoft.AspNetCore.Http.Abstractions will not be pruned. Consider removing this package from your dependencies, as it is likely unnecessary.
+C:\Source\Spas\spas\components\sdk\dotnet\examples\SampleService\SampleService.csproj : warning NU1902: Package 'OpenTelemetry.Api' 1.10.0 has a known moderate severity vulnerability, https://github.com/advisories/GHSA-8785-wc3w-h8q6
+  Spas.Sdk.Core -> C:\Source\Spas\spas\components\sdk\dotnet\src\Spas.Sdk.Core\bin\Debug\net10.0\Spas.Sdk.Core.dll
+  Spas.Sdk.Configuration -> C:\Source\Spas\spas\components\sdk\dotnet\src\Spas.Sdk.Configuration\bin\Debug\net10.0\Spas.Sdk.Configuration.dll
+  Spas.Sdk.Inbound -> C:\Source\Spas\spas\components\sdk\dotnet\src\Spas.Sdk.Inbound\bin\Debug\net10.0\Spas.Sdk.Inbound.dll
+  Spas.Sdk.Metadata -> C:\Source\Spas\spas\components\sdk\dotnet\src\Spas.Sdk.Metadata\bin\Debug\net10.0\Spas.Sdk.Metadata.dll
+  Spas.Sdk.Core.Tests -> C:\Source\Spas\spas\components\sdk\dotnet\test\Spas.Sdk.Core.Tests\bin\Debug\net10.0\Spas.Sdk.Core.Tests.dll
+  Spas.Sdk.Configuration.Tests -> C:\Source\Spas\spas\components\sdk\dotnet\test\Spas.Sdk.Configuration.Tests\bin\Debug\net10.0\Spas.Sdk.Configuration.Tests.dll
+  Spas.Sdk.Events -> C:\Source\Spas\spas\components\sdk\dotnet\src\Spas.Sdk.Events\bin\Debug\net10.0\Spas.Sdk.Events.dll
+  Spas.Sdk.Inbound.Tests -> C:\Source\Spas\spas\components\sdk\dotnet\test\Spas.Sdk.Inbound.Tests\bin\Debug\net10.0\Spas.Sdk.Inbound.Tests.dll
+  Spas.Sdk.Metadata.Tests -> C:\Source\Spas\spas\components\sdk\dotnet\test\Spas.Sdk.Metadata.Tests\bin\Debug\net10.0\Spas.Sdk.Metadata.Tests.dll
+  Spas.Sdk.Observability -> C:\Source\Spas\spas\components\sdk\dotnet\src\Spas.Sdk.Observability\bin\Debug\net10.0\Spas.Sdk.Observability.dll
+  Spas.Sdk.Events.Tests -> C:\Source\Spas\spas\components\sdk\dotnet\test\Spas.Sdk.Events.Tests\bin\Debug\net10.0\Spas.Sdk.Events.Tests.dll
+  Spas.Sdk.Observability.Tests -> C:\Source\Spas\spas\components\sdk\dotnet\test\Spas.Sdk.Observability.Tests\bin\Debug\net10.0\Spas.Sdk.Observability.Tests.dll
+  SampleService -> C:\Source\Spas\spas\components\sdk\dotnet\examples\SampleService\bin\Debug\net10.0\SampleService.dll
+
+Build succeeded.
+
+C:\Source\Spas\spas\components\sdk\dotnet\src\Spas.Sdk.Metadata\Spas.Sdk.Metadata.csproj : warning NU1510: PackageReference Microsoft.AspNetCore.Routing.Abstractions will not be pruned. Consider removing this package from your dependencies, as it is likely unnecessary. [C:\Source\Spas\spas\components\sdk\dotnet\SPAS.SDK.slnx]
+C:\Source\Spas\spas\components\sdk\dotnet\src\Spas.Sdk.Core\Spas.Sdk.Core.csproj : warning NU1510: PackageReference Microsoft.Extensions.Logging.Abstractions will not be pruned. Consider removing this package from your dependencies, as it is likely unnecessary. [C:\Source\Spas\spas\components\sdk\dotnet\SPAS.SDK.slnx]
+C:\Source\Spas\spas\components\sdk\dotnet\test\Spas.Sdk.Observability.Tests\Spas.Sdk.Observability.Tests.csproj : warning NU1902: Package 'OpenTelemetry.Api' 1.10.0 has a known moderate severity vulnerability, https://github.com/advisories/GHSA-8785-wc3w-h8q6 [C:\Source\Spas\spas\components\sdk\dotnet\SPAS.SDK.slnx]
+C:\Source\Spas\spas\components\sdk\dotnet\src\Spas.Sdk.Observability\Spas.Sdk.Observability.csproj : warning NU1902: Package 'OpenTelemetry.Api' 1.10.0 has a known moderate severity vulnerability, https://github.com/advisories/GHSA-8785-wc3w-h8q6 [C:\Source\Spas\spas\components\sdk\dotnet\SPAS.SDK.slnx]
+C:\Source\Spas\spas\components\sdk\dotnet\src\Spas.Sdk.Metadata\Spas.Sdk.Metadata.csproj : warning NU1510: PackageReference Microsoft.AspNetCore.Http.Abstractions will not be pruned. Consider removing this package from your dependencies, as it is likely unnecessary. [C:\Source\Spas\spas\components\sdk\dotnet\SPAS.SDK.slnx]
+C:\Source\Spas\spas\components\sdk\dotnet\examples\SampleService\SampleService.csproj : warning NU1902: Package 'OpenTelemetry.Api' 1.10.0 has a known moderate severity vulnerability, https://github.com/advisories/GHSA-8785-wc3w-h8q6 [C:\Source\Spas\spas\components\sdk\dotnet\SPAS.SDK.slnx]
+C:\Source\Spas\spas\components\sdk\dotnet\src\Spas.Sdk.Core\Spas.Sdk.Core.csproj : warning NU1510: PackageReference Microsoft.Extensions.Logging.Abstractions will not be pruned. Consider removing this package from your dependencies, as it is likely unnecessary.
+C:\Source\Spas\spas\components\sdk\dotnet\src\Spas.Sdk.Observability\Spas.Sdk.Observability.csproj : warning NU1902: Package 'OpenTelemetry.Api' 1.10.0 has a known moderate severity vulnerability, https://github.com/advisories/GHSA-8785-wc3w-h8q6
+C:\Source\Spas\spas\components\sdk\dotnet\test\Spas.Sdk.Observability.Tests\Spas.Sdk.Observability.Tests.csproj : warning NU1902: Package 'OpenTelemetry.Api' 1.10.0 has a known moderate severity vulnerability, https://github.com/advisories/GHSA-8785-wc3w-h8q6
+C:\Source\Spas\spas\components\sdk\dotnet\src\Spas.Sdk.Metadata\Spas.Sdk.Metadata.csproj : warning NU1510: PackageReference Microsoft.AspNetCore.Routing.Abstractions will not be pruned. Consider removing this package from your dependencies, as it is likely unnecessary.
+C:\Source\Spas\spas\components\sdk\dotnet\src\Spas.Sdk.Metadata\Spas.Sdk.Metadata.csproj : warning NU1510: PackageReference Microsoft.AspNetCore.Http.Abstractions will not be pruned. Consider removing this package from your dependencies, as it is likely unnecessary.
+C:\Source\Spas\spas\components\sdk\dotnet\examples\SampleService\SampleService.csproj : warning NU1902: Package 'OpenTelemetry.Api' 1.10.0 has a known moderate severity vulnerability, https://github.com/advisories/GHSA-8785-wc3w-h8q6
+    12 Warning(s)
+    0 Error(s)
+
+Time Elapsed 00:00:07.67

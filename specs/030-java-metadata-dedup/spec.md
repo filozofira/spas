@@ -2,7 +2,7 @@
 
 **Feature Branch**: `030-java-metadata-dedup`
 **Created**: 2026-01-02
-**Status**: Completed
+**Status**: ✅ Completed (PoC)
 **Completed**: 2026-01-02
 **Input**: User description: "Remove redundant service metadata declaration from Java SDK component. Concretely there IS duplication between application.yml and @SpasService annotation. The @SpasService annotation is used for **metadata generation** (design-time), while application.yml configuration is for **runtime behavior**. However, the duplication of `id`, `bounded-context`, and `version` seems unnecessary."
 

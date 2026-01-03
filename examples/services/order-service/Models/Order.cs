@@ -9,7 +9,7 @@ public record Order(
     DateTime CreatedAt, 
     string? ReferenceId = null,
     Address? ShippingAddress = null,
-    List<StatusChange> StatusHistory = null,
+    List<StatusChange>? StatusHistory = null,
     // Shipment tracking fields
     string? ShipmentId = null,
     string? ShipmentStatus = null,

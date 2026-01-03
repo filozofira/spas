@@ -16,16 +16,25 @@
       "methodPath": "/inventory",
       "version": "1.0",
       "schemaRef": "schemas/endpoints/list-inventory.schema.json",
-      "description": "Lists current inventory levels for all products"
+      "description": "Lists current inventory levels for all items"
     },
     {
       "name": "get-inventory",
       "type": "Query",
       "protocol": "Http",
-      "methodPath": "/inventory/{productId}",
+      "methodPath": "/inventory/{itemId}",
       "version": "1.0",
       "schemaRef": "schemas/endpoints/get-inventory.schema.json",
-      "description": "Returns available/reserved quantity for a specific productId"
+      "description": "Returns available/reserved quantity for a specific itemId"
+    },
+    {
+      "name": "add-inventory-item",
+      "type": "Command",
+      "protocol": "Http",
+      "methodPath": "/inventory/items",
+      "version": "1.0",
+      "schemaRef": "schemas/endpoints/add-inventory-item.schema.json",
+      "description": "Initializes inventory tracking for a new item"
     },
     {
       "name": "reserve-stock",
@@ -47,6 +56,17 @@
     }
   ],
   "commands": [
+    {
+      "name": "add-inventory-item",
+      "version": "1.0",
+      "produces": [
+        {
+          "type": "inventory-item-added",
+          "version": "1.0",
+          "when": "success"
+        }
+      ]
+    },
     {
       "name": "reserve-stock",
       "version": "1.0",
@@ -77,10 +97,16 @@
   ],
   "events": [
     {
+      "type": "inventory-item-added",
+      "version": "1.0",
+      "schemaRef": "schemas/events/inventory-item-added.schema.json",
+      "description": "Emitted when inventory tracking is initialized for a new item"
+    },
+    {
       "type": "stock-depleted",
       "version": "1.0",
       "schemaRef": "schemas/events/stock-depleted.schema.json",
-      "description": "Emitted when requested quantity exceeds available inventory for a product"
+      "description": "Emitted when requested quantity exceeds available inventory for an item"
     },
     {
       "type": "stock-released",
@@ -116,7 +142,7 @@
     ]
   },
   "license": "MIT",
-  "publishedAt": "2026-01-01T21:38:33.366Z",
+  "publishedAt": "2026-01-03T23:21:43.223Z",
   "runtime": {
     "digest": "sha256:TODO_UPDATE_AFTER_BUILD",
     "repository": "spas-examples/inventory-service",

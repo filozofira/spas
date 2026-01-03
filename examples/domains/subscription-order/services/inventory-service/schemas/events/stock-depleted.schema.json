@@ -4,7 +4,7 @@
   "type": "object",
   "additionalProperties": false,
   "properties": {
-    "productId": {
+    "itemId": {
       "type": "string"
     },
     "referenceId": {
@@ -23,5 +23,12 @@
       "type": "string",
       "format": "date-time"
     }
-  }
+  },
+  "required": [
+    "itemId",
+    "referenceId",
+    "requestedQuantity",
+    "availableQuantity",
+    "timestamp"
+  ]
 }

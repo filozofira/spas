@@ -61,9 +61,8 @@ Below you can find the quick navigation to SPAS principles documents organized b
 
 ## Reference Materials
 
-- **[appendix/26-reference-examples.md](appendix/26-reference-examples.md)** - Complete working examples
-- **[appendix/27-glossary.md](appendix/27-glossary.md)** - Terminology
-- **[appendix/28-decision-log.md](appendix/28-decision-log.md)** - Architecture Decision Records (ADRs)
+- **[appendix/26-glossary.md](appendix/26-glossary.md)** - Terminology
+- **[appendix/27-decision-log.md](appendix/27-decision-log.md)** - Architecture Decision Records (ADRs)
 
 ## Key Concepts
 
@@ -95,7 +94,7 @@ Below you can find the quick navigation to SPAS principles documents organized b
 → Read [Core Principles](01-core-principles.md) (Security by Default), then [Security Model](security/19-security-model.md)
 
 **I want to understand architectural decisions**
-→ Read [Architecture Overview](02-architecture-overview.md) and [Decision Log](appendix/28-decision-log.md)
+→ Read [Architecture Overview](02-architecture-overview.md) and [Decision Log](appendix/27-decision-log.md)
 
 ---
 
@@ -114,7 +113,7 @@ Implement API to match spec examples
   ↓
 Cross-check: service/04-service-contract.md (events[] published definitions)
   ↓
-Validate: Examples match appendix/26-reference-examples.md
+Validate: Examples match working examples in examples/services/
 ```
 
 ### Building Repository API
@@ -140,7 +139,7 @@ Understand input: service/06-service-metadata.md (spas.json schema)
   ↓
 Understand output: infrastructure/15-package-format.md
   ↓
-Validate: Examples from appendix/26-reference-examples.md
+Validate: Examples from examples/services/
 ```
 
 ---
@@ -158,4 +157,4 @@ Validate: Examples from appendix/26-reference-examples.md
 | Choreography | [component/14-domain-choreography.md](component/14-domain-choreography.md) | Adaptation & mapping |
 | Communication | [protocol/07-communication-model.md](protocol/07-communication-model.md) | HTTP (PoC) → gRPC (prod) |
 | Events | [protocol/09-event-protocol.md](protocol/09-event-protocol.md) | CloudEvents + W3C Trace Context |
-| Decisions | [appendix/28-decision-log.md](appendix/28-decision-log.md) | Architecture Decision Records |
+| Decisions | [appendix/27-decision-log.md](appendix/27-decision-log.md) | Architecture Decision Records |

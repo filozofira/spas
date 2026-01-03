@@ -424,15 +424,28 @@ flowchart LR
 ...
 ```
 
+## Progress Tracking
+
+**REQUIRED**: Create a progress tracking list at the start of every choreography composition to maintain visibility into:
+- [ ] Phase completion status (X/5 phases complete)
+- [ ] Service contracts analyzed
+- [ ] Choreography design proposed with diagram
+- [ ] Transformation files and configs generated
+- [ ] Validation passed
+- [ ] Build commands and next steps documented
+
+Update the tracking list as you complete each phase to provide clear progress indicators.
+
 ## Workflow Phases
 
 **Process Overview**:
-The following 5-phase workflow guides the process:
-1. **Analyze**: Read contracts and identify connections
-2. **Propose**: Design choreography and visualize with Mermaid
-3. **Generate**: Create transformation files and config
-4. **Validate**: Check syntax and consistency
-5. **Build**: Prepare for deployment
+The following 5-phase workflow guides the process. Execute phases in order, creating a progress tracking list for multi-service choreographies. Each phase requires explicit user confirmation before proceeding.
+
+1. **Phase 1: Analyze** - Read contracts and identify connections
+2. **Phase 2: Propose** - Design choreography and visualize with Mermaid diagram
+3. **Phase 3: Generate** - Create transformation files and configuration
+4. **Phase 4: Validate** - Check syntax and consistency
+5. **Phase 5: Build** - Prepare for deployment
 
 ### Phase 1: Analyze
 
@@ -461,7 +474,11 @@ The following 5-phase workflow guides the process:
 **Exit Criteria:** User confirms understanding of service analysis
 
 **Confirmation Gate:**
-> "I have analyzed the services and found [N] potential connections. Shall I proceed to the Propose phase? (yes/no)"
+> "Phase 1 (Analyze) complete. Progress: [1/5 phases]
+>
+> Found {N} potential connections between {M} services.
+>
+> Proceed to Phase 2 (Propose)? (yes/review/no)"
 
 ---
 
@@ -526,12 +543,15 @@ flows:
 **Exit Criteria:** User confirms design with "yes" or provides feedback
 
 **Confirmation Gate:**
-> "I've proposed the choreography design above with:
+> "Phase 2 (Propose) complete. Progress: [2/5 phases]
+>
+> Proposed choreography design:
 >   • {N} flows defined
 >   • {N} services participating
 >   • {N} transformation files to create
+>   • README.md updated with diagram
 >
-> Do you want me to proceed with generating the choreographies? (yes/no/feedback)"
+> Proceed to Phase 3 (Generate)? (yes/review/no)"
 
 ---
 
@@ -577,17 +597,36 @@ flows:
 **Exit Criteria:** All artifacts created, checklist validated
 
 **Confirmation Gate:**
-> "Phase 3 Complete:
->   • Generated {N} transformation files
+> "Phase 3 (Generate) complete. Progress: [3/5 phases]
+>
+> Generated:
+>   • {N} transformation files
 >   • Updated choreography.yaml
 >
-> Shall I proceed to the Validate phase? (yes/no)"
+> Proceed to Phase 4 (Validate)? (yes/review/no)"
 
 ---
 
 ### Phase 4: Validate
 
 **Entry Criteria:** All artifacts generated, ready for verification
+
+**Actions:**
+1. **Syntax Validation**
+   - Check choreography.yaml is valid YAML
+   - Check JSONata files have valid syntax
+   - Verify file paths match choreography.yaml references
+
+2. **Schema Validation**
+   - Verify referenced services exist in `services/` directory
+   - Check transformation input schemas match event publisher schemas
+   - Check transformation output schemas match event subscriber schemas
+
+3. **Consistency Checks**
+   - Verify all `flows.*.participants` services are in `services/`
+   - Verify all `flows.*.events[].source` match a participant
+   - Verify all `flows.*.events[].targets[].service` match a participant
+   - Check topic naming follows `{boundedContext}-events` pattern (lowercase-hyphenated)
 
 **Actions:**
 1. **Syntax Validation**
@@ -619,12 +658,14 @@ flows:
 **Exit Criteria:** All validations pass, artifacts ready for deployment
 
 **Confirmation Gate:**
-> "Phase 4 Complete:
+> "Phase 4 (Validate) complete. Progress: [4/5 phases]
+>
+> Validation Results:
 >   • Syntax validation: PASS
 >   • Schema validation: PASS
 >   • Consistency checks: PASS
 >
-> Shall I proceed to the Build phase? (yes/no)"
+> Proceed to Phase 5 (Build)? (yes/review/no)"
 
 ---
 
@@ -646,7 +687,7 @@ flows:
 
 **Output:**
 ```
-✓ Choreography complete
+✓ Choreography complete (5/5 phases)
 
 Next steps:
   • Validate: spas-compose choreography build --docker --dry-run
@@ -666,7 +707,13 @@ Next steps:
 - **Propose → Generate**: Only after user explicitly confirms with "yes" or provides feedback and confirms
 - **Generate → Validate**: Automatic, but report what was created before validating
 - **Validate → Build**: Only after all validation checks pass
-- **Failure Handling**: If validation fails, return to appropriate phase (syntax errors → Generate, schema mismatches → Propose)
+
+**Feedback Options**: At each confirmation gate, user can respond:
+- `yes` or `proceed` - Move to next phase
+- `review` or `iterate` - Refine current phase based on feedback
+- `no` or `stop` - Halt workflow
+
+**Failure Handling**: If validation fails, return to appropriate phase (syntax errors → Generate, schema mismatches → Propose)
 
 ## Known Pitfalls
 

@@ -52,8 +52,10 @@ public class EntityService {
 
 **Configuration** (application.yaml):
 ```yaml
+# Service identity is defined in code via @SpasService annotation
+# DO NOT configure spas.service.id here
+
 spas:
-  service.id: {name}
   sidecar.url: ${SIDECAR_URL:http://localhost:7000}
 ```
 

@@ -108,7 +108,7 @@
 
 - [X] T030 [P] [US3] Update FROM maven:3.9-eclipse-temurin-17-alpine to maven:3.9-eclipse-temurin-21-alpine in examples/services/fulfillment-service/Dockerfile (build stage)
 - [X] T031 [P] [US3] Update FROM eclipse-temurin:17-alpine to eclipse-temurin:21-alpine in examples/services/fulfillment-service/Dockerfile (runtime stage)
-- [ ] T032 [US3] Test Docker build with `docker build -t fulfillment-service:java21 .` in examples/services/fulfillment-service (optional but recommended)
+- [X] T032 [US3] Test Docker build with `docker build -t fulfillment-service:java21 .` in examples/services/fulfillment-service (optional but recommended)
 
 **Checkpoint**: All Dockerfiles updated to Java 21, images build successfully
 
@@ -133,9 +133,24 @@
 - [X] T040 [P] Search for CLI template references with `git grep -n "Java 17" -- "templates/**" "*.eta" ".github/agents/**"`
 - [X] T041 Update templates/partials/sdk-patterns.eta to generate java.version=21 in POMs (update <java.version>17</java.version> to <java.version>21</java.version>)
 - [X] T042 [P] Update any agent prompt templates referencing Java 17 in .github/agents/ (if found)
-- [ ] T043 Verify CLI generation with `spas-service init test-service-java21` and check pom.xml has java.version=21 (optional if CLI available)
+- [X] T043 Verify CLI generation with `spas-service init test-service-java21` and check pom.xml has java.version=21 (optional if CLI available)
 
 **Checkpoint**: All current documentation and CLI templates reference Java 21
+
+---
+
+## Phase 6: Post-Implementation Fix (Template Service Identity)
+
+**Purpose**: Remove service identity from application.yaml templates to align with annotation-based configuration
+
+### Template Corrections
+
+- [X] T044 Remove spas.service.id from templates/partials/sdk-patterns.eta application.yaml example
+- [X] T045 Remove spas.service.id from templates/partials/sdk-patterns-compact.eta application.yaml example
+- [X] T046 Update templates/partials/workflow-phases.eta instruction text to clarify sidecar-only configuration
+- [X] T047 Add clarifying comments to templates explaining @SpasService annotation approach
+
+**Checkpoint**: CLI templates align with SDK's annotation-based design pattern
 
 ---
 

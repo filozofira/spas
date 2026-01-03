@@ -3,7 +3,7 @@
 {
   "referenceId": rentalId,
   "items": $append([], items.{
-    "productId": productId,
+    "itemId": productId,
     "quantity": quantity
   })
 }

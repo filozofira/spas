@@ -9,29 +9,29 @@ public class InventoryStore
 
     public InventoryStore()
     {
-        // Seed with sample products
-        _inventory["prod-001"] = new InventoryItem("prod-001", 100, 0);
-        _inventory["prod-002"] = new InventoryItem("prod-002", 50, 0);
-        _inventory["prod-003"] = new InventoryItem("prod-003", 75, 0);
+        // Seed with sample items
+        _inventory["item-001"] = new InventoryItem("item-001", 100, 0);
+        _inventory["item-002"] = new InventoryItem("item-002", 50, 0);
+        _inventory["item-003"] = new InventoryItem("item-003", 75, 0);
     }
 
-    public InventoryItem? Get(string productId) => 
-        _inventory.TryGetValue(productId, out var item) ? item : null;
+    public InventoryItem? Get(string itemId) => 
+        _inventory.TryGetValue(itemId, out var item) ? item : null;
 
     public IEnumerable<InventoryItem> GetAll() => _inventory.Values;
 
-    public bool AddItem(string productId, int initialQuantity = 0)
+    public bool AddItem(string itemId, int initialQuantity = 0)
     {
-        return _inventory.TryAdd(productId, new InventoryItem(productId, initialQuantity, 0));
+        return _inventory.TryAdd(itemId, new InventoryItem(itemId, initialQuantity, 0));
     }
 
-    public void Reserve(string productId, int quantity)
+    public void Reserve(string itemId, int quantity)
     {
-        if (_inventory.TryGetValue(productId, out var item))
+        if (_inventory.TryGetValue(itemId, out var item))
         {
             var newAvailable = item.AvailableQuantity - quantity;
             var newReserved = item.ReservedQuantity + quantity;
-            _inventory[productId] = new InventoryItem(productId, newAvailable, newReserved);
+            _inventory[itemId] = new InventoryItem(itemId, newAvailable, newReserved);
         }
     }
 
@@ -39,9 +39,9 @@ public class InventoryStore
     /// Releases reserved stock back to available inventory.
     /// Used for rental returns, order cancellations, or reverse logistics.
     /// </summary>
-    public bool Release(string productId, int quantity)
+    public bool Release(string itemId, int quantity)
     {
-        if (_inventory.TryGetValue(productId, out var item))
+        if (_inventory.TryGetValue(itemId, out var item))
         {
             // Only release up to what's currently reserved
             var actualRelease = Math.Min(quantity, item.ReservedQuantity);
@@ -49,7 +49,7 @@ public class InventoryStore
 
             var newAvailable = item.AvailableQuantity + actualRelease;
             var newReserved = item.ReservedQuantity - actualRelease;
-            _inventory[productId] = new InventoryItem(productId, newAvailable, newReserved);
+            _inventory[itemId] = new InventoryItem(itemId, newAvailable, newReserved);
             return true;
         }
         return false;

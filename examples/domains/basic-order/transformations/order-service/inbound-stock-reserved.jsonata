@@ -3,7 +3,7 @@
 {
   "orderId": referenceId,
   "reservedItems": $append([], reservations.{
-    "productId": productId,
+    "productId": itemId,
     "quantity": quantity
   })
 }

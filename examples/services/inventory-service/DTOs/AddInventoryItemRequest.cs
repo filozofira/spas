@@ -1,9 +1,9 @@
 namespace InventoryService.DTOs;
 
 /// <summary>
-/// Request to initialize inventory tracking for a new product.
+/// Request to initialize inventory tracking for a new item.
 /// </summary>
 public record AddInventoryItemRequest(
-    string ProductId,
+    string ItemId,
     int InitialQuantity = 0
 );

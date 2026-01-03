@@ -26,25 +26,25 @@ public class InventoryController : ControllerBase
     }
 
     /// <summary>
-    /// Lists current inventory levels for all products
+    /// Lists current inventory levels for all items
     /// </summary>
     [HttpGet]
     [SpasQuery("ListInventory", "1.0",
-        Description = "Lists current inventory levels for all products")]
+        Description = "Lists current inventory levels for all items")]
     public ActionResult<IEnumerable<InventoryItem>> ListInventory()
     {
         return Ok(_store.GetAll());
     }
 
     /// <summary>
-    /// Returns available/reserved quantity for a specific productId
+    /// Returns available/reserved quantity for a specific itemId
     /// </summary>
-    [HttpGet("{productId}")]
+    [HttpGet("{itemId}")]
     [SpasQuery("GetInventory", "1.0",
-        Description = "Returns available/reserved quantity for a specific productId")]
-    public ActionResult<InventoryItem> GetInventory(string productId)
+        Description = "Returns available/reserved quantity for a specific itemId")]
+    public ActionResult<InventoryItem> GetInventory(string itemId)
     {
-        var item = _store.Get(productId);
+        var item = _store.Get(itemId);
         if (item == null)
             return NotFound();
 
@@ -52,42 +52,42 @@ public class InventoryController : ControllerBase
     }
 
     /// <summary>
-    /// Initializes inventory tracking for a new product
+    /// Initializes inventory tracking for a new item
     /// </summary>
     [HttpPost("items")]
     [SpasCommand("AddInventoryItem", "1.0",
-        Description = "Initializes inventory tracking for a new product",
-        Produces = new[] { typeof(InventoryItemAdded) })]
+        Description = "Initializes inventory tracking for a new item",
+        Produces = new[] { typeof(InventoryItemAddedEvent) })]
     public async Task<ActionResult> AddInventoryItem([FromBody] AddInventoryItemRequest request)
     {
-        Console.WriteLine($"[inventory-service] Adding inventory item for product {request.ProductId}");
+        Console.WriteLine($"[inventory-service] Adding inventory item {request.ItemId}");
 
-        var success = _store.AddItem(request.ProductId, request.InitialQuantity);
+        var success = _store.AddItem(request.ItemId, request.InitialQuantity);
 
         if (!success)
         {
-            return Conflict(new { error = $"Product '{request.ProductId}' already exists in inventory" });
+            return Conflict(new { error = $"Item '{request.ItemId}' already exists in inventory" });
         }
 
         var payload = new
         {
-            productId = request.ProductId,
+            itemId = request.ItemId,
             initialQuantity = request.InitialQuantity,
             timestamp = DateTime.UtcNow
         };
 
         try
         {
-            await _publisher.PublishAsync<InventoryItemAdded>(payload: payload);
+            await _publisher.PublishAsync<InventoryItemAddedEvent>(payload: payload);
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"Failed to publish InventoryItemAdded event: {ex.Message}");
+            Console.WriteLine($"Failed to publish InventoryItemAddedEvent event: {ex.Message}");
         }
 
-        return CreatedAtAction(nameof(GetInventory), new { productId = request.ProductId }, new
+        return CreatedAtAction(nameof(GetInventory), new { itemId = request.ItemId }, new
         {
-            productId = request.ProductId,
+            itemId = request.ItemId,
             availableQuantity = request.InitialQuantity,
             reservedQuantity = 0
         });
@@ -108,18 +108,18 @@ public class InventoryController : ControllerBase
 
         foreach (var item in request.Items)
         {
-            var inventoryItem = _store.Get(item.ProductId);
+            var inventoryItem = _store.Get(item.ItemId);
 
             if (inventoryItem == null || inventoryItem.AvailableQuantity < item.Quantity)
             {
-                Console.WriteLine($"[inventory-service] Stock depleted for {item.ProductId}: requested {item.Quantity}, available {inventoryItem?.AvailableQuantity ?? 0}");
+                Console.WriteLine($"[inventory-service] Stock depleted for {item.ItemId}: requested {item.Quantity}, available {inventoryItem?.AvailableQuantity ?? 0}");
                 continue;
             }
 
-            _store.Reserve(item.ProductId, item.Quantity);
+            _store.Reserve(item.ItemId, item.Quantity);
 
             reservations.Add(new StockReservation(
-                item.ProductId,
+                item.ItemId,
                 item.Quantity,
                 DateTime.UtcNow
             ));
@@ -132,7 +132,7 @@ public class InventoryController : ControllerBase
                 referenceId = request.ReferenceId,
                 reservations = reservations.Select(r => new
                 {
-                    productId = r.ProductId,
+                    itemId = r.ItemId,
                     quantity = r.Quantity,
                     reservedAt = r.ReservedAt
                 }).ToList(),
@@ -168,20 +168,20 @@ public class InventoryController : ControllerBase
 
         foreach (var item in request.Items)
         {
-            var success = _store.Release(item.ProductId, item.Quantity);
+            var success = _store.Release(item.ItemId, item.Quantity);
 
             if (success)
             {
                 releases.Add(new StockReleaseItem(
-                    item.ProductId,
+                    item.ItemId,
                     item.Quantity,
                     DateTime.UtcNow
                 ));
-                Console.WriteLine($"[inventory-service] Released {item.Quantity} of {item.ProductId}");
+                Console.WriteLine($"[inventory-service] Released {item.Quantity} of {item.ItemId}");
             }
             else
             {
-                Console.WriteLine($"[inventory-service] Could not release {item.ProductId}: no reserved stock found");
+                Console.WriteLine($"[inventory-service] Could not release {item.ItemId}: no reserved stock found");
             }
         }
 
@@ -192,7 +192,7 @@ public class InventoryController : ControllerBase
                 referenceId = request.ReferenceId,
                 releases = releases.Select(r => new
                 {
-                    productId = r.ProductId,
+                    itemId = r.ItemId,
                     quantity = r.Quantity,
                     releasedAt = r.ReleasedAt
                 }).ToList(),

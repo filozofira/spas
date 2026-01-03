@@ -5,4 +5,4 @@ namespace InventoryService.DTOs;
 /// </summary>
 public record ReleaseStockRequest(Guid ReferenceId, List<ReleaseItem> Items);
 
-public record ReleaseItem(string ProductId, int Quantity);
+public record ReleaseItem(string ItemId, int Quantity);

@@ -3,7 +3,7 @@
 {
   "referenceId": referenceId ? referenceId : orderId,
   "items": $append([], items.{
-    "productId": productId,
+    "itemId": productId,
     "quantity": quantity
   })
 }

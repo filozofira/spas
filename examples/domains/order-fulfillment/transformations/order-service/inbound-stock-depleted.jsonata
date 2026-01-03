@@ -2,5 +2,5 @@
 /* Transforms stock-depleted (inventory-service) -> cancel-order (order-service) */
 {
   "id": referenceId,
-  "reason": "Stock depleted for product " & productId
+  "reason": "Stock depleted for item " & itemId
 }

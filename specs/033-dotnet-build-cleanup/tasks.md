@@ -65,12 +65,12 @@
 
 ### Implementation for User Story 2
 
-- [ ] T013 [US2] Remove PackageReference to Microsoft.AspNetCore.Routing.Abstractions from components/sdk/dotnet/src/Spas.Sdk.Metadata/Spas.Sdk.Metadata.csproj
-- [ ] T014 [US2] Remove PackageReference to Microsoft.AspNetCore.Http.Abstractions from components/sdk/dotnet/src/Spas.Sdk.Metadata/Spas.Sdk.Metadata.csproj
-- [ ] T015 [US2] Clean and rebuild SDK: `dotnet clean && dotnet build` from components/sdk/dotnet
-- [ ] T016 [US2] Verify zero NU1510 warnings in build output
-- [ ] T017 [US2] Run metadata tests: `dotnet test` from components/sdk/dotnet/test/Spas.Sdk.Metadata.Tests
-- [ ] T018 [US2] Run full SDK test suite to ensure no downstream breakage: `dotnet test` from components/sdk/dotnet
+- [X] T013 [US2] Remove PackageReference to Microsoft.AspNetCore.Routing.Abstractions from components/sdk/dotnet/src/Spas.Sdk.Metadata/Spas.Sdk.Metadata.csproj
+- [X] T014 [US2] Remove PackageReference to Microsoft.AspNetCore.Http.Abstractions from components/sdk/dotnet/src/Spas.Sdk.Metadata/Spas.Sdk.Metadata.csproj
+- [X] T015 [US2] Clean and rebuild SDK: `dotnet clean && dotnet build` from components/sdk/dotnet
+- [X] T016 [US2] Verify zero NU1510 warnings in build output for Metadata
+- [X] T017 [US2] Run metadata tests: `dotnet test` from components/sdk/dotnet/test/Spas.Sdk.Metadata.Tests
+- [X] T018 [US2] Run full SDK test suite to ensure no downstream breakage: `dotnet test` from components/sdk/dotnet
 
 **Checkpoint**: Redundant dependencies removed, all SDK tests passing
 
@@ -84,15 +84,15 @@
 
 ### Implementation for User Story 3
 
-- [ ] T019 [P] [US3] Rebuild entire SDK from clean state: `dotnet clean && dotnet build` from components/sdk/dotnet
-- [ ] T020 [US3] Verify zero total warnings in SDK build output
-- [ ] T021 [US3] Publish SDK to local NuGet feed: `.\Publish-LocalNuGet.ps1 -Rebuild` from components/sdk/dotnet
-- [ ] T022 [P] [US3] Build order-service: `dotnet build` from examples/services/order-service
-- [ ] T023 [P] [US3] Build inventory-service: `dotnet build` from examples/services/inventory-service
-- [ ] T024 [P] [US3] Build subscription-service: `dotnet build` from examples/services/subscription-service
-- [ ] T025 [P] [US3] Build SampleService: `dotnet build` from components/sdk/dotnet/examples/SampleService
-- [ ] T026 [US3] Verify zero warnings in all example service builds
-- [ ] T027 [US3] Run quickstart.md validation procedure from specs/033-dotnet-build-cleanup/quickstart.md
+- [X] T019 [P] [US3] Rebuild entire SDK from clean state: `dotnet clean && dotnet build` from components/sdk/dotnet
+- [X] T020 [US3] Verify zero total warnings in SDK build output
+- [X] T021 [US3] Publish SDK to local NuGet feed: `.\Publish-LocalNuGet.ps1 -Rebuild` from components/sdk/dotnet
+- [X] T022 [P] [US3] Build order-service: `dotnet build` from examples/services/order-service
+- [X] T023 [P] [US3] Build inventory-service: `dotnet build` from examples/services/inventory-service
+- [X] T024 [P] [US3] Build subscription-service: `dotnet build` from examples/services/subscription-service
+- [X] T025 [P] [US3] Build SampleService: `dotnet build` from components/sdk/dotnet/examples/SampleService
+- [X] T026 [US3] Verify zero warnings in all example service builds
+- [X] T027 [US3] Run quickstart.md validation procedure from specs/033-dotnet-build-cleanup/quickstart.md
 
 **Checkpoint**: All builds clean with zero warnings, validation complete
 
@@ -102,9 +102,9 @@
 
 **Purpose**: Final documentation and repository cleanup
 
-- [ ] T028 [P] Update components/sdk/dotnet/CHANGELOG.md with OpenTelemetry version change
-- [ ] T029 [P] Update components/sdk/dotnet/README.md if OpenTelemetry version is mentioned
-- [ ] T030 Commit changes with descriptive message: "fix(sdk): update OpenTelemetry to 1.11.0, remove redundant ASP.NET packages"
+- [X] T028 [P] Update components/sdk/dotnet/CHANGELOG.md with OpenTelemetry version change (N/A - no CHANGELOG exists)
+- [X] T029 [P] Update components/sdk/dotnet/README.md if OpenTelemetry version is mentioned (N/A - only conceptual mention)
+- [ ] T030 Commit changes with descriptive message: "fix(sdk): update OpenTelemetry to 1.12.0, remove redundant packages, fix nullable warnings"
 - [ ] T031 Create pull request with link to spec: specs/033-dotnet-build-cleanup/spec.md
 
 ---

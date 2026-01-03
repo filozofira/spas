@@ -44,7 +44,7 @@
 - ✅ Spas.Sdk.Observability.Tests: 12 tests passed (233 ms)
 - ✅ Spas.Sdk.Inbound.Tests: 2 tests passed (203 ms)
 - ✅ Spas.Sdk.Metadata.Tests: 147 tests passed (409 ms)
-- ⚠️ Spas.Sdk.Configuration.Tests: No tests available
+- ⚠️ Spas.Sdk.Configuration.Tests: No tests available (removed in Phase 4 - Configuration is simple POCO)
 
 ---
 

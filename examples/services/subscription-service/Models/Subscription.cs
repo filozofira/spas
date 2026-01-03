@@ -8,7 +8,7 @@ public record Subscription(
     string Frequency, 
     string Status, 
     DateTime CreatedAt,
-    List<StatusChange> StatusHistory = null
+    List<StatusChange>? StatusHistory = null
 )
 {
     public List<StatusChange> StatusHistory { get; init; } = StatusHistory ?? new();

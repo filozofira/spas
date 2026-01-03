@@ -2,11 +2,11 @@
 
 **Feature Branch**: `032-dotnet-docs-cleanup`  
 **Created**: 2026-01-03  
-**Status**: Completed
+**Status**: ✅ Completed (PoC)
 **Completed**: 2026-01-03  
 **Input**: User description: "Clean up .NET SDK and principle docs. Remove obsolete .NET SDK projects and make sure all principles docs are well aligned with current implementation."
 
-## User Scenarios & Testing *(mandatory)*
+## User Scenarios & Testing _(mandatory)_
 
 ### User Story 1 - Remove Truly Obsolete Projects and Correct Misleading Documentation (Priority: P1)
 
@@ -64,7 +64,7 @@ When a developer navigates between principles documents using cross-references, 
 - Should principles docs that reference health checks be updated to point to `Spas.Sdk.Inbound` instead of generic ASP.NET Core patterns?
 - When renumbering appendix files, how are cross-references in other principles documents updated (manual search or automated tool)?
 
-## Requirements *(mandatory)*
+## Requirements _(mandatory)_
 
 ### Functional Requirements
 
@@ -81,7 +81,7 @@ When a developer navigates between principles documents using cross-references, 
 - **FR-011**: System MUST remove outdated [principles/appendix/26-reference-examples.md](../../principles/appendix/26-reference-examples.md) which contains examples misaligned with current implementation
 - **FR-012**: System MUST renumber remaining appendix files (`27-glossary.md` → `26-glossary.md`, `28-decision-log.md` → `27-decision-log.md`) and update all cross-references throughout principles documentation
 
-### Key Entities *(include if feature involves data)*
+### Key Entities _(include if feature involves data)_
 
 - **SDK Package**: A NuGet package in the SPAS .NET SDK (Core, Metadata, Events, Observability, Configuration, Inbound)
 - **SPAS Component**: A major system component with principles documentation (SDK [.NET/Java], Repository, CLI, Sidecar, protocols)
@@ -90,7 +90,7 @@ When a developer navigates between principles documents using cross-references, 
 - **Example Service**: A reference implementation in `examples/services/` demonstrating SDK usage
 - **Appendix File**: Numbered reference documents in `principles/appendix/` (26-reference-examples.md, 27-glossary.md, 28-decision-log.md)
 
-## Success Criteria *(mandatory)*
+## Success Criteria _(mandatory)_
 
 ### Measurable Outcomes
 

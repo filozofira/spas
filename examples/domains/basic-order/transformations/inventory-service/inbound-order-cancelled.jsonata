@@ -1,6 +1,0 @@
-/* inbound-order-cancelled.jsonata */
-/* Transforms order-service.order-cancelled -> inventory-service.release-stock */
-{
-  "referenceId": referenceId,
-  "items": []
-}

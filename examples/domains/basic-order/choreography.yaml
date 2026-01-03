@@ -7,8 +7,8 @@ domain: basic-order
 # Named choreography flows
 # Use /spas.compose agent to generate flows based on service contracts
 flows:
-  order-inventory-fulfillment-flow:
-    description: "Order to inventory reservation and confirmation flow"
+  order-inventory-fulfillment:
+    description: "Coordinates order creation with inventory reservation and order confirmation"
     participants:
       - order-service
       - inventory-service
@@ -27,26 +27,12 @@ flows:
           - service: order-service
             command: confirm-order
             transform: transformations/order-service/inbound-stock-reserved.jsonata
-      - source: inventory-service
-        event: stock-depleted
-        topic: inventory-events
-        targets:
-          - service: order-service
-            command: cancel-order
-            transform: transformations/order-service/inbound-stock-depleted.jsonata
-      - source: order-service
-        event: order-cancelled
-        topic: order-events
-        targets:
-          - service: inventory-service
-            command: release-stock
-            transform: transformations/inventory-service/inbound-order-cancelled.jsonata
       - source: order-service
         event: order-confirmed
         topic: order-events
         targets: []
       - source: inventory-service
-        event: stock-released
+        event: inventory-item-added
         topic: inventory-events
         targets: []
 

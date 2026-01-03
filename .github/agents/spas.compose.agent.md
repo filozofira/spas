@@ -455,7 +455,10 @@ The following 5-phase workflow guides the process. Execute phases in order, crea
 1. **Read Service Contracts**
    - Read `spas.json` for all services in `./examples/domains/{DOMAIN}/services/`
    - Identify available events (published) and endpoints (subscribed)
-   - Note schemas for payloads and responses
+   - Read at least one schema file per service to understand concrete field structures:
+     - Event schemas: `services/<service>/schemas/events/<event-type>.schema.json`
+     - Endpoint schemas: `services/<service>/schemas/endpoints/<endpoint>.schema.json`
+   - Note field names, types, and `required` arrays from schemas
 
 2. **Identify Matches**
    - Match `published` events from source services to `subscribed` endpoints in target services
@@ -494,12 +497,19 @@ The following 5-phase workflow guides the process. Execute phases in order, crea
    - **Display Steps**: List all steps the choreography goes through to help the developer understand what is going to happen.
 
 2. **Visualize**
-   - Generate a Mermaid flowchart of the proposed choreography
+   - Generate Mermaid diagram(s) based on choreography complexity
    - **MUST insert/update the choreography diagram in the domain README.md file** (at top, after title)
    - **SEE "Documentation Rules" section for strict placement and formatting requirements.**
    - Wait for user confirmation before proceeding to Generate phase
 
-**Choreography Diagram Template:**
+**Diagram Style Selection (REQUIRED):**
+
+| Complexity | Criteria | Style |
+|------------|----------|-------|
+| **Simple** | ≤4 services, linear flow, no branching | Single flowchart |
+| **Complex** | >4 services, multiple paths, error handling | Separate diagram per scenario |
+
+**Simple Flow Template** (single diagram):
 ```mermaid
 flowchart LR
     Start([Start]) --> OS[order-service]
@@ -509,12 +519,39 @@ flowchart LR
     OS -->|order-confirmed| End([End])
 ```
 
+**Complex Flow Template** (multiple diagrams):
+```markdown
+## Happy Path: Successful Checkout
+
+` ` `mermaid
+flowchart LR
+    Start([Customer]) --> BS[basket-service]
+    BS -->|checkout-initiated| OS[order-service]
+    OS -->|order-created| IS[inventory-service]
+    IS -->|stock-reserved| OS
+    OS -->|order-confirmed| FS[fulfillment-service]
+    FS -->|shipment-created| End([Complete])
+` ` `
+
+## Error Path: Stock Depleted
+
+` ` `mermaid
+flowchart LR
+    Start([Customer]) --> BS[basket-service]
+    BS -->|checkout-initiated| OS[order-service]
+    OS -->|order-created| IS[inventory-service]
+    IS -->|stock-depleted| BS
+    BS --> End([Notify Customer])
+` ` `
+```
+
 **Diagram Requirements:**
-- **Start node**: MUST include `Start([Start])` node. Use stadium shape, connect to the first service receiving external trigger
-- **End node**: MUST include `End([End])` node. Use stadium shape, connect from all terminal events (no downstream targets)
+- **Start node**: MUST include `Start([Start])` or `Start([Actor])` node with stadium shape
+- **End node**: MUST include `End([End])` or `End([Outcome])` node with stadium shape
 - **Direction**: Use `flowchart LR` for horizontal left-to-right flow
 - **Edge labels**: All arrows between services MUST include event type label `-->|event-name|`
-- **No subgraph**: Do NOT wrap diagram in subgraph, keep flat structure for clarity
+- **No subgraph in simple**: Keep flat structure for simple flows
+- **Scenario headers**: For complex flows, add `## Scenario Name` heading before each diagram
 
 **Choreography Schema:**
 ```yaml
@@ -528,17 +565,32 @@ flows:
       - <publisher-service>
       - <subscriber-service>
     events:
+      # Event with downstream consumer
       - source: <publishing-service>
         event: <event-type>
         topic: <topic-name>
         targets:
           - service: <subscribing-service>
             transform: transformations/<service>/inbound-<event>.jsonata
+      # Terminal event - no consumers in this choreography
+      - source: <final-service>
+        event: <terminal-event>
+        topic: <topic-name>
+        targets: []  # Published for audit/logging/future extension
 ```
+
+3. **Identify Terminal Events (REQUIRED)**
+   - For each service, check `spas.json` for events it publishes
+   - If an event has NO subscribers in this choreography, it is a **terminal event**
+   - Terminal events MUST still be included in choreography.yaml with `targets: []`
+   - Common terminal events: `order-confirmed`, `payment-completed`, `shipment-delivered`
+   - Purpose: audit logging, future extensions, external integrations
+   - **Do NOT omit terminal events** - they complete the flow and enable observability
 
 **Requirements:**
 - `participants` must include at least 2 services
 - Transformation paths: `transformations/{service}/inbound-{event}.jsonata`
+- All published events must be listed (including terminal events with `targets: []`)
 
 **Exit Criteria:** User confirms design with "yes" or provides feedback
 
@@ -549,6 +601,7 @@ flows:
 >   • {N} flows defined
 >   • {N} services participating
 >   • {N} transformation files to create
+>   • {N} terminal events (no downstream consumers)
 >   • README.md updated with diagram
 >
 > Proceed to Phase 3 (Generate)? (yes/review/no)"
@@ -560,13 +613,57 @@ flows:
 **Entry Criteria:** User confirmed design, ready to create artifacts
 
 **Actions:**
-1. **Create Transformation Files**
+1. **Read Source and Target Schemas (REQUIRED)**
+   - For each event-to-endpoint mapping identified in Phase 2:
+     a. Read the **source event schema** from `services/<publisher>/schemas/events/<event-type>.schema.json`
+     b. Read the **target endpoint schema** from `services/<subscriber>/schemas/endpoints/<endpoint>.schema.json`
+   - Identify the concrete field names, types, and required fields from both schemas
+   - Document the field mapping before writing JSONata:
+     ```
+     Source (order-created)    →  Target (create-fulfillment-request)
+     ─────────────────────────────────────────────────────────────────
+     orderId                   →  orderId
+     items[].productId         →  lineItems[].sku
+     items[].quantity          →  lineItems[].qty
+     customerId                →  customerId (required)
+     ```
+   - If schemas are missing, report this explicitly and ask for guidance
+
+2. **Identify Derived Fields (REQUIRED)**
+   - After documenting field mappings, identify target fields with NO direct source:
+     - Fields requiring **conditional logic** (e.g., presence-based derivation)
+     - Fields requiring **enum mapping** (e.g., source value → target enum)
+     - Fields requiring **default values** (source optional, target required)
+   - Document derivation logic explicitly:
+     ```
+     Derived Fields:
+     ─────────────────────────────────────────────────────────────────
+     deliveryMethod  →  $exists(shippingAddress) ? "SHIPPING" : "PICKUP"
+     priority        →  orderType = "express" ? "HIGH" : "NORMAL"
+     ```
+   - If derivation logic is unclear, ASK the user before generating
+   
+   **Common Derivation Patterns:**
+   | Pattern | Example | JSONata |
+   |---------|---------|---------|
+   | Presence-based | If address exists → SHIPPING | `$exists(shippingAddress) ? "SHIPPING" : "PICKUP"` |
+   | Enum mapping | "express" → "HIGH" | `type = "express" ? "HIGH" : "NORMAL"` |
+   | Fallback default | Missing → default | `field ? field : "default"` |
+   | Nested presence | If nested.field exists | `$exists(parent.child) ? parent.child : null` |
+
+3. **Create Transformation Files**
    - Generate JSONata files at `./examples/domains/{DOMAIN}/transformations/<service>/*.jsonata`
+   - **Schema-Driven Mapping (REQUIRED)**:
+     - NEVER use identity transforms like `$.data` or `$` as placeholders
+     - Every field in the target schema MUST be explicitly mapped from the source schema
+     - If a source field name differs from target field name, create explicit mapping
+     - If a required target field has no source equivalent, flag as error and ask for guidance
+   - **Apply Derived Field Logic**: Use patterns from step 2 for fields without direct source
    - Follow CloudEvents type format (camelCase for data fields)
    - Use `$append([], array.{...})` pattern for array transformations
    - Add header comments documenting source -> target mapping
 
-2. **Update choreography.yaml**
+3. **Update choreography.yaml**
    - Add or modify flows as designed
    - Ensure all referenced transformation files are created
 
@@ -628,22 +725,21 @@ flows:
    - Verify all `flows.*.events[].targets[].service` match a participant
    - Check topic naming follows `{boundedContext}-events` pattern (lowercase-hyphenated)
 
-**Actions:**
-1. **Syntax Validation**
-   - Check choreography.yaml is valid YAML
-   - Check JSONata files have valid syntax
-   - Verify file paths match choreography.yaml references
-
-2. **Schema Validation**
-   - Verify referenced services exist in `services/` directory
-   - Check transformation input schemas match event publisher schemas
-   - Check transformation output schemas match event subscriber schemas
-
-3. **Consistency Checks**
-   - Verify all `flows.*.participants` services are in `services/`
-   - Verify all `flows.*.events[].source` match a participant
-   - Verify all `flows.*.events[].targets[].service` match a participant
-   - Check topic naming follows `{boundedContext}-events` pattern (lowercase-hyphenated)
+4. **Mandatory Field Mapping Validation (CRITICAL)**
+   - For each transformation file, load the **target endpoint's request schema**
+   - Read the `required` array from the target schema (lists all mandatory fields)
+   - Verify that **every field in the `required` array** is mapped in the JSONata transformation
+   - If a required field is missing from the transformation:
+     - Report the missing field name and which transformation file is incomplete
+     - Request correction before proceeding to Build phase
+   - **Example**:
+     ```
+     ❌ Validation Failed: transformations/fulfillment-service/inbound-order-created.jsonata
+        Missing required field: 'customerId' (required by target schema)
+        Target schema: schemas/endpoints/create-fulfillment-request.schema.json
+        
+     Please update the transformation to map the 'customerId' field from the source event.
+     ```
 
 **Validation Checklist (Phase 4):**
 - [ ] choreography.yaml is valid YAML syntax
@@ -654,6 +750,7 @@ flows:
 - [ ] Target services subscribe to the referenced events
 - [ ] Topic names follow naming convention
 - [ ] Field names in transformations match target schemas
+- [ ] **All required fields from target schemas are mapped in transformations**
 
 **Exit Criteria:** All validations pass, artifacts ready for deployment
 
@@ -714,6 +811,7 @@ Next steps:
 - `no` or `stop` - Halt workflow
 
 **Failure Handling**: If validation fails, return to appropriate phase (syntax errors → Generate, schema mismatches → Propose)
+- **Failure Handling**: If validation fails, return to appropriate phase (syntax errors → Generate, schema mismatches → Propose)
 
 ## Known Pitfalls
 
@@ -756,6 +854,7 @@ Next steps:
 | **Valid JSONata** | All .jsonata files must have valid syntax |
 | **Confirm before write** | ALWAYS wait for explicit confirmation |
 | **Kebab-case naming** | Topics and file names use lowercase-hyphenated format |
+| **Ignore infrastructure endpoints** | NEVER include `/_spas/*` endpoints (health probes, SDK internals) in choreography flows — these are infrastructure, not business capabilities |
 
 ## Error Handling
 

@@ -3,7 +3,7 @@ using ProductService.Models;
 using ProductService.Models.Events;
 using ProductService.Services;
 using ProductService.Validation;
-using Spas.Sdk.Events;
+using Spas.Sdk.Events.Publish;
 using Spas.Sdk.Metadata.Attributes;
 
 namespace ProductService.Controllers;
@@ -16,12 +16,12 @@ namespace ProductService.Controllers;
 public class ProductsController : ControllerBase
 {
     private readonly ProductCatalog _catalog;
-    private readonly IEventPublisher _eventPublisher;
+    private readonly EventPublisher _eventPublisher;
     private readonly ILogger<ProductsController> _logger;
 
     public ProductsController(
         ProductCatalog catalog, 
-        IEventPublisher eventPublisher,
+        EventPublisher eventPublisher,
         ILogger<ProductsController> logger)
     {
         _catalog = catalog;
@@ -119,7 +119,7 @@ public class ProductsController : ControllerBase
                 product.Description
             );
 
-            await _eventPublisher.PublishAsync(productAddedEvent);
+            await _eventPublisher.PublishAsync<ProductAdded>(payload: productAddedEvent);
         }
         catch (Exception ex)
         {
@@ -202,7 +202,7 @@ public class ProductsController : ControllerBase
                     updatedProduct.Price,
                     updatedProduct.Description
                 );
-                await _eventPublisher.PublishAsync(productUpdatedEvent);
+                await _eventPublisher.PublishAsync<ProductUpdated>(payload: productUpdatedEvent);
             }
             catch (Exception ex)
             {
@@ -241,7 +241,7 @@ public class ProductsController : ControllerBase
                 removedProduct.Description
             );
 
-            await _eventPublisher.PublishAsync(productRemovedEvent);
+            await _eventPublisher.PublishAsync<ProductRemoved>(payload: productRemovedEvent);
         }
         catch (Exception ex)
         {

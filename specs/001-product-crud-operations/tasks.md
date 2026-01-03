@@ -110,15 +110,15 @@ Project extends existing `examples/services/product-service/` structure
 
 **Purpose**: Improvements that affect multiple user stories and final deliverables
 
-- [ ] T031 [P] Update README.md with new endpoints, events, and usage examples in examples/services/product-service/README.md
-- [ ] T032 [P] Regenerate service metadata using spas-service metadata extract command
-- [ ] T033 [P] Verify W3C Trace Context propagation for all new operations
-- [ ] T034 [P] Test quickstart.md workflows (add, update, remove, verify events)
-- [ ] T035 Code review for validation consistency across all endpoints
-- [ ] T036 Verify error messages are clear and actionable for validation failures
-- [ ] T037 Test all acceptance scenarios from spec.md for each user story
-- [ ] T038 Verify event schemas match data-model.md specifications
-- [ ] T039 Test with sidecar to confirm CloudEvents format and routing
+- [X] T031 [P] Update README.md with new endpoints, events, and usage examples in examples/services/product-service/README.md
+- [X] T032 [P] Regenerate service metadata using spas-service metadata extract command
+- [X] T033 [P] Verify W3C Trace Context propagation for all new operations
+- [X] T034 [P] Test quickstart.md workflows (add, update, remove, verify events)
+- [X] T035 Code review for validation consistency across all endpoints
+- [X] T036 Verify error messages are clear and actionable for validation failures
+- [X] T037 Test all acceptance scenarios from spec.md for each user story
+- [X] T038 Verify event schemas match data-model.md specifications
+- [X] T039 Test with sidecar to confirm CloudEvents format and routing
 
 ---
 

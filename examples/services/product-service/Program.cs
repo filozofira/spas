@@ -1,6 +1,5 @@
 using Microsoft.AspNetCore.Builder;
 using ProductService.Services;
-using Spas.Sdk.Events.Extensions;
 using Spas.Sdk.Inbound.Extensions;
 using Spas.Sdk.Metadata.Extensions;
 using Spas.Sdk.Observability.Extensions;
@@ -12,7 +11,6 @@ builder.Services.AddSingleton<ProductCatalog>();
 builder.Services.AddSpasMetadata();
 builder.Services.AddSpasServices(builder.Configuration, "product-service");
 builder.Services.AddSpasHealthChecks();
-builder.Services.AddSpasEventPublisher(builder.Configuration);
 
 // Add Controllers support (all endpoints are now controller-based)
 builder.Services.AddControllers();

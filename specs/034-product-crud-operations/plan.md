@@ -1,7 +1,7 @@
 # Implementation Plan: Product CRUD Operations with Event Emission
 
-**Branch**: `001-product-crud-operations` | **Date**: 2026-01-03 | **Spec**: [spec.md](spec.md)
-**Input**: Feature specification from `/specs/001-product-crud-operations/spec.md`
+**Branch**: `034-product-crud-operations` | **Date**: 2026-01-03 | **Spec**: [spec.md](spec.md)
+**Input**: Feature specification from `/specs/034-product-crud-operations/spec.md`
 
 **Note**: This template is filled in by the `/speckit.plan` command. See `.specify/templates/commands/plan.md` for the execution workflow.
 
@@ -66,7 +66,7 @@ All operations emit events through the SPAS sidecar on a best-effort basis. The 
 ### Documentation (this feature)
 
 ```text
-specs/001-product-crud-operations/
+specs/033-product-crud-operations/
 ├── spec.md              # Feature specification (completed)
 ├── plan.md              # This file (/speckit.plan command output)
 ├── research.md          # Phase 0 output - SPAS SDK patterns, event design
@@ -250,7 +250,7 @@ The implementation will:
 
 ### Branch & Paths
 
-- **Branch**: `001-product-crud-operations`
-- **Plan**: `specs/001-product-crud-operations/plan.md`
+- **Branch**: `033-product-crud-operations`
+- **Plan**: `specs/033-product-crud-operations/plan.md`
 - **Source**: `examples/services/product-service/`
 - **Tests**: `tests/ProductService.Tests/` (to be created)

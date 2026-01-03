@@ -1,6 +1,6 @@
 # Tasks: Product CRUD Operations with Event Emission
 
-**Input**: Design documents from `/specs/001-product-crud-operations/`
+**Input**: Design documents from `/specs/033-product-crud-operations/`
 **Prerequisites**: plan.md (required), spec.md (required for user stories), research.md, data-model.md, contracts/
 
 **Tests**: Tests are OPTIONAL - not explicitly requested in specification, focusing on demonstrating implementation patterns
@@ -23,9 +23,9 @@ Project extends existing `examples/services/product-service/` structure
 
 **Purpose**: Prepare infrastructure for CRUD operations and event emission
 
-- [X] T001 Create Models/Events directory in examples/services/product-service/Models/
-- [X] T002 [P] Create Validation directory in examples/services/product-service/Validation/
-- [X] T003 [P] Verify SPAS SDK dependencies are available in ProductService.csproj (Events, Metadata already referenced)
+- [x] T001 Create Models/Events directory in examples/services/product-service/Models/
+- [x] T002 [P] Create Validation directory in examples/services/product-service/Validation/
+- [x] T003 [P] Verify SPAS SDK dependencies are available in ProductService.csproj (Events, Metadata already referenced)
 
 ---
 
@@ -35,10 +35,10 @@ Project extends existing `examples/services/product-service/` structure
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [X] T004 Register EventPublisher with DI container in examples/services/product-service/Program.cs
-- [X] T005 [P] Create ProductValidator class with validation methods in examples/services/product-service/Validation/ProductValidator.cs
-- [X] T006 [P] Create AddProductRequest DTO with validation attributes in examples/services/product-service/Models/AddProductRequest.cs
-- [X] T007 [P] Create UpdateProductRequest DTO with optional fields in examples/services/product-service/Models/UpdateProductRequest.cs
+- [x] T004 Register EventPublisher with DI container in examples/services/product-service/Program.cs
+- [x] T005 [P] Create ProductValidator class with validation methods in examples/services/product-service/Validation/ProductValidator.cs
+- [x] T006 [P] Create AddProductRequest DTO with validation attributes in examples/services/product-service/Models/AddProductRequest.cs
+- [x] T007 [P] Create UpdateProductRequest DTO with optional fields in examples/services/product-service/Models/UpdateProductRequest.cs
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -52,13 +52,13 @@ Project extends existing `examples/services/product-service/` structure
 
 ### Implementation for User Story 1
 
-- [X] T008 [P] [US1] Create ProductAdded event model with [SpasEvent] attribute in examples/services/product-service/Models/Events/ProductAdded.cs
-- [X] T009 [US1] Extend ProductCatalog service with Add() method using TryAdd for uniqueness check in examples/services/product-service/Services/ProductCatalog.cs
-- [X] T010 [US1] Implement POST /products endpoint with [SpasCommand] attribute in examples/services/product-service/Controllers/ProductsController.cs
-- [X] T011 [US1] Add validation logic for ProductId format, field lengths, and price in POST endpoint
-- [X] T012 [US1] Emit ProductAdded event via EventPublisher after successful add operation
-- [X] T013 [US1] Add conflict handling (409) for duplicate product IDs
-- [X] T014 [US1] Add error logging for event emission failures (best-effort pattern)
+- [x] T008 [P] [US1] Create ProductAdded event model with [SpasEvent] attribute in examples/services/product-service/Models/Events/ProductAdded.cs
+- [x] T009 [US1] Extend ProductCatalog service with Add() method using TryAdd for uniqueness check in examples/services/product-service/Services/ProductCatalog.cs
+- [x] T010 [US1] Implement POST /products endpoint with [SpasCommand] attribute in examples/services/product-service/Controllers/ProductsController.cs
+- [x] T011 [US1] Add validation logic for ProductId format, field lengths, and price in POST endpoint
+- [x] T012 [US1] Emit ProductAdded event via EventPublisher after successful add operation
+- [x] T013 [US1] Add conflict handling (409) for duplicate product IDs
+- [x] T014 [US1] Add error logging for event emission failures (best-effort pattern)
 
 **Checkpoint**: At this point, User Story 1 should be fully functional - products can be added with validation and events
 
@@ -72,15 +72,15 @@ Project extends existing `examples/services/product-service/` structure
 
 ### Implementation for User Story 2
 
-- [X] T015 [P] [US2] Create ProductUpdated event model with Changes property containing old/new values in examples/services/product-service/Models/Events/ProductUpdated.cs
-- [X] T016 [US2] Create ProductChange model for tracking field changes with OldValue and NewValue properties in examples/services/product-service/Models/Events/ProductUpdated.cs
-- [X] T017 [US2] Extend ProductCatalog service with Update() method supporting partial updates in examples/services/product-service/Services/ProductCatalog.cs
-- [X] T018 [US2] Implement change tracking logic to detect which fields changed in ProductCatalog.Update()
-- [X] T019 [US2] Implement PATCH /products/{id} endpoint with [SpasCommand] attribute in examples/services/product-service/Controllers/ProductsController.cs
-- [X] T020 [US2] Add validation for partial update request (at least one field, valid values)
-- [X] T021 [US2] Emit ProductUpdated event with change details via EventPublisher after successful update
-- [X] T022 [US2] Add 404 handling for non-existent products
-- [X] T023 [US2] Add error logging for event emission failures (best-effort pattern)
+- [x] T015 [P] [US2] Create ProductUpdated event model with Changes property containing old/new values in examples/services/product-service/Models/Events/ProductUpdated.cs
+- [x] T016 [US2] Create ProductChange model for tracking field changes with OldValue and NewValue properties in examples/services/product-service/Models/Events/ProductUpdated.cs
+- [x] T017 [US2] Extend ProductCatalog service with Update() method supporting partial updates in examples/services/product-service/Services/ProductCatalog.cs
+- [x] T018 [US2] Implement change tracking logic to detect which fields changed in ProductCatalog.Update()
+- [x] T019 [US2] Implement PATCH /products/{id} endpoint with [SpasCommand] attribute in examples/services/product-service/Controllers/ProductsController.cs
+- [x] T020 [US2] Add validation for partial update request (at least one field, valid values)
+- [x] T021 [US2] Emit ProductUpdated event with change details via EventPublisher after successful update
+- [x] T022 [US2] Add 404 handling for non-existent products
+- [x] T023 [US2] Add error logging for event emission failures (best-effort pattern)
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work - products can be added and updated independently
 
@@ -94,13 +94,13 @@ Project extends existing `examples/services/product-service/` structure
 
 ### Implementation for User Story 3
 
-- [X] T024 [P] [US3] Create ProductRemoved event model with full product details in examples/services/product-service/Models/Events/ProductRemoved.cs
-- [X] T025 [US3] Extend ProductCatalog service with Remove() method using TryRemove in examples/services/product-service/Services/ProductCatalog.cs
-- [X] T026 [US3] Implement DELETE /products/{id} endpoint with [SpasCommand] attribute in examples/services/product-service/Controllers/ProductsController.cs
-- [X] T027 [US3] Emit ProductRemoved event with removed product details via EventPublisher after successful removal
-- [X] T028 [US3] Add 404 handling for non-existent products
-- [X] T029 [US3] Verify removed products don't appear in GET /products and GET /products/{id}
-- [X] T030 [US3] Add error logging for event emission failures (best-effort pattern)
+- [x] T024 [P] [US3] Create ProductRemoved event model with full product details in examples/services/product-service/Models/Events/ProductRemoved.cs
+- [x] T025 [US3] Extend ProductCatalog service with Remove() method using TryRemove in examples/services/product-service/Services/ProductCatalog.cs
+- [x] T026 [US3] Implement DELETE /products/{id} endpoint with [SpasCommand] attribute in examples/services/product-service/Controllers/ProductsController.cs
+- [x] T027 [US3] Emit ProductRemoved event with removed product details via EventPublisher after successful removal
+- [x] T028 [US3] Add 404 handling for non-existent products
+- [x] T029 [US3] Verify removed products don't appear in GET /products and GET /products/{id}
+- [x] T030 [US3] Add error logging for event emission failures (best-effort pattern)
 
 **Checkpoint**: All three user stories should now be independently functional - complete CRUD with events
 
@@ -110,15 +110,15 @@ Project extends existing `examples/services/product-service/` structure
 
 **Purpose**: Improvements that affect multiple user stories and final deliverables
 
-- [X] T031 [P] Update README.md with new endpoints, events, and usage examples in examples/services/product-service/README.md
-- [X] T032 [P] Regenerate service metadata using spas-service metadata extract command
-- [X] T033 [P] Verify W3C Trace Context propagation for all new operations
-- [X] T034 [P] Test quickstart.md workflows (add, update, remove, verify events)
-- [X] T035 Code review for validation consistency across all endpoints
-- [X] T036 Verify error messages are clear and actionable for validation failures
-- [X] T037 Test all acceptance scenarios from spec.md for each user story
-- [X] T038 Verify event schemas match data-model.md specifications
-- [X] T039 Test with sidecar to confirm CloudEvents format and routing
+- [x] T031 [P] Update README.md with new endpoints, events, and usage examples in examples/services/product-service/README.md
+- [x] T032 [P] Regenerate service metadata using spas-service metadata extract command
+- [x] T033 [P] Verify W3C Trace Context propagation for all new operations
+- [x] T034 [P] Test quickstart.md workflows (add, update, remove, verify events)
+- [x] T035 Code review for validation consistency across all endpoints
+- [x] T036 Verify error messages are clear and actionable for validation failures
+- [x] T037 Test all acceptance scenarios from spec.md for each user story
+- [x] T038 Verify event schemas match data-model.md specifications
+- [x] T039 Test with sidecar to confirm CloudEvents format and routing
 
 ---
 
@@ -144,16 +144,19 @@ Project extends existing `examples/services/product-service/` structure
 ### Within Each User Story
 
 **User Story 1 (Add Product)**:
+
 1. ProductAdded event model (T008) - first
 2. ProductCatalog.Add() method (T009) - depends on T008
 3. POST endpoint (T010-T014) - depends on T008, T009
 
 **User Story 2 (Update Product)**:
+
 1. ProductUpdated event model with change tracking (T015-T016) - first (can parallel)
 2. ProductCatalog.Update() with change tracking (T017-T018) - depends on T015-T016
 3. PATCH endpoint (T019-T023) - depends on T017-T018
 
 **User Story 3 (Remove Product)**:
+
 1. ProductRemoved event model (T024) - first
 2. ProductCatalog.Remove() (T025) - depends on T024
 3. DELETE endpoint (T026-T030) - depends on T024-T025
@@ -161,19 +164,23 @@ Project extends existing `examples/services/product-service/` structure
 ### Parallel Opportunities
 
 **Phase 1 - Setup**:
+
 - T001, T002, T003 can all run in parallel (different directories)
 
 **Phase 2 - Foundational**:
+
 - T005 (validator), T006 (AddProductRequest), T007 (UpdateProductRequest) can run in parallel
 - T004 (DI registration) should be done after T005-T007
 
 **Phase 3-5 - User Stories**:
+
 - Once Phase 2 completes, ALL THREE user stories can be implemented in parallel by different developers
 - Within US1: T008 can start immediately, then T009-T014
 - Within US2: T015-T016 can start immediately in parallel, then T017-T018, then T019-T023
 - Within US3: T024 can start immediately, then T025, then T026-T030
 
 **Phase 6 - Polish**:
+
 - T031 (README), T032 (metadata), T033 (tracing), T034 (quickstart) can all run in parallel
 - T035-T039 are review/validation tasks that should be sequential
 
@@ -209,6 +216,7 @@ All three can merge independently as each operates on different methods/endpoint
 ### MVP First (Minimum Viable Product)
 
 **Recommended**: Implement User Story 1 (P1) first for quickest value delivery:
+
 - Phase 1: Setup (T001-T003)
 - Phase 2: Foundational (T004-T007)
 - Phase 3: User Story 1 only (T008-T014)
@@ -219,6 +227,7 @@ This delivers the most critical functionality: ability to add products with vali
 ### Incremental Delivery
 
 After MVP, add stories in priority order:
+
 1. **Iteration 1**: US1 (P1) - Add products
 2. **Iteration 2**: US1 + US2 (P1-P2) - Add and update products
 3. **Iteration 3**: US1 + US2 + US3 (P1-P3) - Full CRUD
@@ -228,6 +237,7 @@ Each iteration delivers independently valuable functionality.
 ### Full Parallel (if team size allows)
 
 With 3+ developers:
+
 - Complete Phases 1-2 together
 - Split into 3 parallel tracks for US1, US2, US3
 - Merge all user stories
@@ -275,6 +285,7 @@ After implementation, verify:
 ### Parallel Task Count
 
 Tasks that can run in parallel (marked with [P]): 11 tasks
+
 - Phase 1: 2 parallel tasks (T002, T003)
 - Phase 2: 3 parallel tasks (T005, T006, T007)
 - Phase 3: 1 parallel task (T008)
@@ -285,11 +296,13 @@ Tasks that can run in parallel (marked with [P]): 11 tasks
 ### Suggested MVP Scope
 
 **Minimum for demonstration**: Phases 1-3 + minimal Phase 6 (Setup + Foundational + User Story 1 + README/metadata)
+
 - 18 tasks total
 - Delivers: Add products with full validation and event emission
 - Time estimate: 1-2 days for experienced developer
 
 **Recommended for complete example**: All phases
+
 - 39 tasks total
 - Delivers: Full CRUD operations with events
 - Time estimate: 3-5 days for experienced developer

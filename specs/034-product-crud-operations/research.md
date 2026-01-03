@@ -1,6 +1,6 @@
 # Research: Product CRUD Operations with Event Emission
 
-**Feature**: 001-product-crud-operations  
+**Feature**: 033-product-crud-operations  
 **Date**: 2026-01-03  
 **Purpose**: Document technology decisions and patterns for implementing CRUD operations with event emission
 

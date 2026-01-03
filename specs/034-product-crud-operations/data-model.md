@@ -1,6 +1,6 @@
 # Data Model: Product CRUD Operations
 
-**Feature**: 001-product-crud-operations  
+**Feature**: 033-product-crud-operations  
 **Date**: 2026-01-03  
 **Purpose**: Define entities, events, and data structures for product CRUD operations
 

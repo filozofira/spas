@@ -1,6 +1,6 @@
 # Quickstart: Product CRUD Operations
 
-**Feature**: 001-product-crud-operations  
+**Feature**: 033-product-crud-operations  
 **Date**: 2026-01-03  
 **Purpose**: Quick reference guide for using the extended product-service with CRUD operations
 

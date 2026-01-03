@@ -1165,7 +1165,7 @@ How would you like to proceed?
 ❌ Build Error (Java/Maven)
 
 The Maven build failed. Common causes:
-1. Missing Java 17+ installation
+1. Missing Java 21+ installation
 2. Invalid pom.xml configuration
 3. Compilation errors in generated code
 

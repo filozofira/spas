@@ -137,6 +137,7 @@ public class OrdersController : ControllerBase
         var eventPayload = new
         {
             orderId = request.OrderId,
+            customerId = order.CustomerId,
             status = "confirmed",
             reservedItems = request.ReservedItems,
             referenceId = order.ReferenceId,
@@ -212,6 +213,7 @@ public class OrdersController : ControllerBase
         var eventPayload = new
         {
             orderId = id,
+            customerId = order.CustomerId,
             status = "cancelled",
             reason = request.Reason,
             cancelledAt = DateTime.UtcNow

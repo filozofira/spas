@@ -41,7 +41,7 @@ SPAS is organized into independent components, each with its own contribution gu
 ### SDKs
 
 - [.NET SDK](./components/sdk/dotnet/CONTRIBUTING.md) — .NET 10.0, C#
-- [Java SDK](./components/sdk/java/CONTRIBUTING.md) — Java 17+, Maven
+- [Java SDK](./components/sdk/java/CONTRIBUTING.md) — Java 21+, Maven
 
 ### CLI Tools
 

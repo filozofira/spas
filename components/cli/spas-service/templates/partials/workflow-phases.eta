@@ -88,7 +88,7 @@ Proceed to Phase 2 (Project Structure)? (yes/no)
        <version>1.0.0-SNAPSHOT</version>
        
        <properties>
-           <!-- Use your installed JDK version (17 minimum, 21+ recommended) -->
+           <!-- Use your installed JDK version (21+ required) -->
            <java.version>21</java.version>
            <spas-sdk.version>1.0.0-SNAPSHOT</spas-sdk.version>
        </properties>
@@ -149,7 +149,7 @@ Proceed to Phase 2 (Project Structure)? (yes/no)
        </build>
    </project>
    ```
-3. Create `application.yaml` with service configuration
+3. Create `application.yaml` with sidecar configuration (service identity comes from @SpasService annotation)
 
 **For .NET (STACK:dotnet)**:
 1. Create .NET project structure:
@@ -611,7 +611,7 @@ Proceed to Phase 8 (Runtime)? (yes/no)
 1. Create `Dockerfile`:
    ```dockerfile
    # Java
-   FROM eclipse-temurin:17-jre-alpine
+   FROM eclipse-temurin:21-jre-alpine
    WORKDIR /app
    COPY target/*.jar app.jar
    EXPOSE 8080

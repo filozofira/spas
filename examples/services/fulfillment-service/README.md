@@ -41,7 +41,7 @@ A new trace is initiated for each status update.
 
 ### Prerequisites
 
-- Java 17+
+- Java 21+
 - Maven 3.8+
 - Docker (for containerized deployment)
 

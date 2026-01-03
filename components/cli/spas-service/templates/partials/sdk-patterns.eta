@@ -73,7 +73,7 @@ Use the patterns matching the STACK token (java or dotnet).
     <packaging>jar</packaging>
     
     <properties>
-        <!-- Use your installed JDK version (17 minimum, 21+ recommended) -->
+        <!-- Use your installed JDK version (21+ required) -->
         <java.version>21</java.version>
         <spas-sdk.version>1.0.0-SNAPSHOT</spas-sdk.version>
     </properties>
@@ -480,11 +480,12 @@ spring:
   application:
     name: {name}
 
+# Service identity is defined in code via @SpasService annotation
+# DO NOT configure spas.service.id here - it will be ignored
+
 spas:
-  service:
-    id: {name}
   sidecar:
-    url: ${SPAS_SIDECAR_URL:http://localhost:3001}
+    url: ${SIDECAR_URL:http://localhost:7000}
 
 management:
   endpoints:

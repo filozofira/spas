@@ -117,8 +117,8 @@ describe("generateAgentFile", () => {
       const content = generateAgentFile("./examples/ecommerce");
       expect(content).toContain("Process Initiation (REQUIRED)");
       expect(content).toContain("display the \"Process Overview\"");
-      expect(content).toContain("1. **Analyze**");
-      expect(content).toContain("5. **Build**");
+      expect(content).toContain("1. **Phase 1: Analyze**");
+      expect(content).toContain("5. **Phase 5: Build**");
     });
 
     it("should contain 5 explicit phases", () => {
@@ -205,21 +205,24 @@ describe("generateAgentFile", () => {
       const content = generateAgentFile("./examples/ecommerce");
 
       // FR-010: Confirmation prompt
-      expect(content).toContain("Do you want me to proceed with generating the choreographies?");
+      expect(content).toContain("Phase 2 (Propose) complete. Progress: [2/5 phases]");
+      expect(content).toContain("Proceed to Phase 3 (Generate)?");
       expect(content).toContain("**Confirmation Gate:**");
-      expect(content).toContain("(yes/no/feedback)");
+      expect(content).toContain("(yes/review/no)");
     });
 
     it("should display completion status in confirmation gates for Phase 3 and 4", () => {
       const content = generateAgentFile("./examples/ecommerce");
 
       // Phase 3 status
-      expect(content).toContain("Phase 3 Complete:");
-      expect(content).toContain("Generated {N} transformation files");
+      expect(content).toContain("Phase 3 (Generate) complete. Progress: [3/5 phases]");
+      expect(content).toContain("Generated:");
+      expect(content).toContain("{N} transformation files");
       expect(content).toContain("Updated choreography.yaml");
 
       // Phase 4 status
-      expect(content).toContain("Phase 4 Complete:");
+      expect(content).toContain("Phase 4 (Validate) complete. Progress: [4/5 phases]");
+      expect(content).toContain("Validation Results:");
       expect(content).toContain("Syntax validation: PASS");
       expect(content).toContain("Schema validation: PASS");
       expect(content).toContain("Consistency checks: PASS");

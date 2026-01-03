@@ -1,5 +1,5 @@
 # Build stage - includes SDK build
-FROM maven:3.9-eclipse-temurin-17-alpine AS build
+FROM maven:3.9-eclipse-temurin-21-alpine AS build
 
 # First, build the SPAS SDK
 WORKDIR /sdk
@@ -28,7 +28,7 @@ COPY examples/services/fulfillment-service/src src
 RUN mvn clean package -DskipTests -B
 
 # Runtime stage
-FROM eclipse-temurin:17-jre-alpine
+FROM eclipse-temurin:21-jre-alpine
 WORKDIR /app
 
 # Create non-root user for security

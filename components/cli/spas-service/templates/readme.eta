@@ -11,7 +11,7 @@ This workspace was initialized with `spas-service init` to create a language-agn
 
 ### Prerequisites
 
-- Depending on chosen framework: **Java** (JDK 17+ with Maven) or **.NET** (.NET 10.0 SDK)
+- Depending on chosen framework: **Java** (JDK 21+ with Maven) or **.NET** (.NET 10.0 SDK)
 - Docker (for containerization)
 - AI agent (GitHub Copilot, Claude, or compatible)
 

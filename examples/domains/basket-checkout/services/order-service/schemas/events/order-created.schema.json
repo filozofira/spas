@@ -26,7 +26,14 @@
       "format": "date-time"
     },
     "shippingAddress": {
-      "$ref": "#/definitions/Address"
+      "oneOf": [
+        {
+          "type": "null"
+        },
+        {
+          "$ref": "#/definitions/Address"
+        }
+      ]
     },
     "referenceId": {
       "type": [
@@ -51,7 +58,12 @@
           "type": "number",
           "format": "decimal"
         }
-      }
+      },
+      "required": [
+        "productId",
+        "quantity",
+        "price"
+      ]
     },
     "Address": {
       "type": "object",
@@ -72,7 +84,21 @@
         "country": {
           "type": "string"
         }
-      }
+      },
+      "required": [
+        "street",
+        "city",
+        "state",
+        "postalCode",
+        "country"
+      ]
     }
-  }
+  },
+  "required": [
+    "orderId",
+    "customerId",
+    "items",
+    "total",
+    "createdAt"
+  ]
 }

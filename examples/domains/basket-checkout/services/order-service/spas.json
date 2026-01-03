@@ -146,7 +146,7 @@
     ]
   },
   "license": "MIT",
-  "publishedAt": "2026-01-01T21:38:33.046Z",
+  "publishedAt": "2026-01-03T23:21:42.912Z",
   "runtime": {
     "digest": "sha256:TODO_UPDATE_AFTER_BUILD",
     "repository": "spas-examples/order-service",

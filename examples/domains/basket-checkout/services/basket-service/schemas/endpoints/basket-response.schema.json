@@ -2,8 +2,58 @@
   "$schema": "http://json-schema.org/draft-07/schema#",
   "type": "object",
   "properties": {
+    "basketId": {
+      "type": "string"
+    },
+    "createdAt": {
+      "type": "string",
+      "format": "date-time"
+    },
     "customerId": {
       "type": "string"
+    },
+    "items": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "available": {
+            "type": "boolean"
+          },
+          "productId": {
+            "type": "string"
+          },
+          "quantity": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "available",
+          "productId",
+          "quantity"
+        ]
+      }
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "OPEN",
+        "CHECKOUT",
+        "ORDERED",
+        "ABANDONED"
+      ]
+    },
+    "updatedAt": {
+      "type": "string",
+      "format": "date-time"
     }
-  }
+  },
+  "required": [
+    "basketId",
+    "createdAt",
+    "customerId",
+    "items",
+    "status",
+    "updatedAt"
+  ]
 }

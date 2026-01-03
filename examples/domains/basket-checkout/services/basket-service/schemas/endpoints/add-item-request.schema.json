@@ -8,5 +8,9 @@
     "quantity": {
       "type": "integer"
     }
-  }
+  },
+  "required": [
+    "productId",
+    "quantity"
+  ]
 }

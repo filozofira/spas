@@ -1,5 +1,7 @@
 /* inbound-order-created.jsonata */
-/* Transforms order-created (order-service) -> reserve-stock (inventory-service) */
+/* Transforms order-created (order-service) → reserve-stock (inventory-service) */
+/* Source: schemas/events/order-created.schema.json */
+/* Target: schemas/endpoints/reserve-stock.schema.json */
 {
   "referenceId": orderId,
   "items": $append([], items.{

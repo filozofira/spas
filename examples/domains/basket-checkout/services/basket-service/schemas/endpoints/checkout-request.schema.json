@@ -20,7 +20,17 @@
         "street": {
           "type": "string"
         }
-      }
+      },
+      "required": [
+        "city",
+        "country",
+        "postalCode",
+        "state",
+        "street"
+      ]
     }
-  }
+  },
+  "required": [
+    "shippingAddress"
+  ]
 }

@@ -1,9 +1,11 @@
 {
   "inbound": [
     {
-      "kind": "command",
-      "command": "initiate-checkout",
-      "invokeEndpoint": "/api/baskets/{id}/checkout"
+      "kind": "event",
+      "topic": "inventory-events",
+      "invokeEndpoint": "/api/baskets/mark-unavailable",
+      "eventType": "com.inventory-service.stock-depleted",
+      "transform": "transformations/inbound-stock-depleted.jsonata"
     },
     {
       "kind": "event",
@@ -11,13 +13,6 @@
       "invokeEndpoint": "/api/baskets/clear",
       "eventType": "com.order-service.order-confirmed",
       "transform": "transformations/inbound-order-confirmed.jsonata"
-    },
-    {
-      "kind": "event",
-      "topic": "inventory-events",
-      "invokeEndpoint": "/api/baskets/mark-unavailable",
-      "eventType": "com.inventory-service.stock-depleted",
-      "transform": "transformations/inbound-stock-depleted.jsonata"
     }
   ],
   "outbound": [

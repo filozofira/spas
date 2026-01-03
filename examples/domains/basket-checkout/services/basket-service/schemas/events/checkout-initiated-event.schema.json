@@ -23,7 +23,11 @@
           "quantity": {
             "type": "integer"
           }
-        }
+        },
+        "required": [
+          "productId",
+          "quantity"
+        ]
       }
     },
     "shippingAddress": {
@@ -44,7 +48,21 @@
         "street": {
           "type": "string"
         }
-      }
+      },
+      "required": [
+        "city",
+        "country",
+        "postalCode",
+        "state",
+        "street"
+      ]
     }
-  }
+  },
+  "required": [
+    "basketId",
+    "checkoutAt",
+    "customerId",
+    "items",
+    "shippingAddress"
+  ]
 }

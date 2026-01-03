@@ -18,5 +18,12 @@
       "type": "string",
       "format": "date-time"
     }
-  }
+  },
+  "required": [
+    "availableQuantity",
+    "orderId",
+    "productId",
+    "requestedQuantity",
+    "timestamp"
+  ]
 }

@@ -5,20 +5,17 @@ version: "1.0"
 domain: basket-checkout
 
 # Named choreography flows
-# Use /spas.compose agent to generate flows based on service contracts
 flows:
   basket-checkout-flow:
-    description: "End-to-end checkout flow from basket to fulfillment"
+    description: "End-to-end basket checkout orchestration with inventory reservation, fulfillment, and basket lifecycle management"
     participants:
       - basket-service
       - order-service
       - inventory-service
       - fulfillment-service
-    commands:
-      - service: basket-service
-        command: initiate-checkout
-        endpoint: /api/baskets/{id}/checkout
+    
     events:
+      # 1. Checkout initiation → Order creation
       - source: basket-service
         event: checkout-initiated
         topic: shopping-events
@@ -26,6 +23,8 @@ flows:
           - service: order-service
             command: create-order
             transform: transformations/order-service/inbound-checkout-initiated.jsonata
+      
+      # 2. Order created → Stock reservation
       - source: order-service
         event: order-created
         topic: order-events
@@ -33,6 +32,8 @@ flows:
           - service: inventory-service
             command: reserve-stock
             transform: transformations/inventory-service/inbound-order-created.jsonata
+      
+      # 3. Stock reserved → Order confirmation
       - source: inventory-service
         event: stock-reserved
         topic: inventory-events
@@ -40,6 +41,17 @@ flows:
           - service: order-service
             command: confirm-order
             transform: transformations/order-service/inbound-stock-reserved.jsonata
+      
+      # 4. Stock depleted → Basket notification (error path)
+      - source: inventory-service
+        event: stock-depleted
+        topic: inventory-events
+        targets:
+          - service: basket-service
+            command: mark-product-unavailable
+            transform: transformations/basket-service/inbound-stock-depleted.jsonata
+      
+      # 5. Order confirmed → Basket clearing + Shipment creation
       - source: order-service
         event: order-confirmed
         topic: order-events
@@ -50,6 +62,8 @@ flows:
           - service: fulfillment-service
             command: create-shipment
             transform: transformations/fulfillment-service/inbound-order-confirmed.jsonata
+      
+      # 6. Shipment created → Order update
       - source: fulfillment-service
         event: shipment-created
         topic: fulfillment-events
@@ -57,6 +71,8 @@ flows:
           - service: order-service
             command: update-shipment-status
             transform: transformations/order-service/inbound-shipment-created.jsonata
+      
+      # 7. Shipment status changed → Order update
       - source: fulfillment-service
         event: shipment-status-changed
         topic: fulfillment-events
@@ -64,34 +80,35 @@ flows:
           - service: order-service
             command: update-shipment-status
             transform: transformations/order-service/inbound-shipment-status-changed.jsonata
-      - source: order-service
-        event: order-cancelled
-        topic: order-events
-        targets:
-          - service: inventory-service
-            command: release-stock
-            transform: transformations/inventory-service/inbound-order-cancelled.jsonata
-      - source: inventory-service
-        event: stock-depleted
-        topic: inventory-events
-        targets:
-          - service: basket-service
-            command: mark-product-unavailable
-            transform: transformations/basket-service/inbound-stock-depleted.jsonata
+      
+      # Terminal events (no consumers in this choreography)
       - source: basket-service
         event: basket-created
         topic: shopping-events
         targets: []
+      
       - source: basket-service
         event: item-added
         topic: shopping-events
         targets: []
+      
       - source: basket-service
         event: item-removed
         topic: shopping-events
         targets: []
+      
+      - source: order-service
+        event: order-cancelled
+        topic: order-events
+        targets: []
+      
       - source: inventory-service
         event: stock-released
+        topic: inventory-events
+        targets: []
+      
+      - source: inventory-service
+        event: inventory-item-added
         topic: inventory-events
         targets: []
 

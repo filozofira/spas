@@ -1,8 +1,8 @@
 # SPAS Agent Instructions (GitHub Copilot)
 
-**Last Updated**: 2026-01-02  
-**Current Branch**: `029-schema-nullable-validation`  
-**Current Feature**: Feature 029 Complete - Schema Nullable Handling & Transformation Validation
+**Last Updated**: 2026-01-03  
+**Current Branch**: `031-java-21-upgrade`  
+**Current Feature**: Feature 031 Complete - Java 21 Upgrade
 
 ---
 
@@ -11,7 +11,7 @@
 **What is SPAS?**  
 Service Pattern Architecture System - A framework for building event-driven microservices with standardized metadata, sidecar-based event publishing, and composition tooling.
 
-**Recent Completion**: Feature 029 - Schema Nullable Handling ✅ COMPLETE (2026-01-02)
+**Recent Completion**: Feature 031 - Java 21 Upgrade ✅ COMPLETE (2026-01-03)
 
 **Critical Testing Pattern**:
 - ⚠️ Agent builds code (`dotnet build`, `npm run build`)
@@ -200,6 +200,12 @@ spas-compose init          # Initialize domain workspace
 spas-compose generate      # Generate docker-compose from metadata
 ```
 
+**Workflow**: 5-phase composition workflow with mandatory progress tracking:
+- Phase 1: Analyze → Phase 2: Propose (with diagram) → Phase 3: Generate → Phase 4: Validate → Phase 5: Build
+- Progress indicators: [X/5 phases] at each confirmation gate
+- Feedback options: yes/review/no at each phase
+- See: `.github/agents/spas.compose.agent.md` for full workflow details
+
 ---
 
 ## 🔧 Component: Repository Service
@@ -340,9 +346,9 @@ cd examples/services
 
 ### Understand Current Feature
 
-1. Read `specs/029-schema-nullable-validation/spec.md`
-2. Read `specs/029-schema-nullable-validation/plan.md`
-3. Read `specs/029-schema-nullable-validation/COMPLETION.md`
+1. Read `specs/031-java-21-upgrade/spec.md`
+2. Read `specs/031-java-21-upgrade/plan.md`
+3. Read `specs/031-java-21-upgrade/COMPLETION.md`
 4. Review SDK CONVENTIONS: `components/sdk/CONVENTIONS.md`
 
 ### Build & Validate
@@ -382,8 +388,8 @@ npm install && npm run build
 - **Constitution**: `.specify/memory/constitution.md` (v1.0.5)
 - **Architecture**: `principles/02-architecture-overview.md`
 - **SDK Principles**: `principles/component/12-sdk.md`
-- **Current Feature**: `specs/026-dotnet-controller-support/`
-- **All Specs**: `specs/` (001 through 026)
+- **Current Feature**: `specs/031-java-21-upgrade/`
+- **All Specs**: `specs/` (001 through 031)
 - **Decisions**: `principles/appendix/28-decision-log.md`
 
 ---
@@ -411,10 +417,25 @@ npm install && npm run build
 
 ## 📝 Completion Reports
 
-When completing or updating features, update `specs/<feature>/COMPLETION.md`:
+When completing or updating features, create/update `specs/<feature>/COMPLETION.md` with:
 
-- **Post-Implementation Bug Fixes**: Symptom → root cause → fix → files
-- **Future Enhancements**: Non-critical improvements
-- See `specs/013-agent-prompt-enrichment/COMPLETION.md` for example structure
+**Required Sections**:
+- **Summary**: Branch name, date, high-level overview
+- **Delivered Features**: Detailed breakdown by component/phase
+- **Files Changed**: Table with component, file path, and change description
+- **Verification**: Test results, build confirmation, validation steps
+- **Additional Improvements**: Non-spec enhancements made during implementation
+- **Next Steps**: Follow-up items, known issues, future considerations
+
+**Best Practices**:
+- Include file counts in summary (e.g., "23 files modified")
+- Document post-implementation bug fixes with symptom → root cause → fix → files
+- Link to relevant specs, principles, or decision log entries
+- Capture verification commands and their output
+
+**Examples**:
+- **Comprehensive**: `specs/031-java-21-upgrade/COMPLETION.md` (multi-component upgrade)
+- **Controller Support**: `specs/026-dotnet-controller-support/COMPLETION.md` (SDK feature)
+- **Bug Fix Pattern**: `specs/013-agent-prompt-enrichment/COMPLETION.md` (post-impl fixes)
 
 ---

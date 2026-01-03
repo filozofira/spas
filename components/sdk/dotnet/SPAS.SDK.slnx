@@ -9,7 +9,6 @@
     <Project Path="src/Spas.Sdk.Inbound/Spas.Sdk.Inbound.csproj" />
     <Project Path="src/Spas.Sdk.Metadata/Spas.Sdk.Metadata.csproj" />
     <Project Path="src/Spas.Sdk.Observability/Spas.Sdk.Observability.csproj" />
-    <Project Path="src/Spas.Sdk.Testing/Spas.Sdk.Testing.csproj" />
   </Folder>
   <Folder Name="/test/">
     <Project Path="test/Spas.Sdk.Configuration.Tests/Spas.Sdk.Configuration.Tests.csproj" />
@@ -18,6 +17,5 @@
     <Project Path="test/Spas.Sdk.Inbound.Tests/Spas.Sdk.Inbound.Tests.csproj" />
     <Project Path="test/Spas.Sdk.Metadata.Tests/Spas.Sdk.Metadata.Tests.csproj" />
     <Project Path="test/Spas.Sdk.Observability.Tests/Spas.Sdk.Observability.Tests.csproj" />
-    <Project Path="test/Spas.Sdk.Testing.Tests/Spas.Sdk.Testing.Tests.csproj" />
   </Folder>
 </Solution>

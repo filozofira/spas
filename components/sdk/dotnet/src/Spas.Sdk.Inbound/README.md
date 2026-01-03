@@ -6,6 +6,8 @@ This package provides standardized health check endpoints for SPAS services, imp
 
 The Inbound package offers the `MapSpasHealthChecks()` extension method to register SPAS-compliant health check endpoints. These endpoints follow the SPAS health check protocol and return standardized JSON responses for liveness and readiness probes.
 
+> Future standard inbound endpoints may be added to this package.
+
 ## Usage
 
 Register health check endpoints in your ASP.NET Core application:
@@ -77,19 +79,23 @@ These endpoints implement the SPAS health check protocol defined in the principl
 If this package is implemented in the future, it should provide:
 
 1. **Handler Base Classes**
+
    - `SpasCommandHandler<TRequest, TResponse>`
    - `SpasQueryHandler<TRequest, TResponse>`
    - `SpasEventHandler<TEvent>`
 
 2. **Automatic Context Binding**
+
    - Inject `SpasContext` automatically
    - Extract trace/correlation/identity from headers
 
 3. **Model Binding Helpers**
+
    - Validate requests against contract schemas
    - Automatic deserialization with error handling
 
 4. **Registration Helpers**
+
    - Scan assemblies for handlers
    - Auto-register routes based on attributes
 

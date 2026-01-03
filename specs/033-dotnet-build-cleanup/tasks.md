@@ -43,15 +43,15 @@
 
 ### Implementation for User Story 1
 
-- [ ] T004 [US1] Update OpenTelemetry package from 1.10.0 to 1.11.0 in components/sdk/dotnet/src/Spas.Sdk.Observability/Spas.Sdk.Observability.csproj
-- [ ] T005 [US1] Update OpenTelemetry.Exporter.Zipkin from 1.10.0 to 1.11.0 in components/sdk/dotnet/src/Spas.Sdk.Observability/Spas.Sdk.Observability.csproj
-- [ ] T006 [US1] Update OpenTelemetry.Extensions.Hosting from 1.10.0 to 1.11.0 in components/sdk/dotnet/src/Spas.Sdk.Observability/Spas.Sdk.Observability.csproj
-- [ ] T007 [US1] Update OpenTelemetry.Instrumentation.AspNetCore from 1.10.0 to 1.11.0 in components/sdk/dotnet/src/Spas.Sdk.Observability/Spas.Sdk.Observability.csproj
-- [ ] T008 [US1] Update OpenTelemetry.Instrumentation.Http from 1.10.0 to 1.11.0 in components/sdk/dotnet/src/Spas.Sdk.Observability/Spas.Sdk.Observability.csproj
-- [ ] T009 [US1] Clean and rebuild SDK: `dotnet clean && dotnet build` from components/sdk/dotnet
-- [ ] T010 [US1] Verify zero NU1902 warnings in build output
-- [ ] T011 [US1] Run observability tests: `dotnet test` from components/sdk/dotnet/test/Spas.Sdk.Observability.Tests
-- [ ] T012 [US1] Verify no vulnerable packages: `dotnet list package --vulnerable` from components/sdk/dotnet
+- [X] T004 [US1] Update OpenTelemetry package from 1.10.0 to 1.12.0 in components/sdk/dotnet/src/Spas.Sdk.Observability/Spas.Sdk.Observability.csproj
+- [X] T005 [US1] Update OpenTelemetry.Exporter.Zipkin from 1.10.0 to 1.12.0 in components/sdk/dotnet/src/Spas.Sdk.Observability/Spas.Sdk.Observability.csproj
+- [X] T006 [US1] Update OpenTelemetry.Extensions.Hosting from 1.10.0 to 1.12.0 in components/sdk/dotnet/src/Spas.Sdk.Observability/Spas.Sdk.Observability.csproj
+- [X] T007 [US1] Update OpenTelemetry.Instrumentation.AspNetCore from 1.10.0 to 1.12.0 in components/sdk/dotnet/src/Spas.Sdk.Observability/Spas.Sdk.Observability.csproj
+- [X] T008 [US1] Update OpenTelemetry.Instrumentation.Http from 1.10.0 to 1.12.0 in components/sdk/dotnet/src/Spas.Sdk.Observability/Spas.Sdk.Observability.csproj
+- [X] T009 [US1] Clean and rebuild SDK: `dotnet clean && dotnet build` from components/sdk/dotnet
+- [X] T010 [US1] Verify zero NU1902 warnings in build output
+- [X] T011 [US1] Run observability tests: `dotnet test` from components/sdk/dotnet/test/Spas.Sdk.Observability.Tests
+- [X] T012 [US1] Verify no vulnerable packages: `dotnet list package --vulnerable` from components/sdk/dotnet
 
 **Checkpoint**: OpenTelemetry security vulnerability resolved, observability tests passing
 

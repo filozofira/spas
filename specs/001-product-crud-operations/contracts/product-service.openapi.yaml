@@ -1,0 +1,374 @@
+openapi: 3.0.3
+info:
+  title: Product Service API
+  description: SPAS-compliant product catalog service with CRUD operations and event emission
+  version: 2.0.0
+  contact:
+    name: SPAS Framework
+servers:
+  - url: http://localhost:8080
+    description: Local development
+paths:
+  /products:
+    get:
+      summary: List all products
+      description: Lists products in the catalog (optionally filtered by category)
+      operationId: ListProducts
+      tags:
+        - Products
+      parameters:
+        - name: category
+          in: query
+          description: Filter products by category
+          required: false
+          schema:
+            type: string
+            example: Electronics
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Product'
+              examples:
+                electronics:
+                  summary: Electronics products
+                  value:
+                    - productId: laptop-pro-15
+                      name: Laptop Pro 15
+                      category: Electronics
+                      price: 1299.99
+                      description: High-performance laptop with 15-inch display
+                    - productId: wireless-mouse
+                      name: Wireless Mouse
+                      category: Electronics
+                      price: 29.99
+                      description: Ergonomic wireless mouse with precision tracking
+    post:
+      summary: Add new product
+      description: Adds a new product to the catalog and emits a ProductAdded event
+      operationId: AddProduct
+      tags:
+        - Products
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AddProductRequest'
+            examples:
+              laptop:
+                summary: Add a laptop
+                value:
+                  productId: laptop-pro-15
+                  name: Laptop Pro 15
+                  category: Electronics
+                  price: 1299.99
+                  description: High-performance laptop with 15-inch display
+      responses:
+        '201':
+          description: Product created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Product'
+        '400':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationError'
+              examples:
+                missingField:
+                  summary: Missing required field
+                  value:
+                    type: https://tools.ietf.org/html/rfc9110#section-15.5.1
+                    title: One or more validation errors occurred.
+                    status: 400
+                    errors:
+                      Name:
+                        - The Name field is required.
+                invalidFormat:
+                  summary: Invalid product ID format
+                  value:
+                    type: https://tools.ietf.org/html/rfc9110#section-15.5.1
+                    title: One or more validation errors occurred.
+                    status: 400
+                    errors:
+                      ProductId:
+                        - ProductId must contain only lowercase letters, numbers, and hyphens
+        '409':
+          description: Product ID already exists
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                error: Product with ID 'laptop-pro-15' already exists
+  /products/{id}:
+    get:
+      summary: Get product by ID
+      description: Returns product details by productId
+      operationId: GetProduct
+      tags:
+        - Products
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Product ID
+          schema:
+            type: string
+            pattern: '^[a-z0-9-]+$'
+            example: laptop-pro-15
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Product'
+        '404':
+          description: Product not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                error: Product not found
+    patch:
+      summary: Update product
+      description: Partially updates an existing product and emits a ProductUpdated event with change tracking
+      operationId: UpdateProduct
+      tags:
+        - Products
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Product ID
+          schema:
+            type: string
+            pattern: '^[a-z0-9-]+$'
+            example: laptop-pro-15
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateProductRequest'
+            examples:
+              priceUpdate:
+                summary: Update price only
+                value:
+                  price: 1199.99
+              multipleFields:
+                summary: Update multiple fields
+                value:
+                  price: 1199.99
+                  description: High-performance laptop with 15-inch 4K display and 32GB RAM
+      responses:
+        '200':
+          description: Product updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Product'
+        '400':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationError'
+        '404':
+          description: Product not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                error: Product not found
+    delete:
+      summary: Remove product
+      description: Removes a product from the catalog and emits a ProductRemoved event
+      operationId: RemoveProduct
+      tags:
+        - Products
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Product ID
+          schema:
+            type: string
+            pattern: '^[a-z0-9-]+$'
+            example: laptop-pro-15
+      responses:
+        '204':
+          description: Product removed successfully (no content)
+        '404':
+          description: Product not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                error: Product not found
+  /health:
+    get:
+      summary: Health check
+      description: Health check endpoint for service liveness
+      operationId: HealthCheck
+      tags:
+        - Health
+      responses:
+        '200':
+          description: Service is healthy
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: Healthy
+components:
+  schemas:
+    Product:
+      type: object
+      required:
+        - productId
+        - name
+        - category
+        - price
+        - description
+      properties:
+        productId:
+          type: string
+          pattern: '^[a-z0-9-]+$'
+          minLength: 1
+          maxLength: 50
+          description: Unique product identifier (lowercase alphanumeric with hyphens)
+          example: laptop-pro-15
+        name:
+          type: string
+          minLength: 1
+          maxLength: 200
+          description: Product display name
+          example: Laptop Pro 15
+        category:
+          type: string
+          minLength: 1
+          description: Product classification
+          example: Electronics
+        price:
+          type: number
+          format: decimal
+          minimum: 0
+          description: Product price
+          example: 1299.99
+        description:
+          type: string
+          minLength: 1
+          maxLength: 2000
+          description: Detailed product information
+          example: High-performance laptop with 15-inch display
+    AddProductRequest:
+      type: object
+      required:
+        - productId
+        - name
+        - category
+        - price
+        - description
+      properties:
+        productId:
+          type: string
+          pattern: '^[a-z0-9-]+$'
+          minLength: 1
+          maxLength: 50
+          description: Unique product identifier (lowercase alphanumeric with hyphens)
+          example: laptop-pro-15
+        name:
+          type: string
+          minLength: 1
+          maxLength: 200
+          description: Product display name
+          example: Laptop Pro 15
+        category:
+          type: string
+          minLength: 1
+          description: Product classification
+          example: Electronics
+        price:
+          type: number
+          format: decimal
+          minimum: 0
+          description: Product price
+          example: 1299.99
+        description:
+          type: string
+          minLength: 1
+          maxLength: 2000
+          description: Detailed product information
+          example: High-performance laptop with 15-inch display
+    UpdateProductRequest:
+      type: object
+      description: Partial update request - only provided fields will be updated
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 200
+          description: Updated product name
+          example: Premium Laptop Pro 15
+        category:
+          type: string
+          minLength: 1
+          description: Updated product category
+          example: Computers
+        price:
+          type: number
+          format: decimal
+          minimum: 0
+          description: Updated product price
+          example: 1199.99
+        description:
+          type: string
+          minLength: 1
+          maxLength: 2000
+          description: Updated product description
+          example: High-performance laptop with 15-inch 4K display and 32GB RAM
+    Error:
+      type: object
+      properties:
+        error:
+          type: string
+          description: Error message
+          example: Product not found
+    ValidationError:
+      type: object
+      properties:
+        type:
+          type: string
+          example: https://tools.ietf.org/html/rfc9110#section-15.5.1
+        title:
+          type: string
+          example: One or more validation errors occurred.
+        status:
+          type: integer
+          example: 400
+        errors:
+          type: object
+          additionalProperties:
+            type: array
+            items:
+              type: string
+          example:
+            Name:
+              - The Name field is required.
+            Price:
+              - The Price field must be greater than or equal to 0.

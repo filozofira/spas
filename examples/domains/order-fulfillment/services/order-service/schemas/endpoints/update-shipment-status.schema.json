@@ -20,5 +20,10 @@
         "string"
       ]
     }
-  }
+  },
+  "required": [
+    "orderId",
+    "shipmentId",
+    "status"
+  ]
 }

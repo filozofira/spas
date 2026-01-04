@@ -9,13 +9,6 @@
     },
     {
       "kind": "event",
-      "topic": "inventory-events",
-      "invokeEndpoint": "/orders/{id}/cancel",
-      "eventType": "com.inventory-service.stock-depleted",
-      "transform": "transformations/inbound-stock-depleted.jsonata"
-    },
-    {
-      "kind": "event",
       "topic": "fulfillment-events",
       "invokeEndpoint": "/orders/shipment-status",
       "eventType": "com.fulfillment-service.shipment-created",
@@ -39,6 +32,11 @@
       "topic": "order-events",
       "eventType": "com.order-service.order-confirmed",
       "eventName": "order-confirmed"
+    },
+    {
+      "topic": "order-events",
+      "eventType": "com.order-service.order-cancelled",
+      "eventName": "order-cancelled"
     }
   ]
 }

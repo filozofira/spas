@@ -1,16 +1,34 @@
 # order-fulfillment
 
+## Happy Path: Successful Order Fulfillment
+
 ```mermaid
 flowchart LR
-    Start([Start]) --> OS[order-service]
+    Start([Customer]) --> OS[order-service]
     OS -->|order-created| IS[inventory-service]
     IS -->|stock-reserved| OS
-    IS -->|stock-depleted| OS
     OS -->|order-confirmed| FS[fulfillment-service]
     FS -->|shipment-created| OS
     FS -->|shipment-status-changed| OS
-    OS -->|order-cancelled| End([End])
+    OS --> End([Order Complete])
 ```
+
+## Error Path: Stock Depleted
+
+```mermaid
+flowchart LR
+    Start([Customer]) --> OS[order-service]
+    OS -->|order-created| IS[inventory-service]
+    IS -->|stock-depleted| End([Notify Customer])
+```
+
+## Terminal Events
+
+The following events are published for audit, logging, and future integration but have no consumers in this choreography:
+
+- **order-cancelled** (order-service) - Published when an order is cancelled
+- **stock-released** (inventory-service) - Emitted when reserved stock is released back to available inventory
+- **inventory-item-added** (inventory-service) - Emitted when inventory tracking is initialized for a new item
 
 **SPAS Domain Workspace**
 

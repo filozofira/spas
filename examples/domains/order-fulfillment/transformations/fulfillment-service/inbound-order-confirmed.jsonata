@@ -1,7 +1,17 @@
 /* inbound-order-confirmed.jsonata */
-/* Transforms order-confirmed (order-service) -> create-shipment (fulfillment-service) */
+/* Transforms order-confirmed (order-service) → create-shipment request (fulfillment-service) */
+/* Maps order details to shipment creation request with derived delivery method */
 {
   "referenceId": orderId,
-  "shippingAddress": shippingAddress,
-  "deliveryMethod": "standard"
+  "customerId": customerId,
+  "deliveryMethod": $exists(shippingAddress) ? "SHIPPING" : "PICKUP",
+  "pickupLocationId": "MAIN",
+  "shippingAddress": shippingAddress ? shippingAddress : {
+    "street": "",
+    "city": "",
+    "state": "",
+    "postalCode": "",
+    "country": ""
+  },
+  "specialInstructions": ""
 }

@@ -20,7 +20,7 @@
       "type": "object",
       "additionalProperties": false,
       "properties": {
-        "productId": {
+        "itemId": {
           "type": "string"
         },
         "quantity": {
@@ -29,7 +29,7 @@
         }
       },
       "required": [
-        "productId",
+        "itemId",
         "quantity"
       ]
     }

@@ -1,0 +1,19 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "InventoryItemAddedEvent",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "itemId": {
+      "type": "string"
+    },
+    "initialQuantity": {
+      "type": "integer",
+      "format": "int32"
+    }
+  },
+  "required": [
+    "itemId",
+    "initialQuantity"
+  ]
+}

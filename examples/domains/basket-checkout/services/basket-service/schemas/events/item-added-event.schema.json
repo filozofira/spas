@@ -18,5 +18,12 @@
     "quantity": {
       "type": "integer"
     }
-  }
+  },
+  "required": [
+    "addedAt",
+    "basketId",
+    "customerId",
+    "productId",
+    "quantity"
+  ]
 }

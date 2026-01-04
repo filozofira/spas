@@ -1,5 +1,7 @@
 /* inbound-shipment-status-changed.jsonata */
-/* Transforms shipment-status-changed (fulfillment-service) -> update-shipment-status (order-service) */
+/* Transforms shipment-status-changed (fulfillment-service) → update-shipment-status (order-service) */
+/* Source: schemas/events/shipment-status-changed-event.schema.json */
+/* Target: schemas/endpoints/update-shipment-status.schema.json */
 {
   "orderId": referenceId,
   "shipmentId": shipmentId,

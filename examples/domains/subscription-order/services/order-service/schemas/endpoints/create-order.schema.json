@@ -50,7 +50,12 @@
           "type": "number",
           "format": "decimal"
         }
-      }
+      },
+      "required": [
+        "productId",
+        "quantity",
+        "price"
+      ]
     },
     "Address": {
       "type": "object",
@@ -71,7 +76,19 @@
         "country": {
           "type": "string"
         }
-      }
+      },
+      "required": [
+        "street",
+        "city",
+        "state",
+        "postalCode",
+        "country"
+      ]
     }
-  }
+  },
+  "required": [
+    "customerId",
+    "items",
+    "total"
+  ]
 }

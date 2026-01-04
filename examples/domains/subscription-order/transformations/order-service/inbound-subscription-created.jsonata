@@ -1,7 +1,8 @@
 /* inbound-subscription-created.jsonata */
 /* Transforms subscription-created (subscription-service) -> create-order (order-service) */
-/* Source: SubscriptionCreatedEvent { subscriptionId, customerId, productId, quantity, frequency, createdAt } */
-/* Target: CreateOrderRequest { customerId, items[], total, shippingAddress?, referenceId? } */
+/* Source schema: services/subscription-service/schemas/events/subscription-created.schema.json */
+/* Target schema: services/order-service/schemas/endpoints/create-order.schema.json */
+
 {
   "customerId": customerId,
   "items": $append([], {

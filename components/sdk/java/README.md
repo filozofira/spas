@@ -53,6 +53,23 @@ mvn -q -DskipTests spring-boot:run -Dspring-boot.run.arguments="--generate-metad
 
 This writes `./metadata/service.metadata.zip` (containing `spas.json` + referenced schemas).
 
+### Design Principles
+
+When writing metadata annotations, follow domain-agnostic patterns. See [SDK Design Principles](../README.md#design-principles) for full guidance.
+
+**Description Writing:**
+```java
+// ❌ Domain-coupled
+@SpasCommand(name = "ReserveStock", version = "1.0",
+    description = "Reserves product stock for an order")
+
+// ✅ Domain-agnostic
+@SpasCommand(name = "ReserveItems", version = "1.0",
+    description = "Reserves specified item quantities for a transaction")
+```
+
+**Real-world impact:** Domain-agnostic descriptions enable reuse across healthcare (medical supplies), SaaS (license pools), corporate IT (asset tracking), and e-commerce (product inventory) through choreography configuration alone.
+
 ### Modules
 
 | Module                          | Purpose                    | Key Types                                            |
@@ -85,6 +102,33 @@ This writes `./metadata/service.metadata.zip` (containing `spas.json` + referenc
 - W3C Trace Context: Full traceparent/tracestate support
 - Identity propagation: x-user-id, x-tenant-id headers
 - Thread-safe: InheritableThreadLocal for async operations
+
+### Design Principles
+
+SPAS promotes **domain-agnostic service design** for maximum reusability. Key principle: use neutral entity identifiers and context-free operations.
+
+**Example:**
+```java
+// ❌ Domain-coupled (limits reuse)
+public class ReserveStockRequest {
+    private String productId;  // Assumes commerce domain
+    private String orderId;    // Assumes order context
+}
+
+// ✅ Domain-agnostic (reusable across contexts)
+public class ReserveItemsRequest {
+    private String itemId;        // Neutral: product, license, supply, asset
+    private String referenceId;   // Opaque: order, rental, subscription
+}
+```
+
+**Real-world impact:** Inventory service using `itemId` can serve:
+- 🏥 Healthcare: Medical supply tracking
+- 💼 SaaS: License pool management  
+- 🏢 Corporate IT: Asset inventory
+- 🛒 E-commerce: Product stock (traditional use case)
+
+📖 **See full design principles:** [SDK Root README](../README.md#design-principles)
 
 ### Capability Declaration
 

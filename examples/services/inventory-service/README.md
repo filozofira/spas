@@ -8,6 +8,11 @@ SPAS-compliant stock tracking and reservation service.
 
 ## Endpoints
 
+### Commands
+- `POST /inventory/items` - Initialize inventory tracking for a new product
+- `POST /inventory/reserve` - Reserve stock for an order/rental
+- `POST /inventory/release` - Release reserved stock back to available
+
 ### Queries
 - `GET /inventory` - List all inventory items
 - `GET /inventory/{productId}` - Get stock for specific product
@@ -15,18 +20,22 @@ SPAS-compliant stock tracking and reservation service.
 ### Events (Inbound)
 - `POST /incoming` - Receive events from sidecar
   - OrderCreated - Triggers stock reservation
+  - ProductAdded - Initializes inventory for new products (choreography-dependent)
 
 ### Health
 - `GET /health` - Health check
 
 ## Events Published
 
-- `StockReserved` (`com.inventory.stock.reserved`) - Published when stock is successfully reserved
-- `StockDepleted` (`com.inventory.stock.depleted`) - Published when insufficient stock available
+- `InventoryItemAdded` (`com.inventory-service.inventory-item-added`) - Published when inventory tracking is initialized
+- `StockReserved` (`com.inventory-service.stock-reserved`) - Published when stock is successfully reserved
+- `StockDepleted` (`com.inventory-service.stock-depleted`) - Published when insufficient stock available
+- `StockReleased` (`com.inventory-service.stock-released`) - Published when reserved stock is released
 
 ## Events Subscribed
 
-- `OrderCreated` (`com.ecommerce.order.created`) - Triggers stock reservation
+- `OrderCreated` (`com.order-service.order.created`) - Triggers stock reservation
+- `ProductAdded` (`com.product-service.product-added`) - Initializes inventory (when choreographed with product-service)
 
 ## Configuration
 

@@ -6,13 +6,6 @@
       "invokeEndpoint": "/inventory/reserve",
       "eventType": "com.order-service.order-created",
       "transform": "transformations/inbound-order-created.jsonata"
-    },
-    {
-      "kind": "event",
-      "topic": "order-events",
-      "invokeEndpoint": "/inventory/release",
-      "eventType": "com.order-service.order-cancelled",
-      "transform": "transformations/inbound-order-cancelled.jsonata"
     }
   ],
   "outbound": [
@@ -23,13 +16,8 @@
     },
     {
       "topic": "inventory-events",
-      "eventType": "com.inventory-service.stock-depleted",
-      "eventName": "stock-depleted"
-    },
-    {
-      "topic": "inventory-events",
-      "eventType": "com.inventory-service.stock-released",
-      "eventName": "stock-released"
+      "eventType": "com.inventory-service.inventory-item-added",
+      "eventName": "inventory-item-added"
     }
   ]
 }

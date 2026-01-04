@@ -15,5 +15,11 @@
       "type": "string",
       "format": "date-time"
     }
-  }
+  },
+  "required": [
+    "basketId",
+    "customerId",
+    "productId",
+    "removedAt"
+  ]
 }

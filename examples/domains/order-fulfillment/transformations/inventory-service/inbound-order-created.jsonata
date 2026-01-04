@@ -1,9 +1,10 @@
 /* inbound-order-created.jsonata */
-/* Transforms order-created (order-service) -> reserve-stock (inventory-service) */
+/* Transforms order-created (order-service) → reserve-stock request (inventory-service) */
+/* Maps orderId to referenceId and transforms items array for stock reservation */
 {
   "referenceId": orderId,
   "items": $append([], items.{
-    "productId": productId,
+    "itemId": productId,
     "quantity": quantity
   })
 }

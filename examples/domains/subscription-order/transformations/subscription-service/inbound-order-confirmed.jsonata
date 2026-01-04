@@ -1,7 +1,8 @@
 /* inbound-order-confirmed.jsonata */
 /* Transforms order-confirmed (order-service) -> activate-subscription (subscription-service) */
-/* Source: OrderConfirmedEvent { orderId, status, reservedItems[], shippingAddress?, referenceId? } */
-/* Target: ActivateSubscriptionRequest { orderId, status, referenceId? } */
+/* Source schema: services/order-service/schemas/events/order-confirmed.schema.json */
+/* Target schema: services/subscription-service/schemas/endpoints/activate-subscription.schema.json */
+
 {
   "orderId": orderId,
   "status": status,

@@ -8,12 +8,13 @@ domain: order-fulfillment
 # Use /spas.compose agent to generate flows based on service contracts
 flows:
   order-fulfillment-flow:
-    description: "End-to-end order processing flow from creation to fulfillment"
+    description: "Complete order fulfillment from creation through delivery"
     participants:
       - order-service
       - inventory-service
       - fulfillment-service
     events:
+      # Step 1: Order created → Reserve stock
       - source: order-service
         event: order-created
         topic: order-events
@@ -22,6 +23,7 @@ flows:
             command: reserve-stock
             transform: transformations/inventory-service/inbound-order-created.jsonata
       
+      # Step 2: Stock reserved → Confirm order
       - source: inventory-service
         event: stock-reserved
         topic: inventory-events
@@ -29,15 +31,8 @@ flows:
           - service: order-service
             command: confirm-order
             transform: transformations/order-service/inbound-stock-reserved.jsonata
-            
-      - source: inventory-service
-        event: stock-depleted
-        topic: inventory-events
-        targets:
-          - service: order-service
-            command: cancel-order
-            transform: transformations/order-service/inbound-stock-depleted.jsonata
-            
+      
+      # Step 3: Order confirmed → Create shipment
       - source: order-service
         event: order-confirmed
         topic: order-events
@@ -45,7 +40,8 @@ flows:
           - service: fulfillment-service
             command: create-shipment
             transform: transformations/fulfillment-service/inbound-order-confirmed.jsonata
-            
+      
+      # Step 4: Shipment created → Update order tracking
       - source: fulfillment-service
         event: shipment-created
         topic: fulfillment-events
@@ -53,7 +49,8 @@ flows:
           - service: order-service
             command: update-shipment-status
             transform: transformations/order-service/inbound-shipment-created.jsonata
-            
+      
+      # Step 5: Shipment status changed → Update order tracking
       - source: fulfillment-service
         event: shipment-status-changed
         topic: fulfillment-events
@@ -61,6 +58,27 @@ flows:
           - service: order-service
             command: update-shipment-status
             transform: transformations/order-service/inbound-shipment-status-changed.jsonata
+      
+      # Terminal events (published but no consumers in this choreography)
+      - source: order-service
+        event: order-cancelled
+        topic: order-events
+        targets: []
+      
+      - source: inventory-service
+        event: stock-depleted
+        topic: inventory-events
+        targets: []
+      
+      - source: inventory-service
+        event: stock-released
+        topic: inventory-events
+        targets: []
+      
+      - source: inventory-service
+        event: inventory-item-added
+        topic: inventory-events
+        targets: []
 
 # Infrastructure components (optional)
 infrastructure:

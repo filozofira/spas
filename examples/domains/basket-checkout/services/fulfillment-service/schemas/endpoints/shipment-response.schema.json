@@ -27,7 +27,14 @@
         "street": {
           "type": "string"
         }
-      }
+      },
+      "required": [
+        "city",
+        "country",
+        "postalCode",
+        "state",
+        "street"
+      ]
     },
     "pickupLocationId": {
       "type": "string"
@@ -56,5 +63,16 @@
       "type": "string",
       "format": "date-time"
     }
-  }
+  },
+  "required": [
+    "createdAt",
+    "deliveryMethod",
+    "destination",
+    "pickupLocationId",
+    "referenceId",
+    "shipmentId",
+    "status",
+    "trackingNumber",
+    "updatedAt"
+  ]
 }

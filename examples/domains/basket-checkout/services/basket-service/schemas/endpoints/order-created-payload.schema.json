@@ -15,5 +15,11 @@
     "referenceId": {
       "type": "string"
     }
-  }
+  },
+  "required": [
+    "createdAt",
+    "customerId",
+    "orderId",
+    "referenceId"
+  ]
 }

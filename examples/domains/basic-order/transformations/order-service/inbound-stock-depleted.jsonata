@@ -1,6 +1,0 @@
-/* inbound-stock-depleted.jsonata */
-/* Transforms inventory-service.stock-depleted -> order-service.cancel-order */
-{
-  "reason": "Stock depleted for product " & productId & 
-    " (requested: " & $string(requestedQuantity) & ", available: " & $string(availableQuantity) & ")"
-}

@@ -110,6 +110,30 @@ describe("generateAgentFile", () => {
       expect(content).toContain("quote the exact snippet");
       expect(content).toContain("NEVER invent");
     });
+
+    it("should include domain-agnostic pattern recognition guidance", () => {
+      const content = generateAgentFile("./examples/ecommerce");
+
+      // Pattern-based matching (no concrete examples like "order-service")
+      expect(content).toContain("Domain-Agnostic Pattern Recognition");
+      expect(content).toContain("Match by CAPABILITY, not exact wording");
+      expect(content).toContain("[domain-entity]"); // Placeholder syntax
+      expect(content).toContain("[generic-resource]");
+      expect(content).toContain("Extract ACTION verb");
+      
+      // Field name semantic equivalence
+      expect(content).toContain("Field Name Semantic Equivalence");
+      expect(content).toContain("itemId"); // Item identifier category
+      expect(content).toContain("referenceId"); // Reference identifier category
+      expect(content).toContain("quantity"); // Quantity field category
+      expect(content).toContain("Field Overlap Analysis");
+      expect(content).toContain("≥60%"); // Quantitative threshold
+      
+      // Red flags
+      expect(content).toContain("Red Flags (DO NOT MATCH)");
+      expect(content).toContain("Action verbs incompatible");
+      expect(content).toContain("Schema field overlap <60%");
+    });
   });
 
   describe("phased workflow with validation (US2)", () => {
@@ -151,16 +175,16 @@ describe("generateAgentFile", () => {
       const content = generateAgentFile("./examples/ecommerce");
 
       // FR-009: Mermaid diagram in Propose phase (choreography/flowchart, not sequence)
-      // Now supports Simple Flow Template and Complex Flow Template
-      expect(content).toContain("**Simple Flow Template**");
-      expect(content).toContain("```mermaid");
+      // Now supports flow-based diagram approach
+      expect(content).toContain("**Diagram Template (Per Business Flow):**");
+      expect(content).toContain("` ` `mermaid"); // Template uses escaped backticks
       expect(content).toContain("flowchart LR");
       
       // Verify the diagram template is in Phase 2 section
       const phase2Start = content.indexOf("### Phase 2: Propose");
       const phase3Start = content.indexOf("### Phase 3: Generate");
-      const diagramTemplatePos = content.indexOf("**Simple Flow Template**");
-      const mermaidPos = content.indexOf("```mermaid", diagramTemplatePos); // Find mermaid after diagram template header
+      const diagramTemplatePos = content.indexOf("**Diagram Template (Per Business Flow):**");
+      const mermaidPos = content.indexOf("` ` `mermaid", diagramTemplatePos); // Find escaped mermaid after diagram template header
       
       expect(phase2Start).toBeGreaterThan(0);
       expect(phase3Start).toBeGreaterThan(phase2Start);
@@ -172,7 +196,7 @@ describe("generateAgentFile", () => {
     it("should instruct agent to display choreography steps in Phase 2", () => {
       const content = generateAgentFile("./examples/ecommerce");
 
-      expect(content).toContain("**Display Steps**: List all steps the choreography goes through");
+      expect(content).toContain("**Display Steps**: List all steps each flow goes through");
     });
 
     it("should contain Start node in diagram template (019-compose-diagram-flow)", () => {
@@ -197,7 +221,7 @@ describe("generateAgentFile", () => {
       const content = generateAgentFile("./examples/ecommerce");
 
       // FR-005: README update instruction
-      expect(content).toContain("MUST insert/update the choreography diagram in the domain README.md file");
+      expect(content).toContain("MUST insert/update all choreography diagrams in the domain README.md file");
       expect(content).toContain("(at top, after title)");
     });
 

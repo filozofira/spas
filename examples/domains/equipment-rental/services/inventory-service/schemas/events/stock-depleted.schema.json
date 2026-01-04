@@ -4,7 +4,7 @@
   "type": "object",
   "additionalProperties": false,
   "properties": {
-    "productId": {
+    "itemId": {
       "type": "string"
     },
     "referenceId": {
@@ -25,7 +25,7 @@
     }
   },
   "required": [
-    "productId",
+    "itemId",
     "referenceId",
     "requestedQuantity",
     "availableQuantity",

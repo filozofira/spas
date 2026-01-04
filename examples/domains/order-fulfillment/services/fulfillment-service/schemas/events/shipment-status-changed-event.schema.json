@@ -26,5 +26,12 @@
       "type": "string",
       "format": "date-time"
     }
-  }
+  },
+  "required": [
+    "referenceId",
+    "shipmentId",
+    "status",
+    "trackingNumber",
+    "updatedAt"
+  ]
 }

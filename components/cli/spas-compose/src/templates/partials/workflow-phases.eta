@@ -43,9 +43,98 @@ The following 5-phase workflow guides the process. Execute phases in order, crea
      - If `description` is missing, say so explicitly and rely more heavily on names, types, and schemas.
      - NEVER invent or "improve" missing descriptions.
 
+   - **Domain-Agnostic Pattern Recognition**:
+     When matching events to endpoints across service boundaries:
+     
+     **A. Identify Service Type:**
+     - Domain services: Use specific terminology ([domain]-service, [entity]-service)
+     - Utility services: Use generic terminology (inventory-service, fulfillment-service, notification-service)
+     
+     **B. Semantic Equivalence Patterns - Match by CAPABILITY, not exact wording:**
+     
+     Pattern: Domain-specific event → Generic endpoint
+     • `[domain-entity]-created` → `reserve [generic-resource]`
+       Examples: rental-requested → reserve item quantities
+                 order-created → reserve item quantities
+                 subscription-created → reserve item quantities
+     
+     • `[domain-entity]-confirmed` → `create [generic-output]`
+       Examples: order-confirmed → create shipment
+                 rental-confirmed → create shipment
+                 booking-confirmed → create shipment
+     
+     **C. Matching Strategy:**
+     - Extract ACTION verb from descriptions (reserve, release, create, update, notify)
+     - Extract ENTITY type from descriptions (items, quantities, shipments, resources)
+     - Match when ACTION + ENTITY align, regardless of domain-specific wrapper terms
+     - Field schemas provide validation (see Field Name Semantic Equivalence below)
+     
+     **D. Field Name Semantic Equivalence:**
+     
+     Utility services use neutral field names. Domain services use specific names.
+     When matching schemas, recognize these equivalences:
+     
+     Item Identifiers (countable resources):
+     • `itemId` ≡ `productId` ≡ `licenseId` ≡ `assetId` ≡ `supplyId` ≡ `equipmentId` ≡ `unitId`
+     
+     Reference Identifiers (domain transaction context):
+     • `referenceId` ≡ `orderId` ≡ `rentalId` ≡ `subscriptionId` ≡ `bookingId` ≡ `requisitionId` ≡ `accountId`
+     
+     Quantity Fields (countable amounts):
+     • `quantity` ≡ `count` ≡ `units` ≡ `amount` ≡ `seats`
+     
+     Address Fields (destination/location):
+     • `shippingAddress` ≡ `destinationAddress` ≡ `deliveryAddress` ≡ `pickupLocation`
+     
+     **Field Overlap Analysis:**
+     1. Extract field names from event schema
+     2. Extract field names from endpoint request schema
+     3. Check if ANY field name from each equivalence category appears in BOTH schemas
+     4. Calculate overlap: (matched required fields) / (total required fields)
+     5. If overlap ≥60% → LIKELY MATCH
+     
+     Example:
+     ```
+     Event schema: { licenseId, units, accountId, expirationDate }
+     Endpoint required: { itemId, quantity, referenceId }
+     
+     Semantic mapping:
+     • licenseId → itemId ✅ (item identifier equivalence)
+     • units → quantity ✅ (quantity field equivalence)
+     • accountId → referenceId ✅ (reference identifier equivalence)
+     
+     Match score: 3/3 required = 100% → STRONG MATCH
+     ```
+     
+     **E. Red Flags (DO NOT MATCH):**
+     - Action verbs incompatible: `create` ≠ `delete`, `reserve` ≠ `notify`
+     - Entity types incompatible: `reserve items` ≠ `send notification`
+     - Schema field overlap <60%: insufficient semantic alignment
+
+3. **Identify Distinct Business Flows**
+   - Group related events by business capability/use case
+   - **Criteria for separate flows:**
+     • **Temporal Independence**: Can execute at different times without coupling
+     • **Actor/Trigger Difference**: Initiated by different actors or external systems
+     • **Capability Cohesion**: Represents single, cohesive business capability
+     • **Deployment Independence**: Could be versioned/deployed separately
+     • **Terminal Event Boundaries**: Flows ending with terminal events are natural boundaries
+   
+   - **Example flow groupings:**
+     • `basket-management`: Customer adds/removes items (terminal events)
+     • `order-fulfillment`: Checkout through delivery (end-to-end flow)
+     • `shipment-tracking`: Update order status based on carrier updates
+     • `order-cancellation`: Compensating flow with inventory release
+   
+   - **Anti-patterns to avoid:**
+     • Grouping unrelated capabilities because they share a service
+     • Creating monolithic flows mixing CRUD and business processes
+     • Coupling independent flows just because they run in same domain
+
 **Output:**
 - Summary of services found
 - List of potential event-to-endpoint matches
+- **Identified business flows** with rationale for separation
 - Identification of missing or ambiguous connections
 
 **Exit Criteria:** User confirms understanding of service analysis
@@ -54,6 +143,7 @@ The following 5-phase workflow guides the process. Execute phases in order, crea
 > "Phase 1 (Analyze) complete. Progress: [1/5 phases]
 >
 > Found {N} potential connections between {M} services.
+> Identified {X} distinct business flows.
 >
 > Proceed to Phase 2 (Propose)? (yes/review/no)"
 
@@ -65,92 +155,164 @@ The following 5-phase workflow guides the process. Execute phases in order, crea
 
 **Actions:**
 1. **Design Choreography**
-   - Define flows: `source service` -> `event` -> `target service`
-   - Name flows descriptively (e.g., `order-fulfillment-flow`)
+   - Define flows based on business capabilities identified in Phase 1
+   - Name flows by business capability (e.g., `order-fulfillment`, `basket-management`)
+   - **Do NOT** name flows by service (e.g., ~~`basket-service-flow`~~) or technical labels (e.g., ~~`event-flow-1`~~)
+   - Each flow should represent ONE cohesive business capability
    - Identify required transformations (data mapping)
-   - **Display Steps**: List all steps the choreography goes through to help the developer understand what is going to happen.
+   - **Display Steps**: List all steps each flow goes through to help the developer understand what is going to happen.
 
 2. **Visualize**
-   - Generate Mermaid diagram(s) based on choreography complexity
-   - **MUST insert/update the choreography diagram in the domain README.md file** (at top, after title)
+   - Generate **one Mermaid diagram per business flow** identified in Phase 1
+   - **MUST insert/update all choreography diagrams in the domain README.md file** (at top, after title)
    - **SEE "Documentation Rules" section for strict placement and formatting requirements.**
    - Wait for user confirmation before proceeding to Generate phase
 
-**Diagram Style Selection (REQUIRED):**
+**Diagram Strategy (REQUIRED):**
 
-| Complexity | Criteria | Style |
-|------------|----------|-------|
-| **Simple** | ≤4 services, linear flow, no branching | Single flowchart |
-| **Complex** | >4 services, multiple paths, error handling | Separate diagram per scenario |
+| Approach | When to Use | Output |
+|----------|-------------|--------|
+| **Single Flow** | 1 distinct business capability identified | One flowchart |
+| **Multiple Flows** | 2+ independent business capabilities | One flowchart per flow |
+| **Sub-flows** | Flow has error/compensation paths | Main + alternate path diagrams |
 
-**Simple Flow Template** (single diagram):
-```mermaid
+**Flow Naming Convention:**
+- Use business capability names: `basket-management`, `order-fulfillment`, `shipment-tracking`
+- NOT service names: ~~`basket-service-flow`~~, ~~`order-service-choreography`~~
+- NOT technical: ~~`event-flow-1`~~, ~~`flow-a`~~
+
+**Diagram Template (Per Business Flow):**
+```markdown
+## Flow: {Business Capability Name}
+
+**Description**: {Brief description of what this flow accomplishes}
+
+` ` `mermaid
+---
+title: {Business Capability Name}
+---
 flowchart LR
-    Start([Start]) --> OS[order-service]
-    OS -->|order-created| FS[fulfillment-service]
-    FS -->|fulfillment-completed| PS[payment-service]
-    PS -->|payment-processed| OS
-    OS -->|order-confirmed| End([End])
+    Start([Actor/Trigger]) --> S1[service-name]
+    S1 -->|event-name| S2[service-name]
+    S2 -->|event-name| End([Outcome])
+` ` `
 ```
 
-**Complex Flow Template** (multiple diagrams):
+**Multiple Independent Flows Example:**
 ```markdown
-## Happy Path: Successful Checkout
+## Flow: Basket Management
+
+**Description**: Customer manages shopping basket items
 
 ` ` `mermaid
+---
+title: Basket Management
+---
 flowchart LR
     Start([Customer]) --> BS[basket-service]
-    BS -->|checkout-initiated| OS[order-service]
-    OS -->|order-created| IS[inventory-service]
-    IS -->|stock-reserved| OS
-    OS -->|order-confirmed| FS[fulfillment-service]
-    FS -->|shipment-created| End([Complete])
+    BS -->|item-added| End([Item Added])
 ` ` `
 
-## Error Path: Stock Depleted
+## Flow: Order Fulfillment
+
+**Description**: Complete order from checkout through delivery
 
 ` ` `mermaid
+---
+title: Order Fulfillment
+---
 flowchart LR
     Start([Customer]) --> BS[basket-service]
     BS -->|checkout-initiated| OS[order-service]
     OS -->|order-created| IS[inventory-service]
-    IS -->|stock-depleted| BS
-    BS --> End([Notify Customer])
+    IS -->|stock-reserved| FS[fulfillment-service]
+    FS -->|shipment-created| End([Order Shipped])
+` ` `
+
+## Flow: Shipment Tracking
+
+**Description**: Update order status based on carrier updates
+
+` ` `mermaid
+---
+title: Shipment Tracking
+---
+flowchart LR
+    Start([Carrier System]) --> FS[fulfillment-service]
+    FS -->|shipment-delivered| OS[order-service]
+    OS -->|order-completed| End([Order Complete])
 ` ` `
 ```
 
 **Diagram Requirements:**
+- **Title**: MUST include `title: {Business Capability Name}` in YAML frontmatter
 - **Start node**: MUST include `Start([Start])` or `Start([Actor])` node with stadium shape
 - **End node**: MUST include `End([End])` or `End([Outcome])` node with stadium shape
 - **Direction**: Use `flowchart LR` for horizontal left-to-right flow
 - **Edge labels**: All arrows between services MUST include event type label `-->|event-name|`
-- **No subgraph in simple**: Keep flat structure for simple flows
-- **Scenario headers**: For complex flows, add `## Scenario Name` heading before each diagram
+- **One diagram per flow**: Each independent business capability gets its own diagram
+- **Flow headers**: Add `## Flow: {Name}` heading with description before each diagram
 
-**Choreography Schema:**
+**Choreography Schema (Multiple Flows):**
 ```yaml
 version: "1.0"
 domain: {DOMAIN}
 
 flows:
-  <flow-name>:
-    description: "<description>"
+  # Flow 1: Independent business capability
+  basket-management:
+    description: "Customer manages shopping basket items"
     participants:
-      - <publisher-service>
-      - <subscriber-service>
+      - basket-service
     events:
-      # Event with downstream consumer
-      - source: <publishing-service>
-        event: <event-type>
-        topic: <topic-name>
+      - source: basket-service
+        event: item-added
+        topic: basket-events
+        targets: []  # Terminal event
+      - source: basket-service
+        event: item-removed
+        topic: basket-events
+        targets: []  # Terminal event
+  
+  # Flow 2: Independent business capability
+  order-fulfillment:
+    description: "Complete order from checkout through delivery"
+    participants:
+      - basket-service
+      - order-service
+      - inventory-service
+      - fulfillment-service
+    events:
+      - source: basket-service
+        event: checkout-initiated
+        topic: basket-events
         targets:
-          - service: <subscribing-service>
-            transform: transformations/<service>/inbound-<event>.jsonata
-      # Terminal event - no consumers in this choreography
-      - source: <final-service>
-        event: <terminal-event>
-        topic: <topic-name>
-        targets: []  # Published for audit/logging/future extension
+          - service: order-service
+            command: create-order
+            transform: transformations/order-service/inbound-checkout.jsonata
+      - source: order-service
+        event: order-created
+        topic: order-events
+        targets:
+          - service: inventory-service
+            command: reserve-stock
+            transform: transformations/inventory-service/inbound-order-created.jsonata
+      # ... rest of order fulfillment flow
+  
+  # Flow 3: Independent business capability
+  shipment-tracking:
+    description: "Update order status based on carrier updates"
+    participants:
+      - fulfillment-service
+      - order-service
+    events:
+      - source: fulfillment-service
+        event: shipment-delivered
+        topic: fulfillment-events
+        targets:
+          - service: order-service
+            command: complete-order
+            transform: transformations/order-service/inbound-shipment-delivered.jsonata
 ```
 
 3. **Identify Terminal Events (REQUIRED)**
@@ -162,9 +324,10 @@ flows:
    - **Do NOT omit terminal events** - they complete the flow and enable observability
 
 **Requirements:**
-- `participants` must include at least 2 services
+- `participants` must include at least 1 service (for terminal-only flows) or 2+ services (for choreographed flows)
 - Transformation paths: `transformations/{service}/inbound-{event}.jsonata`
 - All published events must be listed (including terminal events with `targets: []`)
+- **Each flow is independently deployable** - services can participate in multiple flows
 
 **Exit Criteria:** User confirms design with "yes" or provides feedback
 
@@ -172,11 +335,11 @@ flows:
 > "Phase 2 (Propose) complete. Progress: [2/5 phases]
 >
 > Proposed choreography design:
->   • {N} flows defined
->   • {N} services participating
->   • {N} transformation files to create
->   • {N} terminal events (no downstream consumers)
->   • README.md updated with diagram
+>   • {X} independent business flows defined
+>   • {N} total services participating
+>   • {M} transformation files to create
+>   • {T} terminal events (no downstream consumers)
+>   • README.md updated with {X} flow diagrams
 >
 > Proceed to Phase 3 (Generate)? (yes/review/no)"
 

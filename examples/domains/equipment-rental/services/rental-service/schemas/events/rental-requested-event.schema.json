@@ -23,7 +23,11 @@
           "quantity": {
             "type": "integer"
           }
-        }
+        },
+        "required": [
+          "productId",
+          "quantity"
+        ]
       }
     },
     "pickupLocationId": {
@@ -51,11 +55,28 @@
         "street": {
           "type": "string"
         }
-      }
+      },
+      "required": [
+        "city",
+        "country",
+        "postalCode",
+        "state",
+        "street"
+      ]
     },
     "startDate": {
       "type": "string",
       "format": "date-time"
     }
-  }
+  },
+  "required": [
+    "customerId",
+    "deliveryMethod",
+    "endDate",
+    "items",
+    "pickupLocationId",
+    "rentalId",
+    "shippingAddress",
+    "startDate"
+  ]
 }

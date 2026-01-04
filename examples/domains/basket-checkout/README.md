@@ -1,8 +1,10 @@
 # basket-checkout
 
+## Happy Path: Successful Checkout
+
 ```mermaid
 flowchart LR
-    Start([Start]) --> BS[basket-service]
+    Start([Customer]) --> BS[basket-service]
     BS -->|checkout-initiated| OS[order-service]
     OS -->|order-created| IS[inventory-service]
     IS -->|stock-reserved| OS
@@ -10,12 +12,18 @@ flowchart LR
     OS -->|order-confirmed| FS[fulfillment-service]
     FS -->|shipment-created| OS
     FS -->|shipment-status-changed| OS
-    OS -->|order-cancelled| IS
+    OS --> End([Complete])
+```
+
+## Error Path: Stock Depleted
+
+```mermaid
+flowchart LR
+    Start([Customer]) --> BS[basket-service]
+    BS -->|checkout-initiated| OS[order-service]
+    OS -->|order-created| IS[inventory-service]
     IS -->|stock-depleted| BS
-    BS -->|basket-created| End([End])
-    BS -->|item-added| End
-    BS -->|item-removed| End
-    IS -->|stock-released| End
+    BS --> End([Notify Customer])
 ```
 
 **SPAS Domain Workspace**

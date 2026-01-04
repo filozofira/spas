@@ -66,6 +66,23 @@ dotnet run -- --generate-metadata --output ./metadata
 
 This writes `./metadata/service.metadata.zip` (containing `spas.json` + referenced schemas).
 
+### Design Principles
+
+When writing metadata attributes, follow domain-agnostic patterns. See [SDK Design Principles](../README.md#design-principles) for full guidance.
+
+**Description Writing:**
+```csharp
+// ❌ Domain-coupled
+[SpasCommand("ReserveStock", "1.0", 
+    Description = "Reserves product stock for an order")]
+
+// ✅ Domain-agnostic
+[SpasCommand("ReserveItems", "1.0", 
+    Description = "Reserves specified item quantities for a transaction")]
+```
+
+**Real-world impact:** Domain-agnostic descriptions enable reuse across healthcare (medical supplies), SaaS (license pools), corporate IT (asset tracking), and e-commerce (product inventory) through choreography configuration alone.
+
 ### Packages
 
 | Package                    | Purpose                    | Key Types                                                          |
@@ -98,6 +115,35 @@ This writes `./metadata/service.metadata.zip` (containing `spas.json` + referenc
 **Context & Observability:**
 
 - W3C Trace Context propagation (Activity/OpenTelemetry)
+
+### Design Principles
+
+SPAS promotes **domain-agnostic service design** for maximum reusability. Key principle: use neutral entity identifiers and context-free operations.
+
+**Example:**
+```csharp
+// ❌ Domain-coupled (limits reuse)
+public class ReserveStockRequest
+{
+    public string ProductId { get; set; }  // Assumes commerce domain
+    public string OrderId { get; set; }    // Assumes order context
+}
+
+// ✅ Domain-agnostic (reusable across contexts)
+public class ReserveItemsRequest
+{
+    public string ItemId { get; set; }        // Neutral: product, license, supply, asset
+    public string ReferenceId { get; set; }   // Opaque: order, rental, subscription
+}
+```
+
+**Real-world impact:** Inventory service using `ItemId` can serve:
+- 🏥 Healthcare: Medical supply tracking
+- 💼 SaaS: License pool management  
+- 🏢 Corporate IT: Asset inventory
+- 🛒 E-commerce: Product stock (traditional use case)
+
+📖 **See full design principles:** [SDK Root README](../README.md#design-principles)
 - Identity propagation via headers (`x-user-id`, `x-tenant-id`)
 - Tracelog middleware for request timing and correlation
 

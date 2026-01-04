@@ -48,7 +48,7 @@ public class BasketController {
         name = "CreateBasket",
         version = "1.0.0",
 
-        description = "Creates a new shopping basket for a customer; emits BasketCreated event",
+        description = "Creates a new basket for a user; emits BasketCreated event",
         produces = { BasketCreatedEvent.class }
     )
     @PostMapping
@@ -75,7 +75,7 @@ public class BasketController {
     @SpasCommand(
         name = "AddItem",
         version = "1.0.0",
-        description = "Adds a product to the shopping basket; emits ItemAdded event",
+        description = "Adds an item to the basket; emits ItemAdded event",
         produces = { ItemAddedEvent.class }
     )
     @PostMapping("/{id}/items")
@@ -117,7 +117,7 @@ public class BasketController {
         name = "RemoveItem",
         version = "1.0.0",
 
-        description = "Removes a product from the shopping basket; emits ItemRemoved event",
+        description = "Removes an item from the basket; emits ItemRemoved event",
         produces = { ItemRemovedEvent.class }
     )
     @DeleteMapping("/{id}/items/{productId}")
@@ -151,7 +151,7 @@ public class BasketController {
     @SpasCommand(
         name = "InitiateCheckout",
         version = "1.0.0",
-        description = "Initiates checkout for a basket with shipping address; emits CheckoutInitiated event containing all order details for downstream order-service and fulfillment-service",
+        description = "Initiates checkout for a basket with destination address; emits CheckoutInitiated event containing all transaction details for downstream services",
         produces = { CheckoutInitiatedEvent.class }
     )
     @PostMapping("/{id}/checkout")
@@ -224,7 +224,7 @@ public class BasketController {
     @SpasCommand(
         name = "MarkProductUnavailable",
         version = "1.0.0",
-        description = "Marks a product as unavailable in all open baskets when stock is depleted"
+        description = "Marks an item as unavailable in all open baskets when quantity is depleted"
     )
     @PostMapping("/mark-unavailable")
     public ResponseEntity<Void> markProductUnavailable(@RequestBody StockDepletedPayload payload) {
@@ -246,7 +246,7 @@ public class BasketController {
     @SpasCommand(
         name = "ClearBasket",
         version = "1.0.0",
-        description = "Clears a basket after successful order creation; matches basket via referenceId"
+        description = "Clears a basket after successful transaction creation; matches basket via referenceId"
     )
     @PostMapping("/clear")
     public ResponseEntity<Void> clearBasket(@RequestBody OrderCreatedPayload payload) {

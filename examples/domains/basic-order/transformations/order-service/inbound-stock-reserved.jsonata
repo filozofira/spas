@@ -1,9 +1,12 @@
 /* inbound-stock-reserved.jsonata */
-/* Transforms inventory-service.stock-reserved -> order-service.confirm-order */
+/* Transforms stock-reserved (inventory-service) -> confirm-order request (order-service) */
+/* Source: schemas/events/stock-reserved.schema.json */
+/* Target: schemas/endpoints/confirm-order.schema.json */
+
 {
   "orderId": referenceId,
   "reservedItems": $append([], reservations.{
-    "productId": productId,
+    "productId": itemId,
     "quantity": quantity
   })
 }

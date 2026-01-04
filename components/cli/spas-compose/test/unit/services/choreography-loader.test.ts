@@ -110,8 +110,8 @@ domain: "test"
       expect(validateResult.errors).toContain("flows is required");
     });
 
-    it("should validate flow has at least 2 participants", () => {
-      // Arrange
+    it("should validate choreographed flow has at least 2 participants", () => {
+      // Arrange - flow with targets requires 2+ participants
       const singleParticipant = `
 version: "1.0"
 domain: "test-domain"
@@ -140,9 +140,43 @@ flows:
       expect(validateResult.isValid).toBe(false);
       expect(
         validateResult.errors.some((e) =>
-          e.includes("at least 2 participants"),
+          e.includes("at least 2 participant"),
         ),
       ).toBe(true);
+    });
+
+    it("should allow terminal-only flow with 1 participant", () => {
+      // Arrange - flow with only terminal events (empty targets) can have 1 participant
+      const terminalOnlyFlow = `
+version: "1.0"
+domain: "test-domain"
+flows:
+  basket-management:
+    participants:
+      - basket-service
+    events:
+      - source: basket-service
+        event: basket-created
+        topic: basket-events
+        targets: []
+      - source: basket-service
+        event: item-added
+        topic: basket-events
+        targets: []
+`;
+      fs.writeFileSync(
+        path.join(workspacePath, "choreography.yaml"),
+        terminalOnlyFlow,
+      );
+      const loader = new ChoreographyLoader(workspacePath);
+      const loadResult = loader.load();
+
+      // Act
+      const validateResult = loader.validate(loadResult.choreography!);
+
+      // Assert
+      expect(validateResult.isValid).toBe(true);
+      expect(validateResult.errors).toHaveLength(0);
     });
 
     it("should pass validation for valid choreography", () => {

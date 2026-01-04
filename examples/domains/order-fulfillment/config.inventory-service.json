@@ -18,6 +18,16 @@
       "topic": "inventory-events",
       "eventType": "com.inventory-service.stock-depleted",
       "eventName": "stock-depleted"
+    },
+    {
+      "topic": "inventory-events",
+      "eventType": "com.inventory-service.stock-released",
+      "eventName": "stock-released"
+    },
+    {
+      "topic": "inventory-events",
+      "eventType": "com.inventory-service.inventory-item-added",
+      "eventName": "inventory-item-added"
     }
   ]
 }

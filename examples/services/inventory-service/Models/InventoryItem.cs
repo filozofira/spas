@@ -1,3 +1,3 @@
 namespace InventoryService.Models;
 
-public record InventoryItem(string ProductId, int AvailableQuantity, int ReservedQuantity);
+public record InventoryItem(string ItemId, int AvailableQuantity, int ReservedQuantity);

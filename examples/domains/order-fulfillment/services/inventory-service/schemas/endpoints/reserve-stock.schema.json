@@ -11,23 +11,31 @@
     "items": {
       "type": "array",
       "items": {
-        "$ref": "#/definitions/OrderItem"
+        "$ref": "#/definitions/ReserveItem"
       }
     }
   },
   "definitions": {
-    "OrderItem": {
+    "ReserveItem": {
       "type": "object",
       "additionalProperties": false,
       "properties": {
-        "productId": {
+        "itemId": {
           "type": "string"
         },
         "quantity": {
           "type": "integer",
           "format": "int32"
         }
-      }
+      },
+      "required": [
+        "itemId",
+        "quantity"
+      ]
     }
-  }
+  },
+  "required": [
+    "referenceId",
+    "items"
+  ]
 }

@@ -25,11 +25,11 @@ public class OrdersController : ControllerBase
     }
 
     /// <summary>
-    /// Creates a new order from cart items and publishes OrderCreated
+    /// Creates a new order and publishes OrderCreated
     /// </summary>
     [HttpPost]
     [SpasCommand("CreateOrder", "1.0", 
-        Description = "Creates a new order from cart items and publishes OrderCreated; returns the new orderId", 
+        Description = "Creates a new order and publishes OrderCreated; returns the new orderId", 
         Produces = new[] { typeof(OrderCreatedEvent) })]
     public async Task<ActionResult<CreateOrderResponse>> CreateOrder([FromBody] CreateOrderRequest request)
     {

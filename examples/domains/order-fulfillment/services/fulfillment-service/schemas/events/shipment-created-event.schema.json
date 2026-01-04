@@ -24,7 +24,14 @@
         "street": {
           "type": "string"
         }
-      }
+      },
+      "required": [
+        "city",
+        "country",
+        "postalCode",
+        "state",
+        "street"
+      ]
     },
     "referenceId": {
       "type": "string"
@@ -43,5 +50,12 @@
         "CANCELLED"
       ]
     }
-  }
+  },
+  "required": [
+    "createdAt",
+    "destination",
+    "referenceId",
+    "shipmentId",
+    "status"
+  ]
 }

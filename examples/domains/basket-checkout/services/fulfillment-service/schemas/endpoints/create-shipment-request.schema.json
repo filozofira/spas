@@ -32,7 +32,25 @@
         "street": {
           "type": "string"
         }
-      }
+      },
+      "required": [
+        "city",
+        "country",
+        "postalCode",
+        "state",
+        "street"
+      ]
+    },
+    "specialInstructions": {
+      "type": "string"
     }
-  }
+  },
+  "required": [
+    "customerId",
+    "deliveryMethod",
+    "pickupLocationId",
+    "referenceId",
+    "shippingAddress",
+    "specialInstructions"
+  ]
 }

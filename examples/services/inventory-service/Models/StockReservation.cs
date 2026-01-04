@@ -1,3 +1,3 @@
 namespace InventoryService.Models;
 
-public record StockReservation(string ProductId, int Quantity, DateTime ReservedAt);
+public record StockReservation(string ItemId, int Quantity, DateTime ReservedAt);

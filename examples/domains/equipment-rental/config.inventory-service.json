@@ -18,6 +18,11 @@
   "outbound": [
     {
       "topic": "inventory-events",
+      "eventType": "com.inventory-service.inventory-item-added",
+      "eventName": "inventory-item-added"
+    },
+    {
+      "topic": "inventory-events",
       "eventType": "com.inventory-service.stock-reserved",
       "eventName": "stock-reserved"
     },

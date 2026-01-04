@@ -17,5 +17,9 @@
         "string"
       ]
     }
-  }
+  },
+  "required": [
+    "orderId",
+    "status"
+  ]
 }

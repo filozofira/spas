@@ -44,6 +44,32 @@ Services intended for reuse across multiple domain contexts SHOULD be designed a
 - The caller provides their domain-specific ID as the `referenceId`; the service treats it as an opaque correlation key
 - This enables the same service to participate in Orders, Rentals, Subscriptions, etc. without code changes
 
+### Entity Identifier Neutrality
+
+Entity identifiers (primary keys, entity references) MUST use neutral terminology when designing utility services:
+
+**Neutral Entity Names:**
+
+| Domain-Specific (Avoid) | Domain-Agnostic (Preferred) | Contexts Enabled |
+|------------------------|----------------------------|------------------|
+| `productId` | `itemId` | Commerce, Healthcare, SaaS, Facilities, Corporate IT |
+| `deviceId` | `unitId` | IoT, Equipment, Vehicles, Facilities |
+| `orderId` (as entity) | `transactionId` | Orders, Rentals, Subscriptions, Bookings |
+| `customerId` | `accountId` or `partyId` | B2C, B2B, Internal, Partner |
+
+**Why This Matters:**
+
+An inventory service using `productId` creates semantic confusion when:
+- 🏥 Hospital tracks medical supplies (not "products")
+- 💼 SaaS platform manages license pools (not "products")
+- 🏢 Corporate IT tracks laptops/monitors (not "products")
+
+Using `itemId` makes the service **truly reusable** across all these contexts without code changes.
+
+**Test for Domain Agnosticism:**
+
+If you must rename an entity identifier to fit a new business context, your design is domain-coupled. Good: `itemId` works for products, licenses, supplies, assets without modification.
+
 ### Examples
 
 | Domain-Specific (Avoid) | Domain-Agnostic (Preferred) |
@@ -51,6 +77,36 @@ Services intended for reuse across multiple domain contexts SHOULD be designed a
 | `fulfillment-service` as "order fulfillment" with `orderId` | Generic logistics service with `referenceId` |
 | `inventory-service` reserving stock for "orders" | Generic stock management reserving for any `referenceId` |
 | `CreateShipmentRequest { orderId, ... }` | `CreateShipmentRequest { referenceId, ... }` |
+
+### Context-Free Operations
+
+Business logic in utility services MUST operate on abstract entity types without domain assumptions:
+
+**Bad (Domain-Coupled):**
+```csharp
+public async Task<StockReservationResult> ReserveProductStock(string productId, int quantity, string orderId)
+{
+    // Assumes commerce domain: "products", "orders", "stock"
+    var product = await _catalog.GetProductAsync(productId);
+    if (product.AvailableStock < quantity)
+        return StockReservationResult.InsufficientStock;
+    // ...
+}
+```
+
+**Good (Domain-Agnostic):**
+```csharp
+public async Task<ReservationResult> ReserveItems(string itemId, int quantity, string referenceId)
+{
+    // Generic: "items", "reference", "reservation"
+    var item = await _store.GetItemAsync(itemId);
+    if (item.AvailableQuantity < quantity)
+        return ReservationResult.InsufficientQuantity;
+    // ...
+}
+```
+
+The service operates on "items" and "quantities" without knowing if it's managing products, licenses, medical supplies, or equipment.
 
 ### When to Apply
 

@@ -2,5 +2,18 @@
   "$schema": "http://json-schema.org/draft-07/schema#",
   "title": "OrderCancelledEvent",
   "type": "object",
-  "additionalProperties": false
+  "additionalProperties": false,
+  "properties": {
+    "orderId": {
+      "type": "string",
+      "format": "guid"
+    },
+    "customerId": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "orderId",
+    "customerId"
+  ]
 }

@@ -159,15 +159,19 @@
 
 ### Implementation for User Story 3
 
-- [ ] T049 [US3] Run full SDK test suite with `mvn clean test` in components/sdk/java
-- [ ] T050 [US3] Verify 100% of existing unit tests pass (per SC-002)
-- [ ] T051 [US3] Run annotation processor tests in components/sdk/java/spas-sdk-metadata-processor
-- [ ] T052 [US3] Verify metadata generation works correctly for all processor tests
-- [ ] T053 [US3] Spot-check service integration tests for basket-service
-- [ ] T054 [US3] Spot-check service integration tests for fulfillment-service
-- [ ] T055 [US3] Document any test warnings or compatibility notices in a warnings log (optional)
+- ✅ T049 [US3] Run full SDK test suite with `mvn clean test` - **14.6s, 185 tests, 0 failures**
+- ✅ T050 [US3] Verify 100% of existing unit tests pass (per SC-002) - **100% pass rate (185/185)**
+- ✅ T051 [US3] Run annotation processor tests - **10 tests passed**
+- ✅ T052 [US3] Verify metadata generation works correctly - **All processor tests passed**
+- ✅ T053 [US3] ~~Spot-check service integration tests for basket-service~~ - N/A, no test sources
+- ✅ T054 [US3] ~~Spot-check service integration tests for fulfillment-service~~ - N/A, no test sources
+- ✅ T055 [US3] Document test warnings and compatibility notices:
+  - **Deprecated API**: `addCapability(String)` in ServiceIdentityBuilder (6 warnings in tests) - marked for removal
+  - **Mockito warning**: Self-attaching to enable inline-mock-maker no longer supported in future JDK releases - add as agent to build
+  - **Guava/Unsafe warning**: Terminally deprecated `sun.misc.Unsafe::objectFieldOffset` used by Guava 31.1-jre and OpenTelemetry
+  - **Dynamic agent warning**: Mockito and Byte Buddy load agents dynamically - disallowed by default in future JDK releases
 
-**Checkpoint**: All test suites pass, no regressions detected, quality validated
+**Checkpoint**: All test suites pass with 100% success rate (185/185 tests). Java 25 compatibility validated. Warnings documented for future maintenance. Test breakdown: core(74), metadata(32), processor(10), events(7), spring(34), observability(28).
 
 ---
 

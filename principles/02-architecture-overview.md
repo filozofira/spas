@@ -49,16 +49,19 @@ flowchart TB
 ## Logical Flow
 
 ```mermaid
-flowchart LR
+flowchart TB
   subgraph "Design Time"
-    SDK[.NET SDK] -->|generates| Meta[Service Metadata]
-    Meta -->|published via| CLI1[spas-service CLI]
-    CLI1 -->|pushes image| DockerReg[(Container Registry)]
-    CLI1 -->|pushes metadata| Repo[(SPAS Repository)]
+    Code[Service Code] -->|uses| SDK[.NET/Java SDK]
+    SDK -->|generates| Meta[Service Metadata Archive]
+    Meta -->|spas-service publish| Repo[(SPAS Repository)]
+    
+    Code -->|docker build/push| DockerReg[(Container Registry)]
+    
+    DockerReg -.->|image reference| Meta
   end
 
   subgraph "Composition Time"
-    CLI2[spas-compose CLI] -->|pulls from| Repo
+    CLI2[spas-compose CLI] -->|pulls metadata from| Repo
     CLI2 -->|generates| Choreo[choreography.yaml]
     CLI2 -->|generates| DC[docker-compose.yaml]
     CLI2 -->|generates| SC[sidecar configs]
@@ -67,7 +70,7 @@ flowchart LR
   subgraph "Runtime"
     DC -->|deploys| Services[Services + Sidecars]
     Choreo -->|routes| Events[Event Flows]
-    Services -->|pulls images| DockerReg
+    Services -->|pulls images from| DockerReg
   end
 ```
 

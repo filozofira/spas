@@ -60,7 +60,7 @@ How would you like to proceed?
 
 The Maven build failed. Common causes:
 1. Maven not installed (run: mvn --version)
-2. Missing Java 21+ installation
+2. Missing Java 25+ installation
 3. JAVA_HOME not set (optional but recommended)
 4. Invalid pom.xml configuration
 5. Compilation errors in generated code

@@ -1,11 +1,12 @@
 # Feature Specification: Java 25 LTS Upgrade
 
 **Feature Branch**: `035-java-25-lts-upgrade`  
-**Created**: January 4, 2026  
-**Status**: Draft  
+**Created**: 2026-01-04  
+**Status**: ✅ Completed (PoC)
+**Completed**: 2026-01-04
 **Input**: User description: "Upgrade Java SDK and all java example services using the SDK to Java version 25 LTS"
 
-## User Scenarios & Testing *(mandatory)*
+## User Scenarios & Testing _(mandatory)_
 
 ### User Story 1 - SDK Builds and Tests with Java 25 (Priority: P1)
 
@@ -110,7 +111,7 @@ Developers reading SDK and service documentation see accurate Java 25 requiremen
 - How are IDE configurations and developer workstation environments updated to support Java 25? (Documentation should guide developers through Java 25 JDK installation)
 - When tests fail after upgrade, how is root cause determined? (Prioritize fixing production code for Java 25 compatibility over updating tests)
 
-## Requirements *(mandatory)*
+## Requirements _(mandatory)_
 
 ### Functional Requirements
 
@@ -142,7 +143,7 @@ This feature primarily involves configuration changes rather than data entities.
 - **Documentation**: README files and badges showing Java version requirements (SDK, services, root-level docs)
 - **Test Suites**: Automated test collections that validate SDK functionality and service behavior
 
-## Success Criteria *(mandatory)*
+## Success Criteria _(mandatory)_
 
 ### Measurable Outcomes
 

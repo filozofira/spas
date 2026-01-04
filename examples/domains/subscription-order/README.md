@@ -2,12 +2,12 @@
 
 ```mermaid
 flowchart LR
-    Start([Start]) --> SS[subscription-service]
+    Start([Customer]) --> SS[subscription-service]
     SS -->|subscription-created| OS[order-service]
     OS -->|order-created| IS[inventory-service]
     IS -->|stock-reserved| OS
     OS -->|order-confirmed| SS
-    SS -->|subscription-activated| End([End])
+    SS -->|subscription-activated| End([Complete])
 ```
 
 **SPAS Domain Workspace**

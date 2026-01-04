@@ -17,5 +17,11 @@
     "frequency": {
       "type": "string"
     }
-  }
+  },
+  "required": [
+    "customerId",
+    "productId",
+    "quantity",
+    "frequency"
+  ]
 }

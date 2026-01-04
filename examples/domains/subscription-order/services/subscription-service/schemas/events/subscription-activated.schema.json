@@ -29,5 +29,14 @@
       "type": "string",
       "format": "date-time"
     }
-  }
+  },
+  "required": [
+    "subscriptionId",
+    "orderId",
+    "customerId",
+    "productId",
+    "quantity",
+    "frequency",
+    "activatedAt"
+  ]
 }

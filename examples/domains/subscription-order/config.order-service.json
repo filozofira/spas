@@ -25,6 +25,11 @@
       "topic": "order-events",
       "eventType": "com.order-service.order-confirmed",
       "eventName": "order-confirmed"
+    },
+    {
+      "topic": "order-events",
+      "eventType": "com.order-service.order-cancelled",
+      "eventName": "order-cancelled"
     }
   ]
 }

@@ -27,7 +27,15 @@
           "type": "integer",
           "format": "int32"
         }
-      }
+      },
+      "required": [
+        "productId",
+        "quantity"
+      ]
     }
-  }
+  },
+  "required": [
+    "orderId",
+    "reservedItems"
+  ]
 }

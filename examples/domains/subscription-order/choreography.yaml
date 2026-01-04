@@ -5,9 +5,10 @@ version: "1.0"
 domain: subscription-order
 
 # Named choreography flows
+# Use /spas.compose agent to generate flows based on service contracts
 flows:
-  subscription-order-flow:
-    description: "End-to-end subscription order lifecycle from creation through fulfillment to activation"
+  subscription-fulfillment-flow:
+    description: "B2B subscription order fulfillment with inventory reservation"
     participants:
       - subscription-service
       - order-service
@@ -20,7 +21,7 @@ flows:
           - service: order-service
             command: create-order
             transform: transformations/order-service/inbound-subscription-created.jsonata
-
+      
       - source: order-service
         event: order-created
         topic: order-events
@@ -28,7 +29,7 @@ flows:
           - service: inventory-service
             command: reserve-stock
             transform: transformations/inventory-service/inbound-order-created.jsonata
-
+      
       - source: inventory-service
         event: stock-reserved
         topic: inventory-events
@@ -36,7 +37,7 @@ flows:
           - service: order-service
             command: confirm-order
             transform: transformations/order-service/inbound-stock-reserved.jsonata
-
+      
       - source: order-service
         event: order-confirmed
         topic: order-events
@@ -44,10 +45,31 @@ flows:
           - service: subscription-service
             command: activate-subscription
             transform: transformations/subscription-service/inbound-order-confirmed.jsonata
-
+      
+      # Terminal events - published for audit/logging/future extension
       - source: subscription-service
         event: subscription-activated
         topic: subscription-events
+        targets: []
+      
+      - source: inventory-service
+        event: stock-depleted
+        topic: inventory-events
+        targets: []
+      
+      - source: inventory-service
+        event: stock-released
+        topic: inventory-events
+        targets: []
+      
+      - source: order-service
+        event: order-cancelled
+        topic: order-events
+        targets: []
+      
+      - source: inventory-service
+        event: inventory-item-added
+        topic: inventory-events
         targets: []
 
 # Infrastructure components (optional)

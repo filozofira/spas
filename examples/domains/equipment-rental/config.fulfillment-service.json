@@ -13,6 +13,11 @@
       "topic": "fulfillment-events",
       "eventType": "com.fulfillment-service.shipment-created",
       "eventName": "shipment-created"
+    },
+    {
+      "topic": "fulfillment-events",
+      "eventType": "com.fulfillment-service.shipment-status-changed",
+      "eventName": "shipment-status-changed"
     }
   ]
 }

@@ -1,5 +1,6 @@
 /* inbound-rental-returned.jsonata */
-/* Transforms rental-returned (rental-service) -> release-stock request (inventory-service) */
+/* Transforms rental-returned (rental-service) -> release-stock (inventory-service) */
+/* Maps returned rental items to inventory stock release */
 {
   "referenceId": rentalId,
   "items": $append([], items.{

@@ -27,7 +27,11 @@
           "quantity": {
             "type": "integer"
           }
-        }
+        },
+        "required": [
+          "productId",
+          "quantity"
+        ]
       }
     },
     "pickupLocationId": {
@@ -51,7 +55,14 @@
         "street": {
           "type": "string"
         }
-      }
+      },
+      "required": [
+        "city",
+        "country",
+        "postalCode",
+        "state",
+        "street"
+      ]
     },
     "startDate": {
       "type": "string",
@@ -75,8 +86,25 @@
             "type": "string",
             "format": "date-time"
           }
-        }
+        },
+        "required": [
+          "reason",
+          "status",
+          "timestamp"
+        ]
       }
     }
-  }
+  },
+  "required": [
+    "customerId",
+    "deliveryMethod",
+    "endDate",
+    "id",
+    "items",
+    "pickupLocationId",
+    "shippingAddress",
+    "startDate",
+    "status",
+    "statusHistory"
+  ]
 }

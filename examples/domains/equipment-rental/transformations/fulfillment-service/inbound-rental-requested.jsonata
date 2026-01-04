@@ -1,15 +1,11 @@
 /* inbound-rental-requested.jsonata */
-/* Transforms rental-requested (rental-service) -> create-shipment request (fulfillment-service) */
+/* Transforms rental-requested (rental-service) -> create-shipment (fulfillment-service) */
+/* Maps rental request with full customer/address data to shipment creation */
 {
   "referenceId": rentalId,
   "customerId": customerId,
   "deliveryMethod": deliveryMethod,
-  "shippingAddress": shippingAddress ? {
-    "street": shippingAddress.street,
-    "city": shippingAddress.city,
-    "state": shippingAddress.state,
-    "postalCode": shippingAddress.postalCode,
-    "country": shippingAddress.country
-  } : null,
-  "pickupLocationId": pickupLocationId
+  "pickupLocationId": pickupLocationId,
+  "shippingAddress": shippingAddress,
+  "specialInstructions": ""
 }

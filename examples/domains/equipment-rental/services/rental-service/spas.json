@@ -10,13 +10,13 @@
   ],
   "endpoints": [
     {
-      "name": "get-rental",
+      "name": "list-rentals",
       "type": "Query",
       "protocol": "Http",
-      "methodPath": "/rentals/{id}",
+      "methodPath": "/rentals",
       "version": "1.0",
       "schemaRef": "schemas/endpoints/rental.schema.json",
-      "description": "Gets rental details"
+      "description": "Lists all rentals"
     },
     {
       "name": "request-rental",
@@ -37,13 +37,13 @@
       "description": "Processes the return of rented equipment"
     },
     {
-      "name": "list-rentals",
+      "name": "get-rental",
       "type": "Query",
       "protocol": "Http",
-      "methodPath": "/rentals",
+      "methodPath": "/rentals/{id}",
       "version": "1.0",
       "schemaRef": "schemas/endpoints/rental.schema.json",
-      "description": "Lists all rentals"
+      "description": "Gets rental details"
     }
   ],
   "commands": [
@@ -106,7 +106,7 @@
     ]
   },
   "license": "MIT",
-  "publishedAt": "2026-01-02T02:13:34.268Z",
+  "publishedAt": "2026-01-03T23:21:44.672Z",
   "runtime": {
     "digest": "sha256:TODO_UPDATE_AFTER_BUILD",
     "repository": "spas-examples/rental-service",

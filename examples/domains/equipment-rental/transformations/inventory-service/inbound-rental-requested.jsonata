@@ -1,5 +1,6 @@
 /* inbound-rental-requested.jsonata */
-/* Transforms rental-requested (rental-service) -> reserve-stock request (inventory-service) */
+/* Transforms rental-requested (rental-service) -> reserve-stock (inventory-service) */
+/* Maps rental request to inventory reservation using rentalId as referenceId */
 {
   "referenceId": rentalId,
   "items": $append([], items.{

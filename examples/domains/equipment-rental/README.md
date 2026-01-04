@@ -2,14 +2,16 @@
 
 ```mermaid
 flowchart LR
-    Start([Start]) --> RS[rental-service]
+    Start([Rental Request]) --> RS[rental-service]
     RS -->|rental-requested| IS[inventory-service]
     RS -->|rental-requested| FS[fulfillment-service]
-    IS -->|stock-reserved| End1([End])
-    IS -->|stock-depleted| End2([End])
-    FS -->|shipment-created| End3([End])
-    RS -->|rental-returned| IS2[inventory-service]
-    IS2 -->|stock-released| End4([End])
+    IS -->|stock-reserved| End1([Reserved])
+    IS -->|stock-depleted| End2([Unavailable])
+    FS -->|shipment-created| End3([Shipment Ready])
+    
+    Return([Return]) --> RS
+    RS -->|rental-returned| IS
+    IS -->|stock-released| End4([Complete])
 ```
 
 **SPAS Domain Workspace**

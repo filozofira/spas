@@ -36,6 +36,52 @@ Services designed for reuse across domains SHOULD accept neutral identifiers rat
 }
 ```
 
+### Entity Naming in Contracts
+
+When defining request/response DTOs for utility services, use neutral entity terminology:
+
+**Domain-Coupled (Avoid):**
+```json
+{
+  "productId": "prod-456",    // Assumes commerce domain
+  "quantity": 10,
+  "orderId": "ord-123"        // Assumes order context
+}
+```
+
+**Domain-Agnostic (Preferred):**
+```json
+{
+  "itemId": "item-456",       // Generic: product, license, supply, asset
+  "quantity": 10,
+  "referenceId": "ord-123"    // Opaque: order, rental, subscription
+}
+```
+
+**JSON Schema Example:**
+```json
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "ReserveItemsRequest",
+  "type": "object",
+  "properties": {
+    "itemId": {
+      "type": "string",
+      "description": "Generic item identifier (product/license/supply/asset)"
+    },
+    "quantity": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "referenceId": {
+      "type": "string",
+      "description": "Opaque caller context (order/rental/subscription ID)"
+    }
+  },
+  "required": ["itemId", "quantity", "referenceId"]
+}
+```
+
 See [Service Model - Domain-Agnostic Design](03-service-model.md#domain-agnostic-service-design) for guidelines.
 
 ## Event Contracts

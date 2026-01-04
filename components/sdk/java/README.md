@@ -86,6 +86,33 @@ This writes `./metadata/service.metadata.zip` (containing `spas.json` + referenc
 - Identity propagation: x-user-id, x-tenant-id headers
 - Thread-safe: InheritableThreadLocal for async operations
 
+### Design Principles
+
+SPAS promotes **domain-agnostic service design** for maximum reusability. Key principle: use neutral entity identifiers and context-free operations.
+
+**Example:**
+```java
+// ❌ Domain-coupled (limits reuse)
+public class ReserveStockRequest {
+    private String productId;  // Assumes commerce domain
+    private String orderId;    // Assumes order context
+}
+
+// ✅ Domain-agnostic (reusable across contexts)
+public class ReserveItemsRequest {
+    private String itemId;        // Neutral: product, license, supply, asset
+    private String referenceId;   // Opaque: order, rental, subscription
+}
+```
+
+**Real-world impact:** Inventory service using `itemId` can serve:
+- 🏥 Healthcare: Medical supply tracking
+- 💼 SaaS: License pool management  
+- 🏢 Corporate IT: Asset inventory
+- 🛒 E-commerce: Product stock (traditional use case)
+
+📖 **See full design principles:** [SDK Root README](../README.md#design-principles)
+
 ### Capability Declaration
 
 Declare service capabilities using the `capabilities` attribute in the `@SpasService` annotation:

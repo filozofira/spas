@@ -98,6 +98,35 @@ This writes `./metadata/service.metadata.zip` (containing `spas.json` + referenc
 **Context & Observability:**
 
 - W3C Trace Context propagation (Activity/OpenTelemetry)
+
+### Design Principles
+
+SPAS promotes **domain-agnostic service design** for maximum reusability. Key principle: use neutral entity identifiers and context-free operations.
+
+**Example:**
+```csharp
+// ❌ Domain-coupled (limits reuse)
+public class ReserveStockRequest
+{
+    public string ProductId { get; set; }  // Assumes commerce domain
+    public string OrderId { get; set; }    // Assumes order context
+}
+
+// ✅ Domain-agnostic (reusable across contexts)
+public class ReserveItemsRequest
+{
+    public string ItemId { get; set; }        // Neutral: product, license, supply, asset
+    public string ReferenceId { get; set; }   // Opaque: order, rental, subscription
+}
+```
+
+**Real-world impact:** Inventory service using `ItemId` can serve:
+- 🏥 Healthcare: Medical supply tracking
+- 💼 SaaS: License pool management  
+- 🏢 Corporate IT: Asset inventory
+- 🛒 E-commerce: Product stock (traditional use case)
+
+📖 **See full design principles:** [SDK Root README](../README.md#design-principles)
 - Identity propagation via headers (`x-user-id`, `x-tenant-id`)
 - Tracelog middleware for request timing and correlation
 

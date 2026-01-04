@@ -10,7 +10,7 @@ import java.time.Instant;
 @SpasEvent(
     type = "BasketCreated",
     version = "1.0.0",
-    description = "Emitted when a customer creates a new shopping basket"
+    description = "Emitted when a user creates a new basket"
 )
 public class BasketCreatedEvent {
     

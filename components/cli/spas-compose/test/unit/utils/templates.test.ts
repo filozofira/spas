@@ -110,6 +110,30 @@ describe("generateAgentFile", () => {
       expect(content).toContain("quote the exact snippet");
       expect(content).toContain("NEVER invent");
     });
+
+    it("should include domain-agnostic pattern recognition guidance", () => {
+      const content = generateAgentFile("./examples/ecommerce");
+
+      // Pattern-based matching (no concrete examples like "order-service")
+      expect(content).toContain("Domain-Agnostic Pattern Recognition");
+      expect(content).toContain("Match by CAPABILITY, not exact wording");
+      expect(content).toContain("[domain-entity]"); // Placeholder syntax
+      expect(content).toContain("[generic-resource]");
+      expect(content).toContain("Extract ACTION verb");
+      
+      // Field name semantic equivalence
+      expect(content).toContain("Field Name Semantic Equivalence");
+      expect(content).toContain("itemId"); // Item identifier category
+      expect(content).toContain("referenceId"); // Reference identifier category
+      expect(content).toContain("quantity"); // Quantity field category
+      expect(content).toContain("Field Overlap Analysis");
+      expect(content).toContain("≥60%"); // Quantitative threshold
+      
+      // Red flags
+      expect(content).toContain("Red Flags (DO NOT MATCH)");
+      expect(content).toContain("Action verbs incompatible");
+      expect(content).toContain("Schema field overlap <60%");
+    });
   });
 
   describe("phased workflow with validation (US2)", () => {

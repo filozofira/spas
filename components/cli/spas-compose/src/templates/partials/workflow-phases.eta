@@ -43,6 +43,74 @@ The following 5-phase workflow guides the process. Execute phases in order, crea
      - If `description` is missing, say so explicitly and rely more heavily on names, types, and schemas.
      - NEVER invent or "improve" missing descriptions.
 
+   - **Domain-Agnostic Pattern Recognition**:
+     When matching events to endpoints across service boundaries:
+     
+     **A. Identify Service Type:**
+     - Domain services: Use specific terminology ([domain]-service, [entity]-service)
+     - Utility services: Use generic terminology (inventory-service, fulfillment-service, notification-service)
+     
+     **B. Semantic Equivalence Patterns - Match by CAPABILITY, not exact wording:**
+     
+     Pattern: Domain-specific event → Generic endpoint
+     • `[domain-entity]-created` → `reserve [generic-resource]`
+       Examples: rental-requested → reserve item quantities
+                 order-created → reserve item quantities
+                 subscription-created → reserve item quantities
+     
+     • `[domain-entity]-confirmed` → `create [generic-output]`
+       Examples: order-confirmed → create shipment
+                 rental-confirmed → create shipment
+                 booking-confirmed → create shipment
+     
+     **C. Matching Strategy:**
+     - Extract ACTION verb from descriptions (reserve, release, create, update, notify)
+     - Extract ENTITY type from descriptions (items, quantities, shipments, resources)
+     - Match when ACTION + ENTITY align, regardless of domain-specific wrapper terms
+     - Field schemas provide validation (see Field Name Semantic Equivalence below)
+     
+     **D. Field Name Semantic Equivalence:**
+     
+     Utility services use neutral field names. Domain services use specific names.
+     When matching schemas, recognize these equivalences:
+     
+     Item Identifiers (countable resources):
+     • `itemId` ≡ `productId` ≡ `licenseId` ≡ `assetId` ≡ `supplyId` ≡ `equipmentId` ≡ `unitId`
+     
+     Reference Identifiers (domain transaction context):
+     • `referenceId` ≡ `orderId` ≡ `rentalId` ≡ `subscriptionId` ≡ `bookingId` ≡ `requisitionId` ≡ `accountId`
+     
+     Quantity Fields (countable amounts):
+     • `quantity` ≡ `count` ≡ `units` ≡ `amount` ≡ `seats`
+     
+     Address Fields (destination/location):
+     • `shippingAddress` ≡ `destinationAddress` ≡ `deliveryAddress` ≡ `pickupLocation`
+     
+     **Field Overlap Analysis:**
+     1. Extract field names from event schema
+     2. Extract field names from endpoint request schema
+     3. Check if ANY field name from each equivalence category appears in BOTH schemas
+     4. Calculate overlap: (matched required fields) / (total required fields)
+     5. If overlap ≥60% → LIKELY MATCH
+     
+     Example:
+     ```
+     Event schema: { licenseId, units, accountId, expirationDate }
+     Endpoint required: { itemId, quantity, referenceId }
+     
+     Semantic mapping:
+     • licenseId → itemId ✅ (item identifier equivalence)
+     • units → quantity ✅ (quantity field equivalence)
+     • accountId → referenceId ✅ (reference identifier equivalence)
+     
+     Match score: 3/3 required = 100% → STRONG MATCH
+     ```
+     
+     **E. Red Flags (DO NOT MATCH):**
+     - Action verbs incompatible: `create` ≠ `delete`, `reserve` ≠ `notify`
+     - Entity types incompatible: `reserve items` ≠ `send notification`
+     - Schema field overlap <60%: insufficient semantic alignment
+
 3. **Identify Distinct Business Flows**
    - Group related events by business capability/use case
    - **Criteria for separate flows:**

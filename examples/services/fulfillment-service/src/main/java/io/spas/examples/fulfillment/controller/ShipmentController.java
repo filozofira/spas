@@ -34,7 +34,7 @@ public class ShipmentController {
     @SpasCommand(
         name = "CreateShipment",
         version = "1.0.0",
-        description = "Creates a shipment for a confirmed order using the destination address; emits ShipmentCreated when successful",
+        description = "Creates a shipment for a fulfillment request using the destination address; emits ShipmentCreated when successful",
         produces = { ShipmentCreatedEvent.class }
         // Auto-generates: schemas/endpoints/create-shipment.schema.json
     )

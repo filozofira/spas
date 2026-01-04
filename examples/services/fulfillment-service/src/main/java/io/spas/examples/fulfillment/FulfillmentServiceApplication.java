@@ -25,7 +25,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
     name = "Fulfillment Service",
     boundedContext = "fulfillment",
     version = "1.0.0",
-    description = "Creates and tracks shipments for confirmed orders; publishes shipment lifecycle events for downstream services",
+    description = "Creates and tracks shipments for fulfillment requests; publishes shipment lifecycle events for downstream services",
     capabilities = {"shipment-creation", "shipment-tracking"}
 )
 public class FulfillmentServiceApplication {

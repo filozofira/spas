@@ -94,11 +94,11 @@ public class InventoryController : ControllerBase
     }
 
     /// <summary>
-    /// Reserves stock for a reference (order, rental, etc.) and publishes StockReserved
+    /// Reserves item quantities for a reference (order, rental, etc.) and publishes relevant events
     /// </summary>
     [HttpPost("reserve")]
     [SpasCommand("ReserveStock", "1.0",
-        Description = "Reserves stock for a reference and publishes StockReserved for successfully reserved items",
+        Description = "Reserves item quantities for a reference and publishes relevant events for successfully reserved items",
         Produces = new[] { typeof(StockReservedEvent), typeof(StockDepletedEvent) })]
     public async Task<ActionResult> ReserveStock([FromBody] ReserveStockRequest request)
     {
@@ -153,12 +153,12 @@ public class InventoryController : ControllerBase
     }
 
     /// <summary>
-    /// Releases reserved stock back to available inventory.
+    /// Releases reserved item quantities back to available inventory.
     /// Used for rental returns, order cancellations, or reverse logistics.
     /// </summary>
     [HttpPost("release")]
     [SpasCommand("ReleaseStock", "1.0",
-        Description = "Releases reserved stock back to available inventory and publishes StockReleased",
+        Description = "Releases reserved item quantities back to available inventory",
         Produces = new[] { typeof(StockReleasedEvent) })]
     public async Task<ActionResult> ReleaseStock([FromBody] ReleaseStockRequest request)
     {

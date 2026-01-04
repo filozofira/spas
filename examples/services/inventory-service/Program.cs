@@ -30,7 +30,7 @@ await app.RunSpasServiceAsync(args, options =>
     options.ServiceName = "inventory-service";
     options.Version = "1.0.0";
     options.BoundedContext = "inventory";
-    options.Description = "Stock tracking and reservation service";
+    options.Description = "Item quantity tracking and reservation service";
     options.AddCapability("inventory-tracking");
 
     options.ConfigureConsistency(c => c

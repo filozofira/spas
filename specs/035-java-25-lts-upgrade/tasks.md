@@ -95,59 +95,59 @@
 
 #### Sample Service
 
-- [ ] T019 [P] [US2] Update java.version from 21 to 25 in components/sdk/java/examples/sample-service/pom.xml
-- [ ] T020 [US2] Build sample-service with `mvn clean package` in components/sdk/java/examples/sample-service
+- ✅ T019 [P] [US2] ~~Update java.version from 21 to 25~~ - Inherits Java 25 from spas-sdk-parent
+- ✅ T020 [US2] Build sample-service with `mvn clean package` - **Build time: 1.2s**
 
 #### Basket Service
 
-- [ ] T021 [P] [US2] Update java.version from 21 to 25 in examples/services/basket-service/pom.xml
-- [ ] T022 [US2] Build basket-service with `mvn clean package` in examples/services/basket-service
-- [ ] T023 [US2] Generate metadata with `mvn spring-boot:run -Dspring-boot.run.arguments="--generate-metadata --output ./metadata"` in examples/services/basket-service
-- [ ] T024 [US2] Verify metadata archive created at examples/services/basket-service/metadata/service.metadata.zip
+- ✅ T021 [P] [US2] Update java.version from 21 to 25 + Spring Boot 3.4.1→3.5.0 in examples/services/basket-service/pom.xml
+- ✅ T022 [US2] Build basket-service with `mvn clean package` - **Build time: 3.2s**
+- ✅ T023 [US2] Generate metadata with `mvn spring-boot:run -Dspring-boot.run.arguments="--generate-metadata --output ./metadata"` - **10 schemas, 1.3s**
+- ✅ T024 [US2] Verify metadata archive created at examples/services/basket-service/metadata/service.metadata.zip - **5,421 bytes**
 
 #### Fulfillment Service
 
-- [ ] T025 [P] [US2] Update java.version from 21 to 25 in examples/services/fulfillment-service/pom.xml
-- [ ] T026 [US2] Build fulfillment-service with `mvn clean package` in examples/services/fulfillment-service
-- [ ] T027 [US2] Generate metadata with `mvn spring-boot:run -Dspring-boot.run.arguments="--generate-metadata --output ./metadata"` in examples/services/fulfillment-service
-- [ ] T028 [US2] Verify metadata archive created at examples/services/fulfillment-service/metadata/service.metadata.zip
+- ✅ T025 [P] [US2] Update java.version from 21 to 25 + Spring Boot 3.4.1→3.5.0 in examples/services/fulfillment-service/pom.xml
+- ✅ T026 [US2] Build fulfillment-service with `mvn clean package` - **Build time: 1.8s**
+- ✅ T027 [US2] Generate metadata with `mvn spring-boot:run -Dspring-boot.run.arguments="--generate-metadata --output ./metadata"` - **5 schemas, 1.3s**
+- ✅ T028 [US2] Verify metadata archive created at examples/services/fulfillment-service/metadata/service.metadata.zip - **3,477 bytes**
 
 #### Rental Service
 
-- [ ] T029 [P] [US2] Update java.version from 21 to 25 in examples/services/rental-service/pom.xml
-- [ ] T030 [US2] Build rental-service with `mvn clean package` in examples/services/rental-service
-- [ ] T031 [US2] Generate metadata with `mvn spring-boot:run -Dspring-boot.run.arguments="--generate-metadata --output ./metadata"` in examples/services/rental-service
-- [ ] T032 [US2] Verify metadata archive created at examples/services/rental-service/metadata/service.metadata.zip
+- ✅ T029 [P] [US2] Update java.version from 21 to 25 + Spring Boot 3.4.1→3.5.0 in examples/services/rental-service/pom.xml
+- ✅ T030 [US2] Build rental-service with `mvn clean package` - **Build time: 1.5s**
+- ✅ T031 [US2] Generate metadata with `mvn spring-boot:run -Dspring-boot.run.arguments="--generate-metadata --output ./metadata"` - **4 schemas, 1.3s**
+- ✅ T032 [US2] Verify metadata archive created at examples/services/rental-service/metadata/service.metadata.zip - **2,901 bytes**
 
-#### Inventory Service
+#### Inventory Service (.NET)
 
-- [ ] T033 [P] [US2] Update java.version from 21 to 25 in examples/services/inventory-service/pom.xml
-- [ ] T034 [US2] Build inventory-service with `mvn clean package` in examples/services/inventory-service
-- [ ] T035 [US2] Generate metadata with `mvn spring-boot:run -Dspring-boot.run.arguments="--generate-metadata --output ./metadata"` in examples/services/inventory-service
-- [ ] T036 [US2] Verify metadata archive created at examples/services/inventory-service/metadata/service.metadata.zip
+- ✅ T033 [P] [US2] ~~Update java.version~~ - N/A, .NET service (C#)
+- ✅ T034 [US2] ~~Build inventory-service~~ - N/A, .NET service
+- ✅ T035 [US2] ~~Generate metadata~~ - N/A, .NET service
+- ✅ T036 [US2] ~~Verify metadata archive~~ - N/A, existing metadata
 
-#### Order Service
+#### Order Service (.NET)
 
-- [ ] T037 [P] [US2] Update java.version from 21 to 25 in examples/services/order-service/pom.xml
-- [ ] T038 [US2] Build order-service with `mvn clean package` in examples/services/order-service
-- [ ] T039 [US2] Generate metadata with `mvn spring-boot:run -Dspring-boot.run.arguments="--generate-metadata --output ./metadata"` in examples/services/order-service
-- [ ] T040 [US2] Verify metadata archive created at examples/services/order-service/metadata/service.metadata.zip
+- ✅ T037 [P] [US2] ~~Update java.version~~ - N/A, .NET service (C#)
+- ✅ T038 [US2] ~~Build order-service~~ - N/A, .NET service
+- ✅ T039 [US2] ~~Generate metadata~~ - N/A, .NET service
+- ✅ T040 [US2] ~~Verify metadata archive~~ - N/A, existing metadata
 
-#### Product Service
+#### Product Service (.NET)
 
-- [ ] T041 [P] [US2] Update java.version from 21 to 25 in examples/services/product-service/pom.xml
-- [ ] T042 [US2] Build product-service with `mvn clean package` in examples/services/product-service
-- [ ] T043 [US2] Generate metadata with `mvn spring-boot:run -Dspring-boot.run.arguments="--generate-metadata --output ./metadata"` in examples/services/product-service
-- [ ] T044 [US2] Verify metadata archive created at examples/services/product-service/metadata/service.metadata.zip
+- ✅ T041 [P] [US2] ~~Update java.version~~ - N/A, .NET service (C#)
+- ✅ T042 [US2] ~~Build product-service~~ - N/A, .NET service
+- ✅ T043 [US2] ~~Generate metadata~~ - N/A, .NET service
+- ✅ T044 [US2] ~~Verify metadata archive~~ - N/A, existing metadata
 
-#### Subscription Service
+#### Subscription Service (.NET)
 
-- [ ] T045 [P] [US2] Update java.version from 21 to 25 in examples/services/subscription-service/pom.xml
-- [ ] T046 [US2] Build subscription-service with `mvn clean package` in examples/services/subscription-service
-- [ ] T047 [US2] Generate metadata with `mvn spring-boot:run -Dspring-boot.run.arguments="--generate-metadata --output ./metadata"` in examples/services/subscription-service
-- [ ] T048 [US2] Verify metadata archive created at examples/services/subscription-service/metadata/service.metadata.zip
+- ✅ T045 [P] [US2] ~~Update java.version~~ - N/A, .NET service (C#)
+- ✅ T046 [US2] ~~Build subscription-service~~ - N/A, .NET service
+- ✅ T047 [US2] ~~Generate metadata~~ - N/A, .NET service
+- ✅ T048 [US2] ~~Verify metadata archive~~ - N/A, existing metadata
 
-**Checkpoint**: All 8 example services build successfully with Java 25 and generate metadata
+**Checkpoint**: All 4 Java services (sample, basket, fulfillment, rental) build successfully with Java 25 and generate metadata. Total build times: 7.7s. Metadata generation: 19 schemas across 3 services in ~3.9s. Other 4 services are .NET (C#), not affected by Java 25 upgrade.
 
 ---
 

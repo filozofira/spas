@@ -19,13 +19,18 @@
 
 **Purpose**: Verify prerequisites and baseline measurements
 
-- [ ] T001 Verify Java 25 JDK installation with `java -version`
-- [ ] T002 Verify Maven 3.8+ with `mvn -version`
-- [ ] T003 Record baseline build time for SDK with `mvn clean install` in components/sdk/java
-- [ ] T004 Record baseline artifact sizes from ~/.m2/repository/io/spas/
-- [ ] T005 Record baseline test count with `mvn test | grep "Tests run"` in components/sdk/java
+- [X] T001 Verify Java 25 JDK installation with `java -version` ✅ openjdk version "25.0.1" 2025-10-21 LTS
+- [X] T002 Verify Maven 3.8+ with `mvn -version` ✅ Apache Maven 3.9.12
+- [X] T003 Record baseline build time for SDK with `mvn clean install` in components/sdk/java ✅ 18.44 seconds
+- [X] T004 Record baseline artifact sizes from ~/.m2/repository/io/spas/ ✅ 0.08 MB (24 files)
+- [X] T005 Record baseline test count with `mvn test | grep "Tests run"` in components/sdk/java ✅ 231 tests total (3 errors with Java 25 - JaCoCo incompatibility)
 
-**Checkpoint**: Prerequisites validated, baselines recorded for comparison
+**Checkpoint**: ✅ Prerequisites validated, baselines recorded for comparison
+
+**Notes**: 
+- 3 test errors in SpasHealthControllerTest due to JaCoCo 0.8.12 not supporting Java 25 (class file version 69)
+- Build completed successfully despite JaCoCo warnings
+- Baseline measurements captured for comparison after upgrade
 
 ---
 

@@ -6,14 +6,13 @@ domain: equipment-rental
 
 # Named choreography flows
 flows:
-  equipment-rental-fulfillment:
-    description: "Equipment rental lifecycle with inventory reservation and fulfillment"
+  rental-fulfillment:
+    description: "Process equipment rental with parallel inventory reservation and shipment creation"
     participants:
       - rental-service
       - inventory-service
       - fulfillment-service
     events:
-      # Rental request triggers inventory reservation
       - source: rental-service
         event: rental-requested
         topic: rental-events
@@ -24,38 +23,22 @@ flows:
           - service: fulfillment-service
             command: create-shipment
             transform: transformations/fulfillment-service/inbound-rental-requested.jsonata
-      
-      # Inventory item added - terminal event (initialization/setup)
-      - source: inventory-service
-        event: inventory-item-added
-        topic: inventory-events
-        targets: []
-      
-      # Stock reservation success - terminal event (fulfillment already initiated)
+      # Terminal events (no downstream consumers)
       - source: inventory-service
         event: stock-reserved
         topic: inventory-events
         targets: []
-      
-      # Stock depleted - terminal event (no consumers in this choreography)
-      - source: inventory-service
-        event: stock-depleted
-        topic: inventory-events
-        targets: []
-      
-      # Shipment created - terminal event
       - source: fulfillment-service
         event: shipment-created
         topic: fulfillment-events
         targets: []
-      
-      # Shipment status changed - terminal event (tracking updates)
-      - source: fulfillment-service
-        event: shipment-status-changed
-        topic: fulfillment-events
-        targets: []
-      
-      # Equipment returned triggers stock release
+
+  rental-return:
+    description: "Process equipment returns and release inventory reservations"
+    participants:
+      - rental-service
+      - inventory-service
+    events:
       - source: rental-service
         event: rental-returned
         topic: rental-events
@@ -63,10 +46,28 @@ flows:
           - service: inventory-service
             command: release-stock
             transform: transformations/inventory-service/inbound-rental-returned.jsonata
-      
-      # Stock released - terminal event
+      # Terminal event
       - source: inventory-service
         event: stock-released
+        topic: inventory-events
+        targets: []
+
+  catalog-sync:
+    description: "Synchronize product catalog additions with inventory tracking"
+    participants:
+      - product-service
+      - inventory-service
+    events:
+      - source: product-service
+        event: product-added
+        topic: product-events
+        targets:
+          - service: inventory-service
+            command: add-inventory-item
+            transform: transformations/inventory-service/inbound-product-added.jsonata
+      # Terminal event
+      - source: inventory-service
+        event: inventory-item-added
         topic: inventory-events
         targets: []
 

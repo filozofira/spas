@@ -1,6 +1,7 @@
 /* inbound-rental-requested.jsonata */
 /* Transforms rental-requested (rental-service) -> create-shipment (fulfillment-service) */
-/* Maps rental request with full customer/address data to shipment creation */
+/* Source schema: rental-service/schemas/events/rental-requested-event.schema.json */
+/* Target schema: fulfillment-service/schemas/endpoints/create-shipment-request.schema.json */
 {
   "referenceId": rentalId,
   "customerId": customerId,

@@ -1,5 +1,5 @@
 /* inbound-checkout-initiated.jsonata */
-/* Transforms checkout-initiated (basket-service) → create-order (order-service) */
+/* Transforms checkout-initiated (basket-service) -> create-order (order-service) */
 /* Source: schemas/events/checkout-initiated-event.schema.json */
 /* Target: schemas/endpoints/create-order.schema.json */
 {
@@ -7,15 +7,9 @@
   "items": $append([], items.{
     "productId": productId,
     "quantity": quantity,
-    "price": 0.0
+    "price": 0
   }),
-  "total": 0.0,
-  "shippingAddress": {
-    "street": shippingAddress.street,
-    "city": shippingAddress.city,
-    "state": shippingAddress.state,
-    "postalCode": shippingAddress.postalCode,
-    "country": shippingAddress.country
-  },
+  "total": 0,
+  "shippingAddress": shippingAddress,
   "referenceId": basketId
 }

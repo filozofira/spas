@@ -1,30 +1,85 @@
 # basket-checkout
 
-## Happy Path: Successful Checkout
+## Choreography Flows
+
+### Flow: Basket Management
+
+**Description**: Customer manages shopping basket items (terminal events for audit/analytics)
 
 ```mermaid
+---
+title: Basket Management
+---
+flowchart LR
+    Start([Customer]) --> BS[basket-service]
+    BS -->|basket-created| End1([Basket Ready])
+    BS -->|item-added| End2([Item Added])
+    BS -->|item-removed| End3([Item Removed])
+```
+
+### Flow: Order Fulfillment
+
+**Description**: Complete checkout flow from basket through shipment creation
+
+```mermaid
+---
+title: Order Fulfillment
+---
 flowchart LR
     Start([Customer]) --> BS[basket-service]
     BS -->|checkout-initiated| OS[order-service]
     OS -->|order-created| IS[inventory-service]
-    IS -->|stock-reserved| OS
-    OS -->|order-confirmed| BS
-    OS -->|order-confirmed| FS[fulfillment-service]
-    FS -->|shipment-created| OS
-    FS -->|shipment-status-changed| OS
-    OS --> End([Complete])
+    IS -->|stock-reserved| OS2[order-service]
+    IS -->|stock-depleted| BS2[basket-service]
+    OS2 -->|order-confirmed| FS[fulfillment-service]
+    OS2 -->|order-confirmed| BS3[basket-service]
+    FS -->|shipment-created| OS3[order-service]
+    OS3 --> End([Order Shipped])
 ```
 
-## Error Path: Stock Depleted
+### Flow: Shipment Tracking
+
+**Description**: Update order status as shipment progresses through fulfillment lifecycle
 
 ```mermaid
+---
+title: Shipment Tracking
+---
 flowchart LR
-    Start([Customer]) --> BS[basket-service]
-    BS -->|checkout-initiated| OS[order-service]
-    OS -->|order-created| IS[inventory-service]
-    IS -->|stock-depleted| BS
-    BS --> End([Notify Customer])
+    Start([Carrier/Warehouse]) --> FS[fulfillment-service]
+    FS -->|shipment-status-changed| OS[order-service]
+    OS --> End([Status Updated])
 ```
+
+### Flow: Order Cancellation
+
+**Description**: Compensating flow to release reserved inventory when order cancelled
+
+```mermaid
+---
+title: Order Cancellation
+---
+flowchart LR
+    Start([Customer/System]) --> OS[order-service]
+    OS -->|order-cancelled| IS[inventory-service]
+    IS -->|stock-released| End([Inventory Released])
+```
+
+### Flow: Product Management
+
+**Description**: Initialize inventory tracking when new products added to catalog
+
+```mermaid
+---
+title: Product Management
+---
+flowchart LR
+    Start([Admin]) --> PS[product-service]
+    PS -->|product-added| IS[inventory-service]
+    IS -->|inventory-item-added| End([Inventory Initialized])
+```
+
+---
 
 **SPAS Domain Workspace**
 

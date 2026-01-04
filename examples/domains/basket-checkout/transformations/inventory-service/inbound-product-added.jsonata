@@ -1,0 +1,9 @@
+/* inbound-product-added.jsonata */
+/* Transforms product-added (product-service) -> add-inventory-item (inventory-service) */
+/* Source: schemas/events/product-added.schema.json */
+/* Target: schemas/endpoints/add-inventory-item.schema.json */
+/* Note: initialQuantity defaults to 0; inventory is stocked separately */
+{
+  "itemId": productId,
+  "initialQuantity": 100
+}

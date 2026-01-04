@@ -6,6 +6,20 @@
       "invokeEndpoint": "/inventory/reserve",
       "eventType": "com.order-service.order-created",
       "transform": "transformations/inbound-order-created.jsonata"
+    },
+    {
+      "kind": "event",
+      "topic": "order-events",
+      "invokeEndpoint": "/inventory/release",
+      "eventType": "com.order-service.order-cancelled",
+      "transform": "transformations/inbound-order-cancelled.jsonata"
+    },
+    {
+      "kind": "event",
+      "topic": "product-events",
+      "invokeEndpoint": "/inventory/items",
+      "eventType": "com.product-service.product-added",
+      "transform": "transformations/inbound-product-added.jsonata"
     }
   ],
   "outbound": [

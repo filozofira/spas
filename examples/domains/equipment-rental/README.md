@@ -1,18 +1,50 @@
 # equipment-rental
 
+## Flow: rental-fulfillment
+
+**Description**: Process equipment rental with parallel inventory reservation and shipment creation
+
 ```mermaid
+---
+title: rental-fulfillment
+---
 flowchart LR
-    Start([Rental Request]) --> RS[rental-service]
+    Start([Customer]) --> RS[rental-service]
     RS -->|rental-requested| IS[inventory-service]
     RS -->|rental-requested| FS[fulfillment-service]
     IS -->|stock-reserved| End1([Reserved])
-    IS -->|stock-depleted| End2([Unavailable])
-    FS -->|shipment-created| End3([Shipment Ready])
-    
-    Return([Return]) --> RS
-    RS -->|rental-returned| IS
-    IS -->|stock-released| End4([Complete])
+    FS -->|shipment-created| End2([Shipped])
 ```
+
+## Flow: rental-return
+
+**Description**: Process equipment returns and release inventory reservations
+
+```mermaid
+---
+title: rental-return
+---
+flowchart LR
+    Start([Customer]) --> RS[rental-service]
+    RS -->|rental-returned| IS[inventory-service]
+    IS -->|stock-released| End([Released])
+```
+
+## Flow: catalog-sync
+
+**Description**: Synchronize product catalog additions with inventory tracking
+
+```mermaid
+---
+title: catalog-sync
+---
+flowchart LR
+    Start([Admin]) --> PS[product-service]
+    PS -->|product-added| IS[inventory-service]
+    IS -->|inventory-item-added| End([Tracked])
+```
+
+---
 
 **SPAS Domain Workspace**
 

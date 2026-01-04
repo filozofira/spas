@@ -80,3 +80,18 @@ npm run format
 ```bash
 node --inspect-brk dist/index.js
 ```
+
+## Docker Build
+
+Build the sidecar Docker image:
+
+```bash
+cd components/sidecar
+docker build -t spas-sidecar .
+```
+
+Or if you prefer docker compose.
+
+```bash
+docker-compose build
+```

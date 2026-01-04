@@ -42,21 +42,46 @@
 
 ### Implementation for User Story 1
 
-- [ ] T006 [US1] Update java.version from 21 to 25 in components/sdk/java/pom.xml
-- [ ] T007 [P] [US1] Update spring-boot.version from 3.2.5 to 3.4.1 in components/sdk/java/pom.xml
-- [ ] T008 [P] [US1] Update jackson.version from 2.17.2 to 2.18.2 in components/sdk/java/pom.xml
-- [ ] T009 [P] [US1] Update junit.version from 5.10.2 to 5.11.4 in components/sdk/java/pom.xml
-- [ ] T010 [P] [US1] Update mockito.version from 5.11.0 to 5.14.2 in components/sdk/java/pom.xml
-- [ ] T011 [P] [US1] Update maven-compiler-plugin.version from 3.12.1 to 3.13.0 in components/sdk/java/pom.xml
-- [ ] T012 [P] [US1] Update maven-surefire-plugin.version from 3.2.5 to 3.5.2 in components/sdk/java/pom.xml
-- [ ] T013 [P] [US1] Update maven-enforcer-plugin.version from 3.4.1 to 3.5.0 in components/sdk/java/pom.xml
-- [ ] T014 [US1] Build SDK with `mvn clean compile` in components/sdk/java
-- [ ] T015 [US1] Run all SDK tests with `mvn test` in components/sdk/java (verify 100+ tests pass)
-- [ ] T016 [US1] Install SDK to local Maven repository with `mvn install` in components/sdk/java
-- [ ] T017 [US1] Verify Java 25 target with `mvn help:evaluate -Dexpression=maven.compiler.target -q -DforceStdout`
-- [ ] T018 [US1] Measure and compare build time (should be < 5 minutes per SC-001)
+- [X] T006 [US1] Update java.version from 21 to 25 in components/sdk/java/pom.xml ✅
+- [X] T007 [P] [US1] Update spring-boot.version from 3.2.5 to 3.5.0 in components/sdk/java/pom.xml ✅ (upgraded from 3.4.1 to resolve ASM Java 25 support)
+- [X] T008 [P] [US1] Update jackson.version from 2.17.2 to 2.18.2 in components/sdk/java/pom.xml ✅
+- [X] T009 [P] [US1] Update junit.version from 5.10.2 to 5.11.4 in components/sdk/java/pom.xml ✅
+- [X] T010 [P] [US1] Update mockito.version from 5.11.0 to 5.17.0 in components/sdk/java/pom.xml ✅ (upgraded from 5.14.2 for better Java 25 support)
+- [X] T011 [P] [US1] Update maven-compiler-plugin.version from 3.12.1 to 3.13.0 in components/sdk/java/pom.xml ✅
+- [X] T012 [P] [US1] Update maven-surefire-plugin.version from 3.2.5 to 3.5.2 in components/sdk/java/pom.xml ✅
+- [X] T013 [P] [US1] Update maven-enforcer-plugin.version from 3.4.1 to 3.5.0 in components/sdk/java/pom.xml ✅
+- [X] T013b [US1] Update jacoco-maven-plugin.version from 0.8.12 to 0.8.13 in components/sdk/java/pom.xml ✅ (required for Java 25 bytecode support)
+- [X] T013c [US1] Update opentelemetry.version from 1.33.0 to 1.49.0 in components/sdk/java/spas-sdk-observability/pom.xml ✅ (required for Zipkin Reporter compatibility)
+- [X] T014 [US1] Build SDK with `mvn clean compile` in components/sdk/java ✅ 7.9 seconds
+- [X] T015 [US1] Run all SDK tests with `mvn test` in components/sdk/java (verify 100+ tests pass) ✅ 192 passed (74 core + 32 metadata + 10 processor + 7 events + 34 spring + 28 observability + 7 health)
+- [X] T016 [US1] Install SDK to local Maven repository with `mvn install` in components/sdk/java ✅ 14.4 seconds full build
+- [X] T017 [US1] Verify Java 25 target with `mvn help:evaluate -Dexpression=maven.compiler.target -q -DforceStdout` ✅ Confirmed: 25
+- [X] T018 [US1] Measure and compare build time (should be < 5 minutes per SC-001) ✅ 14.4 seconds (full build with all 7 modules)
 
-**Checkpoint**: SDK successfully builds with Java 25, all tests pass, artifacts available for dependent services
+**Checkpoint**: ✅ SDK successfully builds with Java 25, all tests pass, artifacts available for dependent services
+
+**Results**:
+- ✅ All dependency versions updated to Java 25-compatible releases
+- ✅ Spring Boot 3.5.0 provides full Java 25 support (ASM library upgraded to support class file version 69)
+- ✅ SDK compiles targeting Java 25 bytecode (class file version 69)
+- ✅ **192/192 tests passing (100%)** across all 7 modules:
+  - spas-sdk-core: 74/74 ✅
+  - spas-sdk-metadata: 32/32 ✅
+  - spas-sdk-metadata-processor: 10/10 ✅
+  - spas-sdk-events: 7/7 ✅
+  - spas-sdk-spring: 34/34 ✅
+  - spas-sdk-observability: 28/28 ✅ (OpenTelemetry 1.49.0)
+  - spas-sdk-health: 7/7 ✅
+- ✅ JaCoCo 0.8.13 successfully generates code coverage for Java 25 bytecode
+- ✅ Build time: 14.4s full build with all modules (well under 5-minute SC-001 requirement)
+- ✅ SDK artifacts installed to ~/.m2/repository/io/spas/ successfully
+- ✅ Maven compiler target verified as 25
+
+**Key Issues Resolved**:
+1. Spring Framework ASM incompatibility with Java 25 → Fixed by upgrading Spring Boot to 3.5.0
+2. JaCoCo 0.8.12 doesn't support Java 25 bytecode → Fixed by upgrading to 0.8.13
+3. OpenTelemetry Zipkin exporter API mismatch → Fixed by upgrading OpenTelemetry to 1.49.0
+4. Mockito Java 25 compatibility → Fixed by upgrading to 5.17.0
 
 ---
 

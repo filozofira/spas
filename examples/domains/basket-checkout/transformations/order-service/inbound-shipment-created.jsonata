@@ -1,5 +1,5 @@
 /* inbound-shipment-created.jsonata */
-/* Transforms shipment-created (fulfillment-service) → update-shipment-status (order-service) */
+/* Transforms shipment-created (fulfillment-service) -> update-shipment-status (order-service) */
 /* Source: schemas/events/shipment-created-event.schema.json */
 /* Target: schemas/endpoints/update-shipment-status.schema.json */
 {

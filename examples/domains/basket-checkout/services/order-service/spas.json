@@ -16,7 +16,7 @@
       "methodPath": "/orders",
       "version": "1.0",
       "schemaRef": "schemas/endpoints/create-order.schema.json",
-      "description": "Creates a new order from cart items and publishes OrderCreated; returns the new orderId"
+      "description": "Creates a new order and publishes OrderCreated; returns the new orderId"
     },
     {
       "name": "list-orders",
@@ -121,7 +121,7 @@
       "type": "order-created",
       "version": "1.0",
       "schemaRef": "schemas/events/order-created.schema.json",
-      "description": "Emitted after a new order is created; signals downstream services to reserve stock"
+      "description": "Emitted after a new order is created; signals downstream services to reserve item quantities"
     }
   ],
   "consistency": {
@@ -146,7 +146,7 @@
     ]
   },
   "license": "MIT",
-  "publishedAt": "2026-01-03T23:21:42.912Z",
+  "publishedAt": "2026-01-04T13:38:46.423Z",
   "runtime": {
     "digest": "sha256:TODO_UPDATE_AFTER_BUILD",
     "repository": "spas-examples/order-service",

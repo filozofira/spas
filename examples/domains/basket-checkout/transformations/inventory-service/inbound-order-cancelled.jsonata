@@ -1,0 +1,10 @@
+/* inbound-order-cancelled.jsonata */
+/* Transforms order-cancelled (order-service) -> release-stock (inventory-service) */
+/* Source: schemas/events/order-cancelled.schema.json */
+/* Target: schemas/endpoints/release-stock.schema.json */
+/* Note: order-cancelled only contains orderId/customerId. */
+/* inventory-service should look up reserved items by referenceId. */
+{
+  "referenceId": orderId,
+  "items": []
+}

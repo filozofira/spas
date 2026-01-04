@@ -1,6 +1,7 @@
 /* inbound-rental-requested.jsonata */
 /* Transforms rental-requested (rental-service) -> reserve-stock (inventory-service) */
-/* Maps rental request to inventory reservation using rentalId as referenceId */
+/* Source schema: rental-service/schemas/events/rental-requested-event.schema.json */
+/* Target schema: inventory-service/schemas/endpoints/reserve-stock.schema.json */
 {
   "referenceId": rentalId,
   "items": $append([], items.{

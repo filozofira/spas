@@ -13,14 +13,16 @@
       "invokeEndpoint": "/inventory/release",
       "eventType": "com.rental-service.rental-returned",
       "transform": "transformations/inbound-rental-returned.jsonata"
+    },
+    {
+      "kind": "event",
+      "topic": "product-events",
+      "invokeEndpoint": "/inventory/items",
+      "eventType": "com.product-service.product-added",
+      "transform": "transformations/inbound-product-added.jsonata"
     }
   ],
   "outbound": [
-    {
-      "topic": "inventory-events",
-      "eventType": "com.inventory-service.inventory-item-added",
-      "eventName": "inventory-item-added"
-    },
     {
       "topic": "inventory-events",
       "eventType": "com.inventory-service.stock-reserved",
@@ -28,13 +30,13 @@
     },
     {
       "topic": "inventory-events",
-      "eventType": "com.inventory-service.stock-depleted",
-      "eventName": "stock-depleted"
+      "eventType": "com.inventory-service.stock-released",
+      "eventName": "stock-released"
     },
     {
       "topic": "inventory-events",
-      "eventType": "com.inventory-service.stock-released",
-      "eventName": "stock-released"
+      "eventType": "com.inventory-service.inventory-item-added",
+      "eventName": "inventory-item-added"
     }
   ]
 }

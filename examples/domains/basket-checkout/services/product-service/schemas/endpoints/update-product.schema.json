@@ -1,0 +1,38 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "UpdateProductRequest",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "name": {
+      "type": [
+        "null",
+        "string"
+      ],
+      "maxLength": 200,
+      "minLength": 1
+    },
+    "category": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "price": {
+      "type": [
+        "null",
+        "number"
+      ],
+      "format": "decimal",
+      "minimum": 0
+    },
+    "description": {
+      "type": [
+        "null",
+        "string"
+      ],
+      "maxLength": 2000,
+      "minLength": 1
+    }
+  }
+}

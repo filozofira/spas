@@ -1,6 +1,7 @@
 /* inbound-rental-returned.jsonata */
 /* Transforms rental-returned (rental-service) -> release-stock (inventory-service) */
-/* Maps returned rental items to inventory stock release */
+/* Source schema: rental-service/schemas/events/rental-returned-event.schema.json */
+/* Target schema: inventory-service/schemas/endpoints/release-stock.schema.json */
 {
   "referenceId": rentalId,
   "items": $append([], items.{

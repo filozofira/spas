@@ -1,5 +1,5 @@
 /* inbound-order-confirmed.jsonata */
-/* Transforms order-confirmed (order-service) → clear-basket (basket-service) */
+/* Transforms order-confirmed (order-service) -> clear-basket (basket-service) */
 /* Source: schemas/events/order-confirmed.schema.json */
 /* Target: schemas/endpoints/order-created-payload.schema.json */
 {

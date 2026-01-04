@@ -1,10 +1,10 @@
 /* inbound-stock-depleted.jsonata */
-/* Transforms stock-depleted (inventory-service) → mark-product-unavailable (basket-service) */
+/* Transforms stock-depleted (inventory-service) -> mark-product-unavailable (basket-service) */
 /* Source: schemas/events/stock-depleted.schema.json */
 /* Target: schemas/endpoints/stock-depleted-payload.schema.json */
 {
-  "itemId": itemId,
-  "referenceId": referenceId,
+  "productId": itemId,
+  "orderId": referenceId,
   "requestedQuantity": requestedQuantity,
   "availableQuantity": availableQuantity,
   "timestamp": timestamp

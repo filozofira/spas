@@ -18,11 +18,6 @@
   "outbound": [
     {
       "topic": "shopping-events",
-      "eventType": "com.basket-service.checkout-initiated",
-      "eventName": "checkout-initiated"
-    },
-    {
-      "topic": "shopping-events",
       "eventType": "com.basket-service.basket-created",
       "eventName": "basket-created"
     },
@@ -35,6 +30,11 @@
       "topic": "shopping-events",
       "eventType": "com.basket-service.item-removed",
       "eventName": "item-removed"
+    },
+    {
+      "topic": "shopping-events",
+      "eventType": "com.basket-service.checkout-initiated",
+      "eventName": "checkout-initiated"
     }
   ]
 }

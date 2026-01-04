@@ -1,18 +1,12 @@
 /* inbound-order-confirmed.jsonata */
-/* Transforms order-confirmed (order-service) → create-shipment (fulfillment-service) */
+/* Transforms order-confirmed (order-service) -> create-shipment (fulfillment-service) */
 /* Source: schemas/events/order-confirmed.schema.json */
 /* Target: schemas/endpoints/create-shipment-request.schema.json */
 {
   "referenceId": orderId,
   "customerId": customerId,
-  "shippingAddress": {
-    "street": shippingAddress.street,
-    "city": shippingAddress.city,
-    "state": shippingAddress.state,
-    "postalCode": shippingAddress.postalCode,
-    "country": shippingAddress.country
-  },
+  "shippingAddress": shippingAddress,
   "deliveryMethod": $exists(shippingAddress) ? "SHIPPING" : "PICKUP",
-  "pickupLocationId": "",
+  "pickupLocationId": $exists(shippingAddress) ? "" : "DEFAULT",
   "specialInstructions": ""
 }

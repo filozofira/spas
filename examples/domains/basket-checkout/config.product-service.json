@@ -1,0 +1,10 @@
+{
+  "inbound": [],
+  "outbound": [
+    {
+      "topic": "product-events",
+      "eventType": "com.product-service.product-added",
+      "eventName": "product-added"
+    }
+  ]
+}

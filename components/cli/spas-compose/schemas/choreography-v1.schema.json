@@ -43,12 +43,12 @@
         },
         "participants": {
           "type": "array",
-          "description": "Service names participating in this flow",
+          "description": "Service names participating in this flow. Terminal-only flows (all events have empty targets) can have 1 participant. Choreographed flows must have at least 2 participants.",
           "items": {
             "type": "string",
             "pattern": "^[a-z][a-z0-9-]*[a-z0-9]$"
           },
-          "minItems": 2,
+          "minItems": 1,
           "uniqueItems": true
         },
         "events": {

@@ -9,7 +9,7 @@
 
 ## Summary
 
-This feature extended the SPAS product-service with CRUD operations (Add, Update, Remove) to demonstrate event-driven choreography patterns and enable AI-assisted composition scenarios.
+This feature extended the SPAS product-service with CRUD operations (Add, Update, Remove) to demonstrate event-driven choreography patterns and enable AI-assisted composition scenarios. Additionally, relaxed choreography validation to support terminal-only flows (single-service event publishing for audit/observability).
 
 ---
 
@@ -292,6 +292,43 @@ Chose `itemId` over `productId` for all inventory-service contracts. Rationale: 
 
 ### 7. Empty Catalogs by Default
 Removed seed data from both product-service and inventory-service. Rationale: Clean slate enables demonstrating choreography patterns (product-added → inventory-item-added) without pre-existing data interference. Services start empty and populate through API calls or event flows.
+
+---
+
+## Choreography Validation: Terminal-Only Flow Support
+
+**Problem:** Validation rejected single-service flows publishing only terminal events (e.g., `basket-management` flow with `basket-created`, `item-added`, `item-removed` events having empty `targets: []`).
+
+**Root Cause:** Strict validation enforced ≥2 participants for all flows, breaking the terminal-events pattern documented in agent prompt.
+
+**Solution:** Relaxed validation to allow 1 participant for terminal-only flows:
+- **Terminal-only flows**: All events have `targets: []` → minimum 1 participant
+- **Choreographed flows**: Any event has non-empty `targets` → minimum 2 participants
+
+**Use Cases Enabled:**
+- **Audit/Logging flows**: Single service publishes domain events for observability
+- **Event sourcing patterns**: Publish-only services with no downstream subscribers
+- **Future extension**: Events published now, consumers added later without code changes
+
+**Files Modified:**
+- `choreography-loader.ts` - Conditional validation logic based on event targets
+- `choreography-v1.schema.json` - Changed `minItems: 2` → `minItems: 1` with updated description
+- `choreography-loader.test.ts` - Added test case for terminal-only flow validation
+
+**Example Valid Flow:**
+```yaml
+flows:
+  basket-management:
+    participants:
+      - basket-service  # Single participant OK for terminal-only
+    events:
+      - source: basket-service
+        event: basket-created
+        targets: []  # Terminal event
+      - source: basket-service
+        event: item-added
+        targets: []  # Terminal event
+```
 
 ---
 

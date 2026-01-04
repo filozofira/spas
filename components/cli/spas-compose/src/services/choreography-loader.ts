@@ -129,8 +129,13 @@ export class ChoreographyLoader {
     }
 
     // Validate participants
-    if (!flow.participants || flow.participants.length < 2) {
-      errors.push(`${prefix}: must have at least 2 participants`);
+    // Terminal-only flows (all events have empty targets) can have 1 participant
+    // Choreographed flows (events with targets) must have at least 2 participants
+    const hasAnyTargets = flow.events?.some((e) => e.targets && e.targets.length > 0) ?? false;
+    const minParticipants = hasAnyTargets ? 2 : 1;
+    
+    if (!flow.participants || flow.participants.length < minParticipants) {
+      errors.push(`${prefix}: must have at least ${minParticipants} participant(s)`);
     } else {
       for (const participant of flow.participants) {
         if (!/^[a-z][a-z0-9-]*[a-z0-9]$/.test(participant)) {

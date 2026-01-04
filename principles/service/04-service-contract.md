@@ -84,6 +84,49 @@ When defining request/response DTOs for utility services, use neutral entity ter
 
 See [Service Model - Domain-Agnostic Design](03-service-model.md#domain-agnostic-service-design) for guidelines.
 
+## Description Writing for Metadata
+
+Service metadata descriptions enable AI-assisted choreography composition. Well-written descriptions allow agents to semantically match capabilities across services without manual configuration.
+
+### Principles
+
+1. **Capability-focused**: Describe WHAT the operation does, not WHICH domain it serves
+2. **Domain-agnostic terminology**: Use generic entity names (item, unit, reference) not domain-specific (product, order, asset)
+3. **Universal action verbs**: reserve, release, create, update, notify (transcend domains)
+4. **Avoid domain coupling**: "item quantities" not "stock", "product units", "inventory"
+
+### Examples
+
+**Commands/Queries:**
+```
+❌ Domain-coupled: "Reserves product stock for an order"
+✅ Domain-agnostic: "Reserves specified item quantities for a transaction"
+
+❌ Domain-coupled: "Creates a customer order from cart"
+✅ Domain-agnostic: "Creates a transaction from selected items"
+```
+
+**Events:**
+```
+❌ Domain-coupled: "Emitted when customer order is confirmed"
+✅ Domain-agnostic: "Emitted when transaction is confirmed"
+
+❌ Domain-coupled: "Published when product inventory changes"
+✅ Domain-agnostic: "Published when item quantities change"
+```
+
+### Impact
+
+Domain-agnostic descriptions enable service reuse across:
+- **Healthcare**: Medical supply tracking
+- **SaaS**: License pool management
+- **Corporate IT**: Asset inventory
+- **E-commerce**: Product stock management
+
+Same service code participates in different domains through choreography configuration alone.
+
+See also: [Service Model - Domain-Agnostic Design](03-service-model.md#domain-agnostic-service-design)
+
 ## Event Contracts
 
 - Published events: Domain facts with versioned types (`<domain>.<boundedContext>.<eventName>.v<major>`) aligned to CloudEvents `type`

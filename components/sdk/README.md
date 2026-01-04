@@ -49,6 +49,11 @@ SPAS services follow **domain-agnostic design** to maximize reusability across d
 > If renaming one identifier breaks the abstraction, design is domain-coupled. Good design: `referenceId` value changes don't require code.  
 > 📖 [Service Model Principles](../../principles/service/03-service-model.md#when-to-apply)
 
+> 📝 **Description Clarity**  
+> Write capability-focused descriptions that enable AI semantic matching across domains.  
+> ✅ "Reserves specified item quantities for a transaction" ❌ "Reserves product stock for an order"  
+> 📖 [Metadata Descriptions](../../specs/017-metadata-descriptions/spec.md)
+
 **When to apply:** Utility services (inventory, fulfillment, notifications) SHOULD be domain-agnostic. Domain services (order-service, subscription-service) own their context and use domain-specific identifiers internally.
 
 ## For Contributors

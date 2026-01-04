@@ -443,7 +443,29 @@ public class OrderController {
 
 **Note**: The SDK will auto-generate JSON schemas for these endpoints during metadata generation. Do NOT manually create schema files.
 
-**Exit Criteria**: All endpoints implemented with SDK annotations
+**CRITICAL: Description Writing Rules**
+
+When adding `Description` (C#) or `description` (Java) to SDK attributes/annotations:
+
+1. **Use domain-agnostic terminology** - Focus on CAPABILITY, not domain context
+2. **Entity naming**: Generic terms (item, unit, reference) NOT domain-specific (product, order, asset)
+3. **Action verbs**: reserve, release, create, update, notify (universal operations)
+4. **Quantity terms**: "item quantities" NOT "stock", "product units", "inventory"
+
+**Examples:**
+```
+❌ Domain-coupled:
+   Description = "Reserves product stock for an order"
+   description = "Emitted when an order is confirmed"
+
+✅ Domain-agnostic:
+   Description = "Reserves specified item quantities for a transaction"
+   description = "Emitted when a transaction is confirmed"
+```
+
+**Why this matters**: Services with domain-agnostic descriptions can be reused across healthcare (medical supplies), SaaS (license pools), corporate IT (asset tracking), and e-commerce domains through choreography configuration alone—no code changes required. AI agents use descriptions for semantic matching when composing choreographies.
+
+**Exit Criteria**: All endpoints implemented with SDK annotations and domain-agnostic descriptions
 
 **Confirmation Gate**:
 ```
@@ -469,7 +491,8 @@ Proceed to Phase 6 (Events)? (yes/no)
 1. Create event classes following CloudEvents structure:
    - **Java**: Use `@SpasEvent` annotation from SDK
    - **.NET**: Use `[SpasEvent]` attribute from SDK
-2. Ensure `commands[].produces[]` references match event names
+2. **Apply domain-agnostic descriptions** (see Phase 5 guidelines)
+3. Ensure `commands[].produces[]` references match event names
 
 **Event Class Example (Java)**:
 ```java

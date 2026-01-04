@@ -66,6 +66,23 @@ dotnet run -- --generate-metadata --output ./metadata
 
 This writes `./metadata/service.metadata.zip` (containing `spas.json` + referenced schemas).
 
+### Design Principles
+
+When writing metadata attributes, follow domain-agnostic patterns. See [SDK Design Principles](../README.md#design-principles) for full guidance.
+
+**Description Writing:**
+```csharp
+// ❌ Domain-coupled
+[SpasCommand("ReserveStock", "1.0", 
+    Description = "Reserves product stock for an order")]
+
+// ✅ Domain-agnostic
+[SpasCommand("ReserveItems", "1.0", 
+    Description = "Reserves specified item quantities for a transaction")]
+```
+
+**Real-world impact:** Domain-agnostic descriptions enable reuse across healthcare (medical supplies), SaaS (license pools), corporate IT (asset tracking), and e-commerce (product inventory) through choreography configuration alone.
+
 ### Packages
 
 | Package                    | Purpose                    | Key Types                                                          |

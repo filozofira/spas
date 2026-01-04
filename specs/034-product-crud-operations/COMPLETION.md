@@ -722,4 +722,142 @@ Required schema: { itemId, quantity, referenceId }
 
 ---
 
+## Description Writing Guidelines Documentation
+
+**Date**: 2026-01-04  
+**Context**: After enhancing the `spas-compose` agent prompt with pattern-based semantic matching, identified gap in developer guidance for WRITING domain-agnostic descriptions when building services. Need to close the loop: guide developers on how to write descriptions that enable AI semantic matching.
+
+### Problem Statement
+
+Two developer touchpoints lacked description writing guidance:
+1. **SDK READMEs**: Developers building services with SDK annotations/attributes
+2. **spas-service agent prompt**: AI assistant helping developers scaffold services
+
+**Gap**: Developers may write domain-coupled descriptions without knowing better patterns exist:
+- ❌ "Reserves product stock for an order"
+- ❌ "Emitted when a customer places an order"
+
+This undermines the pattern-based semantic matching framework in `spas-compose` agent.
+
+### Solution: Multi-Touchpoint Documentation Strategy
+
+Extended domain-agnostic guidance to developer-facing documentation:
+
+**1. SDK READMEs (3 files)**
+
+Added **"📝 Description Clarity"** pillar to Design Principles section:
+
+```markdown
+> 📝 **Description Clarity**  
+> Write capability-focused descriptions that enable AI semantic matching across domains.  
+> ✅ "Reserves specified item quantities for a transaction" ❌ "Reserves product stock for an order"  
+> 📖 [Metadata Descriptions](../../specs/017-metadata-descriptions/spec.md)
+```
+
+Added **"Design Principles"** section to language-specific READMEs with concrete examples:
+
+```csharp
+// ❌ Domain-coupled
+[SpasCommand("ReserveStock", "1.0", 
+    Description = "Reserves product stock for an order")]
+
+// ✅ Domain-agnostic
+[SpasCommand("ReserveItems", "1.0", 
+    Description = "Reserves specified item quantities for a transaction")]
+```
+
+```java
+// ❌ Domain-coupled
+@SpasCommand(name = "ReserveStock", version = "1.0",
+    description = "Reserves product stock for an order")
+
+// ✅ Domain-agnostic
+@SpasCommand(name = "ReserveItems", version = "1.0",
+    description = "Reserves specified item quantities for a transaction")
+```
+
+**Real-world impact statement**: Domain-agnostic descriptions enable reuse across healthcare (medical supplies), SaaS (license pools), corporate IT (asset tracking), and e-commerce (product inventory) through choreography configuration alone.
+
+**2. spas-service Agent Prompt Template**
+
+Added **"Description Writing Rules"** to Phase 5 (Endpoints & Model):
+
+```
+**CRITICAL: Description Writing Rules**
+
+When adding `Description` (C#) or `description` (Java) to SDK attributes/annotations:
+
+1. Use domain-agnostic terminology - Focus on CAPABILITY, not domain context
+2. Entity naming: Generic terms (item, unit, reference) NOT domain-specific (product, order, asset)
+3. Action verbs: reserve, release, create, update, notify (universal operations)
+4. Quantity terms: "item quantities" NOT "stock", "product units", "inventory"
+
+Examples:
+❌ Domain-coupled:
+   Description = "Reserves product stock for an order"
+   description = "Emitted when an order is confirmed"
+
+✅ Domain-agnostic:
+   Description = "Reserves specified item quantities for a transaction"
+   description = "Emitted when a transaction is confirmed"
+
+Why this matters: Services with domain-agnostic descriptions can be reused across healthcare 
+(medical supplies), SaaS (license pools), corporate IT (asset tracking), and e-commerce domains 
+through choreography configuration alone—no code changes required. AI agents use descriptions 
+for semantic matching when composing choreographies.
+```
+
+Added reminder to Phase 6 (Events): **"Apply domain-agnostic descriptions (see Phase 5 guidelines)"**
+
+### Files Modified
+
+| File | Change | Purpose |
+|------|--------|---------|
+| `components/sdk/README.md` | Added "📝 Description Clarity" pillar (6th pillar) | Make description quality visible in design principles |
+| `components/sdk/dotnet/README.md` | Added "Design Principles" section with C# examples | Language-specific guidance for .NET developers |
+| `components/sdk/java/README.md` | Added "Design Principles" section with Java examples | Language-specific guidance for Java developers |
+| `components/cli/spas-service/templates/partials/workflow-phases.eta` | Added description writing rules to Phase 5, reminder in Phase 6 | Guide AI assistant when scaffolding services |
+
+### Validation
+
+**Test Coverage:**
+- ✅ All 69 spas-service tests passing (template changes validated)
+- ✅ SDK README documentation builds successfully
+- ✅ Description guidelines visible in first 50 lines of SDK language-specific READMEs
+- ✅ Consistency: Same terminology (item quantities, transaction) across all touchpoints
+
+**Coverage Verification:**
+- ✅ **Developer building service manually**: Sees guidance in SDK README
+- ✅ **AI assistant scaffolding service**: Has guidance in agent prompt template
+- ✅ **AI composing choreography**: Has pattern-based matching framework (Phase 1 of spas-compose workflow)
+
+Complete cycle: Developer writes good descriptions → Service published → AI matches correctly during composition.
+
+### Design Decisions
+
+**1. Pillar Placement**
+Placed "Description Clarity" as 6th pillar (after Cross-Domain Reusability Test). Rationale: Test pillar validates neutral naming; Description pillar extends to capability documentation.
+
+**2. Critical Designation**
+Marked as "CRITICAL" in agent prompt. Rationale: Without domain-agnostic descriptions, semantic matching framework in spas-compose becomes less effective.
+
+**3. Concrete Examples**
+Used same terminology across all documentation ("item quantities" not "stock", "transaction" not "order"). Rationale: Consistency reinforces pattern recognition.
+
+**4. Rationale Inclusion**
+Included "Why this matters" explanation in both SDK READMEs and agent prompt. Rationale: Developers need to understand business value, not just follow rules.
+
+**5. Progressive Disclosure**
+SDK root README has concise pillar, language-specific READMEs have examples, agent prompt has detailed rules. Rationale: Match depth to audience (quick reference → concrete examples → comprehensive guidance).
+
+### Key Takeaways
+
+1. **Upstream quality enables downstream automation**: Good descriptions at service build time enable AI semantic matching at choreography composition time
+2. **Multi-touchpoint consistency**: Same guidance needs to appear in SDK docs AND agent prompts to reach all developers
+3. **Show, don't tell**: Concrete before/after examples more effective than abstract rules
+4. **Close the loop**: Pattern-based matching framework (spas-compose) requires pattern generation guidance (spas-service)
+5. **Documentation DX**: Place guidance where developers will see it (SDK README, not buried in principles/)
+
+---
+
 **Feature delivered successfully!** 🎉

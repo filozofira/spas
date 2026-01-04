@@ -53,6 +53,23 @@ mvn -q -DskipTests spring-boot:run -Dspring-boot.run.arguments="--generate-metad
 
 This writes `./metadata/service.metadata.zip` (containing `spas.json` + referenced schemas).
 
+### Design Principles
+
+When writing metadata annotations, follow domain-agnostic patterns. See [SDK Design Principles](../README.md#design-principles) for full guidance.
+
+**Description Writing:**
+```java
+// ❌ Domain-coupled
+@SpasCommand(name = "ReserveStock", version = "1.0",
+    description = "Reserves product stock for an order")
+
+// ✅ Domain-agnostic
+@SpasCommand(name = "ReserveItems", version = "1.0",
+    description = "Reserves specified item quantities for a transaction")
+```
+
+**Real-world impact:** Domain-agnostic descriptions enable reuse across healthcare (medical supplies), SaaS (license pools), corporate IT (asset tracking), and e-commerce (product inventory) through choreography configuration alone.
+
 ### Modules
 
 | Module                          | Purpose                    | Key Types                                            |

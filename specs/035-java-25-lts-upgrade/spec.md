@@ -55,6 +55,54 @@ Quality assurance teams and developers can verify that all automated tests pass 
 
 ---
 
+### User Story 4 - Container Images Use Java 25 (Priority: P4)
+
+DevOps teams and developers can build and deploy containerized services using Java 25 runtime images, ensuring services run correctly in Docker environments with the upgraded Java version.
+
+**Why this priority**: Completes the deployment pipeline and ensures services can be containerized with Java 25, though local development (P1-P2) takes precedence.
+
+**Independent Test**: Can be tested by building Docker images for services and verifying containers start successfully with Java 25 runtime.
+
+**Acceptance Scenarios**:
+
+1. **Given** a service Dockerfile configured with Java 25 base images, **When** a developer builds the Docker image, **Then** the build completes successfully
+2. **Given** a Docker image built with Java 25, **When** a developer runs the container, **Then** the service starts without runtime errors
+3. **Given** a running containerized service, **When** a developer invokes service endpoints, **Then** the service responds correctly
+
+---
+
+### User Story 5 - CLI Generates Java 25 Services (Priority: P4)
+
+Developers using the `spas-service init` CLI command receive generated service projects configured for Java 25, ensuring new services start with the current Java LTS version and don't use outdated templates.
+
+**Why this priority**: Ensures new projects created after the upgrade use Java 25 by default, preventing confusion and outdated code generation.
+
+**Independent Test**: Can be tested by running `spas-service init` and verifying the generated project specifies Java 25 in all configuration files and documentation.
+
+**Acceptance Scenarios**:
+
+1. **Given** a developer runs `spas-service init new-service`, **When** the CLI generates the project, **Then** the pom.xml contains `<java.version>25</java.version>`
+2. **Given** a generated service project, **When** a developer reads the README, **Then** the prerequisites specify Java 25+ (not Java 21+)
+3. **Given** a generated service project with agent prompt templates, **When** the agent scaffolds code, **Then** the instructions reference Java 25 requirements
+
+---
+
+### User Story 6 - Documentation Reflects Java 25 (Priority: P4)
+
+Developers reading SDK and service documentation see accurate Java 25 requirements, ensuring proper onboarding and avoiding confusion about required Java versions.
+
+**Why this priority**: Accurate documentation is essential for developer experience but can be updated after functional code changes are complete.
+
+**Independent Test**: Can be tested by searching documentation for Java version references and verifying all current docs (excluding historical specs) mention Java 25+.
+
+**Acceptance Scenarios**:
+
+1. **Given** the SDK README file, **When** a developer views the prerequisites, **Then** Java 25+ is listed as the required version
+2. **Given** service README files, **When** a developer checks requirements, **Then** all services list Java 25+ as a prerequisite
+3. **Given** all current documentation, **When** searching for "Java 21", **Then** no references are found except in historical specification documents (specs/001-034)
+
+---
+
 ### Edge Cases
 
 - What happens when existing code uses Java 21-specific APIs that are deprecated or removed in Java 25? (Production code should be refactored to use Java 25 compatible alternatives)
@@ -81,13 +129,17 @@ Quality assurance teams and developers can verify that all automated tests pass 
 - **FR-013**: Dependencies MAY be upgraded to next major versions if required for Java 25 compatibility, with changes documented
 - **FR-014**: All Dockerfiles MUST be updated to use Java 25 base images
 - **FR-015**: Production code MUST be adapted to ensure Java 25 compatibility when test failures occur, with test updates only when testing implementation details that legitimately changed
+- **FR-016**: CLI tool templates (spas-service init) MUST generate Java 25 projects and documentation
 
 ### Key Entities
 
 This feature primarily involves configuration changes rather than data entities. The key artifacts affected are:
 
-- **SDK Build Configurations**: Maven POM files specifying Java version requirements, compiler settings, and plugin versions across all SDK modules
-- **Example Service Configurations**: Maven POM files for demonstration services that consume the SDK
+- **SDK Build Configurations**: Maven POM files specifying Java version requirements, compiler settings, and plugin versions across all SDK modules (parent + 6 modules)
+- **Example Service Configurations**: Maven POM files for demonstration services that consume the SDK (7 services: basket, fulfillment, rental, inventory, order, product, subscription)
+- **Container Images**: Dockerfiles for all services specifying Java runtime versions (14+ Dockerfiles)
+- **CLI Templates**: spas-service init templates that generate new SPAS services with Java version specifications (8 template files)
+- **Documentation**: README files and badges showing Java version requirements (SDK, services, root-level docs)
 - **Test Suites**: Automated test collections that validate SDK functionality and service behavior
 
 ## Success Criteria *(mandatory)*

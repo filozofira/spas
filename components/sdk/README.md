@@ -52,7 +52,7 @@ SPAS services follow **domain-agnostic design** to maximize reusability across d
 > 📝 **Description Clarity**  
 > Write capability-focused descriptions that enable AI semantic matching across domains.  
 > ✅ "Reserves specified item quantities for a transaction" ❌ "Reserves product stock for an order"  
-> 📖 [Metadata Descriptions](../../specs/017-metadata-descriptions/spec.md)
+> 📖 [Service Contract Principles](../../principles/service/04-service-contract.md#description-writing-for-metadata)
 
 **When to apply:** Utility services (inventory, fulfillment, notifications) SHOULD be domain-agnostic. Domain services (order-service, subscription-service) own their context and use domain-specific identifiers internally.
 

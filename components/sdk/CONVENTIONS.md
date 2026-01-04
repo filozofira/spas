@@ -79,7 +79,7 @@ Descriptions are **optional** but strongly recommended for AI-assisted choreogra
 - `"Does stuff"` (too vague)
 - `"Creates an order (maybe)"` (ambiguous)
 
-See [specs/017-metadata-descriptions](../../specs/017-metadata-descriptions/) for full guidelines.
+See [Service Contract Principles - Description Writing](../../principles/service/04-service-contract.md#description-writing-for-metadata) for guidelines on domain-agnostic descriptions.
 
 ## Schema Version
 

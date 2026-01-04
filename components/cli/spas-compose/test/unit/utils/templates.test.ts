@@ -151,16 +151,16 @@ describe("generateAgentFile", () => {
       const content = generateAgentFile("./examples/ecommerce");
 
       // FR-009: Mermaid diagram in Propose phase (choreography/flowchart, not sequence)
-      // Now supports Simple Flow Template and Complex Flow Template
-      expect(content).toContain("**Simple Flow Template**");
-      expect(content).toContain("```mermaid");
+      // Now supports flow-based diagram approach
+      expect(content).toContain("**Diagram Template (Per Business Flow):**");
+      expect(content).toContain("` ` `mermaid"); // Template uses escaped backticks
       expect(content).toContain("flowchart LR");
       
       // Verify the diagram template is in Phase 2 section
       const phase2Start = content.indexOf("### Phase 2: Propose");
       const phase3Start = content.indexOf("### Phase 3: Generate");
-      const diagramTemplatePos = content.indexOf("**Simple Flow Template**");
-      const mermaidPos = content.indexOf("```mermaid", diagramTemplatePos); // Find mermaid after diagram template header
+      const diagramTemplatePos = content.indexOf("**Diagram Template (Per Business Flow):**");
+      const mermaidPos = content.indexOf("` ` `mermaid", diagramTemplatePos); // Find escaped mermaid after diagram template header
       
       expect(phase2Start).toBeGreaterThan(0);
       expect(phase3Start).toBeGreaterThan(phase2Start);
@@ -172,7 +172,7 @@ describe("generateAgentFile", () => {
     it("should instruct agent to display choreography steps in Phase 2", () => {
       const content = generateAgentFile("./examples/ecommerce");
 
-      expect(content).toContain("**Display Steps**: List all steps the choreography goes through");
+      expect(content).toContain("**Display Steps**: List all steps each flow goes through");
     });
 
     it("should contain Start node in diagram template (019-compose-diagram-flow)", () => {
@@ -197,7 +197,7 @@ describe("generateAgentFile", () => {
       const content = generateAgentFile("./examples/ecommerce");
 
       // FR-005: README update instruction
-      expect(content).toContain("MUST insert/update the choreography diagram in the domain README.md file");
+      expect(content).toContain("MUST insert/update all choreography diagrams in the domain README.md file");
       expect(content).toContain("(at top, after title)");
     });
 

@@ -231,14 +231,42 @@ curl http://localhost:8080/inventory/prod-006
 - `Models/Events/ProductUpdated.cs` - New event
 - `Models/Events/ProductRemoved.cs` - New event
 - `Validation/ProductValidator.cs` - New validation class
+- `Services/ProductCatalog.cs` - Removed seed data
 - `README.md` - Updated documentation
 
 ### Inventory Service
-- `Controllers/InventoryController.cs` - Added AddInventoryItem endpoint
-- `DTOs/AddInventoryItemRequest.cs` - New request DTO
-- `Events/InventoryItemAdded.cs` - New event
-- `Services/InventoryStore.cs` - Added AddItem method
+- `Controllers/InventoryController.cs` - Added AddInventoryItem endpoint, renamed ProductId → ItemId
+- `DTOs/AddInventoryItemRequest.cs` - New request DTO with ItemId
+- `DTOs/ReserveStockRequest.cs` - Renamed OrderItem → ReserveItem, ProductId → ItemId
+- `DTOs/ReleaseStockRequest.cs` - Renamed ProductId → ItemId
+- `Events/InventoryItemAdded.cs` - Renamed to InventoryItemAddedEvent, ItemId field
+- `Events/StockDepletedEvent.cs` - Renamed ProductId → ItemId
+- `Events/StockReleasedEvent.cs` - Renamed ProductId → ItemId in StockReleaseItem
+- `Models/InventoryItem.cs` - Renamed ProductId → ItemId
+- `Models/StockReservation.cs` - Renamed ProductId → ItemId
+- `Services/InventoryStore.cs` - Renamed ProductId → ItemId, removed seed data
 - `README.md` - Updated documentation
+
+### Domain Transformations (15 files updated)
+**Inbound to inventory-service (8 files):**
+- `basket-checkout/transformations/inventory-service/inbound-order-created.jsonata`
+- `equipment-rental/transformations/inventory-service/inbound-rental-requested.jsonata`
+- `equipment-rental/transformations/inventory-service/inbound-rental-returned.jsonata`
+- `order-fulfillment/transformations/inventory-service/inbound-order-created.jsonata`
+- `subscription-order/transformations/inventory-service/inbound-order-created.jsonata`
+- `basic-order/transformations/inventory-service/inbound-order-created.jsonata`
+
+**Outbound from inventory-service (7 files):**
+- `basket-checkout/transformations/order-service/inbound-stock-reserved.jsonata`
+- `basket-checkout/transformations/basket-service/inbound-stock-depleted.jsonata`
+- `basic-order/transformations/order-service/inbound-stock-reserved.jsonata`
+- `basic-order/transformations/order-service/inbound-stock-depleted.jsonata`
+- `subscription-order/transformations/order-service/inbound-stock-reserved.jsonata`
+- `order-fulfillment/transformations/order-service/inbound-stock-reserved.jsonata`
+- `order-fulfillment/transformations/order-service/inbound-stock-depleted.jsonata`
+
+### Agent Prompt Templates
+- `components/cli/spas-compose/src/templates/partials/workflow-phases.eta` - Enhanced Phase 1 and Phase 2 for flow-based choreography design
 
 ---
 
@@ -262,6 +290,58 @@ Instead of overloading reserve-stock, created dedicated `add-inventory-item` com
 ### 6. Domain-Agnostic Naming (ItemId vs ProductId)
 Chose `itemId` over `productId` for all inventory-service contracts. Rationale: Enables true cross-domain reusability (healthcare supplies, SaaS licenses, facility resources, corporate assets) without semantic confusion. Aligns with SPAS principle of domain-agnostic service design using neutral identifiers (same rationale as `referenceId` for correlation).
 
+### 7. Empty Catalogs by Default
+Removed seed data from both product-service and inventory-service. Rationale: Clean slate enables demonstrating choreography patterns (product-added → inventory-item-added) without pre-existing data interference. Services start empty and populate through API calls or event flows.
+
+---
+
+## Agent Prompt Enhancements
+
+### Flow-Based Choreography Design
+
+Enhanced `/spas.compose` agent prompt to identify and model independent business flows instead of monolithic choreographies.
+
+**Changes to `workflow-phases.eta`:**
+
+**Phase 1 (Analyze)** - Added flow identification:
+- Introduced "Identify Distinct Business Flows" step
+- Criteria for flow separation:
+  - Temporal Independence (can execute at different times)
+  - Actor/Trigger Difference (different initiators)
+  - Capability Cohesion (single business capability)
+  - Deployment Independence (separately versionable)
+  - Terminal Event Boundaries (natural flow endpoints)
+- Example flow groupings documented (basket-management, order-fulfillment, shipment-tracking)
+- Anti-patterns to avoid (mixing CRUD with business processes)
+
+**Phase 2 (Propose)** - Replaced complexity-based with flow-based diagrams:
+- **Before**: Simple (≤4 services) vs Complex (>4 services) criteria
+- **After**: One diagram per business flow identified in Phase 1
+- Flow naming convention: business capabilities (✅ `order-fulfillment`) NOT service names (❌ `basket-service-flow`)
+- Added YAML title frontmatter to diagrams for clarity
+- Updated choreography.yaml schema to show multiple independent flows
+- Flow participants can be 1+ services (supports terminal-only flows)
+
+**Benefits:**
+- **Better domain modeling**: Each flow = one business capability
+- **Independent deployment**: Flows can be versioned separately
+- **Clearer documentation**: Diagrams show specific use cases
+- **Improved reusability**: Other domains can adopt specific flows
+- **E2E testing alignment**: Tests map to business scenarios
+
+**Example decomposition:**
+```
+Before: 1 monolithic basket-checkout flow (10+ events)
+After:  4 independent flows
+  • basket-management (terminal events only)
+  • order-fulfillment (checkout → delivery)
+  • shipment-tracking (carrier updates)
+  • order-cancellation (compensating flow)
+```
+
+**Files Modified:**
+- `components/cli/spas-compose/src/templates/partials/workflow-phases.eta`
+
 ---
 
 ## Success Criteria Validation
@@ -269,9 +349,12 @@ Chose `itemId` over `productId` for all inventory-service contracts. Rationale: 
 ✅ **SC-001**: Product service supports Add/Update/Remove operations with proper HTTP semantics  
 ✅ **SC-002**: All operations emit corresponding events (product-added, product-updated, product-removed)  
 ✅ **SC-003**: Validation enforces business rules before persisting changes  
-✅ **SC-004**: Inventory service can initialize tracking for new products  
+✅ **SC-004**: Inventory service can initialize tracking for new items (ItemId)  
 ✅ **SC-005**: Both event-driven and direct invocation patterns supported  
 ✅ **SC-006**: Metadata archives updated with new commands/events  
+✅ **SC-007**: Domain-agnostic refactoring (ProductId → ItemId) applied across 22 files  
+✅ **SC-008**: Agent prompt enhanced for flow-based choreography design  
+✅ **SC-009**: Seed data removed from both services for clean demonstration  
 
 ---
 
@@ -301,6 +384,9 @@ Chose `itemId` over `productId` for all inventory-service contracts. Rationale: 
 3. **Reusability**: Same endpoint works for both event-driven and command-driven patterns
 4. **Event-First**: Publishing events for all state changes enables flexible choreography options
 5. **Domain-Agnostic Design**: Entity identifier names matter just as much as correlation identifiers. Using `itemId` instead of `productId` enables inventory-service to participate in healthcare, licensing, facilities, and corporate domains—not just commerce. This design decision multiplies service reusability by 10x.
+6. **Flow-Based Modeling**: Separating independent business capabilities into distinct flows (instead of monolithic choreographies) improves clarity, testability, and independent deployment. The agent now identifies temporal independence, actor differences, and terminal event boundaries to decompose complex domains into cohesive flows.
+7. **Event Naming Consistency**: Applying `Event` suffix consistently (InventoryItemAddedEvent) improves code discoverability and aligns with existing patterns (StockDepletedEvent, StockReservedEvent).
+8. **Clean Slate Services**: Removing seed data enables demonstrating event-driven patterns (product-added → inventory-item-added) without pre-existing state interference.
 
 ---
 

@@ -57,10 +57,10 @@ Quality assurance teams and developers can verify that all automated tests pass 
 
 ### Edge Cases
 
-- What happens when existing code uses Java 21-specific APIs that are deprecated or removed in Java 25?
-- How does the system handle compatibility with third-party dependencies that may not yet support Java 25?
-- What occurs if continuous integration builds are still configured for Java 21?
-- How are IDE configurations and developer workstation environments updated to support Java 25?
+- What happens when existing code uses Java 21-specific APIs that are deprecated or removed in Java 25? (Production code should be refactored to use Java 25 compatible alternatives)
+- How does the system handle compatibility with third-party dependencies that may not yet support Java 25? (Use latest versions and document any warnings)
+- How are IDE configurations and developer workstation environments updated to support Java 25? (Documentation should guide developers through Java 25 JDK installation)
+- When tests fail after upgrade, how is root cause determined? (Prioritize fixing production code for Java 25 compatibility over updating tests)
 
 ## Requirements *(mandatory)*
 
@@ -74,8 +74,13 @@ Quality assurance teams and developers can verify that all automated tests pass 
 - **FR-006**: All Maven build configurations MUST specify Java 25 as the source and target version
 - **FR-007**: All Spring Boot integration features MUST work correctly with Java 25 LTS runtime
 - **FR-008**: SDK MUST maintain backward compatibility with services expecting standard Java features (no breaking API changes)
-- **FR-009**: All dependency versions MUST be compatible with Java 25 LTS
+- **FR-009**: All dependency versions MUST be compatible with Java 25 LTS, using the latest available versions from each library
 - **FR-010**: SDK examples within the SDK package MUST build and run successfully with Java 25
+- **FR-011**: Build documentation MUST clearly document any known compatibility warnings or issues with third-party dependencies on Java 25
+- **FR-012**: All Java version configurations MUST specify Java 25 exclusively, with no backward compatibility to Java 21
+- **FR-013**: Dependencies MAY be upgraded to next major versions if required for Java 25 compatibility, with changes documented
+- **FR-014**: All Dockerfiles MUST be updated to use Java 25 base images
+- **FR-015**: Production code MUST be adapted to ensure Java 25 compatibility when test failures occur, with test updates only when testing implementation details that legitimately changed
 
 ### Key Entities
 
@@ -100,7 +105,7 @@ This feature primarily involves configuration changes rather than data entities.
 ## Assumptions
 
 - Java 25 LTS has been officially released and is stable for production use
-- All current third-party dependencies (Jackson, Spring Boot, JUnit, Mockito) have versions compatible with Java 25
+- Latest versions of third-party dependencies (Jackson, Spring Boot, JUnit, Mockito) are used even if they show minor compatibility warnings, with issues documented
 - Development teams have access to Java 25 JDK installations
 - Continuous integration systems can be updated to use Java 25 runtime
 - Container base images with Java 25 are available (for Docker deployments)
@@ -123,8 +128,19 @@ This feature primarily involves configuration changes rather than data entities.
 - Performance optimization specific to Java 25 features (focus is compatibility, not optimization)
 - Adoption of new Java 25 language features or APIs (this is a version upgrade only)
 - Refactoring existing code to leverage Java 25 improvements
-- Updating documentation beyond version number changes
+- Updating documentation beyond version number changes and dependency upgrade notes
 - Migration of .NET SDK or other non-Java components
 - Changes to service functionality or business logic
-- Infrastructure deployment changes beyond runtime version updates
 - Training materials or workshops about Java 25 features
+- Maintaining backward compatibility with Java 21 (clean cut-over to Java 25 only)
+- Comprehensive testing of new features introduced by dependency major version upgrades (focus is on Java 25 compatibility, not new dependency features)
+
+## Clarifications
+
+### Session 2026-01-04
+
+- Q: When third-party dependencies (Spring Boot, Jackson, etc.) don't yet have Java 25-compatible versions, what should be the approach? → A: Use latest available versions and document any known compatibility issues or warnings
+- Q: Should the upgrade maintain compatibility with Java 21, allowing developers to build with either version, or require Java 25 exclusively? → A: Require Java 25 exclusively - drop Java 21 support completely
+- Q: If a specific dependency version doesn't exist for Java 25, should you upgrade to the next major version of that dependency, or stay on the current version and accept potential warnings? → A: Upgrade to next version
+- Q: Should container images (Dockerfiles) for services be updated as part of this upgrade, or is that deferred to a separate task? → A: Update Dockerfiles as part of this upgrade to use Java 25 base images
+- Q: When a test fails after the Java 25 upgrade, should the focus be on fixing the code to work with Java 25, or investigating whether the test itself needs updating? → A: Prioritize fixing the production code to work with Java 25

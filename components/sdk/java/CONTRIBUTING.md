@@ -4,7 +4,7 @@ Guide for developers working on the Java SDK itself (not for service developers 
 
 ## Prerequisites
 
-- Java 21+ (JDK)
+- Java 25+ (JDK)
 - Maven 3.8+
 - Git
 - IDE with Java support (IntelliJ IDEA, Eclipse, VS Code with Java extensions)
@@ -224,7 +224,7 @@ Follow [Google Java Style Guide](https://google.github.io/styleguide/javaguide.h
 - 100 character line limit
 - Use `Optional<T>` for nullable return values
 - Prefer immutability (final fields, unmodifiable collections)
-- Use records for data transfer objects (Java 21+)
+- Use records for data transfer objects (Java 25+)
 
 ## References
 

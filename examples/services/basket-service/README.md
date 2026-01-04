@@ -23,7 +23,7 @@ This service manages shopping baskets for customers, handling item additions/rem
 
 ### Prerequisites
 
-- Java 21+
+- Java 25+
 - Maven 3.8+
 - Docker (for containerized deployment)
 

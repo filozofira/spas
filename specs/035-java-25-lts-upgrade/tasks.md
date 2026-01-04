@@ -264,33 +264,33 @@
 
 #### SDK Documentation
 
-- [ ] T093 [P] [US6] Update badge from `Java-21+-orange` to `Java-25+-orange` in components/sdk/java/README.md
-- [ ] T094 [P] [US6] Update prerequisites section to mention Java 25+ in components/sdk/java/README.md
-- [ ] T095 [P] [US6] Update Java version requirements in components/sdk/java/CONTRIBUTING.md
+- [X] T093 [P] [US6] Update badge from `Java-21+-orange` to `Java-25+-orange` in components/sdk/java/README.md
+- [X] T094 [P] [US6] Update prerequisites section to mention Java 25+ in components/sdk/java/README.md
+- [X] T095 [P] [US6] Update Java version requirements in components/sdk/java/CONTRIBUTING.md
 
 #### Service Documentation
 
-- [ ] T096 [P] [US6] Update prerequisites "Java 21+" to "Java 25+" in examples/services/basket-service/README.md
-- [ ] T097 [P] [US6] Update prerequisites "Java 21+" to "Java 25+" in examples/services/fulfillment-service/README.md
-- [ ] T098 [P] [US6] Check and update Java version mentions in examples/services/rental-service/README.md
-- [ ] T099 [P] [US6] Check and update Java version mentions in examples/services/inventory-service/README.md
-- [ ] T100 [P] [US6] Check and update Java version mentions in examples/services/order-service/README.md
-- [ ] T101 [P] [US6] Check and update Java version mentions in examples/services/product-service/README.md
-- [ ] T102 [P] [US6] Check and update Java version mentions in examples/services/subscription-service/README.md
+- [X] T096 [P] [US6] Update prerequisites "Java 21+" to "Java 25+" in examples/services/basket-service/README.md
+- [X] T097 [P] [US6] Update prerequisites "Java 21+" to "Java 25+" in examples/services/fulfillment-service/README.md
+- [X] T098 [P] [US6] Check and update Java version mentions in examples/services/rental-service/README.md
+- [X] T099 [P] [US6] Check and update Java version mentions in examples/services/inventory-service/README.md
+- [X] T100 [P] [US6] Check and update Java version mentions in examples/services/order-service/README.md
+- [X] T101 [P] [US6] Check and update Java version mentions in examples/services/product-service/README.md
+- [X] T102 [P] [US6] Check and update Java version mentions in examples/services/subscription-service/README.md
 
 #### Root-Level Documentation
 
-- [ ] T103 [P] [US6] Check README.md in repository root for Java version mentions and update if found
-- [ ] T104 [P] [US6] Check components/sdk/README.md for Java version mentions and update if found
-- [ ] T105 [P] [US6] Check examples/README.md for Java version mentions and update if found
+- [X] T103 [P] [US6] Check README.md in repository root for Java version mentions and update if found
+- [X] T104 [P] [US6] Check components/sdk/README.md for Java version mentions and update if found
+- [X] T105 [P] [US6] Check examples/README.md for Java version mentions and update if found
 
 #### Documentation Validation
 
-- [ ] T106 [US6] Search codebase for "Java 21" references with `grep -r "Java 21" --include="*.md" --exclude-dir="specs" .`
-- [ ] T107 [US6] Search codebase for "JDK 21" references with `grep -r "JDK 21" --include="*.md" --exclude-dir="specs" .`
-- [ ] T108 [US6] Verify no Java 21 references remain in current docs (specs/001-034 excluded per FR-016)
+- [X] T106 [US6] Search codebase for "Java 21" references with `grep -r "Java 21" --include="*.md" --exclude-dir="specs" .`
+- [X] T107 [US6] Search codebase for "JDK 21" references with `grep -r "JDK 21" --include="*.md" --exclude-dir="specs" .`
+- [X] T108 [US6] Verify no Java 21 references remain in current docs (specs/001-034 excluded per FR-016)
 
-**Checkpoint**: All current documentation reflects Java 25+, no outdated references
+**Checkpoint**: ✅ All current documentation reflects Java 25+, no outdated references (only specs/031 and specs/035 contain historical/contextual Java 21 mentions)
 
 ---
 

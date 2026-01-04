@@ -1,8 +1,8 @@
 # SPAS Agent Instructions (GitHub Copilot)
 
-**Last Updated**: 2026-01-03  
-**Current Branch**: `031-java-21-upgrade`  
-**Current Feature**: Feature 031 Complete - Java 21 Upgrade
+**Last Updated**: 2026-01-04  
+**Current Branch**: `035-java-25-lts-upgrade`  
+**Current Feature**: Feature 035 Complete - Java 25 LTS Upgrade
 
 ---
 
@@ -11,7 +11,7 @@
 **What is SPAS?**  
 Service Pattern Architecture System - A framework for building event-driven microservices with standardized metadata, sidecar-based event publishing, and composition tooling.
 
-**Recent Completion**: Feature 031 - Java 21 Upgrade ✅ COMPLETE (2026-01-03)
+**Recent Completion**: Feature 035 - Java 25 LTS Upgrade ✅ COMPLETE (2026-01-04)
 
 **Critical Testing Pattern**:
 - ⚠️ Agent builds code (`dotnet build`, `npm run build`)
@@ -119,7 +119,7 @@ dotnet run -- --generate-metadata --output ./metadata
 **Documentation**: `specs/016-java-spas-sdk/`
 
 **Technology**:
-- Java 21+ (Spring Boot 3.x integration)
+- Java 25+ (Spring Boot 3.x integration)
 - Jackson (JSON serialization)
 - Maven build system
 
@@ -313,7 +313,7 @@ cd examples/services
 
 ### Languages & Frameworks
 - C# / .NET 10.0, ASP.NET Core (Minimal APIs + MVC Controllers)
-- Java 21+, Spring Boot 3.x
+- Java 25+, Spring Boot 3.x
 - TypeScript 5.3+, Node.js 20 LTS
 
 ### Testing
@@ -346,9 +346,9 @@ cd examples/services
 
 ### Understand Current Feature
 
-1. Read `specs/031-java-21-upgrade/spec.md`
-2. Read `specs/031-java-21-upgrade/plan.md`
-3. Read `specs/031-java-21-upgrade/COMPLETION.md`
+1. Read `specs/035-java-25-lts-upgrade/spec.md`
+2. Read `specs/035-java-25-lts-upgrade/plan.md`
+3. Read `specs/035-java-25-lts-upgrade/tasks.md`
 4. Review SDK CONVENTIONS: `components/sdk/CONVENTIONS.md`
 
 ### Build & Validate
@@ -388,8 +388,8 @@ npm install && npm run build
 - **Constitution**: `.specify/memory/constitution.md` (v1.0.5)
 - **Architecture**: `principles/02-architecture-overview.md`
 - **SDK Principles**: `principles/component/12-sdk.md`
-- **Current Feature**: `specs/031-java-21-upgrade/`
-- **All Specs**: `specs/` (001 through 031)
+- **Current Feature**: `specs/035-java-25-lts-upgrade/`
+- **All Specs**: `specs/` (001 through 035)
 - **Decisions**: `principles/appendix/28-decision-log.md`
 
 ---

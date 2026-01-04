@@ -14,5 +14,3 @@ This component is infrastructure. In most workflows it is started and configured
 ## For Contributors
 
 See [CONTRIBUTING.md](./CONTRIBUTING.md).
-
-

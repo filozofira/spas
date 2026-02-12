@@ -2,6 +2,9 @@
 
 These SPAS-compliant example services are used to demonstrate choreography across domains.
 
+> [!IMPORTANT]
+> **Disclaimer:** The services in this directory are designed solely to demonstrate SPAS principles and concepts. Their structure prioritizes transparency and educational clarity over production-readiness. These examples should not be considered best practices for service design, architecture, or implementation patterns in real-world applications.
+
 ## PowerShell Scripts
 
 Use the helper scripts in this folder to build images (optional), generate service metadata archives offline, and publish them to the SPAS Repository.
